@@ -10,7 +10,7 @@ The goal of this project is the easy creation of W3C Thing Description instances
 * Adoptable: ediTDor tool is designed in such a way that it can easily be reused in existing frameworks 
 
 ## Technologies
-<tbd>
+\<tbd\>
 
 ## Contribution guide
 Any contribution to this project is welcome. If you want to report a bug or have a question, please check the [issue list](https://github.com/Web-of-Things/ediTDor/issues) or create a new issue. If you want to contribute to this project by coding, please follow the general contribution guidelines as described [here](https://github.com/firstcontributions/first-contributions/blob/master/README.md). Many thanks. 
