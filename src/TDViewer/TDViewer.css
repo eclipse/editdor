@@ -1,7 +1,14 @@
 .metaData {
     border: 1px solid black;
+    margin: 1rem;
+    padding: 1rem;
 }
 
 .TDViewer {
     border: 1px solid black;
+    max-width: 50rem;
+}
+
+.listContainer {
+    margin: 1rem;
 }

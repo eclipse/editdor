@@ -23,10 +23,10 @@ class App extends React.Component {
                                onKeyPress={(event) => this.runScript(event)}
                                required/>
                     </div>
-                    <TDViewer td={this.state.td} />
+                    {this.state.td && <TDViewer td={this.state.td} /> }
                 </main>
                 <footer>
-                    <p>A tool for viewing and editing </p>
+                    <p>A tool for viewing and editing your great ThingDescription</p>
                 </footer>
             </div>
         );
@@ -62,6 +62,7 @@ class App extends React.Component {
         try {
             let res = await fetch(url);
             let td = await res.json()
+            console.log('loaded TD', td);
             this.setState({td})
         } catch (e) {
             alert('Sorry we were not able to load the TD. Please check the URL.')
