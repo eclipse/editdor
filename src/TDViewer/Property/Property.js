@@ -1,7 +1,9 @@
 import React from "react";
 import './Property.css'
 
+
 class Property extends React.Component {
+
 
     findOperations() {
         let ops = this.props.prop.forms.map(form => {
@@ -12,49 +14,11 @@ class Property extends React.Component {
     }
 
     async writeProp(e) {
-        const writeForm = this.props.prop.forms.find(form => {
-            if (form.op.indexOf('writeproperty')) {
-                return false;
-            } else {
-                return true;
-            }
-        });
-        console.log(writeForm)
-        const data = {value: document.getElementById(this.props.propName + 'write').value}
-        try {
-            console.log(writeForm['htv:methodName']);
-            const res = await fetch(this.props.base + writeForm.href, {
-                    method: writeForm['htv:methodName'],
-                    cache: 'no-cache',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                }
-            );
-            const resTemp = await res.json();
-            console.log(resTemp);
-        } catch (e) {
-            console.log(e);
-            alert('while writing the value an error ocurred');
-        }
-
-
+        await this.props.wot.writeProperty(this.props.propName, document.getElementById(this.props.propName + "write").value)
     }
 
     async readProp(e) {
-        const readForm = this.props.prop.forms.find(form => {
-            if (form.op.indexOf('readproperty')) {
-                return false;
-            } else {
-                return true;
-            }
-        })
-
-        const res = await fetch(this.props.base + readForm.href);
-        const resJSON = await res.json();
-        document.getElementById(this.props.propName + 'propertyLog').value = JSON.stringify(resJSON)
-
+        document.getElementById(this.props.propName + "propertyLog").value = JSON.stringify(await this.props.wot.readProperty(this.props.propName));
     }
 
     render() {
@@ -62,32 +26,49 @@ class Property extends React.Component {
 
         const labels = this.findOperations().toString()
 
+        const writeContainer = () => {
+            if (labels.indexOf('writeproperty') !== -1) {
+                return (<div className="container">
+                    <label htmlFor="write">
+                        Write:
+                    </label>
+                    <input type={this.props.prop.type} id={this.props.propName + "write"} className="writeInput"/>
+                    <button onClick={event => this.writeProp(event)}>write</button>
+                </div>)
+            }
+        }
+
         return (
             <div>
                 <details className="title">
                     <summary>{this.props.propName} {labels}</summary>
                     <div className="propertyContainer">
                         {property.title && <p>Title: {property.title}</p>}
-                        <div className="container">
-                            <label htmlFor="write">
-                                Write:
-                            </label>
-                            <input type="text" id={this.props.propName + "write"}/>
-                            <button onClick={event => this.writeProp(event)}>write</button>
-                        </div>
+                        {writeContainer()}
                         <div className="container">
                             <button onClick={event => this.readProp(event)}>read</button>
-                            <button>observe</button>
-                            <button>unobserve</button>
+                            <button onClick={event => this.observeProp(event)}>observe</button>
+                            <button onClick={event => this.unobserveProp(event)}>unobserve</button>
                         </div>
                         <div className="container">
-                            <textarea name="propertyLog" id={this.props.propName + "propertyLog"} cols="30" rows="10"
-                                      placeholder="this is the log and will be filled when you press a button"/>
+                            <textarea disabled name="propertyLog" id={this.props.propName + "propertyLog"} cols="30" rows="10"
+                                      placeholder="this is the log and will be filled when you press a button"
+                                      className="logArea"/>
                         </div>
                     </div>
                 </details>
             </div>
         )
+    }
+
+    async observeProp(event) {
+        await this.props.wot.observeProperty(this.props.propName, (res) => {
+            document.getElementById(this.props.propName + "propertyLog").value += JSON.stringify(res);
+        });
+    }
+
+    async unobserveProp(event) {
+        await this.props.wot.unobserveProperty(this.props.propName);
     }
 }
 

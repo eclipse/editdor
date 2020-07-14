@@ -11,7 +11,7 @@ class TDViewer extends React.Component {
         let properties;
         if (this.props.td.properties) {
             properties = Object.keys(this.props.td.properties).map((key, index) => {
-                return (<Property base={this.props.td.base} prop={this.props.td.properties[key]} propName={key} key={index}/>);
+                return (<Property wot={this.props.wot} base={this.props.td.base} prop={this.props.td.properties[key]} propName={key} key={index}/>);
             });
         }
         let actions;
@@ -30,10 +30,6 @@ class TDViewer extends React.Component {
         let metaData;
         //Needs to be parsed in a sufficient way.
         metaData = this.props.td;
-        delete metaData['properties'];
-        delete metaData['actions'];
-        delete metaData['events'];
-
 
         if (this.props.td) {
             return (

@@ -2,10 +2,18 @@
     border: 1px solid black;
     border-radius: 1rem;
     padding: 1rem;
+    margin: 0.4rem;
+}
+
+.logArea {
+    width: 100%;
+}
+
+.writeInput {
+    width: 70%;
 }
 
 .propertyContainer {
-    margin: 0.4rem;
     display: -ms-flexbox;
     display: -webkit-flex;
     display: flex;

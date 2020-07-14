@@ -1,8 +1,11 @@
 import React from 'react';
 import './App.css';
 import TDViewer from './TDViewer/TDViewer'
+import WoTLibrary from "./WoTLibrary";
 
 class App extends React.Component {
+    WOT = new WoTLibrary();
+
     constructor(props) {
         super(props)
         this.state = {td: ''}
@@ -23,7 +26,7 @@ class App extends React.Component {
                                onKeyPress={(event) => this.runScript(event)}
                                required/>
                     </div>
-                    {this.state.td && <TDViewer td={this.state.td} /> }
+                    {this.state.td && <TDViewer td={this.state.td} wot={this.WOT} /> }
                 </main>
                 <footer>
                     <p>A tool for viewing and editing your great ThingDescription</p>
@@ -58,12 +61,16 @@ class App extends React.Component {
     }
 
     async loadTDFromURL(url) {
-        //TODO: check if it is a list
         try {
             let res = await fetch(url);
             let td = await res.json()
-            console.log('loaded TD', td);
+            if(this.validateTD(td)) {
             this.setState({td})
+            this.WOT.consumeTD(td);
+            }else {
+                //TODO: check if it is a list
+                //Else: Show error.
+            }
         } catch (e) {
             alert('Sorry we were not able to load the TD. Please check the URL.')
             console.log(e);
@@ -73,6 +80,10 @@ class App extends React.Component {
     }
 
 
+    validateTD(td) {
+        //https://www.w3.org/TR/wot-scripting-api/#validating-a-thing-description
+        return true;
+    }
 }
 
 export default App;
