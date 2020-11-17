@@ -5,6 +5,9 @@
 /.pnp
 .pnp.js
 
+*/.vscode
+.vscode/
+
 # testing
 /coverage
 
@@ -18,6 +21,11 @@
 .env.test.local
 .env.production.local
 
+.idea
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+yarn.lock
+package-lock.json
