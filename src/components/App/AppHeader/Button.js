@@ -11,22 +11,28 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom'; 
-import './assets/main.css'
-import './index.css'
-import App from './components/App/App';
-// import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-
-//No PWA at the moment.
-// serviceWorker.unregister();
+export default function Button(props) {
+    return (
+        <div
+            onClick={props.onClick}
+            className="
+                flex
+                bg-blue-400                 
+                hover:bg-blue-300 
+                text-white 
+                font-bold 
+                py-2 px-5 
+                rounded 
+                w-32 
+                h-12
+                text-center 
+                cursor-pointer
+                justify-center
+            ">
+            <div className="place-self-center">
+                {props.children}
+            </div>
+        </div>
+    );
+}
