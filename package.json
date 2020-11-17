@@ -89,7 +89,6 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "/editdorclone/",
   "devDependencies": {
     "autoprefixer": "^10.0.1",
     "postcss-cli": "^8.2.0",
