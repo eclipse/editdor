@@ -4,13 +4,13 @@ A tool for simply designing W3C Thing Descriptions and Thing Models
 
 ## About this project
 
-The goal of this project is the easy creation of W3C Thing Description instances and Thing Models by providing a platform independent ediTDor tool. The following features will be addressed in this project:
+The goal of this project is the easy creation of W3C Thing Description instances and Thing Models by providing a platform independent ediTDor tool. The following features will be addressed in this project
 
-    - Creating a new Thing Description / Thing Model from scratch
-    - Rendering a Thing Description / Thing Model
-    - Editing the Thing Description / Thing Model
-    - Validating the Thing Description / Thing Model
-    - Exporting the Thing Description / Thing Model from the visual representation into JSON-LD
+- Creating a new Thing Description / ThingModel from scratch
+- Rendering a Thing Description / Thing Model
+- Editing the Thing Description / Thing Model
+- Validating the Thing Description / ThingModel
+- Exporting the Thing Description / ThingModel from the visual representation intoJSON-LD
 
 ## Technologies
 - React
