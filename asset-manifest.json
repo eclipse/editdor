@@ -1,0 +1,34 @@
+{
+  "files": {
+    "main.css": "/editdor/static/css/main.4ee0d73f.chunk.css",
+    "main.js": "/editdor/static/js/main.490d9c47.chunk.js",
+    "main.js.map": "/editdor/static/js/main.490d9c47.chunk.js.map",
+    "runtime-main.js": "/editdor/static/js/runtime-main.32deac05.js",
+    "runtime-main.js.map": "/editdor/static/js/runtime-main.32deac05.js.map",
+    "static/css/2.8b246669.chunk.css": "/editdor/static/css/2.8b246669.chunk.css",
+    "static/js/2.e158c2f2.chunk.js": "/editdor/static/js/2.e158c2f2.chunk.js",
+    "static/js/2.e158c2f2.chunk.js.map": "/editdor/static/js/2.e158c2f2.chunk.js.map",
+    "static/js/3.5ee1c199.chunk.js": "/editdor/static/js/3.5ee1c199.chunk.js",
+    "static/js/3.5ee1c199.chunk.js.map": "/editdor/static/js/3.5ee1c199.chunk.js.map",
+    "editor.worker.js": "/editdor/editor.worker.js",
+    "editor.worker.js.map": "/editdor/editor.worker.js.map",
+    "index.html": "/editdor/index.html",
+    "json.worker.js": "/editdor/json.worker.js",
+    "json.worker.js.map": "/editdor/json.worker.js.map",
+    "precache-manifest.f00fc22e703c5350e0d89d9ae33b2fd1.js": "/editdor/precache-manifest.f00fc22e703c5350e0d89d9ae33b2fd1.js",
+    "service-worker.js": "/editdor/service-worker.js",
+    "static/css/2.8b246669.chunk.css.map": "/editdor/static/css/2.8b246669.chunk.css.map",
+    "static/css/main.4ee0d73f.chunk.css.map": "/editdor/static/css/main.4ee0d73f.chunk.css.map",
+    "static/js/2.e158c2f2.chunk.js.LICENSE.txt": "/editdor/static/js/2.e158c2f2.chunk.js.LICENSE.txt",
+    "static/media/WoT.png": "/editdor/static/media/WoT.89768410.png",
+    "static/media/codicon.css": "/editdor/static/media/codicon.22349029.ttf",
+    "static/media/editdor.png": "/editdor/static/media/editdor.6cac600d.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.32deac05.js",
+    "static/css/2.8b246669.chunk.css",
+    "static/js/2.e158c2f2.chunk.js",
+    "static/css/main.4ee0d73f.chunk.css",
+    "static/js/main.490d9c47.chunk.js"
+  ]
+}
