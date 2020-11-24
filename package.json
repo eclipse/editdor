@@ -60,7 +60,6 @@
     "style-loader": "0.23.1",
     "sweetalert2": "^10.9.1",
     "tailwindcss": "^1.9.6",
-    "terser-webpack-plugin": "2.3.5",
     "ts-pnp": "1.1.6",
     "url-loader": "2.3.0",
     "webpack": "4.42.0",
@@ -92,7 +91,8 @@
   "devDependencies": {
     "autoprefixer": "^10.0.1",
     "postcss-cli": "^8.2.0",
-    "react-test-renderer": "^16.13.1"
+    "react-test-renderer": "^16.13.1",
+    "terser-webpack-plugin": "^4.2.3"
   },
   "jest": {
     "roots": [
