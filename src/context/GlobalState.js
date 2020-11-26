@@ -13,40 +13,50 @@
 import React, { useReducer } from 'react';
 
 import EdiTDorContext from './ediTDorContext';
-import { editdorReducer, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD } from './editorReducers';
+import { editdorReducer, REMOVE_FORM_FROM_TD, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_FORM_FROM_TD } from './editorReducers';
 
 
 const GlobalState = props => {
-    const [editdorState, dispatch] = useReducer(editdorReducer, { offlineTD: '', theme: 'dark' });
-  
-    const updateOfflineTD = offlineTD => {
-          dispatch({ type: UPDATE_OFFLINE_TD, offlineTD: offlineTD });
-    };
+  const [editdorState, dispatch] = useReducer(editdorReducer, { offlineTD: '', theme: 'dark' });
 
-    const updateIsModified = isModified => {
-          dispatch({ type: UPDATE_IS_MODFIED, isModified: isModified });
-    };
-
-    const setFileHandleMethod = fileHandle => {
-        dispatch({ type: SET_FILE_HANDLE, fileHandle: fileHandle });
-    };
-
-    return (
-      <EdiTDorContext.Provider
-        value={{
-          offlineTD: editdorState.offlineTD,
-          theme: editdorState.theme,
-          isModified: editdorState.isModified,
-          name: editdorState.name,
-          fileHandle: editdorState.fileHandle,
-          updateOfflineTD: updateOfflineTD,
-          updateIsModified: updateIsModified,
-          setFileHandle: setFileHandleMethod
-        }}
-      >
-        {props.children}
-      </EdiTDorContext.Provider>
-    );
+  const updateOfflineTD = offlineTD => {
+    dispatch({ type: UPDATE_OFFLINE_TD, offlineTD: offlineTD });
   };
-  
-  export default GlobalState;
+
+  const updateIsModified = isModified => {
+    dispatch({ type: UPDATE_IS_MODFIED, isModified: isModified });
+  };
+
+  const setFileHandleMethod = fileHandle => {
+    dispatch({ type: SET_FILE_HANDLE, fileHandle: fileHandle });
+  };
+
+  const removeForm = form => {
+    dispatch({ type: REMOVE_FORM_FROM_TD, form: form });
+  };
+
+  const addForm = form => {
+    dispatch({ type: ADD_FORM_FROM_TD, form: form });
+  };
+
+  return (
+    <EdiTDorContext.Provider
+      value={{
+        offlineTD: editdorState.offlineTD,
+        theme: editdorState.theme,
+        isModified: editdorState.isModified,
+        name: editdorState.name,
+        fileHandle: editdorState.fileHandle,
+        updateOfflineTD: updateOfflineTD,
+        updateIsModified: updateIsModified,
+        setFileHandle: setFileHandleMethod,
+        removeForm: removeForm,
+        addForm: addForm
+      }}
+    >
+      {props.children}
+    </EdiTDorContext.Provider>
+  );
+};
+
+export default GlobalState;

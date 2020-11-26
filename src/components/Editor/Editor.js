@@ -10,9 +10,11 @@
  * 
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import ediTDorContext from '../../context/ediTDorContext';
+
+const mapping = require('../../assets/mapping.json')
 
 const tdSchema = {
   fileMatch: ["*/*"],
@@ -26,8 +28,11 @@ const editorOptions = {
   lineDecorationsWidth: 20
 };
 
-const JSONEditorComponent = () => {
+const JSONEditorComponent = (props) => {
   const context = useContext(ediTDorContext);
+  const [schemas] = useState([]);
+  const [proxy, setProxy] = useState(undefined);
+
 
   const editorWillMount = (monaco) => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
@@ -35,19 +40,146 @@ const JSONEditorComponent = () => {
       enableSchemaRequest: true,
       schemas: [tdSchema]
     });
+    if (!("Proxy" in window)) {
+      console.warn("Your browser doesn't support Proxies.");
+      return;
+    }
+
+    let proxy = new Proxy(schemas, {
+      set: function (target, property, value, _) {
+        target[property] = value;
+
+        let jsonSchemaObjects = [tdSchema];
+        for (let i = 0; i < target.length; i++) {
+          jsonSchemaObjects.push(
+            {
+              fileMatch: ["*/*"],
+              uri: target[i]
+            }
+          );
+        }
+
+        monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+          validate: true,
+          enableSchemaRequest: true,
+          schemas: jsonSchemaObjects
+        });
+        console.log('schema', jsonSchemaObjects)
+
+        return true;
+
+      },
+    });
+    setProxy(proxy);
   }
 
   const editorDidMount = (editor, monaco) => {
     editor.onDidChangeModelDecorations(() => {
       const model = editor.getModel();
-
+      console.log('updateLineNumber')
+      editor.setSelection(new monaco.Selection(0, 0, 0, 0))
       if (model === null || model.getModeId() !== "json")
         return;
     });
   }
 
+  const addSchema = (val) => {
+    if (proxy.includes(val)) {
+      return;
+    }
+    proxy.push(val);
+  }
+
+  const removeSchema = (val) => {
+    const index = proxy.indexOf(val);
+    if (index === -1) {
+      return;
+    }
+    proxy.splice(index, 1);
+  }
+
+  const emptySchemas = () => {
+    proxy.splice(0, this.state.proxy.length);
+  }
+
+  const fetchSchema = async (target) => {
+    if (proxy.includes(target)) {
+      return;
+    }
+
+    try {
+      const url = new URL(target);
+      const res = await fetch(url);
+
+      const schema = await res.json();
+      return schema;
+
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+
+
   const onChange = async (editorText, _) => {
-    context.updateOfflineTD(editorText)
+    try {
+      const json = JSON.parse(editorText);
+      if (!('@context' in json)) {
+        emptySchemas();
+        return;
+      }
+
+      const atContext = json["@context"];
+
+      // handle if @context is a string
+      if (typeof atContext === 'string') {
+        if (mapping[atContext] !== undefined) {
+          const schema = await fetchSchema(atContext);
+          if (schema) {
+            addSchema(atContext);
+          } else {
+            emptySchemas();
+          }
+          return;
+        }
+      }
+
+      // handle if @context is an array
+      if (Array.isArray(atContext)) {
+        for (let i = 0; i < atContext.length; i++) {
+          if (typeof atContext[i] === 'string') {
+            if (mapping[atContext] !== undefined) {
+              const schema = await fetchSchema(atContext[i]);
+              if (schema) {
+                addSchema(atContext[i]);
+              }
+            }
+          }
+          if (typeof atContext[i] === 'object') {
+            Object.keys(atContext[i]).forEach(async contextKey => {
+              if (mapping[atContext[i][contextKey]] !== undefined) {
+                const schema = await fetchSchema(mapping[atContext[i][contextKey]]);
+                if (schema) {
+                  addSchema(mapping[atContext[i][contextKey]]);
+                }
+              }
+            })
+          }
+        }
+      }
+      // remove deleted schemas
+      if (Array.isArray(atContext)) {
+        for (let i = 0; i < proxy.length; i++) {
+          const x = Object.keys(mapping).find(key => mapping[key] === proxy[i])
+          if (!atContext.includes(x)) {
+            console.log("remove schema ", x);
+            removeSchema(proxy[i]);
+          }
+        }
+      }
+    } finally {
+      context.updateOfflineTD(editorText)
+    }
   }
 
   return (
