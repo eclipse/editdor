@@ -10,9 +10,10 @@
  * 
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import ediTDorContext from '../../context/ediTDorContext';
+import { Selection, Range, Position } from 'monaco-editor';
 
 const mapping = require('../../assets/mapping.json')
 
@@ -32,6 +33,7 @@ const JSONEditorComponent = (props) => {
   const context = useContext(ediTDorContext);
   const [schemas] = useState([]);
   const [proxy, setProxy] = useState(undefined);
+  const editorInstance = useRef(null);
 
 
   const editorWillMount = (monaco) => {
@@ -74,13 +76,18 @@ const JSONEditorComponent = (props) => {
   }
 
   const editorDidMount = (editor, monaco) => {
-    editor.onDidChangeModelDecorations(() => {
-      const model = editor.getModel();
-      console.log('updateLineNumber')
-      editor.setSelection(new monaco.Selection(0, 0, 0, 0))
-      if (model === null || model.getModeId() !== "json")
-        return;
-    });
+
+    editor.onDidChangeModelContent(x => {
+      console.log('triggered onModelContentChanged')
+      editor.setPosition(new Position(22, 20))
+    })
+    
+    // editor.onDidChangeModelDecorations(() => {
+    //   console.log('triggered onDidChangeModelDecorations')
+    //   const model = editor.getModel();
+    //   if (model === null || model.getModeId() !== "json")
+    //     return;
+    // });
   }
 
   const addSchema = (val) => {
@@ -122,15 +129,19 @@ const JSONEditorComponent = (props) => {
 
 
   const onChange = async (editorText, _) => {
+    let selection;
     try {
       const json = JSON.parse(editorText);
       if (!('@context' in json)) {
         emptySchemas();
         return;
       }
+      const lineNumber = (context.offlineTD.substring(0, context.offlineTD.indexOf('"href": "/kitchenMotion"')).match(/\n/g)).length
+      console.log(lineNumber)
+      selection = new Selection(22, 0 , 22, 20)
 
       const atContext = json["@context"];
-
+      
       // handle if @context is a string
       if (typeof atContext === 'string') {
         if (mapping[atContext] !== undefined) {
@@ -143,7 +154,7 @@ const JSONEditorComponent = (props) => {
           return;
         }
       }
-
+      
       // handle if @context is an array
       if (Array.isArray(atContext)) {
         for (let i = 0; i < atContext.length; i++) {
@@ -180,6 +191,13 @@ const JSONEditorComponent = (props) => {
     } finally {
       context.updateOfflineTD(editorText)
     }
+    // console.log(editorInstance.current.editor.deltaDecorations([],[
+    //   { range: new Range(3,1,5,1), options: { isWholeLine: true, linesDecorationsClassName: 'myLineDecoration' }},
+    // ]))
+    console.log(selection)
+    
+    editorInstance.current.editor.revealPosition(new Position(70, 20))
+    console.log(editorInstance.current.editor.getPosition())
   }
 
   return (
@@ -188,6 +206,7 @@ const JSONEditorComponent = (props) => {
         options={editorOptions}
         theme={'vs-' + context.theme}
         language="json"
+        ref={editorInstance}
         value={context.offlineTD}
         editorWillMount={editorWillMount}
         editorDidMount={editorDidMount}
