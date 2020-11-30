@@ -29,7 +29,7 @@ export default async function CreateNewTD() {
         progressSteps: ['1', '2', '3']
     }).queue([
         {
-            title: 'TD Indentifiers',
+            title: 'TD Identifiers',
             html: newTd.RequestTdMetadata(),
             input: null,
             preConfirm: () => {
