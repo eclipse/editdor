@@ -15,6 +15,8 @@ export const UPDATE_IS_MODFIED = 'UPDATE_IS_MODFIED';
 export const SET_FILE_HANDLE = 'SET_FILE_HANDLE';
 export const REMOVE_FORM_FROM_TD = 'REMOVE_FORM_FROM_TD';
 export const ADD_FORM_FROM_TD = 'ADD_FORM_FROM_TD';
+export const ADD_ACTIONFORM_TO_TD = 'ADD_ACTIONFORM_TO_TD';
+export const ADD_EVENTFORM_TO_TD = 'ADD_EVENTFORM_TO_TD';
 
 const updateOfflineTDReducer = (offlineTD, state) => {
   console.log('updateofflineTD')
@@ -23,23 +25,57 @@ const updateOfflineTDReducer = (offlineTD, state) => {
 
 const removeFormReducer = (form, state) => {
   let offlineTD = JSON.parse(state.offlineTD)
-  offlineTD.properties[form.propName].forms.forEach((element, i) => {
-    if (element.href === form.form.href && element.op.indexOf(form.form.op) !== -1) {
-      element.op.splice(element.op.indexOf(form.form.op),1)
-    }
-    if (element.op.length === 0) {
-      offlineTD.properties[form.propName].forms.splice(i,1)
-    }
-  });
-  return { ...state, offlineTD: JSON.stringify(offlineTD,null,2) };
+  console.log(form);
+  try {
+    offlineTD[form.type][form.propName].forms.forEach((element, i) => {
+      if (typeof (element.op) === 'string') {
+        if (element.href === form.form.href) {
+          offlineTD[form.type][form.propName].forms.splice(i, 1)
+        }
+      } else {
+        if (element.href === form.form.href && element.op.indexOf(form.form.op) !== -1) {
+          element.op.splice(element.op.indexOf(form.form.op), 1)
+        }
+        if (element.op.length === 0) {
+          offlineTD[form.type][form.propName].forms.splice(i, 1)
+        }
+      }
+    });
+  } catch (e) {
+    alert('Sorry we were unable to delete the Form, please try again later');
+  }
+  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
 
-const addFormReducer = (form, state) => {
+const addPropertyFormReducer = (form, state) => {
   let offlineTD = JSON.parse(state.offlineTD)
-  offlineTD.properties[form.propName].forms.push(form.form);
-  return { ...state, offlineTD: JSON.stringify(offlineTD,null,2) };
+  const property = offlineTD.properties[form.propName];
+  if (property.forms === undefined) {
+    property.forms = []
+  }
+  property.forms.push(form.form);
+  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
 
+const addActionFormReducer = (params, state) => {
+  let offlineTD = JSON.parse(state.offlineTD)
+  const action = offlineTD.actions[params.actionName];
+  if (action.forms === undefined) {
+    action.forms = []
+  }
+  action.forms.push(params.form);
+  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+};
+
+const addEventFormReducer = (params, state) => {
+  let offlineTD = JSON.parse(state.offlineTD)
+  const event = offlineTD.events[params.eventName];
+  if (event.forms === undefined) {
+    event.forms = []
+  }
+  event.forms.push(params.form);
+  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+};
 
 const updateIsModified = (isModified, state) => {
   console.log('updateIsModified', isModified)
@@ -61,8 +97,12 @@ export const editdorReducer = (state, action) => {
       return newState;
     case REMOVE_FORM_FROM_TD:
       return removeFormReducer(action.form, state)
-      case ADD_FORM_FROM_TD:
-        return addFormReducer(action.form, state)
+    case ADD_FORM_FROM_TD:
+      return addPropertyFormReducer(action.form, state)
+    case ADD_ACTIONFORM_TO_TD:
+      return addActionFormReducer(action.params, state)
+    case ADD_EVENTFORM_TO_TD:
+      return addEventFormReducer(action.params, state)
     default:
       return state;
   }
