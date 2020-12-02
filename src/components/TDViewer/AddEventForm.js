@@ -13,38 +13,37 @@
 import operationsSelections from './OperationsSelections';
 const Swal = require('sweetalert2')
 
-
-const addForm = async () => {
+const addEventForm = () => {
     let form = {};
     return Swal.mixin({
-        title: 'Add Form',
         confirmButtonText: 'Next &rarr;',
         showCancelButton: true,
         progressSteps: ['1', '2']
     }).queue([
         {
             text: 'Select an Operation or multiple Operations',
-            html: operationsSelections('properties'),
+            html: operationsSelections('events'),
             preConfirm: () => {
-                const operations = ['1', '2', '3', '4'].map(x => {
+                const operations = ['1', '2'].map(x => {
                     return document.getElementById('checkbox' + x).checked ? document.getElementById('checkbox' + x).value : undefined
                 }).filter(y => y !== undefined);
-                form.op = operations    
+                console.log('operations', operations)
+                form.op = operations
             }
         },
         {
             input: 'text',
             title: 'Form Href',
-            text: 'Please enter a href where your Property is reachable'
+            text: 'Please enter a href where your Event is reachable'
         }
     ]).then((prop) => {
         if (!prop.dismiss) {
             const propValue = prop.value
-             form.href =  propValue[1]
+            form.href = propValue[1]
             return form
+            
         }
         return
     })
 }
-
-export default addForm;
+export default addEventForm;

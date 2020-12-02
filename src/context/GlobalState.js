@@ -13,7 +13,7 @@
 import React, { useReducer } from 'react';
 
 import EdiTDorContext from './ediTDorContext';
-import { editdorReducer, REMOVE_FORM_FROM_TD, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_FORM_FROM_TD } from './editorReducers';
+import { editdorReducer, REMOVE_FORM_FROM_TD, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_FORM_FROM_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD } from './editorReducers';
 
 
 const GlobalState = props => {
@@ -39,6 +39,13 @@ const GlobalState = props => {
     dispatch({ type: ADD_FORM_FROM_TD, form: form });
   };
 
+  const addActionForm = params => {
+    dispatch({ type: ADD_ACTIONFORM_TO_TD, params: params });
+  };
+  const addEventForm = params => {
+    dispatch({ type: ADD_EVENTFORM_TO_TD, params: params });
+  };
+
   return (
     <EdiTDorContext.Provider
       value={{
@@ -51,7 +58,9 @@ const GlobalState = props => {
         updateIsModified: updateIsModified,
         setFileHandle: setFileHandleMethod,
         removeForm: removeForm,
-        addForm: addForm
+        addForm: addForm,
+        addActionForm: addActionForm,
+        addEventForm: addEventForm
       }}
     >
       {props.children}

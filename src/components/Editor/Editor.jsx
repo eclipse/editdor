@@ -188,7 +188,9 @@ const JSONEditorComponent = (props) => {
           }
         }
       }
-    } finally {
+    } catch (e) {
+      console.log(e)
+    }finally {
       context.updateOfflineTD(editorText)
     }
     // console.log(editorInstance.current.editor.deltaDecorations([],[

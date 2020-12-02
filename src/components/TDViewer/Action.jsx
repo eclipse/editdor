@@ -14,39 +14,39 @@ import React, { useContext } from "react";
 import "../../assets/main.css"
 import ediTDorContext from "../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../util.js"
-import addForm from "./AddForm";
+import addActionForm from "./AddActionForm";
 import Form from "./Form";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
 
-export default function Property(props) {
+
+export default function Action(props) {
     const context = useContext(ediTDorContext);
 
-    if ((Object.keys(props.prop).length === 0 && props.prop.constructor !== Object)) {
-        return <div className="text-3xl text-white">Property could not be rendered because mandatory fields are missing.</div>
+    if ((Object.keys(props.action).length === 0 && props.action.constructor !== Object)) {
+        return <div className="text-3xl text-white">Action could not be rendered because mandatory fields are missing.</div>
     }
 
-    const property = props.prop;
-    const forms = separateForms(props.prop.forms);
-
-    const attributeListObject = buildAttributeListObject({ name: props.propName }, props.prop, alreadyRenderedKeys);
+    const action = props.action;
+    const forms = separateForms(props.action.forms);
+    const attributeListObject = buildAttributeListObject({ name: props.actionName }, props.action, alreadyRenderedKeys);
     const attributes = Object.keys(attributeListObject).map(x => {
         return <li key={x}>{x} : {JSON.stringify(attributeListObject[x])}</li>
     });
 
     const onClickAddForm = async () => {
-        const formToAdd = await addForm()
-        context.addForm({propName: props.propName,form: formToAdd})
+        const formToAdd = await addActionForm()
+        if (formToAdd) {
+            context.addActionForm({ actionName: props.actionName, form: formToAdd })
+        }
     }
-
     return (
         <>
             <details>
-                <summary className="text-xl text-gray-400 ">{property.title ?? props.propName}</summary>
+                <summary className="text-xl text-gray-400">{action.title ?? props.actionName}</summary>
                 <div className="mb-4">
-
-                    <div className="text-lg text-gray-400 pb-2">{property.description}</div>
-                    <ul className="list-disc text-base text-gray-300 pl-8">{attributes}</ul>
+                    <div className="text-lg text-gray-400 pb-2">{action.description}</div>
+                    <ul className="text-base text-gray-300 list-disc pl-8">{attributes}</ul>
                     <div className="flex flex-row items-center ">
                         <h2 className="flex-grow text-lg text-gray-400 text-bold">Forms: </h2>
                         <button className="text-lg h-4 w-4 bg-gray-400 rounded-full" onClick={onClickAddForm}>
@@ -55,7 +55,7 @@ export default function Property(props) {
                             </svg></button>
                     </div>
                     {forms.map((form, i) => (
-                        <Form key={i} propName={props.propName} form={form} interactionType={"property"} className="last:pb-4"></Form>
+                        <Form key={i} form={form} propName={props.actionName} interactionType={"action"}></Form>
                     ))}
                 </div>
             </details>

@@ -22,5 +22,7 @@ export default React.createContext({
   updateIsModified: isModified => {},
   setFileHandle: handle => {},
   removeForm: form => {},
-  addForm: form => {}
+  addForm: form => {},
+  addActionForm: params => {},
+  addEventForm: params => {}
 });
