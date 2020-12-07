@@ -11,6 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { useContext } from "react";
+import Swal from "sweetalert2";
 import "../../assets/main.css"
 import ediTDorContext from "../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../util.js"
@@ -34,10 +35,55 @@ export default function Property(props) {
         return <li key={x}>{x} : {JSON.stringify(attributeListObject[x])}</li>
     });
 
+    const checkIfFormExists = (form) => {
+        for (const element of property.forms) {
+            for (const x of form.op) {
+                if (typeof (element.op) === 'string') {
+                    if (element.op === x.op) {
+                        return true;
+                    }
+                } else {
+                    if (element.op.includes(x)) {
+                        let deepCompare = true;
+                        for (const y in form) {
+                            if (y !== 'op') {
+                                if (element[y] !== form[y]) {
+                                    deepCompare = false;
+                                }
+                            }
+                        }
+                        if (deepCompare)
+                            return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+
     const onClickAddForm = async () => {
         const formToAdd = await addPropertyForm()
         if (formToAdd) {
-            context.addForm({ propName: props.propName, form: formToAdd })
+            if (checkIfFormExists(formToAdd)) {
+                Swal.fire({
+                    title: 'Duplication?',
+                    html: 'A Form with same fields already exists, are you sure you want to add this?',
+                    icon: 'warning',
+                    confirmButtonText:
+                        'Yes',
+                    confirmButtonAriaLabel: 'Yes',
+                    showCancelButton: true,
+                    cancelButtonText:
+                        'No',
+                    cancelButtonAriaLabel: 'No'
+                }).then(x => {
+                    if(x.isConfirmed) {
+                        context.addForm({ propName: props.propName, form: formToAdd })
+                    }
+                })
+            } else {
+                context.addForm({ propName: props.propName, form: formToAdd })
+            }
         }
     }
 

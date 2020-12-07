@@ -19,8 +19,7 @@ export const ADD_ACTIONFORM_TO_TD = 'ADD_ACTIONFORM_TO_TD';
 export const ADD_EVENTFORM_TO_TD = 'ADD_EVENTFORM_TO_TD';
 
 const updateOfflineTDReducer = (offlineTD, state) => {
-  console.log('updateofflineTD')
-  return { ...state, offlineTD: offlineTD, isModified: true };
+  return { ...state, offlineTD, isModified: true };
 };
 
 const removeFormReducer = (form, state) => {
@@ -78,7 +77,6 @@ const addEventFormReducer = (params, state) => {
 };
 
 const updateIsModified = (isModified, state) => {
-  console.log('updateIsModified', isModified)
   return { ...state, isModified: isModified };
 };
 
@@ -86,7 +84,7 @@ const updateFileHandleReducer = (fileHandle, state) => {
   return { ...state, fileHandle: fileHandle };
 };
 
-export const editdorReducer = (state, action) => {
+const editdorReducer = (state, action) => {
   switch (action.type) {
     case UPDATE_OFFLINE_TD:
       return updateOfflineTDReducer(action.offlineTD, state);
@@ -107,3 +105,5 @@ export const editdorReducer = (state, action) => {
       return state;
   }
 };
+
+export {editdorReducer}

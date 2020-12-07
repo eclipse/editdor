@@ -69,7 +69,7 @@ export default function TDViewer() {
             tdJSON[type] = {};
         }
         tdJSON[type][name] = property
-        context.updateOfflineTD(JSON.stringify(tdJSON,null, 2))
+        context.updateOfflineTD(JSON.stringify(tdJSON,null, 2), 'TDViewer')
     }
 
     let properties;

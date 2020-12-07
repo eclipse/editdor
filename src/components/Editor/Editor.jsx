@@ -13,7 +13,6 @@
 import React, { useContext, useState, useRef } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import ediTDorContext from '../../context/ediTDorContext';
-import { Selection, Range, Position } from 'monaco-editor';
 
 const mapping = require('../../assets/mapping.json')
 
@@ -66,7 +65,6 @@ const JSONEditorComponent = (props) => {
           enableSchemaRequest: true,
           schemas: jsonSchemaObjects
         });
-        console.log('schema', jsonSchemaObjects)
 
         return true;
 
@@ -76,18 +74,11 @@ const JSONEditorComponent = (props) => {
   }
 
   const editorDidMount = (editor, monaco) => {
-
-    editor.onDidChangeModelContent(x => {
-      console.log('triggered onModelContentChanged')
-      editor.setPosition(new Position(22, 20))
-    })
-    
-    // editor.onDidChangeModelDecorations(() => {
-    //   console.log('triggered onDidChangeModelDecorations')
-    //   const model = editor.getModel();
-    //   if (model === null || model.getModeId() !== "json")
-    //     return;
-    // });
+    editor.onDidChangeModelDecorations(() => {
+      const model = editor.getModel();
+      if (model === null || model.getModeId() !== "json")
+        return;
+    });
   }
 
   const addSchema = (val) => {
@@ -129,16 +120,12 @@ const JSONEditorComponent = (props) => {
 
 
   const onChange = async (editorText, _) => {
-    let selection;
     try {
       const json = JSON.parse(editorText);
       if (!('@context' in json)) {
         emptySchemas();
         return;
       }
-      const lineNumber = (context.offlineTD.substring(0, context.offlineTD.indexOf('"href": "/kitchenMotion"')).match(/\n/g)).length
-      console.log(lineNumber)
-      selection = new Selection(22, 0 , 22, 20)
 
       const atContext = json["@context"];
       
@@ -183,23 +170,14 @@ const JSONEditorComponent = (props) => {
         for (let i = 0; i < proxy.length; i++) {
           const x = Object.keys(mapping).find(key => mapping[key] === proxy[i])
           if (!atContext.includes(x)) {
-            console.log("remove schema ", x);
             removeSchema(proxy[i]);
           }
         }
       }
     } catch (e) {
-      console.log(e)
     }finally {
-      context.updateOfflineTD(editorText)
+      context.updateOfflineTD(editorText, 'Editor')
     }
-    // console.log(editorInstance.current.editor.deltaDecorations([],[
-    //   { range: new Range(3,1,5,1), options: { isWholeLine: true, linesDecorationsClassName: 'myLineDecoration' }},
-    // ]))
-    console.log(selection)
-    
-    editorInstance.current.editor.revealPosition(new Position(70, 20))
-    console.log(editorInstance.current.editor.getPosition())
   }
 
   return (

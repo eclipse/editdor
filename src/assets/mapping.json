@@ -1,3 +1,7 @@
 {
-    "https://saywot.siemens.com" : "http://localhost:5000"
+    "https://saywot.siemens.com/coap" : "https://saywot.code.siemens.io/editdorschemas/coap_schema.json",
+    "https://saywot.siemens.com/modbus" : "https://saywot.code.siemens.io/editdorschemas/modbus_schema.json",
+    "https://saywot.siemens.com/opcua" : "https://saywot.code.siemens.io/editdorschemas/opcua_schema.json",
+    "https://saywot.siemens.com/http" : "https://saywot.code.siemens.io/editdorschemas/http_schema.json",
+    "https://saywot.siemens.com/mqtt" : "https://saywot.code.siemens.io/editdorschemas/mqtt_schema.json"
 }
