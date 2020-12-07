@@ -16,6 +16,7 @@ import ediTDorContext from "../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../util.js"
 import addEventForm from "./AddEventForm";
 import Form from "./Form";
+import Swal from 'sweetalert2'
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
 
@@ -32,10 +33,55 @@ export default function Event(props) {
         return <li key={x}>{x} : {JSON.stringify(attributeListObject[x])}</li>
     });
 
+    const checkIfFormExists = (form) => {
+        for (const element of event.forms) {
+            for (const x of form.op) {
+                if (typeof (element.op) === 'string') {
+                    if (element.op === x.op) {
+                        return true;
+                    }
+                } else {
+                    if (element.op.includes(x)) {
+                        let deepCompare = true;
+                        for (const y in form) {
+                            if (y !== 'op') {
+                                if (element[y] !== form[y]) {
+                                    deepCompare = false;
+                                }
+                            }
+                        }
+                        if (deepCompare)
+                            return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+
     const onClickAddForm = async () => {
         const formToAdd = await addEventForm()
         if (formToAdd) {
-            context.addEventForm({ eventName: props.eventName, form: formToAdd })
+            if (checkIfFormExists(formToAdd)) {
+                Swal.fire({
+                    title: 'Duplication?',
+                    html: 'A Form with same fields already exists, are you sure you want to add this?',
+                    icon: 'warning',
+                    confirmButtonText:
+                        'Yes',
+                    confirmButtonAriaLabel: 'Yes',
+                    showCancelButton: true,
+                    cancelButtonText:
+                        'No',
+                    cancelButtonAriaLabel: 'No'
+                }).then(x => {
+                    if(x.isConfirmed) {
+                        context.addEventForm({ eventName: props.eventName, form: formToAdd })
+                    }
+                })
+            } else {
+                context.addEventForm({ eventName: props.eventName, form: formToAdd })
+            }
         }
     }
 

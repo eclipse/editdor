@@ -19,7 +19,7 @@ import { editdorReducer, REMOVE_FORM_FROM_TD, SET_FILE_HANDLE, UPDATE_IS_MODFIED
 const GlobalState = props => {
   const [editdorState, dispatch] = useReducer(editdorReducer, { offlineTD: '', theme: 'dark' });
 
-  const updateOfflineTD = offlineTD => {
+  const updateOfflineTD = (offlineTD, props) => {
     dispatch({ type: UPDATE_OFFLINE_TD, offlineTD: offlineTD });
   };
 
@@ -27,7 +27,7 @@ const GlobalState = props => {
     dispatch({ type: UPDATE_IS_MODFIED, isModified: isModified });
   };
 
-  const setFileHandleMethod = fileHandle => {
+  const setFileHandle = fileHandle => {
     dispatch({ type: SET_FILE_HANDLE, fileHandle: fileHandle });
   };
 
@@ -54,13 +54,13 @@ const GlobalState = props => {
         isModified: editdorState.isModified,
         name: editdorState.name,
         fileHandle: editdorState.fileHandle,
-        updateOfflineTD: updateOfflineTD,
-        updateIsModified: updateIsModified,
-        setFileHandle: setFileHandleMethod,
-        removeForm: removeForm,
-        addForm: addForm,
-        addActionForm: addActionForm,
-        addEventForm: addEventForm
+        updateOfflineTD,
+        updateIsModified,
+        setFileHandle,
+        removeForm,
+        addForm,
+        addActionForm,
+        addEventForm
       }}
     >
       {props.children}

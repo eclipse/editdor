@@ -29,4 +29,4 @@ ReactDOM.render(
 // Learn more about service workers: https://bit.ly/CRA-PWA
 
 //No PWA at the moment.
-// serviceWorker.unregister();
+// serviceWorker.register();
