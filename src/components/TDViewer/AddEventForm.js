@@ -16,6 +16,7 @@ const Swal = require('sweetalert2')
 const addEventForm = () => {
     let form = {};
     return Swal.mixin({
+        title: 'Add Event Form',
         confirmButtonText: 'Next &rarr;',
         showCancelButton: true,
         progressSteps: ['1', '2']

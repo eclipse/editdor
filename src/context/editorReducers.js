@@ -14,7 +14,7 @@ export const UPDATE_OFFLINE_TD = 'UPDATE_OFFLINE_TD';
 export const UPDATE_IS_MODFIED = 'UPDATE_IS_MODFIED';
 export const SET_FILE_HANDLE = 'SET_FILE_HANDLE';
 export const REMOVE_FORM_FROM_TD = 'REMOVE_FORM_FROM_TD';
-export const ADD_FORM_FROM_TD = 'ADD_FORM_FROM_TD';
+export const ADD_PROPERTYFORM_TO_TD = 'ADD_PROPERTYFORM_TO_TD';
 export const ADD_ACTIONFORM_TO_TD = 'ADD_ACTIONFORM_TO_TD';
 export const ADD_EVENTFORM_TO_TD = 'ADD_EVENTFORM_TO_TD';
 
@@ -41,7 +41,7 @@ const removeFormReducer = (form, state) => {
       }
     });
   } catch (e) {
-    alert('Sorry we were unable to delete the Form, please try again later');
+    alert('Sorry we were unable to delete the Form.');
   }
   return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
@@ -95,7 +95,7 @@ const editdorReducer = (state, action) => {
       return newState;
     case REMOVE_FORM_FROM_TD:
       return removeFormReducer(action.form, state)
-    case ADD_FORM_FROM_TD:
+    case ADD_PROPERTYFORM_TO_TD:
       return addPropertyFormReducer(action.form, state)
     case ADD_ACTIONFORM_TO_TD:
       return addActionFormReducer(action.params, state)
