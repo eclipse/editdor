@@ -3,5 +3,5 @@
     "https://saywot.siemens.com/modbus" : "https://saywot.code.siemens.io/editdorschemas/modbus_schema.json",
     "https://saywot.siemens.com/opcua" : "https://saywot.code.siemens.io/editdorschemas/opcua_schema.json",
     "https://saywot.siemens.com/http" : "https://saywot.code.siemens.io/editdorschemas/http_schema.json",
-    "https://saywot.siemens.com/mqtt" : "https://saywot.code.siemens.io/editdorschemas/mqtt_schema.json"
+    "https://saywot.siemens.com/mqtt" : "http://127.0.0.1:5000/json_schemas/mqtt_schema.json"
 }

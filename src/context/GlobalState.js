@@ -13,7 +13,7 @@
 import React, { useReducer } from 'react';
 
 import EdiTDorContext from './ediTDorContext';
-import { editdorReducer, REMOVE_FORM_FROM_TD, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_FORM_FROM_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD } from './editorReducers';
+import { editdorReducer, REMOVE_FORM_FROM_TD, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_PROPERTYFORM_TO_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD } from './editorReducers';
 
 
 const GlobalState = props => {
@@ -36,7 +36,7 @@ const GlobalState = props => {
   };
 
   const addForm = form => {
-    dispatch({ type: ADD_FORM_FROM_TD, form: form });
+    dispatch({ type: ADD_PROPERTYFORM_TO_TD, form: form });
   };
 
   const addActionForm = params => {

@@ -52,7 +52,7 @@ export default function AppHeader() {
 
     const readFile = useCallback(async (file, fileHandle) => {
         try {
-            context.updateOfflineTD(await read(file), 'AppHEader');
+            context.updateOfflineTD(await read(file));
             context.setFileHandle(fileHandle || file.name);
             context.updateIsModified(false)
         } catch (ex) {

@@ -94,7 +94,7 @@ export default function Action(props) {
                     <div className="text-lg text-gray-400 pb-2">{action.description}</div>
                     <ul className="text-base text-gray-300 list-disc pl-8">{attributes}</ul>
                     <div className="flex flex-row items-center ">
-                        <h2 className="flex-grow text-lg text-gray-400 text-bold">Forms: </h2>
+                        <h2 className="flex-grow text-lg text-gray-400 text-bold">Forms</h2>
                         <button className="text-lg h-4 w-4 bg-gray-400 rounded-full" onClick={onClickAddForm}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
