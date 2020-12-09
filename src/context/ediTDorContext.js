@@ -21,4 +21,8 @@ export default React.createContext({
   updateOfflineTD: td => {},
   updateIsModified: isModified => {},
   setFileHandle: handle => {},
+  removeForm: form => {},
+  addForm: form => {},
+  addActionForm: params => {},
+  addEventForm: params => {}
 });

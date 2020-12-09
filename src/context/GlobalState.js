@@ -13,40 +13,59 @@
 import React, { useReducer } from 'react';
 
 import EdiTDorContext from './ediTDorContext';
-import { editdorReducer, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD } from './editorReducers';
+import { editdorReducer, REMOVE_FORM_FROM_TD, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_PROPERTYFORM_TO_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD } from './editorReducers';
 
 
 const GlobalState = props => {
-    const [editdorState, dispatch] = useReducer(editdorReducer, { offlineTD: '', theme: 'dark' });
-  
-    const updateOfflineTD = offlineTD => {
-          dispatch({ type: UPDATE_OFFLINE_TD, offlineTD: offlineTD });
-    };
+  const [editdorState, dispatch] = useReducer(editdorReducer, { offlineTD: '', theme: 'dark' });
 
-    const updateIsModified = isModified => {
-          dispatch({ type: UPDATE_IS_MODFIED, isModified: isModified });
-    };
-
-    const setFileHandleMethod = fileHandle => {
-        dispatch({ type: SET_FILE_HANDLE, fileHandle: fileHandle });
-    };
-
-    return (
-      <EdiTDorContext.Provider
-        value={{
-          offlineTD: editdorState.offlineTD,
-          theme: editdorState.theme,
-          isModified: editdorState.isModified,
-          name: editdorState.name,
-          fileHandle: editdorState.fileHandle,
-          updateOfflineTD: updateOfflineTD,
-          updateIsModified: updateIsModified,
-          setFileHandle: setFileHandleMethod
-        }}
-      >
-        {props.children}
-      </EdiTDorContext.Provider>
-    );
+  const updateOfflineTD = (offlineTD, props) => {
+    dispatch({ type: UPDATE_OFFLINE_TD, offlineTD: offlineTD });
   };
-  
-  export default GlobalState;
+
+  const updateIsModified = isModified => {
+    dispatch({ type: UPDATE_IS_MODFIED, isModified: isModified });
+  };
+
+  const setFileHandle = fileHandle => {
+    dispatch({ type: SET_FILE_HANDLE, fileHandle: fileHandle });
+  };
+
+  const removeForm = form => {
+    dispatch({ type: REMOVE_FORM_FROM_TD, form: form });
+  };
+
+  const addForm = form => {
+    dispatch({ type: ADD_PROPERTYFORM_TO_TD, form: form });
+  };
+
+  const addActionForm = params => {
+    dispatch({ type: ADD_ACTIONFORM_TO_TD, params: params });
+  };
+  const addEventForm = params => {
+    dispatch({ type: ADD_EVENTFORM_TO_TD, params: params });
+  };
+
+  return (
+    <EdiTDorContext.Provider
+      value={{
+        offlineTD: editdorState.offlineTD,
+        theme: editdorState.theme,
+        isModified: editdorState.isModified,
+        name: editdorState.name,
+        fileHandle: editdorState.fileHandle,
+        updateOfflineTD,
+        updateIsModified,
+        setFileHandle,
+        removeForm,
+        addForm,
+        addActionForm,
+        addEventForm
+      }}
+    >
+      {props.children}
+    </EdiTDorContext.Provider>
+  );
+};
+
+export default GlobalState;
