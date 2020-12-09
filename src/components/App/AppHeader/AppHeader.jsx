@@ -18,6 +18,7 @@ import '../../../assets/main.css'
 import './Button.js'
 import Button from './Button.js';
 import CreateNewTD from './CreateNewTD.js';
+import Swal from 'sweetalert2';
 
 export default function AppHeader() {
     const context = useContext(ediTDorContext);
@@ -162,7 +163,7 @@ export default function AppHeader() {
                 return await saveFileAs();
             }
             await writeFile(context.fileHandle, context.offlineTD);
-            
+
         } catch (ex) {
             const msg = 'Unfortunately we were unable to save your TD.';
             console.error(msg, ex);
@@ -241,6 +242,36 @@ export default function AppHeader() {
         });
     }
 
+    const createPermalink = () => {
+        const permalink = `${window.location.href}?td=${encodeURI(context.offlineTD)}`
+        navigator.clipboard.writeText(permalink).then(function () {
+            console.log('Async: Copying to clipboard was successful!');
+        }, function (err) {
+            console.error('Async: Could not copy text: ', err);
+        });
+        Swal.fire({
+            title: 'Permalink',
+            input: 'url',
+            inputLabel: 'The link was copied to your clipboard',
+            inputValue: permalink,
+            showCloseButton: true,
+        })
+        setTimeout(() => {
+            const textfield = document.getElementById('swal2-input')
+            textfield.select();
+        }, 500)
+    }
+
+    useEffect(() => {
+        if (window.location.search.indexOf('td') > -1) {
+            var url = new URL(window.location.href);
+            var td = url.searchParams.get("td");
+            context.updateOfflineTD(td)
+        }
+    //because the GET Param should be only loaded once, the next line was added 
+    // eslint-disable-next-line
+    }, [])
+
     useEffect(() => {
         const shortcutHandler = (e) => {
             if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) && e.key === 's') {
@@ -276,8 +307,7 @@ export default function AppHeader() {
             //Remove Eventlistener for shortcuts before unmounting component
             document.removeEventListener("keydown", shortcutHandler, false);
         }
-    }, [openFile, saveFile, newFile])
-
+    }, [openFile, saveFile, newFile, context])
 
     return (
         <>
@@ -288,6 +318,7 @@ export default function AppHeader() {
                     <img className="pl-2 h-8" src={logo} alt="LOGO" />
                 </div>
                 <div className="flex space-x-2 pr-2">
+                    <Button onClick={createPermalink}>Create Permalink</Button>
                     <Button onClick={newFile}>New TD/TM</Button>
                     <Button onClick={openFile}>Open TD/TM</Button>
                     <Button onClick={saveFile}>Save</Button>
