@@ -69,7 +69,7 @@ export default function TDViewer() {
             tdJSON[type] = {};
         }
         tdJSON[type][name] = property
-        context.updateOfflineTD(JSON.stringify(tdJSON,null, 2), 'TDViewer')
+        context.updateOfflineTD(JSON.stringify(tdJSON, null, 2), 'TDViewer')
     }
 
     let properties;
@@ -100,12 +100,16 @@ export default function TDViewer() {
 
     const alreadyRenderedKeys = ["id", "properties", "actions", "events", "description", "title",];
 
-    const attributeListObject = buildAttributeListObject(tdJSON.id ? {id: tdJSON.id} : {}, tdJSON, alreadyRenderedKeys);
+    const attributeListObject = buildAttributeListObject(tdJSON.id ? { id: tdJSON.id } : {}, tdJSON, alreadyRenderedKeys);
 
     const attributes = Object.keys(attributeListObject).map(x => {
         return <li key={x}>{x} : {JSON.stringify(attributeListObject[x])}</li>
     });
 
+
+    const sortKeysInObject = order => {
+
+    }
 
     return (
         <div className="h-full w-full bg-gray-500 p-8 overflow-scroll overflow-x-hidden">
@@ -124,8 +128,11 @@ export default function TDViewer() {
                 </div>)
             }
 
-            <div className="flex justify-between items-end pt-8 pb-4">
-                <div className="text-2xl text-white">Properties</div>
+            <div className="flex justify-start items-end pt-8 pb-4">
+                <div className="flex flex-row justify-start items-start flex-grow">
+                    <div className="text-2xl text-white mr-4">Properties</div>
+                    <button className="w-1/3 text-white font-bold text-xs bg-blue-500 cursor-pointer rounded-md" onClick={() => {sortKeysInObject('asc')}}>sort name</button>
+                </div>
                 <div className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddProp}>Add new Property</div>
             </div>
             {properties && (
