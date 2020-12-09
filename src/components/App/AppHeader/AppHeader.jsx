@@ -54,6 +54,7 @@ export default function AppHeader() {
         try {
             context.updateOfflineTD(await read(file));
             context.setFileHandle(fileHandle || file.name);
+            context.updateIsModified(false)
         } catch (ex) {
             const msg = `An error occured reading ${context.offlineTD}`;
             console.error(msg, ex);
@@ -107,7 +108,7 @@ export default function AppHeader() {
 
         // refresh td for rendered view
         setTimeout(() => {
-            context.updateOfflineTD(contents);
+            context.updateOfflineTD(contents, 'AppHEader');
             context.updateIsModified(false);
         }, 500);
     }, [context])
@@ -151,7 +152,7 @@ export default function AppHeader() {
     const newFile = useCallback(async () => {
         const thing = await CreateNewTD();
         if (thing) {
-            context.updateOfflineTD(JSON.stringify(thing, null, "\t"));
+            context.updateOfflineTD(JSON.stringify(thing, null, "\t"), 'AppHEader');
         }
     }, [context]);
 
@@ -276,6 +277,7 @@ export default function AppHeader() {
             document.removeEventListener("keydown", shortcutHandler, false);
         }
     }, [openFile, saveFile, newFile])
+
 
     return (
         <>

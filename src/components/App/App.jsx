@@ -19,9 +19,8 @@ import GlobalState from '../../context/GlobalState';
 
 import '../../assets/main.css'
 
-const App = () => {
-    useEffect(() => { dragElement(document.getElementById("separator"), "H"); }, [])
-
+const App = (props) => {
+    useEffect(() => { dragElement(document.getElementById("separator"), "H"); }, [props])
     return (
         <GlobalState>
             <main className="h-screen w-full">

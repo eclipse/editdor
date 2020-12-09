@@ -15,7 +15,7 @@ module.exports = {
     // removeDeprecatedGapUtilities: true,
     // purgeLayersByDefault: true,
   },
-  purge: [],
+  purge: { enabled: true, content: ['./src/**/*.html', './src/**/*.jsx', './src/**/*.js',] },
   target: 'relaxed',
   prefix: '',
   important: false,
