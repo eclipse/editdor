@@ -77,7 +77,7 @@ export default function Action(props) {
                         'No',
                     cancelButtonAriaLabel: 'No'
                 }).then(x => {
-                    if(x.isConfirmed) {
+                    if (x.isConfirmed) {
                         context.addActionForm({ actionName: props.actionName, form: formToAdd })
                     }
                 })
@@ -86,10 +86,22 @@ export default function Action(props) {
             }
         }
     }
+
+    const onDeleteActionClicked = () => {
+        context.removeOneOfAKindReducer('actions', props.actionName)
+    }
+
     return (
         <>
             <details>
-                <summary className="text-xl text-gray-400">{action.title ?? props.actionName}</summary>
+                <summary className="text-xl text-gray-400 flex flex-row">
+                    <div className="flex-grow">{action.title ?? props.actionName}</div>
+                    <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-gray-400" onClick={onDeleteActionClicked}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="text-black">
+                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                    </button>
+                </summary>
                 <div className="mb-4">
                     <div className="text-lg text-gray-400 pb-2">{action.description}</div>
                     <ul className="text-base text-gray-300 list-disc pl-8">{attributes}</ul>

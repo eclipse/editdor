@@ -17,6 +17,7 @@ export const REMOVE_FORM_FROM_TD = 'REMOVE_FORM_FROM_TD';
 export const ADD_PROPERTYFORM_TO_TD = 'ADD_PROPERTYFORM_TO_TD';
 export const ADD_ACTIONFORM_TO_TD = 'ADD_ACTIONFORM_TO_TD';
 export const ADD_EVENTFORM_TO_TD = 'ADD_EVENTFORM_TO_TD';
+export const REMOVE_ONE_OF_A_KIND_FROM_TD = 'REMOVE_ONE_OF_A_KIND_FROM_TD';
 
 const updateOfflineTDReducer = (offlineTD, state) => {
   return { ...state, offlineTD, isModified: true };
@@ -40,6 +41,16 @@ const removeFormReducer = (form, state) => {
         }
       }
     });
+  } catch (e) {
+    alert('Sorry we were unable to delete the Form.');
+  }
+  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+};
+
+const removeOneOfAKindReducer = (kind, oneOfAKindName, state) => {
+  let offlineTD = JSON.parse(state.offlineTD)
+  try {
+    delete offlineTD[kind][oneOfAKindName]
   } catch (e) {
     alert('Sorry we were unable to delete the Form.');
   }
@@ -95,6 +106,8 @@ const editdorReducer = (state, action) => {
       return newState;
     case REMOVE_FORM_FROM_TD:
       return removeFormReducer(action.form, state)
+    case REMOVE_ONE_OF_A_KIND_FROM_TD:
+      return removeOneOfAKindReducer(action.kind, action.oneOfAKindName, state)
     case ADD_PROPERTYFORM_TO_TD:
       return addPropertyFormReducer(action.form, state)
     case ADD_ACTIONFORM_TO_TD:
@@ -106,4 +119,4 @@ const editdorReducer = (state, action) => {
   }
 };
 
-export {editdorReducer}
+export { editdorReducer }
