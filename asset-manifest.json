@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/editdor/static/css/main.451d5379.chunk.css",
-    "main.js": "/editdor/static/js/main.3bfc8a36.chunk.js",
-    "main.js.map": "/editdor/static/js/main.3bfc8a36.chunk.js.map",
+    "main.js": "/editdor/static/js/main.7b10c041.chunk.js",
+    "main.js.map": "/editdor/static/js/main.7b10c041.chunk.js.map",
     "runtime-main.js": "/editdor/static/js/runtime-main.0ef00238.js",
     "runtime-main.js.map": "/editdor/static/js/runtime-main.0ef00238.js.map",
     "static/css/2.866898de.chunk.css": "/editdor/static/css/2.866898de.chunk.css",
-    "static/js/2.806d8aa5.chunk.js": "/editdor/static/js/2.806d8aa5.chunk.js",
-    "static/js/2.806d8aa5.chunk.js.map": "/editdor/static/js/2.806d8aa5.chunk.js.map",
+    "static/js/2.952db153.chunk.js": "/editdor/static/js/2.952db153.chunk.js",
+    "static/js/2.952db153.chunk.js.map": "/editdor/static/js/2.952db153.chunk.js.map",
     "static/js/3.85efc62c.chunk.js": "/editdor/static/js/3.85efc62c.chunk.js",
     "static/js/3.85efc62c.chunk.js.map": "/editdor/static/js/3.85efc62c.chunk.js.map",
     "editor.worker.js": "/editdor/editor.worker.js",
@@ -15,11 +15,11 @@
     "index.html": "/editdor/index.html",
     "json.worker.js": "/editdor/json.worker.js",
     "json.worker.js.map": "/editdor/json.worker.js.map",
-    "precache-manifest.755e230201154df76e10b7376c13f7fa.js": "/editdor/precache-manifest.755e230201154df76e10b7376c13f7fa.js",
+    "precache-manifest.b4497b86986b84cd2ee134c55be0333f.js": "/editdor/precache-manifest.b4497b86986b84cd2ee134c55be0333f.js",
     "service-worker.js": "/editdor/service-worker.js",
     "static/css/2.866898de.chunk.css.map": "/editdor/static/css/2.866898de.chunk.css.map",
     "static/css/main.451d5379.chunk.css.map": "/editdor/static/css/main.451d5379.chunk.css.map",
-    "static/js/2.806d8aa5.chunk.js.LICENSE.txt": "/editdor/static/js/2.806d8aa5.chunk.js.LICENSE.txt",
+    "static/js/2.952db153.chunk.js.LICENSE.txt": "/editdor/static/js/2.952db153.chunk.js.LICENSE.txt",
     "static/media/WoT.png": "/editdor/static/media/WoT.89768410.png",
     "static/media/codicon.css": "/editdor/static/media/codicon.22349029.ttf",
     "static/media/editdor.png": "/editdor/static/media/editdor.6cac600d.png"
@@ -27,8 +27,8 @@
   "entrypoints": [
     "static/js/runtime-main.0ef00238.js",
     "static/css/2.866898de.chunk.css",
-    "static/js/2.806d8aa5.chunk.js",
+    "static/js/2.952db153.chunk.js",
     "static/css/main.451d5379.chunk.css",
-    "static/js/main.3bfc8a36.chunk.js"
+    "static/js/main.7b10c041.chunk.js"
   ]
 }
