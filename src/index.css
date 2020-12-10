@@ -15,3 +15,12 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
+summary::-webkit-details-marker {
+  color: #ffffff;
+  font-size: 18px;
+}
+
+summary::-webkit-details-marker:hover {
+  color: #005a9c;
+}
