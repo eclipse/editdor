@@ -18,11 +18,13 @@ import ediTDorContext from '../../context/ediTDorContext';
 import addProperty from './AddProperty';
 import addAction from './AddAction';
 import addEvent from './AddEvent';
-import { buildAttributeListObject } from '../../util';
+import { buildAttributeListObject, separateForms } from '../../util';
 import '../../assets/main.css'
+import Form from './Form';
 let tdJSON = {};
 let oldtdJSON = {};
 let error = "";
+let sortorder = 'asc';
 
 export default function TDViewer() {
     const context = useContext(ediTDorContext);
@@ -69,15 +71,22 @@ export default function TDViewer() {
             tdJSON[type] = {};
         }
         tdJSON[type][name] = property
-        context.updateOfflineTD(JSON.stringify(tdJSON, null, 2), 'TDViewer')
+        context.updateOfflineTD(JSON.stringify(tdJSON, null, 2))
     }
 
     let properties;
+    let forms;
     let actions;
     let events;
     let metaData;
 
     if (tdJSON) {
+        if (tdJSON.forms) {
+            const formsSeperated = separateForms(tdJSON.forms);
+            forms = formsSeperated.map((key, index) => {
+                return (<Form form={key} propName={index} key={index} />);
+            });
+        }
         if (tdJSON.properties) {
             properties = Object.keys(tdJSON.properties).map((key, index) => {
                 return (<Property base={tdJSON.base}
@@ -107,8 +116,33 @@ export default function TDViewer() {
     });
 
 
-    const sortKeysInObject = order => {
+    const sortKeysInObject = () => {
+        const ordered = {};
+        if (sortorder === 'asc') {
+            Object.keys(tdJSON.properties).sort().forEach(function (key) {
+                ordered[key] = tdJSON.properties[key];
+            });
+            sortorder = 'desc'
+        } else {
+            Object.keys(tdJSON.properties).sort().reverse().forEach(function (key) {
+                ordered[key] = tdJSON.properties[key];
+            });
+            sortorder = 'asc'
+        }
+        tdJSON.properties = ordered
+        context.updateOfflineTD(JSON.stringify(tdJSON, null, 2))
+    }
 
+    const sortedIcon = () => {
+        if (sortorder === 'asc') {
+            return (<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#ffffff">
+                <path d="M6 22l6-8h-4v-12h-4v12h-4l6 8zm11.694-19.997h2.525l3.781 10.997h-2.421l-.705-2.261h-3.935l-.723 2.261h-2.336l3.814-10.997zm-.147 6.841h2.736l-1.35-4.326-1.386 4.326zm-.951 11.922l3.578-4.526h-3.487v-1.24h5.304v1.173l-3.624 4.593h3.633v1.234h-5.404v-1.234z" />
+            </svg>)
+        } else {
+            return <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#ffffff">
+                <path d="M6 2l-6 8h4v12h4v-12h4l-6-8zm11.694.003h2.525l3.781 10.997h-2.421l-.705-2.261h-3.935l-.723 2.261h-2.336l3.814-10.997zm-.147 6.841h2.736l-1.35-4.326-1.386 4.326zm-.951 11.922l3.578-4.526h-3.487v-1.24h5.304v1.173l-3.624 4.593h3.633v1.234h-5.404v-1.234z" />
+            </svg>
+        }
     }
 
     return (
@@ -127,38 +161,60 @@ export default function TDViewer() {
                     <div className="text-xl text-white pt-4">{metaData.description}</div>
                 </div>)
             }
+            <details>
+                <summary className="flex justify-start items-center pt-8 pb-4">
+                    <div className="flex flex-row justify-start items-end flex-grow">
+                        <div className="text-2xl text-white mr-4">Forms</div>
+                        <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={sortKeysInObject}>
+                            {sortedIcon()}
+                        </button>
+                    </div>
+                    <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddProp}>Add new Form</button>
+                </summary>
+                {
+                    forms && (
+                        <>
+                            <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{forms}</div>
+                        </>)
+                }
+            </details>
 
             <div className="flex justify-start items-end pt-8 pb-4">
-                <div className="flex flex-row justify-start items-start flex-grow">
+                <div className="flex flex-row justify-start items-end flex-grow">
                     <div className="text-2xl text-white mr-4">Properties</div>
-                    <button className="w-1/3 text-white font-bold text-xs bg-blue-500 cursor-pointer rounded-md" onClick={() => {sortKeysInObject('asc')}}>sort name</button>
+                    <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={sortKeysInObject}>
+                        {sortedIcon()}
+                    </button>
                 </div>
-                <div className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddProp}>Add new Property</div>
+                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddProp}>Add new Property</button>
             </div>
-            {properties && (
-                <>
-                    <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{properties}</div>
-                </>)
+            {
+                properties && (
+                    <>
+                        <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{properties}</div>
+                    </>)
             }
 
             <div className="flex justify-between items-end pt-8 pb-4">
                 <div className="text-2xl text-white pl-1">Actions</div>
                 <div className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddAction}>Add new Action</div>
             </div>
-            {actions && (
-                <>
-                    <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{actions}</div>
-                </>)
+            {
+                actions && (
+                    <>
+                        <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{actions}</div>
+                    </>)
             }
 
             <div className="flex justify-between items-end pt-8 pb-4">
                 <div className="text-2xl text-white">Events</div>
                 <div className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddEvent}>Add new Event</div>
             </div>
-            {events && (
-                <>
-                    <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{events}</div>
-                </>)
+            {
+                events && (
+                    <>
+                        <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{events}</div>
+                    </>)
             }
             <div className="h-16"></div>
         </div >

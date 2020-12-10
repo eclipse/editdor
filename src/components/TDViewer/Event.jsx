@@ -92,7 +92,7 @@ export default function Event(props) {
     return (
         <>
             <details>
-                <summary className="text-xl text-gray-400 flex flex-row">
+                <summary className="text-xl text-gray-400 flex flex-row justify-start items-center">
                 <div className="flex-grow">{event.title ?? props.eventName}</div>
                     <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-gray-400" onClick={onDeleteEventClicked}>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="text-black">
