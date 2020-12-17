@@ -243,7 +243,8 @@ export default function AppHeader() {
     }
 
     const createPermalink = () => {
-        const permalink = `${window.location.href}?td=${encodeURI(context.offlineTD)}`
+        const parse = JSON.parse(context.offlineTD)
+        const permalink = `${window.location.href}?td=${encodeURI(JSON.stringify(parse))}`
         navigator.clipboard.writeText(permalink).then(function () {
             console.log('Async: Copying to clipboard was successful!');
         }, function (err) {
@@ -251,11 +252,13 @@ export default function AppHeader() {
         });
         Swal.fire({
             title: 'Permalink',
-            input: 'url',
+            input: 'text',
             inputLabel: 'The link was copied to your clipboard',
             inputValue: permalink,
             showCloseButton: true,
-        })
+        }).then(x => {
+            console.log(x)
+        });
         setTimeout(() => {
             const textfield = document.getElementById('swal2-input')
             textfield.select();
@@ -268,8 +271,8 @@ export default function AppHeader() {
             var td = url.searchParams.get("td");
             context.updateOfflineTD(td)
         }
-    //because the GET Param should be only loaded once, the next line was added 
-    // eslint-disable-next-line
+        //because the GET Param should be only loaded once, the next line was added 
+        // eslint-disable-next-line
     }, [])
 
     useEffect(() => {

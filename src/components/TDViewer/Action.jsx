@@ -36,24 +36,26 @@ export default function Action(props) {
     });
 
     const checkIfFormExists = (form) => {
-        for (const element of action.forms) {
-            for (const x of form.op) {
-                if (typeof (element.op) === 'string') {
-                    if (element.op === x.op) {
-                        return true;
-                    }
-                } else {
-                    if (element.op.includes(x)) {
-                        let deepCompare = true;
-                        for (const y in form) {
-                            if (y !== 'op') {
-                                if (element[y] !== form[y]) {
-                                    deepCompare = false;
+        if (action.forms) {
+            for (const element of action.forms) {
+                for (const x of form.op) {
+                    if (typeof (element.op) === 'string') {
+                        if (element.op === x.op) {
+                            return true;
+                        }
+                    } else {
+                        if (element.op.includes(x)) {
+                            let deepCompare = true;
+                            for (const y in form) {
+                                if (y !== 'op') {
+                                    if (element[y] !== form[y]) {
+                                        deepCompare = false;
+                                    }
                                 }
                             }
+                            if (deepCompare)
+                                return true
                         }
-                        if (deepCompare)
-                            return true
                     }
                 }
             }
