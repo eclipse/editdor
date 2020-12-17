@@ -26,23 +26,38 @@ const updateOfflineTDReducer = (offlineTD, state) => {
 const removeFormReducer = (form, state) => {
   let offlineTD = JSON.parse(state.offlineTD)
   console.log(form);
-  try {
-    offlineTD[form.type][form.propName].forms.forEach((element, i) => {
+  if (form.type === 'forms') {
+    offlineTD.forms.forEach((element, i) => {
       if (typeof (element.op) === 'string') {
-        if (element.href === form.form.href) {
-          offlineTD[form.type][form.propName].forms.splice(i, 1)
-        }
+          offlineTD.forms.splice(i, 1)
       } else {
         if (element.href === form.form.href && element.op.indexOf(form.form.op) !== -1) {
           element.op.splice(element.op.indexOf(form.form.op), 1)
         }
         if (element.op.length === 0) {
-          offlineTD[form.type][form.propName].forms.splice(i, 1)
+          offlineTD.forms.splice(i, 1)
         }
       }
     });
-  } catch (e) {
-    alert('Sorry we were unable to delete the Form.');
+  } else {
+    try {
+      offlineTD[form.type][form.propName].forms.forEach((element, i) => {
+        if (typeof (element.op) === 'string') {
+          if (element.href === form.form.href) {
+            offlineTD[form.type][form.propName].forms.splice(i, 1)
+          }
+        } else {
+          if (element.href === form.form.href && element.op.indexOf(form.form.op) !== -1) {
+            element.op.splice(element.op.indexOf(form.form.op), 1)
+          }
+          if (element.op.length === 0) {
+            offlineTD[form.type][form.propName].forms.splice(i, 1)
+          }
+        }
+      });
+    } catch (e) {
+      alert('Sorry we were unable to delete the Form.');
+    }
   }
   return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
@@ -70,6 +85,7 @@ const addPropertyFormReducer = (form, state) => {
 const addActionFormReducer = (params, state) => {
   let offlineTD = JSON.parse(state.offlineTD)
   const action = offlineTD.actions[params.actionName];
+  console.log('ActionForms', action.forms)
   if (action.forms === undefined) {
     action.forms = []
   }
