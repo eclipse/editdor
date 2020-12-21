@@ -13,7 +13,7 @@
 import React, { useContext } from "react";
 import "../../assets/main.css"
 import ediTDorContext from "../../context/ediTDorContext";
-import { buildAttributeListObject, separateForms } from "../../util.js"
+import { buildAttributeListObject, checkIfFormIsInItem, hasForms, separateForms } from "../../util.js"
 import addActionForm from "./AddActionForm";
 import Form from "./Form";
 import Swal from 'sweetalert2'
@@ -36,29 +36,8 @@ export default function Action(props) {
     });
 
     const checkIfFormExists = (form) => {
-        if (action.forms) {
-            for (const element of action.forms) {
-                for (const x of form.op) {
-                    if (typeof (element.op) === 'string') {
-                        if (element.op === x.op) {
-                            return true;
-                        }
-                    } else {
-                        if (element.op.includes(x)) {
-                            let deepCompare = true;
-                            for (const y in form) {
-                                if (y !== 'op') {
-                                    if (element[y] !== form[y]) {
-                                        deepCompare = false;
-                                    }
-                                }
-                            }
-                            if (deepCompare)
-                                return true
-                        }
-                    }
-                }
-            }
+        if (hasForms(action)) {
+            return checkIfFormIsInItem(form, action)
         }
         return false
     }
