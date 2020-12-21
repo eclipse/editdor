@@ -58,7 +58,7 @@ const addAction = () => {
                             forms: [
                                 {
                                     op: 'invokeaction',
-                                    href: propValue[1]
+                                    href: propValue[0]
                                 }
                             ]
                         }

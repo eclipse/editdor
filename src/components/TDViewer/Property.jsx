@@ -14,7 +14,7 @@ import React, { useContext } from "react";
 import Swal from "sweetalert2";
 import "../../assets/main.css"
 import ediTDorContext from "../../context/ediTDorContext";
-import { buildAttributeListObject, separateForms } from "../../util.js"
+import { buildAttributeListObject, checkIfFormIsInItem, hasForms, separateForms } from "../../util.js"
 import addPropertyForm from "./AddPropertyForm";
 import Form from "./Form";
 
@@ -36,29 +36,8 @@ export default function Property(props) {
     });
 
     const checkIfFormExists = (form) => {
-        if (property.forms) {
-            for (const element of property.forms) {
-                for (const x of form.op) {
-                    if (typeof (element.op) === 'string') {
-                        if (element.op === x.op) {
-                            return true;
-                        }
-                    } else {
-                        if (element.op.includes(x)) {
-                            let deepCompare = true;
-                            for (const y in form) {
-                                if (y !== 'op') {
-                                    if (element[y] !== form[y]) {
-                                        deepCompare = false;
-                                    }
-                                }
-                            }
-                            if (deepCompare)
-                                return true
-                        }
-                    }
-                }
-            }
+        if (hasForms(property)) {
+            return checkIfFormIsInItem(form, property)
         }
         return false
     }

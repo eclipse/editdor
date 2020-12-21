@@ -19,9 +19,10 @@ import addProperty from './AddProperty';
 import addAction from './AddAction';
 import addEvent from './AddEvent';
 import addGlobalForm from './AddForm';
-import { buildAttributeListObject, separateForms } from '../../util';
+import { buildAttributeListObject, checkIfFormIsInItem, hasForms, separateForms } from '../../util';
 import '../../assets/main.css'
 import Form from './Form';
+import Swal from 'sweetalert2'
 let tdJSON = {};
 let first = true;
 let firstFilterOfEvents = true;
@@ -32,6 +33,8 @@ let unfilteredActions = {};
 let oldtdJSON = {};
 let error = "";
 let sortorder = 'asc';
+
+const JSON_SPACING = 2; 
 
 export default function TDViewer() {
     const context = useContext(ediTDorContext);
@@ -77,11 +80,30 @@ export default function TDViewer() {
     const onClickAddGlobalForm = async () => {
         const formToAdd = await addGlobalForm();
         if (formToAdd) {
-            if (!tdJSON['forms']) {
+            if (!hasForms(tdJSON)) {
                 tdJSON.forms = [];
             }
+            if(checkIfFormIsInItem(formToAdd, tdJSON)){
+                Swal.fire({
+                    title: 'Duplication?',
+                    html: 'A Form with same fields already exists, are you sure you want to add this?',
+                    icon: 'warning',
+                    confirmButtonText:
+                        'Yes',
+                    confirmButtonAriaLabel: 'Yes',
+                    showCancelButton: true,
+                    cancelButtonText:
+                        'No',
+                    cancelButtonAriaLabel: 'No'
+                }).then(x => {
+                    if (x.isConfirmed) {
+                        tdJSON.forms.push(formToAdd)
+                        context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
+                    }
+                })
+            }
             tdJSON.forms.push(formToAdd)
-            context.updateOfflineTD(JSON.stringify(tdJSON, null, 2))
+            context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
         }
     }
 
@@ -91,7 +113,7 @@ export default function TDViewer() {
             tdJSON[type] = {};
         }
         tdJSON[type][name] = property
-        context.updateOfflineTD(JSON.stringify(tdJSON, null, 2))
+        context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
     }
 
     let properties;
@@ -102,8 +124,8 @@ export default function TDViewer() {
 
     if (tdJSON) {
         if (tdJSON.forms) {
-            const formsSeperated = separateForms(tdJSON.forms);
-            forms = formsSeperated.map((key, index) => {
+            const formsSeparated = separateForms(tdJSON.forms);
+            forms = formsSeparated.map((key, index) => {
                 return (<Form form={key} propName={index} key={index} />);
             });
         }
@@ -142,38 +164,26 @@ export default function TDViewer() {
             return { key: x, title: tdJSON[kind][x].title }
         })
         if (sortorder === 'asc') {
-            toSort.sort(function (a, b) {
-                var nameA = a.title ? a.title.toUpperCase() : a.key.toUpperCase();
-                var nameB = b.title ? b.title.toUpperCase() : b.key.toUpperCase();
-                if (nameA < nameB) {
-                    return -1;
-                }
-                if (nameA > nameB) {
-                    return 1;
-                }
-                return 0;
+            toSort.sort((a,b) => {
+                const nameA = a.title ? a.title : a.key;
+                const nameB = b.title ? b.title : b.key;
+                return nameA.localeCompare(nameB)
             }).forEach(function (sortedObject) {
                 ordered[sortedObject.key] = tdJSON[kind][sortedObject.key];
             });
             sortorder = 'desc'
         } else {
-            toSort.sort(function (a, b) {
-                var nameA = a.title ? a.title.toUpperCase() : a.key.toUpperCase();
-                var nameB = b.title ? b.title.toUpperCase() : b.key.toUpperCase();
-                if (nameA < nameB) {
-                    return -1;
-                }
-                if (nameA > nameB) {
-                    return 1;
-                }
-                return 0;
+            toSort.sort((a,b) => {
+                const nameA = a.title ? a.title : a.key;
+                const nameB = b.title ? b.title : b.key;
+                return nameA.localeCompare(nameB)
             }).reverse().forEach(function (sortedObject) {
                 ordered[sortedObject.key] = tdJSON[kind][sortedObject.key];
             });
             sortorder = 'asc'
         }
         tdJSON[kind] = ordered
-        context.updateOfflineTD(JSON.stringify(tdJSON, null, 2))
+        context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
     }
 
     const search = (event) => {
@@ -198,7 +208,7 @@ export default function TDViewer() {
             })
         }
         tdJSON.properties = sortedProps;
-        context.updateOfflineTD(JSON.stringify(tdJSON, null, 2))
+        context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
     }
 
     const searchActions = (event) => {
@@ -222,7 +232,7 @@ export default function TDViewer() {
             })
         }
         tdJSON.actions = sortedActions;
-        context.updateOfflineTD(JSON.stringify(tdJSON, null, 2))
+        context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
     }
 
     const searchEvents = (event) => {
@@ -247,7 +257,7 @@ export default function TDViewer() {
             })
         }
         tdJSON.events = sortedEvents;
-        context.updateOfflineTD(JSON.stringify(tdJSON, null, 2))
+        context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
     }
 
     const sortedIcon = () => {
