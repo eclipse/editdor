@@ -20,7 +20,11 @@ export default function Form(props) {
         "observeproperty": <ObserveForm type="properties" form={props.form} propName={props.propName} />,
         "unobserveproperty": <UnobserveForm type="properties" form={props.form} propName={props.propName}/>,
         "readproperty": <ReadForm type="properties" form={props.form} propName={props.propName}/>,
+        "readmultipleproperties": <ReadMultipleForm type="forms" form={props.form} formIndex={props.propName}/>,
+        "readallproperties": <ReadAllForm type="forms" form={props.form} formIndex={props.propName}/>,
         "writeproperty": <WriteForm type="properties" form={props.form} propName={props.propName}/>,
+        "writemultipleproperties": <WriteMultipleForm type="forms" form={props.form} formIndex={props.propName}/>,
+        "writeallproperties": <WriteAllForm type="forms" form={props.form} formIndex={props.propName}/>,
         "invokeaction": <InvokeForm type="actions" form={props.form} propName={props.propName}/>,
         "unsubscribeevent": <UnobserveForm type="events" form={props.form} propName={props.propName}/>,
     }
@@ -100,6 +104,46 @@ export function ReadForm(props) {
     );
 }
 
+export function ReadMultipleForm(props) {
+    const context = useContext(ediTDorContext)
+    const deleteForm = (e) => {
+        context.removeForm(e)
+    }
+    return (
+        <div className="flex flex-row items-center justify-start h-10 w-full bg-formGreen rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formGreen">
+            <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
+                <div className="text-formGreen place-self-center text-center text-xs px-4">ReadMultiple</div>
+            </div>
+            <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
+            <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formGreen" onClick={() => deleteForm(props)}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    );
+}
+
+export function ReadAllForm(props) {
+    const context = useContext(ediTDorContext)
+    const deleteForm = (e) => {
+        context.removeForm(e)
+    }
+    return (
+        <div className="flex flex-row items-center justify-start h-10 w-full bg-formGreen rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formGreen">
+            <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
+                <div className="text-formGreen place-self-center text-center text-xs px-4">ReadAll</div>
+            </div>
+            <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
+            <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formGreen" onClick={() => deleteForm(props)}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    );
+}
+
 export function WriteForm(props) {
     const context = useContext(ediTDorContext)
     const deleteForm = (e) => {
@@ -109,6 +153,46 @@ export function WriteForm(props) {
         <div className="flex flex-row items-center justify-start h-10 w-full bg-formBlue rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formBlue">
             <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
                 <div className="text-formBlue place-self-center text-center text-xs px-4">Write</div>
+            </div>
+            <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
+            <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue" onClick={() => deleteForm(props)}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    );
+}
+
+export function WriteMultipleForm(props) {
+    const context = useContext(ediTDorContext)
+    const deleteForm = (e) => {
+        context.removeForm(e)
+    }
+    return (
+        <div className="flex flex-row items-center justify-start h-10 w-full bg-formBlue rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formBlue">
+            <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
+                <div className="text-formBlue place-self-center text-center text-xs px-4">WriteMultiple</div>
+            </div>
+            <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
+            <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue" onClick={() => deleteForm(props)}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    );
+}
+
+export function WriteAllForm(props) {
+    const context = useContext(ediTDorContext)
+    const deleteForm = (e) => {
+        context.removeForm(e)
+    }
+    return (
+        <div className="flex flex-row items-center justify-start h-10 w-full bg-formBlue rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formBlue">
+            <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
+                <div className="text-formBlue place-self-center text-center text-xs px-4">WriteAll</div>
             </div>
             <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue" onClick={() => deleteForm(props)}>
@@ -150,7 +234,7 @@ export function UndefinedForm(props) {
             <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
                 <div className="place-self-center text-center text-xs px-4">Undefined</div>
             </div>
-            <div className=" place-self-center pl-3 text-base overflow-hidden">{props.form.href}</div>
+            <div className=" place-self-center pl-3 text-base overflow-hidden flex-grow">{props.form.href}</div>
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-white" onClick={() => deleteForm(props)}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />

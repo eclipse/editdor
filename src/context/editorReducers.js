@@ -17,6 +17,7 @@ export const REMOVE_FORM_FROM_TD = 'REMOVE_FORM_FROM_TD';
 export const ADD_PROPERTYFORM_TO_TD = 'ADD_PROPERTYFORM_TO_TD';
 export const ADD_ACTIONFORM_TO_TD = 'ADD_ACTIONFORM_TO_TD';
 export const ADD_EVENTFORM_TO_TD = 'ADD_EVENTFORM_TO_TD';
+export const REMOVE_ONE_OF_A_KIND_FROM_TD = 'REMOVE_ONE_OF_A_KIND_FROM_TD';
 
 const updateOfflineTDReducer = (offlineTD, state) => {
   return { ...state, offlineTD, isModified: true };
@@ -25,21 +26,46 @@ const updateOfflineTDReducer = (offlineTD, state) => {
 const removeFormReducer = (form, state) => {
   let offlineTD = JSON.parse(state.offlineTD)
   console.log(form);
-  try {
-    offlineTD[form.type][form.propName].forms.forEach((element, i) => {
+  if (form.type === 'forms') {
+    offlineTD.forms.forEach((element, i) => {
       if (typeof (element.op) === 'string') {
-        if (element.href === form.form.href) {
-          offlineTD[form.type][form.propName].forms.splice(i, 1)
-        }
+          offlineTD.forms.splice(i, 1)
       } else {
         if (element.href === form.form.href && element.op.indexOf(form.form.op) !== -1) {
           element.op.splice(element.op.indexOf(form.form.op), 1)
         }
         if (element.op.length === 0) {
-          offlineTD[form.type][form.propName].forms.splice(i, 1)
+          offlineTD.forms.splice(i, 1)
         }
       }
     });
+  } else {
+    try {
+      offlineTD[form.type][form.propName].forms.forEach((element, i) => {
+        if (typeof (element.op) === 'string') {
+          if (element.href === form.form.href) {
+            offlineTD[form.type][form.propName].forms.splice(i, 1)
+          }
+        } else {
+          if (element.href === form.form.href && element.op.indexOf(form.form.op) !== -1) {
+            element.op.splice(element.op.indexOf(form.form.op), 1)
+          }
+          if (element.op.length === 0) {
+            offlineTD[form.type][form.propName].forms.splice(i, 1)
+          }
+        }
+      });
+    } catch (e) {
+      alert('Sorry we were unable to delete the Form.');
+    }
+  }
+  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+};
+
+const removeOneOfAKindReducer = (kind, oneOfAKindName, state) => {
+  let offlineTD = JSON.parse(state.offlineTD)
+  try {
+    delete offlineTD[kind][oneOfAKindName]
   } catch (e) {
     alert('Sorry we were unable to delete the Form.');
   }
@@ -59,6 +85,7 @@ const addPropertyFormReducer = (form, state) => {
 const addActionFormReducer = (params, state) => {
   let offlineTD = JSON.parse(state.offlineTD)
   const action = offlineTD.actions[params.actionName];
+  console.log('ActionForms', action.forms)
   if (action.forms === undefined) {
     action.forms = []
   }
@@ -95,6 +122,8 @@ const editdorReducer = (state, action) => {
       return newState;
     case REMOVE_FORM_FROM_TD:
       return removeFormReducer(action.form, state)
+    case REMOVE_ONE_OF_A_KIND_FROM_TD:
+      return removeOneOfAKindReducer(action.kind, action.oneOfAKindName, state)
     case ADD_PROPERTYFORM_TO_TD:
       return addPropertyFormReducer(action.form, state)
     case ADD_ACTIONFORM_TO_TD:
@@ -106,4 +135,4 @@ const editdorReducer = (state, action) => {
   }
 };
 
-export {editdorReducer}
+export { editdorReducer }

@@ -24,5 +24,6 @@ export default React.createContext({
   removeForm: form => {},
   addForm: form => {},
   addActionForm: params => {},
-  addEventForm: params => {}
+  addEventForm: params => {},
+  removeOneOfAKindReducer: (kind, oneOfAKind) => {}
 });
