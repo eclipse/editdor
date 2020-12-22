@@ -13,7 +13,7 @@
 import React, { useContext } from "react";
 import "../../assets/main.css"
 import ediTDorContext from "../../context/ediTDorContext";
-import { buildAttributeListObject, separateForms } from "../../util.js"
+import { buildAttributeListObject, checkIfFormIsInItem, hasForms, separateForms } from "../../util.js"
 import addEventForm from "./AddEventForm";
 import Form from "./Form";
 import Swal from 'sweetalert2'
@@ -34,27 +34,8 @@ export default function Event(props) {
     });
 
     const checkIfFormExists = (form) => {
-        for (const element of event.forms) {
-            for (const x of form.op) {
-                if (typeof (element.op) === 'string') {
-                    if (element.op === x.op) {
-                        return true;
-                    }
-                } else {
-                    if (element.op.includes(x)) {
-                        let deepCompare = true;
-                        for (const y in form) {
-                            if (y !== 'op') {
-                                if (element[y] !== form[y]) {
-                                    deepCompare = false;
-                                }
-                            }
-                        }
-                        if (deepCompare)
-                            return true
-                    }
-                }
-            }
+        if (hasForms(event)) {
+            return checkIfFormIsInItem(form, event)
         }
         return false
     }
@@ -75,7 +56,7 @@ export default function Event(props) {
                         'No',
                     cancelButtonAriaLabel: 'No'
                 }).then(x => {
-                    if(x.isConfirmed) {
+                    if (x.isConfirmed) {
                         context.addEventForm({ eventName: props.eventName, form: formToAdd })
                     }
                 })
@@ -85,10 +66,21 @@ export default function Event(props) {
         }
     }
 
+    const onDeleteEventClicked = () => {
+        context.removeOneOfAKindReducer('events', props.eventName)
+    }
+
     return (
         <>
             <details>
-                <summary className="text-xl text-gray-400">{event.title ?? props.eventName}</summary>
+                <summary className="text-xl text-gray-400 flex flex-row justify-start items-center">
+                    <div className="flex-grow">{event.title ?? props.eventName}</div>
+                    <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-gray-400" onClick={onDeleteEventClicked}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="text-black">
+                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                    </button>
+                </summary>
                 <div className="mb-4">
                     <div className="text-lg text-gray-400 pb-2">{event.description}</div>
                     <ul className="text-base text-gray-300 list-disc pl-8">{attributes}</ul>

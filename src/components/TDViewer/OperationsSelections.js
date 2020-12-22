@@ -50,6 +50,31 @@ const operationsSelections = (type) => {
                         unsubscribeevent
                         </label>
                     </div>`;
+        case 'forms':
+            return `<div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="writeallproperties" id="checkbox1">
+                                    <label class="form-check-label" for="checkbox1">
+                                    writeallproperties
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="readallproperties" id="checkbox2">
+                                    <label class="form-check-label" for="checkbox2">
+                                    readallproperties
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="writemultipleproperties" id="checkbox3">
+                                    <label class="form-check-label" for="checkbox3">
+                                    writemultipleproperties
+                                </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="readmultipleproperties" id="checkbox4">
+                                    <label class="form-check-label" for="checkbox4">
+                                    readmultipleproperties
+                                    </label>
+                                </div>`;
         default:
             return ''
     }

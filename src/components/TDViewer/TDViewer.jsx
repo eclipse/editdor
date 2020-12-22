@@ -18,11 +18,23 @@ import ediTDorContext from '../../context/ediTDorContext';
 import addProperty from './AddProperty';
 import addAction from './AddAction';
 import addEvent from './AddEvent';
-import { buildAttributeListObject } from '../../util';
+import addGlobalForm from './AddForm';
+import { buildAttributeListObject, checkIfFormIsInItem, hasForms, separateForms } from '../../util';
 import '../../assets/main.css'
+import Form from './Form';
+import Swal from 'sweetalert2'
 let tdJSON = {};
+let first = true;
+let firstFilterOfEvents = true;
+let firstFilterOfActions = true;
+let unfilteredProps = {};
+let unfilteredEvents = {};
+let unfilteredActions = {};
 let oldtdJSON = {};
 let error = "";
+let sortorder = 'asc';
+
+const JSON_SPACING = 2; 
 
 export default function TDViewer() {
     const context = useContext(ediTDorContext);
@@ -34,6 +46,7 @@ export default function TDViewer() {
         error = e.message;
         tdJSON = oldtdJSON;
     }
+
 
     if (!Object.keys(tdJSON).length) {
         return (
@@ -64,20 +77,58 @@ export default function TDViewer() {
         }
     }
 
+    const onClickAddGlobalForm = async () => {
+        const formToAdd = await addGlobalForm();
+        if (formToAdd) {
+            if (!hasForms(tdJSON)) {
+                tdJSON.forms = [];
+            }
+            if(checkIfFormIsInItem(formToAdd, tdJSON)){
+                Swal.fire({
+                    title: 'Duplication?',
+                    html: 'A Form with same fields already exists, are you sure you want to add this?',
+                    icon: 'warning',
+                    confirmButtonText:
+                        'Yes',
+                    confirmButtonAriaLabel: 'Yes',
+                    showCancelButton: true,
+                    cancelButtonText:
+                        'No',
+                    cancelButtonAriaLabel: 'No'
+                }).then(x => {
+                    if (x.isConfirmed) {
+                        tdJSON.forms.push(formToAdd)
+                        context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
+                    }
+                })
+            }
+            tdJSON.forms.push(formToAdd)
+            context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
+        }
+    }
+
+
     const addSubfieldToExistingTD = (type, name, property) => {
         if (!tdJSON[type]) {
             tdJSON[type] = {};
         }
         tdJSON[type][name] = property
-        context.updateOfflineTD(JSON.stringify(tdJSON,null, 2), 'TDViewer')
+        context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
     }
 
     let properties;
+    let forms;
     let actions;
     let events;
     let metaData;
 
     if (tdJSON) {
+        if (tdJSON.forms) {
+            const formsSeparated = separateForms(tdJSON.forms);
+            forms = formsSeparated.map((key, index) => {
+                return (<Form form={key} propName={index} key={index} />);
+            });
+        }
         if (tdJSON.properties) {
             properties = Object.keys(tdJSON.properties).map((key, index) => {
                 return (<Property base={tdJSON.base}
@@ -98,14 +149,128 @@ export default function TDViewer() {
         metaData = tdJSON;
     }
 
-    const alreadyRenderedKeys = ["id", "properties", "actions", "events", "description", "title",];
+    const alreadyRenderedKeys = ["id", "properties", "actions", "events", "forms", "description", "title",];
 
-    const attributeListObject = buildAttributeListObject(tdJSON.id ? {id: tdJSON.id} : {}, tdJSON, alreadyRenderedKeys);
+    const attributeListObject = buildAttributeListObject(tdJSON.id ? { id: tdJSON.id } : {}, tdJSON, alreadyRenderedKeys);
 
     const attributes = Object.keys(attributeListObject).map(x => {
         return <li key={x}>{x} : {JSON.stringify(attributeListObject[x])}</li>
     });
 
+
+    const sortKeysInObject = (kind) => {
+        const ordered = {};
+        const toSort = Object.keys(tdJSON[kind]).map(x => {
+            return { key: x, title: tdJSON[kind][x].title }
+        })
+        if (sortorder === 'asc') {
+            toSort.sort((a,b) => {
+                const nameA = a.title ? a.title : a.key;
+                const nameB = b.title ? b.title : b.key;
+                return nameA.localeCompare(nameB)
+            }).forEach(function (sortedObject) {
+                ordered[sortedObject.key] = tdJSON[kind][sortedObject.key];
+            });
+            sortorder = 'desc'
+        } else {
+            toSort.sort((a,b) => {
+                const nameA = a.title ? a.title : a.key;
+                const nameB = b.title ? b.title : b.key;
+                return nameA.localeCompare(nameB)
+            }).reverse().forEach(function (sortedObject) {
+                ordered[sortedObject.key] = tdJSON[kind][sortedObject.key];
+            });
+            sortorder = 'asc'
+        }
+        tdJSON[kind] = ordered
+        context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
+    }
+
+    const search = (event) => {
+        if (first) {
+            console.log(first)
+            unfilteredProps = tdJSON.properties
+            first = false
+        }
+        let sortedProps = {};
+        if (event.target.value.length === 0) {
+            sortedProps = unfilteredProps;
+        } else {
+            Object.keys(unfilteredProps).filter(x => {
+                if (x.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }).forEach(y => {
+                sortedProps[y] = unfilteredProps[y]
+            })
+        }
+        tdJSON.properties = sortedProps;
+        context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
+    }
+
+    const searchActions = (event) => {
+        if (firstFilterOfActions) {
+            unfilteredActions = tdJSON.actions
+            firstFilterOfActions = false
+        }
+        let sortedActions = {};
+        if (event.target.value.length === 0) {
+            sortedActions = unfilteredActions;
+        } else {
+            Object.keys(unfilteredActions).filter(x => {
+                if (x.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }).forEach(y => {
+                sortedActions[y] = unfilteredActions[y]
+            })
+        }
+        tdJSON.actions = sortedActions;
+        context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
+    }
+
+    const searchEvents = (event) => {
+        if (firstFilterOfEvents) {
+            console.log(first)
+            unfilteredEvents = tdJSON.events
+            firstFilterOfEvents = false
+        }
+        let sortedEvents = {};
+        if (event.target.value.length === 0) {
+            sortedEvents = unfilteredEvents;
+        } else {
+            Object.keys(unfilteredEvents).filter(x => {
+                if (x.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }).forEach(y => {
+                sortedEvents[y] = unfilteredEvents[y]
+            })
+        }
+        tdJSON.events = sortedEvents;
+        context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
+    }
+
+    const sortedIcon = () => {
+        if (sortorder === 'asc') {
+            return (<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#ffffff">
+                <path d="M6 22l6-8h-4v-12h-4v12h-4l6 8zm11.694-19.997h2.525l3.781 10.997h-2.421l-.705-2.261h-3.935l-.723 2.261h-2.336l3.814-10.997zm-.147 6.841h2.736l-1.35-4.326-1.386 4.326zm-.951 11.922l3.578-4.526h-3.487v-1.24h5.304v1.173l-3.624 4.593h3.633v1.234h-5.404v-1.234z" />
+            </svg>)
+        } else {
+            return <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#ffffff">
+                <path d="M6 2l-6 8h4v12h4v-12h4l-6-8zm11.694.003h2.525l3.781 10.997h-2.421l-.705-2.261h-3.935l-.723 2.261h-2.336l3.814-10.997zm-.147 6.841h2.736l-1.35-4.326-1.386 4.326zm-.951 11.922l3.578-4.526h-3.487v-1.24h5.304v1.173l-3.624 4.593h3.633v1.234h-5.404v-1.234z" />
+            </svg>
+        }
+    }
 
     return (
         <div className="h-full w-full bg-gray-500 p-8 overflow-scroll overflow-x-hidden">
@@ -123,35 +288,91 @@ export default function TDViewer() {
                     <div className="text-xl text-white pt-4">{metaData.description}</div>
                 </div>)
             }
+            <details>
+                <summary className="flex justify-start items-center pt-8 pb-4">
+                    <div className="flex flex-row justify-start items-end flex-grow">
+                        <div className="text-2xl text-white mr-4">Forms</div>
+                    </div>
+                    <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddGlobalForm}>Add new Form</button>
+                </summary>
+                {
+                    forms && (
+                        <>
+                            <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{forms}</div>
+                        </>)
+                }
+            </details>
 
-            <div className="flex justify-between items-end pt-8 pb-4">
-                <div className="text-2xl text-white">Properties</div>
-                <div className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddProp}>Add new Property</div>
+            <div className="flex justify-start items-end pt-8 pb-4">
+                <div className="flex flex-row justify-start items-end flex-grow">
+                    <div className="text-2xl text-white mr-4 flex-grow">Properties</div>
+                    <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={() => sortKeysInObject('properties')}>
+                        {sortedIcon()}
+                    </button>
+                    <div className="relative text-gray-600">
+                        <input type="search" autoComplete="on" className="px-5 pr-10 ml-4 mr-4 place-self-center rounded-full text-sm focus:outline-none" onKeyUp={search} placeholder="Search Properties" aria-label="Search through all Properties" />
+                        <button type="submit" className="cursor-default absolute right-0 top-0 mt-1 mr-6">
+                            <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 56.966 56.966" style={{ enableBackground: 'new 0 0 56.966 56.966' }} space="preserve" width="512px" height="512px">
+                                <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddProp}>Add new Property</button>
             </div>
-            {properties && (
-                <>
-                    <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{properties}</div>
-                </>)
+            {
+                properties && (
+                    <>
+                        <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{properties}</div>
+                    </>)
             }
 
             <div className="flex justify-between items-end pt-8 pb-4">
-                <div className="text-2xl text-white pl-1">Actions</div>
-                <div className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddAction}>Add new Action</div>
+                <div className="flex flex-row justify-start items-end flex-grow">
+                    <div className="text-2xl text-white pl-1 mr-4 flex-grow">Actions</div>
+                    <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={() => sortKeysInObject('actions')}>
+                        {sortedIcon()}
+                    </button>
+                    <div className="relative text-gray-600">
+                        <input type="search" autoComplete="on" className="px-5 pr-10 ml-4 mr-4 place-self-center rounded-full text-sm focus:outline-none" onKeyUp={searchActions} placeholder="Search Actions" aria-label="Search through all Properties" />
+                        <button type="submit" disabled className="cursor-default absolute right-0 top-0 mt-1 mr-6">
+                            <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 56.966 56.966" style={{ enableBackground: 'new 0 0 56.966 56.966' }} space="preserve" width="512px" height="512px">
+                                <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddAction}>Add new Action</button>
             </div>
-            {actions && (
-                <>
-                    <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{actions}</div>
-                </>)
+            {
+                actions && (
+                    <>
+                        <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{actions}</div>
+                    </>)
             }
 
             <div className="flex justify-between items-end pt-8 pb-4">
-                <div className="text-2xl text-white">Events</div>
-                <div className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddEvent}>Add new Event</div>
+                <div className="flex flex-row justify-start items-end flex-grow">
+                    <div className="text-2xl text-white mr-4 flex-grow">Events</div>
+                    <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={() => sortKeysInObject('events')}>
+                        {sortedIcon()}
+                    </button>
+                    <div className="relative text-gray-600">
+                        <input type="search" autoComplete="on" className="px-5 pr-10 ml-4 mr-4 place-self-center rounded-full text-sm focus:outline-none" onKeyUp={searchEvents} placeholder="Search Events" aria-label="Search through all Properties" />
+                        <button disabled type="submit" className="cursor-default absolute right-0 top-0 mt-1 mr-6">
+                            <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 56.966 56.966" style={{ enableBackground: 'new 0 0 56.966 56.966' }} space="preserve" width="512px" height="512px">
+                                <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddEvent}>Add new Event</button>
             </div>
-            {events && (
-                <>
-                    <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{events}</div>
-                </>)
+            {
+                events && (
+                    <>
+                        <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{events}</div>
+                    </>)
             }
             <div className="h-16"></div>
         </div >
