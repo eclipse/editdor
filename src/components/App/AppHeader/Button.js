@@ -14,7 +14,7 @@ import React from 'react';
 
 export default function Button(props) {
     return (
-        <div
+        <button
             onClick={props.onClick}
             className="
                 flex
@@ -33,6 +33,6 @@ export default function Button(props) {
             <div className="place-self-center">
                 {props.children}
             </div>
-        </div>
+        </button>
     );
 }
