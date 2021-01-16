@@ -42,8 +42,6 @@ export default function Form(props) {
     return <UndefinedForm form={props.form} propName={props.propName}/>
 }
 
-
-
 export function ObserveForm(props) {
     const context = useContext(ediTDorContext)
     const deleteForm = (e) => {
