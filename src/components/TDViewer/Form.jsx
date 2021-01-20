@@ -13,20 +13,21 @@
 import React, { useContext } from "react";
 import "../../assets/main.css"
 import ediTDorContext from "../../context/ediTDorContext";
+import { Trash2 } from "react-feather";
 
 export default function Form(props) {
 
     const formChooser = {
         "observeproperty": <ObserveForm type="properties" form={props.form} propName={props.propName} />,
-        "unobserveproperty": <UnobserveForm type="properties" form={props.form} propName={props.propName}/>,
-        "readproperty": <ReadForm type="properties" form={props.form} propName={props.propName}/>,
-        "readmultipleproperties": <ReadMultipleForm type="forms" form={props.form} formIndex={props.propName}/>,
-        "readallproperties": <ReadAllForm type="forms" form={props.form} formIndex={props.propName}/>,
-        "writeproperty": <WriteForm type="properties" form={props.form} propName={props.propName}/>,
-        "writemultipleproperties": <WriteMultipleForm type="forms" form={props.form} formIndex={props.propName}/>,
-        "writeallproperties": <WriteAllForm type="forms" form={props.form} formIndex={props.propName}/>,
-        "invokeaction": <InvokeForm type="actions" form={props.form} propName={props.propName}/>,
-        "unsubscribeevent": <UnobserveForm type="events" form={props.form} propName={props.propName}/>,
+        "unobserveproperty": <UnobserveForm type="properties" form={props.form} propName={props.propName} />,
+        "readproperty": <ReadForm type="properties" form={props.form} propName={props.propName} />,
+        "readmultipleproperties": <ReadMultipleForm type="forms" form={props.form} formIndex={props.propName} />,
+        "readallproperties": <ReadAllForm type="forms" form={props.form} formIndex={props.propName} />,
+        "writeproperty": <WriteForm type="properties" form={props.form} propName={props.propName} />,
+        "writemultipleproperties": <WriteMultipleForm type="forms" form={props.form} formIndex={props.propName} />,
+        "writeallproperties": <WriteAllForm type="forms" form={props.form} formIndex={props.propName} />,
+        "invokeaction": <InvokeForm type="actions" form={props.form} propName={props.propName} />,
+        "unsubscribeevent": <UnobserveForm type="events" form={props.form} propName={props.propName} />,
     }
 
     if (formChooser[props.form.op]) {
@@ -34,12 +35,12 @@ export default function Form(props) {
     }
 
     if (props.interactionType === "action") {
-        return <InvokeForm type="actions" form={props.form} propName={props.propName}/>
+        return <InvokeForm type="actions" form={props.form} propName={props.propName} />
     } else if (props.interactionType === "event") {
-        return <ObserveForm type="events" form={props.form} propName={props.propName}/>
+        return <ObserveForm type="events" form={props.form} propName={props.propName} />
     }
 
-    return <UndefinedForm form={props.form} propName={props.propName}/>
+    return <UndefinedForm form={props.form} propName={props.propName} />
 }
 
 export function ObserveForm(props) {
@@ -54,9 +55,7 @@ export function ObserveForm(props) {
             </div>
             <div className="place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formOrange" onClick={() => deleteForm(props)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+                <Trash2 size={16} color="black" />
             </button>
         </div>
     );
@@ -74,9 +73,7 @@ export function UnobserveForm(props) {
             </div>
             <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formRed" onClick={() => deleteForm(props)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+                <Trash2 size={16} color="black" />
             </button>
         </div>
     );
@@ -94,9 +91,7 @@ export function ReadForm(props) {
             </div>
             <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formGreen" onClick={() => deleteForm(props)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+                <Trash2 size={16} color="black" />
             </button>
         </div>
     );
@@ -114,9 +109,7 @@ export function ReadMultipleForm(props) {
             </div>
             <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formGreen" onClick={() => deleteForm(props)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+                <Trash2 size={16} color="black" />
             </button>
         </div>
     );
@@ -134,9 +127,7 @@ export function ReadAllForm(props) {
             </div>
             <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formGreen" onClick={() => deleteForm(props)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+                <Trash2 size={16} color="black" />
             </button>
         </div>
     );
@@ -154,9 +145,7 @@ export function WriteForm(props) {
             </div>
             <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue" onClick={() => deleteForm(props)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+                <Trash2 size={16} color="black" />
             </button>
         </div>
     );
@@ -174,9 +163,7 @@ export function WriteMultipleForm(props) {
             </div>
             <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue" onClick={() => deleteForm(props)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+                <Trash2 size={16} color="black" />
             </button>
         </div>
     );
@@ -194,9 +181,7 @@ export function WriteAllForm(props) {
             </div>
             <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue" onClick={() => deleteForm(props)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+                <Trash2 size={16} color="black" />
             </button>
         </div>
     );
@@ -214,9 +199,7 @@ export function InvokeForm(props) {
             </div>
             <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.form.href}</div>
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formRed" onClick={() => deleteForm(props)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+                <Trash2 size={16} color="black" />
             </button>
         </div>
     );
@@ -234,9 +217,7 @@ export function UndefinedForm(props) {
             </div>
             <div className=" place-self-center pl-3 text-base overflow-hidden flex-grow">{props.form.href}</div>
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-white" onClick={() => deleteForm(props)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+                <Trash2 size={16} color="black" />
             </button>
         </div>
     );
