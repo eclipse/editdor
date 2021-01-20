@@ -25,6 +25,7 @@ import Form from './Form';
 import Swal from 'sweetalert2';
 import { InfoIconWrapper } from '../InfoIcon/InfoIcon';
 import { getPropertiesTooltipContent, getActionsTooltipContent, getEventsTooltipContent, getFormsTooltipContent } from '../InfoIcon/InfoTooltips';
+import { SearchBar } from './SearchBar';
 let tdJSON = {};
 let first = true;
 let firstFilterOfEvents = true;
@@ -48,7 +49,6 @@ export default function TDViewer() {
         error = e.message;
         tdJSON = oldtdJSON;
     }
-
 
     if (!Object.keys(tdJSON).length) {
         return (
@@ -108,7 +108,6 @@ export default function TDViewer() {
             context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
         }
     }
-
 
     const addSubfieldToExistingTD = (type, name, property) => {
         if (!tdJSON[type]) {
@@ -188,9 +187,8 @@ export default function TDViewer() {
         context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
     }
 
-    const search = (event) => {
+    const searchProperties = (event) => {
         if (first) {
-            console.log(first)
             unfilteredProps = tdJSON.properties
             first = false
         }
@@ -264,14 +262,14 @@ export default function TDViewer() {
 
     const sortedIcon = () => {
         if (sortorder === 'asc') {
-            return (<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#ffffff">
-                <path d="M6 22l6-8h-4v-12h-4v12h-4l6 8zm11.694-19.997h2.525l3.781 10.997h-2.421l-.705-2.261h-3.935l-.723 2.261h-2.336l3.814-10.997zm-.147 6.841h2.736l-1.35-4.326-1.386 4.326zm-.951 11.922l3.578-4.526h-3.487v-1.24h5.304v1.173l-3.624 4.593h3.633v1.234h-5.404v-1.234z" />
-            </svg>)
-        } else {
-            return <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#ffffff">
-                <path d="M6 2l-6 8h4v12h4v-12h4l-6-8zm11.694.003h2.525l3.781 10.997h-2.421l-.705-2.261h-3.935l-.723 2.261h-2.336l3.814-10.997zm-.147 6.841h2.736l-1.35-4.326-1.386 4.326zm-.951 11.922l3.578-4.526h-3.487v-1.24h5.304v1.173l-3.624 4.593h3.633v1.234h-5.404v-1.234z" />
+            return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#ffffff" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 5h10M11 9h7M11 13h4M3 17l3 3 3-3M6 18V4" />
             </svg>
         }
+
+        return (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#ffffff" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 5h4M11 9h7M11 13h10M3 17l3 3 3-3M6 18V4" />
+        </svg>)
     }
 
     return (
@@ -308,18 +306,17 @@ export default function TDViewer() {
                         <h2 className="text-2xl text-white pr-1 flex-grow">Properties</h2>
                     </InfoIconWrapper>
                 </div>
-                <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={() => sortKeysInObject('properties')}>
+                <SearchBar
+                    onKeyUp={searchProperties}
+                    placeholder="Search Properties"
+                    ariaLabel="Search through all Properties"
+                />
+                <div className="w-2"></div>
+                <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2 h-9" onClick={() => sortKeysInObject('properties')}>
                     {sortedIcon()}
                 </button>
-                <div className="relative text-gray-600">
-                    <input type="search" autoComplete="on" className="px-5 pr-10 ml-4 mr-4 place-self-center rounded-full text-sm focus:outline-none" onKeyUp={search} placeholder="Search Properties" aria-label="Search through all Properties" />
-                    <button type="submit" className="cursor-default absolute right-0 top-0 mt-1 mr-6">
-                        <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 56.966 56.966" style={{ enableBackground: 'new 0 0 56.966 56.966' }} space="preserve" width="512px" height="512px">
-                            <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
-                        </svg>
-                    </button>
-                </div>
-                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddProp}>Add new Property</button>
+                <div className="w-2"></div>
+                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" onClick={onClickAddProp}>Add new Property</button>
             </div>
             {properties && <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{properties}</div>}
 
@@ -329,18 +326,17 @@ export default function TDViewer() {
                         <h2 className="text-2xl text-white pr-1 flex-grow">Actions</h2>
                     </InfoIconWrapper>
                 </div>
-                <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={() => sortKeysInObject('actions')}>
+                <SearchBar
+                    onKeyUp={searchActions}
+                    placeholder="Search Actions"
+                    ariaLabel="Search through all Actions"
+                />
+                <div className="w-2"></div>
+                <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2 h-9" onClick={() => sortKeysInObject('actions')}>
                     {sortedIcon()}
                 </button>
-                <div className="relative text-gray-600">
-                    <input type="search" autoComplete="on" className="px-5 pr-10 ml-4 mr-4 place-self-center rounded-full text-sm focus:outline-none" onKeyUp={searchActions} placeholder="Search Actions" aria-label="Search through all Properties" />
-                    <button type="submit" disabled className="cursor-default absolute right-0 top-0 mt-1 mr-6">
-                        <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 56.966 56.966" style={{ enableBackground: 'new 0 0 56.966 56.966' }} space="preserve" width="512px" height="512px">
-                            <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
-                        </svg>
-                    </button>
-                </div>
-                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddAction}>Add new Action</button>
+                <div className="w-2"></div>
+                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" onClick={onClickAddAction}>Add new Action</button>
             </div>
             {actions && <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{actions}</div>}
 
@@ -350,18 +346,17 @@ export default function TDViewer() {
                         <h2 className="text-2xl text-white pr-1 flex-grow">Events</h2>
                     </InfoIconWrapper>
                 </div>
-                <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={() => sortKeysInObject('events')}>
+                <SearchBar
+                    onKeyUp={searchEvents}
+                    placeholder="Search Events"
+                    ariaLabel="Search through all Events"
+                />
+                <div className="w-2"></div>
+                <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2 h-9" onClick={() => sortKeysInObject('events')}>
                     {sortedIcon()}
                 </button>
-                <div className="relative text-gray-600">
-                    <input type="search" autoComplete="on" className="px-5 pr-10 ml-4 mr-4 place-self-center rounded-full text-sm focus:outline-none" onKeyUp={searchEvents} placeholder="Search Events" aria-label="Search through all Properties" />
-                    <button disabled type="submit" className="cursor-default absolute right-0 top-0 mt-1 mr-6">
-                        <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 56.966 56.966" style={{ enableBackground: 'new 0 0 56.966 56.966' }} space="preserve" width="512px" height="512px">
-                            <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
-                        </svg>
-                    </button>
-                </div>
-                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddEvent}>Add new Event</button>
+                <div className="w-2"></div>
+                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" onClick={onClickAddEvent}>Add new Event</button>
             </div>
             {events && <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{events}</div>}
             <div className="h-16"></div>
