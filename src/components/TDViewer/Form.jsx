@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2020 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2021 Contributors to the Eclipse Foundation
  * 
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -41,8 +41,6 @@ export default function Form(props) {
 
     return <UndefinedForm form={props.form} propName={props.propName}/>
 }
-
-
 
 export function ObserveForm(props) {
     const context = useContext(ediTDorContext)

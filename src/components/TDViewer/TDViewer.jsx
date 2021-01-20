@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2020 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2021 Contributors to the Eclipse Foundation
  * 
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -20,9 +20,11 @@ import addAction from './AddAction';
 import addEvent from './AddEvent';
 import addGlobalForm from './AddForm';
 import { buildAttributeListObject, checkIfFormIsInItem, hasForms, separateForms } from '../../util';
-import '../../assets/main.css'
+import '../../assets/main.css';
 import Form from './Form';
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
+import { InfoIconWrapper } from '../InfoIcon/InfoIcon';
+import { getPropertiesTooltipContent, getActionsTooltipContent, getEventsTooltipContent, getFormsTooltipContent } from '../InfoIcon/InfoTooltips';
 let tdJSON = {};
 let first = true;
 let firstFilterOfEvents = true;
@@ -34,7 +36,7 @@ let oldtdJSON = {};
 let error = "";
 let sortorder = 'asc';
 
-const JSON_SPACING = 2; 
+const JSON_SPACING = 2;
 
 export default function TDViewer() {
     const context = useContext(ediTDorContext);
@@ -83,7 +85,7 @@ export default function TDViewer() {
             if (!hasForms(tdJSON)) {
                 tdJSON.forms = [];
             }
-            if(checkIfFormIsInItem(formToAdd, tdJSON)){
+            if (checkIfFormIsInItem(formToAdd, tdJSON)) {
                 Swal.fire({
                     title: 'Duplication?',
                     html: 'A Form with same fields already exists, are you sure you want to add this?',
@@ -164,7 +166,7 @@ export default function TDViewer() {
             return { key: x, title: tdJSON[kind][x].title }
         })
         if (sortorder === 'asc') {
-            toSort.sort((a,b) => {
+            toSort.sort((a, b) => {
                 const nameA = a.title ? a.title : a.key;
                 const nameB = b.title ? b.title : b.key;
                 return nameA.localeCompare(nameB)
@@ -173,7 +175,7 @@ export default function TDViewer() {
             });
             sortorder = 'desc'
         } else {
-            toSort.sort((a,b) => {
+            toSort.sort((a, b) => {
                 const nameA = a.title ? a.title : a.key;
                 const nameB = b.title ? b.title : b.key;
                 return nameA.localeCompare(nameB)
@@ -288,92 +290,80 @@ export default function TDViewer() {
                     <div className="text-xl text-white pt-4">{metaData.description}</div>
                 </div>)
             }
-            <details>
-                <summary className="flex justify-start items-center pt-8 pb-4">
-                    <div className="flex flex-row justify-start items-end flex-grow">
-                        <div className="text-2xl text-white mr-4">Forms</div>
+            <details className="pt-8">
+                <summary className="flex justify-start items-center">
+                    <div className="flex flex-grow">
+                        <InfoIconWrapper tooltip={getFormsTooltipContent()}>
+                            <h2 className="text-2xl text-white pr-1 flex-grow">Forms</h2>
+                        </InfoIconWrapper>
                     </div>
                     <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddGlobalForm}>Add new Form</button>
                 </summary>
-                {
-                    forms && (
-                        <>
-                            <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{forms}</div>
-                        </>)
-                }
+                {forms && <div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{forms}</div></div>}
             </details>
 
             <div className="flex justify-start items-end pt-8 pb-4">
-                <div className="flex flex-row justify-start items-end flex-grow">
-                    <div className="text-2xl text-white mr-4 flex-grow">Properties</div>
-                    <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={() => sortKeysInObject('properties')}>
-                        {sortedIcon()}
+                <div className="flex flex-grow">
+                    <InfoIconWrapper tooltip={getPropertiesTooltipContent()}>
+                        <h2 className="text-2xl text-white pr-1 flex-grow">Properties</h2>
+                    </InfoIconWrapper>
+                </div>
+                <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={() => sortKeysInObject('properties')}>
+                    {sortedIcon()}
+                </button>
+                <div className="relative text-gray-600">
+                    <input type="search" autoComplete="on" className="px-5 pr-10 ml-4 mr-4 place-self-center rounded-full text-sm focus:outline-none" onKeyUp={search} placeholder="Search Properties" aria-label="Search through all Properties" />
+                    <button type="submit" className="cursor-default absolute right-0 top-0 mt-1 mr-6">
+                        <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 56.966 56.966" style={{ enableBackground: 'new 0 0 56.966 56.966' }} space="preserve" width="512px" height="512px">
+                            <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
+                        </svg>
                     </button>
-                    <div className="relative text-gray-600">
-                        <input type="search" autoComplete="on" className="px-5 pr-10 ml-4 mr-4 place-self-center rounded-full text-sm focus:outline-none" onKeyUp={search} placeholder="Search Properties" aria-label="Search through all Properties" />
-                        <button type="submit" className="cursor-default absolute right-0 top-0 mt-1 mr-6">
-                            <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 56.966 56.966" style={{ enableBackground: 'new 0 0 56.966 56.966' }} space="preserve" width="512px" height="512px">
-                                <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
-                            </svg>
-                        </button>
-                    </div>
                 </div>
                 <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddProp}>Add new Property</button>
             </div>
-            {
-                properties && (
-                    <>
-                        <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{properties}</div>
-                    </>)
-            }
+            {properties && <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{properties}</div>}
 
             <div className="flex justify-between items-end pt-8 pb-4">
-                <div className="flex flex-row justify-start items-end flex-grow">
-                    <div className="text-2xl text-white pl-1 mr-4 flex-grow">Actions</div>
-                    <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={() => sortKeysInObject('actions')}>
-                        {sortedIcon()}
+                <div className="flex flex-grow">
+                    <InfoIconWrapper tooltip={getActionsTooltipContent()}>
+                        <h2 className="text-2xl text-white pr-1 flex-grow">Actions</h2>
+                    </InfoIconWrapper>
+                </div>
+                <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={() => sortKeysInObject('actions')}>
+                    {sortedIcon()}
+                </button>
+                <div className="relative text-gray-600">
+                    <input type="search" autoComplete="on" className="px-5 pr-10 ml-4 mr-4 place-self-center rounded-full text-sm focus:outline-none" onKeyUp={searchActions} placeholder="Search Actions" aria-label="Search through all Properties" />
+                    <button type="submit" disabled className="cursor-default absolute right-0 top-0 mt-1 mr-6">
+                        <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 56.966 56.966" style={{ enableBackground: 'new 0 0 56.966 56.966' }} space="preserve" width="512px" height="512px">
+                            <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
+                        </svg>
                     </button>
-                    <div className="relative text-gray-600">
-                        <input type="search" autoComplete="on" className="px-5 pr-10 ml-4 mr-4 place-self-center rounded-full text-sm focus:outline-none" onKeyUp={searchActions} placeholder="Search Actions" aria-label="Search through all Properties" />
-                        <button type="submit" disabled className="cursor-default absolute right-0 top-0 mt-1 mr-6">
-                            <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 56.966 56.966" style={{ enableBackground: 'new 0 0 56.966 56.966' }} space="preserve" width="512px" height="512px">
-                                <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
-                            </svg>
-                        </button>
-                    </div>
                 </div>
                 <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddAction}>Add new Action</button>
             </div>
-            {
-                actions && (
-                    <>
-                        <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{actions}</div>
-                    </>)
-            }
+            {actions && <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{actions}</div>}
 
             <div className="flex justify-between items-end pt-8 pb-4">
-                <div className="flex flex-row justify-start items-end flex-grow">
-                    <div className="text-2xl text-white mr-4 flex-grow">Events</div>
-                    <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={() => sortKeysInObject('events')}>
-                        {sortedIcon()}
+                <div className="flex flex-grow">
+                    <InfoIconWrapper tooltip={getEventsTooltipContent()}>
+                        <h2 className="text-2xl text-white pr-1 flex-grow">Events</h2>
+                    </InfoIconWrapper>
+                </div>
+                <button className="text-white bg-blue-500 cursor-pointer rounded-md p-2" onClick={() => sortKeysInObject('events')}>
+                    {sortedIcon()}
+                </button>
+                <div className="relative text-gray-600">
+                    <input type="search" autoComplete="on" className="px-5 pr-10 ml-4 mr-4 place-self-center rounded-full text-sm focus:outline-none" onKeyUp={searchEvents} placeholder="Search Events" aria-label="Search through all Properties" />
+                    <button disabled type="submit" className="cursor-default absolute right-0 top-0 mt-1 mr-6">
+                        <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 56.966 56.966" style={{ enableBackground: 'new 0 0 56.966 56.966' }} space="preserve" width="512px" height="512px">
+                            <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
+                        </svg>
                     </button>
-                    <div className="relative text-gray-600">
-                        <input type="search" autoComplete="on" className="px-5 pr-10 ml-4 mr-4 place-self-center rounded-full text-sm focus:outline-none" onKeyUp={searchEvents} placeholder="Search Events" aria-label="Search through all Properties" />
-                        <button disabled type="submit" className="cursor-default absolute right-0 top-0 mt-1 mr-6">
-                            <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 56.966 56.966" style={{ enableBackground: 'new 0 0 56.966 56.966' }} space="preserve" width="512px" height="512px">
-                                <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
-                            </svg>
-                        </button>
-                    </div>
                 </div>
                 <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddEvent}>Add new Event</button>
             </div>
-            {
-                events && (
-                    <>
-                        <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{events}</div>
-                    </>)
-            }
+            {events && <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{events}</div>}
             <div className="h-16"></div>
         </div >
     );
