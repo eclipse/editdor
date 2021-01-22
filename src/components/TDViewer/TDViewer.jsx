@@ -120,9 +120,9 @@ export default function TDViewer() {
                     {forms && <div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{forms}</div></div>}
                 </details>
 
-                <InteractionSection interaction="Properties" tdJSON={tdJSON} ></InteractionSection>
-                <InteractionSection interaction="Actions" tdJSON={tdJSON} ></InteractionSection>
-                <InteractionSection interaction="Events" tdJSON={tdJSON} ></InteractionSection>
+                <InteractionSection interaction="Properties" ></InteractionSection>
+                <InteractionSection interaction="Actions" ></InteractionSection>
+                <InteractionSection interaction="Events" ></InteractionSection>
 
                 <div className="h-16"></div>
             </div >
