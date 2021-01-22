@@ -25,11 +25,9 @@ let oldTd = {};
 /**
  * Renders a section for an interaction (Property, Action, Event) with a 
  * search bar, a sorting icon and a button to add a new interaction.
- *
- * The parameter tooltip a TooltipContent object containing HTML on how
- * the tooltip is rendered and a link that gets called onClick.
+ * 
+ * The parameter interaction can be one of "Properties", "Actions" or "Events".
  * @param {String} interaction
- * @param {Object} children
  */
 export const InteractionSection = (props) => {
     const [filter, setFilter] = useState("");
