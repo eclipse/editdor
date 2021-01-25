@@ -82,9 +82,8 @@ export default function TDViewer() {
             forms = formsSeparated.map((key, index) => {
                 return (<Form form={key} propName={index} key={index} />);
             });
-
-            metaData = tdJSON;
         }
+        metaData = tdJSON;
 
         const alreadyRenderedKeys = ["id", "properties", "actions", "events", "forms", "description", "title",];
         const attributeListObject = buildAttributeListObject(tdJSON.id ? { id: tdJSON.id } : {}, tdJSON, alreadyRenderedKeys);
