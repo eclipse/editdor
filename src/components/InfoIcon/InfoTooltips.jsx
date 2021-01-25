@@ -63,3 +63,10 @@ export const getFormsTooltipContent = () => {
 
     return new TooltipContent(html, href);
 }
+
+export const tooltipMapper = {
+    "properties": getPropertiesTooltipContent(),
+    "actions": getActionsTooltipContent(),
+    "events": getEventsTooltipContent(),
+    "forms": getFormsTooltipContent(),
+};
