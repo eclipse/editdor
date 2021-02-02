@@ -1,3 +1,3 @@
 {
-    "https://example.com" : "https://example.com/json_schema.json"
+    "https://example.com" : "https://raw.githubusercontent.com/vcharpenay/editdor-onto-integration/master/schema.json"
 }
