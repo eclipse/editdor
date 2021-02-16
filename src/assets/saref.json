@@ -1,0 +1,171 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+        "@type": {
+            "$ref": "#/definitions/@type"
+        },
+        "properties": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/interaction_element"
+            }
+        },
+        "actions": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/interaction_element"
+            }
+        },
+        "events": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/interaction_element"
+            }
+        }
+    },
+    "definitions": {
+        "interaction_element": {
+            "type": "object",
+            "properties": {
+                "@type": {
+                    "$ref": "#/definitions/@type"
+                }
+            }
+        },
+        "@type": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/label"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/label"
+                    }
+                }
+            ]
+        },
+        "label": {
+            "$ref": "#/definitions/thingLabel"
+        },
+        "thingLabel": {
+            "type": "string",
+            "oneOf": [
+                {
+                    "const": "http://www.w3.org/ns/sosa/Sampler",
+                    "description": "A device that is used by, or implements, a Sampling Procedure to create or transform one or more samples."
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Humidity",
+                    "description": "A saref:Property related to some measurements that are characterized by a certain value that is measured in a humidity unit"
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Motion",
+                    "description": "A saref:Property related to some measurements that are characterized by a certain value that is measured in a unit of measure for motion"
+                },
+                {
+                    "const": "http://www.w3.org/ns/sosa/Actuator",
+                    "description": "A device that is used by, or implements, an (Actuation) Procedure that changes the state of the world."
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Light",
+                    "description": "A saref:Property related to some measurements that are characterized by a certain value that is measured in a illuminance unit (lux)"
+                },
+                {
+                    "const": "https://saref.etsi.org/core/HVAC",
+                    "description": "Heating, Ventilation and Air Conditioning (HVAC) device that provides indoor environmental comfort. A saref:HVAC is typically used to accomplish saref:Comfort."
+                },
+                {
+                    "const": "http://www.w3.org/ns/sosa/ObservableProperty",
+                    "description": "An observable quality (property, characteristic) of a FeatureOfInterest."
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Pressure",
+                    "description": "A saref:Property related to some measurements that are characterized by a certain value that is measured in a pressure unit (bar or pascal)"
+                },
+                {
+                    "const": "https://saref.etsi.org/core/LightSwitch",
+                    "description": "A switch that performs the saref:OnOffFunction, controls the property saref:Light, and can be found in the state saref:OnOffState. It can offer a switch on service. A saref:LightSwitch is typically used to accomplish saref:Lighting."
+                },
+                {
+                    "const": "http://www.w3.org/ns/sosa/ActuatableProperty",
+                    "description": "An actuatable quality (property, characteristic) of a FeatureOfInterest."
+                },
+                {
+                    "const": "https://saref.etsi.org/core/SmokeSensor",
+                    "description": "A sensor that performs the saref:SensingFunction and the saref:EventFunction, and is used for the purpose of sensing a property of type saref:Smoke. A saref:SmokeSensor is typically used to saref:accomplish saref:Safety."
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Switch",
+                    "description": "A device of category saref:Actuator that performs an actuating function of type saref:OnOffFunction or saref:OpenCloseFunction"
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Device",
+                    "description": "A tangible object designed to accomplish a particular task. In order to accomplish this task, the device performs one or more functions. For example, a washing machine is designed to wash (task) and to accomplish this task it performs a start and stop function."
+                },
+                {
+                    "const": "http://www.w3.org/ns/sosa/Sensor",
+                    "description": "Device, agent (including humans), or software (simulation) involved in, or implementing, a Procedure. Sensors respond to a stimulus, e.g., a change in the environment, or input data composed from the results of prior Observations, and generate a Result. Sensors can be hosted by Platforms."
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Temperature",
+                    "description": "A saref:Property related to some measurements that are characterized by a certain value that is measured in a temperature unit (degree_Celsius, degree_Fahrenheit, or degree_kelvin)"
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Sensor",
+                    "description": "A device that detects and responds to events or changes in the physical environment such as light, motion, or temperature changes. Further, a device of category saref:Sensor that performs a saref:SensingFunction."
+                },
+                {
+                    "const": "https://saref.etsi.org/core/TemperatureSensor",
+                    "description": "A sensor that is used for the purpose of sensing a property of type saref:Temperature. A saref:TemperatureSensor is typically used to saref:accomplish saref:Comfort."
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Appliance",
+                    "description": "An electrical/mechanical machine that accomplish some household functions, such as cleaning or cooking"
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Meter",
+                    "description": "A device built to accurately detect and display a quantity in a form readable by a human being. Further, a device of category saref:Meter that performs a saref:MeteringFunction."
+                },
+                {
+                    "const": "http://www.w3.org/ns/sosa/Sample",
+                    "description": "A Sample is the result from an act of Sampling. Feature which is intended to be representative of a FeatureOfInterest on which Observations may be made. Physical samples are sometimes known as 'specimens'."
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Actuator",
+                    "description": "A device responsible for moving or controlling a mechanism or system by performing an actuating function"
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Price",
+                    "description": "A saref:Property crelated to some measurements that are characterized by a certain value that is measured using saref:Currency"
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Smoke",
+                    "description": "A saref:Property related to some measurements that are characterized by a certain value that is measured in a unit of measure for smoke"
+                },
+                {
+                    "const": "https://saref.etsi.org/core/DoorSwitch",
+                    "description": "A switch that performs the saref:OpenCloseFunction, is used for controlling a door, and can be found in the state saref:OpenCloseState. A saref:DoorSwitch is typically used to accomplish saref:Safety."
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Power",
+                    "description": "A saref:Property related to some measurements that are characterized by a certain value that is measured in a power unit (such as watt or kilowatt).  Further specializations of the saref:Power class can be found in the SAREF4ENER extension, where classes such as PowerMax, PowerMin and PowerExpected are defined."
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Property",
+                    "description": "A quality of a feature of interest that can be measured; an aspect of a feature of interest that is intrinsic to and cannot exist without the feature"
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Occupancy",
+                    "description": "A saref:Property related to some measurements that are characterized by a certain value (saref:hasValue property) that is measured in a unit of measure for occupancy"
+                },
+                {
+                    "const": "https://saref.etsi.org/core/Energy",
+                    "description": "A saref:Property related to some measurements that are characterized by a certain value measured in an energy unit (such as Kilowatt_Hour or Watt_hour). Furter specializations of the saref:Energy class can be found in the SAREF4ENER extension, where classes such as EnergyMax, EnergyMin and EnergyExpected are defined. "
+                }
+            ]
+        }
+    }
+}
