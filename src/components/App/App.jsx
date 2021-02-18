@@ -15,6 +15,7 @@ import './App.css';
 import TDViewer from '../TDViewer/TDViewer'
 import JSONEditorComponent from "../Editor/Editor";
 import AppHeader from './AppHeader/AppHeader';
+import AppFooter from './AppFooter';
 import GlobalState from '../../context/GlobalState';
 
 import '../../assets/main.css'
@@ -23,17 +24,19 @@ const App = (props) => {
     useEffect(() => { dragElement(document.getElementById("separator"), "H"); }, [props])
     return (
         <GlobalState>
-            <main className="h-screen w-full">
+            <main className="h-screen w-screen flex flex-col overflow-auto">
                 <AppHeader></AppHeader>
-                <div className="splitter">
+                <div className="flex-grow splitter flex flex-row h-full w-full">
                     <div className="w-5/12" id="first"><JSONEditorComponent /></div>
                     <div id="separator"></div>
                     <div className="w-7/12" id="second"><TDViewer /></div>
                 </div>
+                <AppFooter></AppFooter>
             </main>
         </GlobalState>
     );
 }
+
 
 /**
  * 

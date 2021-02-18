@@ -92,7 +92,7 @@ export default function TDViewer() {
         });
 
         return (
-            <div className="h-full w-full bg-gray-500 p-8 overflow-scroll overflow-x-hidden">
+            <div className="h-full w-full bg-gray-500 p-8 overflow-scroll">
                 {(error.length > 0 && (
                     <div className="flex h-10 w-full bg-formRed rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formRed">
                         <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
