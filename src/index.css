@@ -5,7 +5,7 @@ html, body {
     padding: 0px;
     display: flex;
     flex-direction: column;
-    overflow-y: hidden;
+    /* overflow-y: hidden; */
 }
 
 body {
