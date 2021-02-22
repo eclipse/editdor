@@ -5,7 +5,6 @@ html, body, #root {
     padding: 0px;
     display: flex;
     flex-direction: column;
-    /* overflow-y: hidden; */
 }
 
 body {
