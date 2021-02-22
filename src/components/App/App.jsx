@@ -24,9 +24,9 @@ const App = (props) => {
     useEffect(() => { dragElement(document.getElementById("separator"), "H"); }, [props])
     return (
         <GlobalState>
-            <main className="h-screen w-screen flex flex-col overflow-auto">
+            <main className="h-full w-screen flex flex-col">
                 <AppHeader></AppHeader>
-                <div className="flex-grow splitter flex flex-row h-full w-full">
+                <div className="flex-grow splitter flex flex-row w-full test">
                     <div className="w-5/12" id="first"><JSONEditorComponent /></div>
                     <div id="separator"></div>
                     <div className="w-7/12" id="second"><TDViewer /></div>

@@ -5,6 +5,10 @@ main {
 .splitter {
 }
 
+.test {
+  height: calc(100vh - 6rem);
+}
+
 #separator {
   cursor: col-resize;
   background-color: #aaa;

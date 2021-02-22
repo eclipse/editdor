@@ -20,7 +20,7 @@ const AppFooter = (props) => {
         console.log(e)
     }
     return (<>
-        <footer className="footer relative bg-blue-500 h-8 flex flex-col items-center justify-between text-white">
+        <footer className="bg-blue-500 h-8 flex flex-col items-center justify-between text-white">
             <div className="flex flex-row items-center justify-start w-full">
                 <div className="mx-2">Properties: {propertiesCount}</div>
                 <div className="mx-2">Actions: {actionsCount}</div>
