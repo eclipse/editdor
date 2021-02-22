@@ -10,8 +10,7 @@ const AppFooter = (props) => {
     try {
         const parse = JSON.parse(context.offlineTD)
         const size = new TextEncoder().encode(JSON.stringify(parse)).length
-        const kiloBytes = size / 1024;
-        megaBytes = kiloBytes / 1024;
+        megaBytes = formatByteSize(size);
         propertiesCount = parse.properties ? Object.keys(parse.properties).length : 0
         actionsCount = parse.properties ? Object.keys(parse.actions).length : 0
         eventsCount = parse.properties ? Object.keys(parse.events).length : 0
@@ -20,16 +19,25 @@ const AppFooter = (props) => {
         console.log(e)
     }
     return (<>
-        <footer className="bg-blue-500 h-8 flex flex-col items-center justify-between text-white">
+        <footer className="bg-blue-500 h-8 flex flex-col items-center justify-center text-white">
             <div className="flex flex-row items-center justify-start w-full">
                 <div className="mx-2">Properties: {propertiesCount}</div>
                 <div className="mx-2">Actions: {actionsCount}</div>
                 <div className="mx-2">Events: {eventsCount}</div>
-                <div className="mx-2 flex-grow">Size: {megaBytes} MB</div>
+                <div className="mx-2 flex-grow">Size: {megaBytes}</div>
                 <div className="mx-2 justify-self-end">Version: {process.env.REACT_APP_NPM_PACKAGE_VERSION} </div>
             </div>
         </footer>
     </>
     );
 }
+
+function formatByteSize(bytes) {
+    if(bytes < 1024) return bytes + " bytes";
+    else if(bytes < 1048576) return(bytes / 1024).toFixed(3) + " KiB";
+    else if(bytes < 1073741824) return(bytes / 1048576).toFixed(3) + " MiB";
+    else return(bytes / 1073741824).toFixed(3) + " GiB";
+};
+
+
 export default AppFooter

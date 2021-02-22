@@ -41,7 +41,7 @@
     "monaco-editor-webpack-plugin": "^2.0.0",
     "optimize-css-assets-webpack-plugin": "5.0.3",
     "pnp-webpack-plugin": "1.6.4",
-    "postcss": "^8.1.6",
+    "postcss": "^8.2.6",
     "postcss-flexbugs-fixes": "4.1.0",
     "postcss-loader": "3.0.0",
     "postcss-normalize": "8.0.1",
@@ -61,7 +61,7 @@
     "semver": "6.3.0",
     "style-loader": "0.23.1",
     "sweetalert2": "^10.9.1",
-    "tailwindcss": "^1.9.6",
+    "tailwindcss": "^2.0.3",
     "ts-pnp": "1.1.6",
     "url-loader": "2.3.0",
     "webpack": "4.42.0",
@@ -95,7 +95,7 @@
     ]
   },
   "devDependencies": {
-    "autoprefixer": "^10.0.1",
+    "autoprefixer": "^10.2.4",
     "cross-env": "^7.0.3",
     "postcss-cli": "^8.2.0",
     "react-test-renderer": "^16.13.1",
