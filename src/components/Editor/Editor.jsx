@@ -190,7 +190,7 @@ const JSONEditorComponent = (props) => {
         value={context.offlineTD}
         editorWillMount={editorWillMount}
         editorDidMount={editorDidMount}
-        onChange={async (editorText) => { await onChange(editorText) }} />
+        onChange={async (editorText) => {await onChange(editorText)}} />
     </div>
   );
 }
