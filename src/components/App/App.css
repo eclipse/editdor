@@ -5,7 +5,7 @@ main {
 .splitter {
 }
 
-.test {
+.height-adjust {
   height: calc(100vh - 6rem);
 }
 

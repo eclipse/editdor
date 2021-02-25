@@ -26,7 +26,7 @@ const App = (props) => {
         <GlobalState>
             <main className="h-full w-screen flex flex-col">
                 <AppHeader></AppHeader>
-                <div className="flex-grow splitter flex flex-row w-full test">
+                <div className="flex-grow splitter flex flex-row w-full height-adjust">
                     <div className="w-5/12" id="first"><JSONEditorComponent /></div>
                     <div id="separator"></div>
                     <div className="w-7/12" id="second"><TDViewer /></div>
