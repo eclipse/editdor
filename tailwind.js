@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 module.exports = {
-  purge: [],
+  purge: {enabled: true, content: ['./src/**/*.html', './src/**/*.jsx', './src/**/*.js',]},
   darkMode: false, // or 'media' or 'class'
   theme: {
     colors: {
