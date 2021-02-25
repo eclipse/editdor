@@ -36,6 +36,8 @@ All systems require:
 `yarn start` starts a local development server on Port 3000 (http://localhost:3000)
 
 ## Build
+`yarn install` install all the dependencies listed within package.json
+
 `yarn build` builds the project for deployment
 
 ## Implemented Features: 
