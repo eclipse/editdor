@@ -20,6 +20,7 @@ import Swal from 'sweetalert2';
 import { InfoIconWrapper } from '../InfoIcon/InfoIcon';
 import { getFormsTooltipContent } from '../InfoIcon/InfoTooltips';
 import { InteractionSection } from './InteractionSection';
+import { RenderedObject } from './RenderedObject';
 let tdJSON = {};
 let oldtdJSON = {};
 let error = "";
@@ -87,9 +88,6 @@ export default function TDViewer() {
 
         const alreadyRenderedKeys = ["id", "properties", "actions", "events", "forms", "description", "title",];
         const attributeListObject = buildAttributeListObject(tdJSON.id ? { id: tdJSON.id } : {}, tdJSON, alreadyRenderedKeys);
-        const attributes = Object.keys(attributeListObject).map(x => {
-            return <li key={x}>{x} : {JSON.stringify(attributeListObject[x])}</li>
-        });
 
         return (
             <div className="h-full w-full bg-gray-500 p-8 overflow-scroll overflow-x-hidden">
@@ -103,8 +101,11 @@ export default function TDViewer() {
                 {(metaData !== undefined && Object.keys(metaData).length > 0) && (
                     <div>
                         <div className="text-3xl text-white">{metaData.title}</div>
-                        <ul className="list-disc text-lg text-gray-400 pt-1 pl-8 ">{attributes}</ul>
-                        <div className="text-xl text-white pt-4">{metaData.description}</div>
+                        <RenderedObject {...attributeListObject}></RenderedObject>
+                        {
+                            metaData.description ? <div className="text-xl text-white pt-4">{metaData.description}</div> : <></>
+                        }
+
                     </div>)
                 }
                 <details className="pt-8">
