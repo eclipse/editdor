@@ -1,11 +1,10 @@
-html, body {
+html, body, #root {
     height: 100%;
     width: 100%;
     margin: 0px;
     padding: 0px;
     display: flex;
     flex-direction: column;
-    overflow-y: hidden;
 }
 
 body {
