@@ -32,40 +32,20 @@ export const RenderedObject = (map) => {
     return (
         <div>
             {Object.entries(map).map(([k, v], i) => {
-                if (Array.isArray(v)) {
-                    return (
-                        <div className="flex mb-1" key={i}>
-                            <span onClick={() => handleClick(i)}>
-                                <div className="flex text-white font-bold bg-gray-600 py-1 px-2 rounded-md">
-                                    <h4 >{k}</h4>
-                                    {showChildren[i] === true ? <ChevronDown className="pl-1" /> : <ChevronRight className="pl-1" />}
-                                </div>
-                            </span>
-                            <div className="flex-column pl-8">
-                                {showChildren[i] === true && (Object.entries(v) ?? []).map(([k1, v1], i1) => {
-                                    let m1 = {};
-                                    m1[k1] = v1;
-                                    return <RenderedObject {...m1} />
-                                })}
-                            </div>
-                        </div>
-                    )
-                }
-
                 if (isObject(v)) {
                     return (
                         <div className="mb-1" key={i}>
-                            <span onClick={() => handleClick(i)}>
+                            <button className="flex align-top" onClick={() => handleClick(i)}>
                                 <div className="flex text-white font-bold bg-gray-600 py-1 px-2 rounded-md align-middle">
                                     <h4>{k}</h4>
                                     {showChildren[i] === true ? <ChevronDown className="pl-1" /> : <ChevronRight className="pl-1" />}
                                 </div>
-                            </span>
+                            </button>
                             <div className="flex-column pl-8 mt-1">
                                 {showChildren[i] === true && (Object.entries(v) ?? []).map(([k1, v1], i1) => {
                                     let m1 = {};
                                     m1[k1] = v1;
-                                    return <RenderedObject {...m1} />
+                                    return <RenderedObject {...m1} key={i1} />
                                 }
                                 )}
                             </div>
