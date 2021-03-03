@@ -129,7 +129,6 @@ const JSONEditorComponent = (props) => {
       const atType = json["@type"];
       if (atType.indexOf('ThingModel') > -1) {
         const schema = await fetchSchema(tmSchema)
-        console.log('ThingModel')
         if (schema) {
           addSchema(tmSchema);
         } else {
@@ -175,7 +174,6 @@ const JSONEditorComponent = (props) => {
           if (typeof atContext[i] === 'object') {
             Object.keys(atContext[i]).forEach(async contextKey => {
               if (mapping[atContext[i][contextKey]] !== undefined) {
-                console.log('found schema for',  atContext)
                 const schema = await fetchSchema(mapping[atContext[i][contextKey]]);
                 if (schema) {
                   addSchema(mapping[atContext[i][contextKey]]);
