@@ -156,7 +156,10 @@ export default function AppHeader() {
       }
       placeholders = [...new Set(placeholders)]
       console.log(placeholders);
-    } catch (e) {}
+      
+    } catch (e) {
+
+    }
   }, [context]);
 
   const saveFileAs = useCallback(async () => {
