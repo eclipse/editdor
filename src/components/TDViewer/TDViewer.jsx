@@ -105,7 +105,6 @@ export default function TDViewer() {
                         {
                             metaData.description ? <div className="text-xl text-white pt-4">{metaData.description}</div> : <></>
                         }
-
                     </div>)
                 }
                 <details className="pt-8">
@@ -123,7 +122,6 @@ export default function TDViewer() {
                 <InteractionSection interaction="Properties" ></InteractionSection>
                 <InteractionSection interaction="Actions" ></InteractionSection>
                 <InteractionSection interaction="Events" ></InteractionSection>
-
             </div >
         );
     }

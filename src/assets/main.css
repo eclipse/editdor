@@ -820,8 +820,17 @@ video {
   margin-right: 0.5rem;
 }
 
+.my-1{
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
 .mt-1 {
   margin-top: 0.25rem;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
 }
 
 .mb-1 {
@@ -1071,6 +1080,10 @@ video {
 .text-gray-700 {
   --tw-text-opacity: 1;
   color: rgba(74, 85, 104, var(--tw-text-opacity));
+}
+
+.w-1{
+  width:0.25rem;
 }
 
 .w-2 {

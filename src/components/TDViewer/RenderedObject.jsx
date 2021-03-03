@@ -19,7 +19,6 @@ function isObject(val) {
     return ((typeof val === 'function') || (typeof val === 'object'));
 }
 
-
 export const RenderedObject = (map) => {
     const [showChildren, setShowChildren] = useState(new Array(Object.entries(map).length));
     const handleClick = useCallback((i) => {
@@ -30,25 +29,31 @@ export const RenderedObject = (map) => {
     }, [showChildren, setShowChildren])
 
     return (
-        <div>
+        <>
             {Object.entries(map).map(([k, v], i) => {
                 if (isObject(v)) {
+                    let indicator = (<button className="flex align-top" onClick={() => handleClick(i)}>
+                        <div className="flex text-white font-bold bg-gray-600 py-1 px-2 rounded-md align-middle">
+                            <h4>{k}</h4>
+                            {showChildren[i] === true ? <ChevronDown className="pl-1" /> : <ChevronRight className="pl-1" />}
+                        </div>
+                    </button>);
+
+                    let children = (<div className="flex">
+                        <div className="flex w-1 rounded-lg bg-gray-400 ml-2 my-1" />
+                        <div className="pl-8 mt-1">
+                            {showChildren[i] === true && (Object.entries(v) ?? []).map(([k1, v1], i1) => {
+                                let m1 = {};
+                                m1[k1] = v1;
+                                return <RenderedObject {...m1} key={i1} />
+                            })}
+                        </div>
+                    </div>);
+
                     return (
                         <div className="mb-1" key={i}>
-                            <button className="flex align-top" onClick={() => handleClick(i)}>
-                                <div className="flex text-white font-bold bg-gray-600 py-1 px-2 rounded-md align-middle">
-                                    <h4>{k}</h4>
-                                    {showChildren[i] === true ? <ChevronDown className="pl-1" /> : <ChevronRight className="pl-1" />}
-                                </div>
-                            </button>
-                            <div className="flex-column pl-8 mt-1">
-                                {showChildren[i] === true && (Object.entries(v) ?? []).map(([k1, v1], i1) => {
-                                    let m1 = {};
-                                    m1[k1] = v1;
-                                    return <RenderedObject {...m1} key={i1} />
-                                }
-                                )}
-                            </div>
+                            {indicator}
+                            {showChildren[i] === true && children}
                         </div>
                     )
                 }
@@ -60,7 +65,7 @@ export const RenderedObject = (map) => {
                     </div>
                 )
             })}
-        </div >
+        </ >
     );
 }
 
