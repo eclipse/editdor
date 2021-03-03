@@ -16,7 +16,7 @@ const AppFooter = (props) => {
         eventsCount = parse.properties ? Object.keys(parse.events).length : 0
     }
     catch (e) {
-        console.log(e)
+        // console.log(e)
     }
     return (<>
         <footer className="bg-blue-500 h-8 flex flex-col items-center justify-center text-white">

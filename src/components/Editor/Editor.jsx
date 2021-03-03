@@ -16,10 +16,8 @@ import ediTDorContext from '../../context/ediTDorContext';
 
 const mapping = require('../../assets/mapping.json')
 
-const tdSchema = {
-  fileMatch: ["*/*"],
-  uri: "https://raw.githubusercontent.com/thingweb/thingweb-playground/%40thing-description-playground/web%401.0.0/packages/playground-core/td-schema.json"
-};
+const tdSchema = "https://raw.githubusercontent.com/thingweb/thingweb-playground/%40thing-description-playground/web%401.0.0/packages/playground-core/td-schema.json"
+const tmSchema = "https://raw.githubusercontent.com/w3c/wot-thing-description/main/validation/tm-json-schema-validation.json"
 
 //List of all Options can be found here: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.ieditorconstructionoptions.html
 const editorOptions = {
@@ -39,7 +37,7 @@ const JSONEditorComponent = (props) => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
       validate: true,
       enableSchemaRequest: true,
-      schemas: [tdSchema]
+      schemas: []
     });
     if (!("Proxy" in window)) {
       console.warn("Your browser doesn't support Proxies.");
@@ -128,6 +126,26 @@ const JSONEditorComponent = (props) => {
       }
 
       const atContext = json["@context"];
+      const atType = json["@type"];
+      if (atType.indexOf('ThingModel') > -1) {
+        const schema = await fetchSchema(tmSchema)
+        console.log('ThingModel')
+        if (schema) {
+          addSchema(tmSchema);
+        } else {
+          emptySchemas();
+        }
+        return;
+      } else if (atType === 'ThingDescription') {
+        const schema = await fetchSchema(tdSchema)
+        if (schema) {
+          addSchema(tdSchema);
+        } else {
+          emptySchemas();
+        }
+        return;
+
+      }
       
       // handle if @context is a string
       if (typeof atContext === 'string') {
@@ -147,6 +165,7 @@ const JSONEditorComponent = (props) => {
         for (let i = 0; i < atContext.length; i++) {
           if (typeof atContext[i] === 'string') {
             if (mapping[atContext] !== undefined) {
+              console.log('found schema for',  atContext)
               const schema = await fetchSchema(atContext[i]);
               if (schema) {
                 addSchema(atContext[i]);
@@ -156,6 +175,7 @@ const JSONEditorComponent = (props) => {
           if (typeof atContext[i] === 'object') {
             Object.keys(atContext[i]).forEach(async contextKey => {
               if (mapping[atContext[i][contextKey]] !== undefined) {
+                console.log('found schema for',  atContext)
                 const schema = await fetchSchema(mapping[atContext[i][contextKey]]);
                 if (schema) {
                   addSchema(mapping[atContext[i][contextKey]]);
