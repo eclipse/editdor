@@ -591,6 +591,10 @@ video {
   background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
 }
 
+.bg-opacity-50 {
+  --tw-bg-opacity: 0.5;
+}
+
 .bg-opacity-75 {
   --tw-bg-opacity: 0.75;
 }
@@ -635,6 +639,11 @@ video {
   border-color: rgba(0, 90, 156, var(--tw-border-opacity));
 }
 
+.focus\:border-indigo-500:focus {
+  --tw-border-opacity: 1;
+  border-color: rgba(102, 126, 234, var(--tw-border-opacity));
+}
+
 .rounded {
   border-radius: 0.25rem;
 }
@@ -645,6 +654,10 @@ video {
 
 .rounded-lg {
   border-radius: 0.5rem;
+}
+
+.rounded-xl {
+  border-radius: 0.75rem;
 }
 
 .rounded-full {
@@ -721,6 +734,14 @@ video {
 
 .flex-grow {
   flex-grow: 1;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
 }
 
 .font-bold {
@@ -815,9 +836,18 @@ video {
   margin: 0.25rem;
 }
 
+.m-2 {
+  margin: 0.5rem;
+}
+
 .mx-2 {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
+}
+
+.mx-4 {
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 .mt-1 {
@@ -863,6 +893,10 @@ video {
 
 .p-2 {
   padding: 0.5rem;
+}
+
+.p-4 {
+  padding: 1rem;
 }
 
 .p-8 {
@@ -943,6 +977,10 @@ video {
   padding-bottom: 1rem;
 }
 
+.pl-7 {
+  padding-left: 1.75rem;
+}
+
 .pt-8 {
   padding-top: 2rem;
 }
@@ -957,6 +995,10 @@ video {
 
 .pr-10 {
   padding-right: 2.5rem;
+}
+
+.pr-12 {
+  padding-right: 3rem;
 }
 
 .pr-0\.5 {
@@ -988,12 +1030,21 @@ video {
   right: 0px;
 }
 
+.left-0 {
+  left: 0px;
+}
+
 * {
   --tw-shadow: 0 0 #0000;
 }
 
 .shadow-md {
   --tw-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.shadow-xl {
+  --tw-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
@@ -1004,6 +1055,11 @@ video {
   --tw-ring-color: rgba(0, 90, 156, 0.5);
   --tw-ring-offset-shadow: 0 0 #0000;
   --tw-ring-shadow: 0 0 #0000;
+}
+
+.focus\:ring-indigo-500:focus {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgba(102, 126, 234, var(--tw-ring-opacity));
 }
 
 .fill-current {
@@ -1084,6 +1140,10 @@ video {
   width: 8rem;
 }
 
+.w-1\/3 {
+  width: 33.333333%;
+}
+
 .w-5\/12 {
   width: 41.666667%;
 }
@@ -1098,6 +1158,10 @@ video {
 
 .w-screen {
   width: 100vw;
+}
+
+.z-10 {
+  z-index: 10;
 }
 
 @keyframes spin {
@@ -1132,6 +1196,10 @@ video {
 }
 
 @media (min-width: 640px) {
+  .sm\:text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
 }
 
 @media (min-width: 768px) {

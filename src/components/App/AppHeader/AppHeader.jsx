@@ -22,6 +22,8 @@ import Swal from "sweetalert2";
 
 export default function AppHeader() {
   const context = useContext(ediTDorContext);
+  const [showModal, setShowModal] = React.useState(false);
+  const [htmlPlaceholders, sethtmlPlaceholders] = React.useState([]);
 
   /**
    * Check if the Browser Supports the new Native File System Api (Chromium 86.0)
@@ -135,7 +137,7 @@ export default function AppHeader() {
     aDownload.click();
   }, []);
 
-  const saveFileAsTD = useCallback(async () => {
+  const saveFileAsTD = () => {
     try {
       let regex = /{{/gi,
         result,
@@ -154,13 +156,43 @@ export default function AppHeader() {
           context.offlineTD.slice(startIindices[i] + 2, endIndices[i])
         );
       }
-      placeholders = [...new Set(placeholders)]
-      console.log(placeholders);
-      
-    } catch (e) {
+      placeholders = [...new Set(placeholders)];
+      const htmlPlaceholdersTMP = placeholders.map((holder) => {
+        return (
+            <div key={holder} className="m-2">
+              <label htmlFor={holder} className="block text-sm font-medium">
+                {holder}
+              </label>
+              <input
+                type="text"
+                name={holder}
+                id={holder}
+                className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 text-gray-700 rounded-md"
+                placeholder="Placeholder"
+              />
+            </div>
+        );
+      });
+      sethtmlPlaceholders(htmlPlaceholdersTMP);
+      setShowModal(true);
+    } catch (e) {}
+  };
 
-    }
-  }, [context]);
+  const saveTMasTD = () => {
+    let mappingObject = {}
+    htmlPlaceholders.forEach((y) => {
+        const elem = document.getElementById(y.key)
+        mappingObject[y.key] = elem.value
+        return elem.value
+    });
+    let JSONResult = context.offlineTD;
+    Object.keys(mappingObject).forEach(key => {
+        JSONResult = JSONResult.split(`{{${key}}}`).join(mappingObject[key]) 
+    })
+    const parse = JSON.parse(JSONResult);
+    const permalink = `${window.location.href}?td=${encodeURI(JSON.stringify(parse))}`
+    window.open(permalink, "_blank");
+  }
 
   const saveFileAs = useCallback(async () => {
     if (!hasNativeFS()) {
@@ -385,8 +417,23 @@ export default function AppHeader() {
           <Button onClick={openFile}>Open TD/TM</Button>
           <Button onClick={saveFile}>Save</Button>
           <Button onClick={saveFileAs}>Save As</Button>
-          <Button onClick={saveFileAsTD}>Save As TD</Button>
+          {context.isThingModel && <Button onClick={saveFileAsTD}>Create as TD</Button>}
         </div>
+        {showModal ? (
+          <div className="flex bg-gray-300 bg-opacity-50 w-full h-full absolute top-0 left-0 justify-center items-center z-10 text-white">
+            <div className="bg-blue-400 w-1/3 flex flex-col justify-start rounded-xl shadow-xl p-4">
+              <div className="flex flex-row justify-start items-center  ">
+                <h1 className="text-xl font-bold flex-grow">Save TM as TD</h1>
+                <button onClick={() => setShowModal(false)}>Close</button>
+              </div>
+              <h2 className="font-semibold mx-4">
+                Please fill in the Placeholders
+              </h2>
+              {htmlPlaceholders}
+              <button onClick={() => saveTMasTD()}>Save TD</button>
+            </div>
+          </div>
+        ) : null}
       </header>
       <input
         className="h-0"
