@@ -12,6 +12,7 @@
  ********************************************************************************/
 export const UPDATE_OFFLINE_TD = 'UPDATE_OFFLINE_TD';
 export const UPDATE_IS_MODFIED = 'UPDATE_IS_MODFIED';
+export const UPDATE_IS_THINGMODEL = 'UPDATE_IS_THINGMODEL';
 export const SET_FILE_HANDLE = 'SET_FILE_HANDLE';
 export const REMOVE_FORM_FROM_TD = 'REMOVE_FORM_FROM_TD';
 export const ADD_PROPERTYFORM_TO_TD = 'ADD_PROPERTYFORM_TO_TD';
@@ -107,6 +108,10 @@ const updateIsModified = (isModified, state) => {
   return { ...state, isModified: isModified };
 };
 
+const updateIsThingModel = (isThingModel, state) => {
+  return { ...state, isThingModel: isThingModel };
+};
+
 const updateFileHandleReducer = (fileHandle, state) => {
   return { ...state, fileHandle: fileHandle };
 };
@@ -117,6 +122,8 @@ const editdorReducer = (state, action) => {
       return updateOfflineTDReducer(action.offlineTD, state);
     case UPDATE_IS_MODFIED:
       return updateIsModified(action.isModified, state);
+    case UPDATE_IS_THINGMODEL:
+      return updateIsThingModel(action.isThingModel, state);
     case SET_FILE_HANDLE:
       const newState = updateFileHandleReducer(action.fileHandle, state)
       return newState;
