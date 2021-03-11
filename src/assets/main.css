@@ -866,6 +866,10 @@ video {
   overflow: hidden;
 }
 
+.p-0\.5 {
+  padding: 0.125rem;
+}
+
 .p-1 {
   padding: 0.25rem;
 }

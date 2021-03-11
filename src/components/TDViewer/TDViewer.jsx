@@ -108,10 +108,10 @@ export default function TDViewer() {
                     </div>)
                 }
                 <details className="pt-8">
-                    <summary className="flex justify-start items-center">
+                    <summary className="flex justify-start items-center cursor-pointer">
                         <div className="flex flex-grow">
                             <InfoIconWrapper tooltip={getFormsTooltipContent()}>
-                                <h2 className="text-2xl text-white pr-1 flex-grow">Forms</h2>
+                                <h2 className="text-2xl text-white p-1 flex-grow">Forms</h2>
                             </InfoIconWrapper>
                         </div>
                         <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddGlobalForm}>Add new Form</button>
