@@ -159,18 +159,18 @@ export default function AppHeader() {
       placeholders = [...new Set(placeholders)];
       const htmlPlaceholdersTMP = placeholders.map((holder) => {
         return (
-            <div key={holder} className="m-2">
-              <label htmlFor={holder} className="block text-sm font-medium">
-                {holder}
-              </label>
-              <input
-                type="text"
-                name={holder}
-                id={holder}
-                className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 text-gray-700 rounded-md"
-                placeholder="Placeholder"
-              />
-            </div>
+          <div key={holder} className="py-1">
+            <label htmlFor={holder} className="text-sm text-gray-400 font-medium pl-2">
+              {holder}:
+            </label>
+            <input
+              type="text"
+              name={holder}
+              id={holder}
+              className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border text-white rounded-md"
+              placeholder="Enter a value..."
+            />
+          </div>
         );
       });
       sethtmlPlaceholders(htmlPlaceholdersTMP);
@@ -421,14 +421,12 @@ export default function AppHeader() {
         </div>
         {showModal ? (
           <div className="flex bg-gray-300 bg-opacity-50 w-full h-full absolute top-0 left-0 justify-center items-center z-10 text-white">
-            <div className="bg-blue-400 w-1/3 flex flex-col justify-start rounded-xl shadow-xl p-4">
+            <div className="bg-gray-500 w-1/3 flex flex-col justify-start rounded-xl shadow-xl p-4">
               <div className="flex flex-row justify-start items-center  ">
                 <h1 className="text-xl font-bold flex-grow">Create TD</h1>
                 <button onClick={() => setShowModal(false)}>Close</button>
               </div>
-              <h2 className="font-semibold mx-4">
-                Please fill in the Placeholders
-              </h2>
+              <h2 className="text-gray-400 py-2">Please provide values to switch the placeholders with.</h2>
               {htmlPlaceholders}
               <button onClick={() => saveTMasTD()}>Create TD</button>
             </div>
