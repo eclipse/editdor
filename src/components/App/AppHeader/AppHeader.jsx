@@ -423,14 +423,14 @@ export default function AppHeader() {
           <div className="flex bg-gray-300 bg-opacity-50 w-full h-full absolute top-0 left-0 justify-center items-center z-10 text-white">
             <div className="bg-blue-400 w-1/3 flex flex-col justify-start rounded-xl shadow-xl p-4">
               <div className="flex flex-row justify-start items-center  ">
-                <h1 className="text-xl font-bold flex-grow">Save TM as TD</h1>
+                <h1 className="text-xl font-bold flex-grow">Create TD</h1>
                 <button onClick={() => setShowModal(false)}>Close</button>
               </div>
               <h2 className="font-semibold mx-4">
                 Please fill in the Placeholders
               </h2>
               {htmlPlaceholders}
-              <button onClick={() => saveTMasTD()}>Save TD</button>
+              <button onClick={() => saveTMasTD()}>Create TD</button>
             </div>
           </div>
         ) : null}
