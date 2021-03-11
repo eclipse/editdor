@@ -74,7 +74,7 @@ export default function Action(props) {
 
     return (
         <details>
-            <summary className="text-xl text-gray-400 flex flex-row justify-start items-center">
+            <summary className="text-xl text-gray-400 flex flex-row justify-start items-center cursor-pointer p-0.5">
                 <div className="flex-grow">{action.title ?? props.actionName}</div>
                 <button className="text-base w-6 h-6 p-1 m-1 rounded-full bg-gray-400" onClick={onDeleteActionClicked}>
                     <Trash2 size={16} color="black" />
