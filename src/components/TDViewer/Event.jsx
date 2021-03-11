@@ -73,7 +73,7 @@ export default function Event(props) {
 
     return (
         <details>
-            <summary className="text-xl text-gray-400 flex flex-row justify-start items-center">
+            <summary className="text-xl text-gray-400 flex flex-row justify-start items-center cursor-pointer p-0.5">
                 <div className="flex-grow">{event.title ?? props.eventName}</div>
                 <button className="text-base w-6 h-6 p-1 m-1 rounded-full bg-gray-400" onClick={onDeleteEventClicked}>
                     <Trash2 size={16} color="black" />
