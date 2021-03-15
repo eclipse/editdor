@@ -120,7 +120,7 @@ const JSONEditorComponent = (props) => {
         return;
       }
       //Initialize TD-Schema
-      if (context.isThingModel === null) {
+      if (context.isThingModel === undefined) {
         context.updateIsThingModel(false);
         const schema = await fetchSchema(tdSchema);
         if (schema) {

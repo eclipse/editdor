@@ -16,7 +16,7 @@ export default React.createContext({
   offlineTD: '',
   theme: 'dark',
   isModified: false,
-  isThingModel: null,
+  isThingModel: undefined,
   name: '',
   fileHandle:'',
   updateOfflineTD: td => {},
