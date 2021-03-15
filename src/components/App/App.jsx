@@ -32,6 +32,7 @@ const App = (props) => {
                     <div className="w-7/12" id="second"><TDViewer /></div>
                 </div>
                 <AppFooter></AppFooter>
+                <div id="modal-root"></div>
             </main>
         </GlobalState>
     );

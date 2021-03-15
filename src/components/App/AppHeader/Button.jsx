@@ -24,7 +24,6 @@ export default function Button(props) {
                 font-bold 
                 py-2 px-5 
                 rounded 
-                w-32 
                 h-12
                 text-center 
                 cursor-pointer
