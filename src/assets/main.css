@@ -591,6 +591,11 @@ video {
   background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
 }
 
+.focus\:bg-gray-600:focus {
+  --tw-bg-opacity: 1;
+  background-color: rgba(28, 28, 30, var(--tw-bg-opacity));
+}
+
 .bg-opacity-50 {
   --tw-bg-opacity: 0.5;
 }
@@ -752,10 +757,6 @@ video {
   height: 0px;
 }
 
-.h-4 {
-  height: 1rem;
-}
-
 .h-6 {
   height: 1.5rem;
 }
@@ -836,14 +837,14 @@ video {
   margin: 0.25rem;
 }
 
+.my-1 {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
 .mx-2 {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
-}
-
-.my-1{
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
 }
 
 .mt-1 {
@@ -854,16 +855,16 @@ video {
   margin-right: 0.25rem;
 }
 
-.ml-2 {
-  margin-left: 0.5rem;
-}
-
 .mb-1 {
   margin-bottom: 0.25rem;
 }
 
 .mt-2 {
   margin-top: 0.5rem;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
 }
 
 .mr-4 {
@@ -895,8 +896,8 @@ video {
   overflow: hidden;
 }
 
-.p-0\.5 {
-  padding: 0.125rem;
+.p-0 {
+  padding: 0px;
 }
 
 .p-1 {
@@ -913,6 +914,10 @@ video {
 
 .p-8 {
   padding: 2rem;
+}
+
+.p-0\.5 {
+  padding: 0.125rem;
 }
 
 .py-1 {
@@ -954,12 +959,12 @@ video {
   padding-right: 0px;
 }
 
-.pt-1 {
-  padding-top: 0.25rem;
-}
-
 .pr-1 {
   padding-right: 0.25rem;
+}
+
+.pl-1 {
+  padding-left: 0.25rem;
 }
 
 .pt-2 {
@@ -994,10 +999,6 @@ video {
   padding-bottom: 1rem;
 }
 
-.pt-6 {
-  padding-top:1.5rem;
-}
-
 .pt-8 {
   padding-top: 2rem;
 }
@@ -1016,6 +1017,11 @@ video {
 
 .pr-0\.5 {
   padding-right: 0.125rem;
+}
+
+.placeholder-gray-500::placeholder {
+  --tw-placeholder-opacity: 1;
+  color: rgba(34, 34, 36, var(--tw-placeholder-opacity));
 }
 
 .pointer-events-none {
@@ -1070,10 +1076,6 @@ video {
   --tw-ring-shadow: 0 0 #0000;
 }
 
-.fill-current {
-  fill: currentColor;
-}
-
 .text-center {
   text-align: center;
 }
@@ -1113,11 +1115,6 @@ video {
   color: rgba(202, 202, 202, var(--tw-text-opacity));
 }
 
-.text-gray-500 {
-  --tw-text-opacity: 1;
-  color: rgba(34, 34, 36, var(--tw-text-opacity));
-}
-
 .text-gray-600 {
   --tw-text-opacity: 1;
   color: rgba(28, 28, 30, var(--tw-text-opacity));
@@ -1128,16 +1125,20 @@ video {
   color: rgba(74, 85, 104, var(--tw-text-opacity));
 }
 
-.w-1{
-  width:0.25rem;
+.align-top {
+  vertical-align: top;
+}
+
+.align-middle {
+  vertical-align: middle;
+}
+
+.w-1 {
+  width: 0.25rem;
 }
 
 .w-2 {
   width: 0.5rem;
-}
-
-.w-4 {
-  width: 1rem;
 }
 
 .w-6 {
