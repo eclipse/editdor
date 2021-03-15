@@ -16,6 +16,7 @@ import wot from "../../../assets/WoT.png";
 import ediTDorContext from "../../../context/ediTDorContext";
 import "../../../assets/main.css";
 import "./Button.js";
+import "../App.css"
 import Button from "./Button.js";
 import CreateNewTD from "./CreateNewTD.js";
 import Swal from "sweetalert2";
@@ -175,19 +176,19 @@ export default function AppHeader() {
       });
       sethtmlPlaceholders(htmlPlaceholdersTMP);
       setShowModal(true);
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const saveTMasTD = () => {
     let mappingObject = {}
     htmlPlaceholders.forEach((y) => {
-        const elem = document.getElementById(y.key)
-        mappingObject[y.key] = elem.value
-        return elem.value
+      const elem = document.getElementById(y.key)
+      mappingObject[y.key] = elem.value
+      return elem.value
     });
     let JSONResult = context.offlineTD;
     Object.keys(mappingObject).forEach(key => {
-        JSONResult = JSONResult.split(`{{${key}}}`).join(mappingObject[key]) 
+      JSONResult = JSONResult.split(`{{${key}}}`).join(mappingObject[key])
     })
     const parse = JSON.parse(JSONResult);
     const permalink = `${window.location.href}?td=${encodeURI(JSON.stringify(parse))}`
@@ -421,14 +422,18 @@ export default function AppHeader() {
         </div>
         {showModal ? (
           <div className="flex bg-gray-300 bg-opacity-50 w-full h-full absolute top-0 left-0 justify-center items-center z-10 text-white">
-            <div className="bg-gray-500 w-1/3 flex flex-col justify-start rounded-xl shadow-xl p-4">
+            <div className="bg-gray-500 w-1/3 flex flex-col justify-start rounded-xl shadow-xl p-4 max-h-screen">
               <div className="flex flex-row justify-start items-center  ">
-                <h1 className="text-xl font-bold flex-grow">Create TD</h1>
-                <button onClick={() => setShowModal(false)}>Close</button>
+                <h1 className="text-xl font-bold flex-grow pl-2">Generate TD from TM</h1>
               </div>
-              <h2 className="text-gray-400 py-2">Please provide values to switch the placeholders with.</h2>
-              {htmlPlaceholders}
-              <button onClick={() => saveTMasTD()}>Create TD</button>
+              <h2 className="text-gray-400 py-2 pl-2">Please provide values to switch the placeholders with.</h2>
+              <div className="overflow-auto p-2">
+                {htmlPlaceholders}
+              </div>
+              <div className="flex justify-end pt-4 p-2">
+                <button className="text-white bg-gray-500 p-2 mr-1 rounded-md" onClick={() => setShowModal(false)}>Cancel</button>
+                <button className="flex text-white bg-blue-500 p-2 rounded-md" onClick={() => saveTMasTD()}>Generate TD</button>
+              </div>
             </div>
           </div>
         ) : null}
