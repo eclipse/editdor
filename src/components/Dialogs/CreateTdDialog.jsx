@@ -76,7 +76,7 @@ const buildForm = () => {
                 focus:border-blue-500"
             placeholder="A short description of what the Thing does..." />
         <label htmlFor="thing-security" className="text-sm text-gray-400 font-medium pl-2">Security:</label>
-        <div id="thing-security" className="relative">
+        <div className="relative">
             <select className="block appearance-none w-full bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none" id="thing-security">
                 <option>nosec</option>
                 <option>basic</option>
