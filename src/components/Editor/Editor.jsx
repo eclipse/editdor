@@ -125,8 +125,6 @@ const JSONEditorComponent = (props) => {
         const schema = await fetchSchema(tdSchema);
         if (schema) {
           addSchema(tdSchema);
-        } else {
-          emptySchemas();
         }
       }
 
@@ -138,8 +136,6 @@ const JSONEditorComponent = (props) => {
           const schema = await fetchSchema(tmSchema);
           if (schema) {
             addSchema(tmSchema);
-          } else {
-            emptySchemas();
           }
         }
       } else if (context.isThingModel) {
@@ -152,20 +148,16 @@ const JSONEditorComponent = (props) => {
           const schema = await fetchSchema(tdSchema);
           if (schema) {
             addSchema(tdSchema);
-          } else {
-            emptySchemas();
           }
         }
       }
 
       // handle if @context is a string
       if (typeof atContext === "string") {
-        if (mapping[atContext] !== undefined) {
+        if (mapping[atContext] !== undefined && !proxy.includes(mapping[atContext])) {
           const schema = await fetchSchema(atContext);
           if (schema) {
             addSchema(atContext);
-          } else {
-            emptySchemas();
           }
           return;
         }
@@ -175,7 +167,7 @@ const JSONEditorComponent = (props) => {
       if (Array.isArray(atContext)) {
         for (let i = 0; i < atContext.length; i++) {
           if (typeof atContext[i] === "string") {
-            if (mapping[atContext] !== undefined) {
+            if (mapping[atContext] !== undefined && !proxy.includes(mapping[atContext])) {
               console.log("found schema for", atContext);
               const schema = await fetchSchema(atContext[i]);
               if (schema) {
@@ -185,10 +177,8 @@ const JSONEditorComponent = (props) => {
           }
           if (typeof atContext[i] === "object") {
             Object.keys(atContext[i]).forEach(async (contextKey) => {
-              if (mapping[atContext[i][contextKey]] !== undefined) {
-                const schema = await fetchSchema(
-                  mapping[atContext[i][contextKey]]
-                );
+              if (mapping[atContext[i][contextKey]] !== undefined && !proxy.includes(mapping[atContext])) {
+                const schema = await fetchSchema(mapping[atContext[i][contextKey]]);
                 if (schema) {
                   addSchema(mapping[atContext[i][contextKey]]);
                 }

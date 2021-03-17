@@ -1,3 +1,5 @@
 {
-    "https://example.com" : "https://example.com/json_schema.json"
+    "https://example.com" : "https://example.com/json_schema.json",
+    "https://www.w3.org/2019/wot/td/v1": "https://raw.githubusercontent.com/thingweb/thingweb-playground/%40thing-description-playground/web%401.0.0/packages/playground-core/td-schema.json",
+    "http://www.w3.org/ns/td": "https://raw.githubusercontent.com/w3c/wot-thing-description/main/validation/tm-json-schema-validation.json"
 }
