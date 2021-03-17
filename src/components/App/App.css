@@ -46,3 +46,21 @@ input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration {
   display: none;
 }
+
+details>summary::before {
+  content: url(../../assets/chevron-right.svg);
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-flex;
+  transition: transform 0.3s ease;
+  opacity: 0.5;
+  fill: white;
+}
+
+details[open]>summary::before {
+  transform: rotate(90deg);
+}
+
+details>summary::marker {
+  display: none;
+}

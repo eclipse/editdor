@@ -75,13 +75,11 @@ export default function Property(props) {
 
     return (
         <details>
-            <summary className="text-xl text-gray-400 flex-row w-full justify-start items-center">
-                <div className="flex-row w-full justify-start items-center">
+            <summary className="text-xl text-gray-400 flex flex-row w-full justify-start items-center cursor-pointer p-0.5">
                 <h3 className="flex-grow">{property.title ?? props.propName}</h3>
                 <button className="text-base w-6 h-6 p-1 m-1 rounded-full bg-gray-400" onClick={onDeletePropertyClicked}>
                     <Trash2 size={16} color="black" />
                 </button>
-                </div>
             </summary>
             <div className="mb-4">
                 <div className="text-lg text-gray-400 pb-2">{property.description}</div>
