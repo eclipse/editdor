@@ -87,7 +87,7 @@ export default function TDViewer() {
                                 <h2 className="text-2xl text-white p-1 flex-grow">Forms</h2>
                             </InfoIconWrapper>
                         </div>
-                        <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={openAddFormDialog}>Add new Form</button>
+                        <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={openAddFormDialog}>Add Top Level Form</button>
                         <AddFormDialog type="thing"
                             interaction={tdJSON}
                             ref={addFormDialog}

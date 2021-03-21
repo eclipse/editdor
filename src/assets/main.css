@@ -733,6 +733,10 @@ video {
   height: 0px;
 }
 
+.h-2 {
+  height: 0.5rem;
+}
+
 .h-6 {
   height: 1.5rem;
 }

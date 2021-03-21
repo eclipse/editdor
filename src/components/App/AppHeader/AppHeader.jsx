@@ -62,7 +62,7 @@ export default function AppHeader() {
       } catch (ex) {
         const msg = `An error occured reading ${context.offlineTD}`;
         console.error(msg, ex);
-        //TODO: Replace with SweetAlert2
+        //TODO: Replace with custom alert
         alert(msg);
       }
     },

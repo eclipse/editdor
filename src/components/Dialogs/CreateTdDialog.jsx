@@ -42,7 +42,6 @@ export const CreateTdDialog = forwardRef((props, ref) => {
             <DialogTemplate
                 onCancel={close}
                 onSubmit={() => {
-                    console.log("submit clicked");
                     context.updateOfflineTD(JSON.stringify(createNewTD(), null, "\t"), "AppHeader");
                     close();
                 }}
@@ -74,7 +73,7 @@ const buildForm = () => {
                 leading-tight 
                 focus:outline-none 
                 focus:border-blue-500"
-            placeholder="A short description of what the Thing does..." />
+            placeholder="A short description about this new Thing..." />
         <label htmlFor="thing-security" className="text-sm text-gray-400 font-medium pl-2">Security:</label>
         <div className="relative">
             <select className="block appearance-none w-full bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none" id="thing-security">
@@ -112,19 +111,20 @@ const createNewTD = () => {
     let title = document.getElementById('thing-title').value;
     let base = document.getElementById('thing-base').value;
 
-    let tdMetadata = { id: id, title: title, base: base }
-
     let tdDescription = document.getElementById('thing-description').value;
     let tdSecurity = document.getElementById('thing-security').value;
 
     var thing = {};
 
     thing["@context"] = "https://www.w3.org/2019/wot/td/v1";
-    thing["title"] = tdMetadata.title !== "" ? tdMetadata.title : "ediTDor Thing";
-    thing["id"] = tdMetadata.id !== "" ? tdMetadata.id : "urn:editdor-thing-id";
+    thing["title"] = title !== "" ? title : "ediTDor Thing";
 
-    if (tdMetadata.base !== "") {
-        thing["base"] = tdMetadata.base !== "" ? tdMetadata.base : "/";
+    if (id !== "") {
+        thing["id"] = id !== "" ? id : "urn:editdor-thing-id";
+    }
+
+    if (base !== "") {
+        thing["base"] = base !== "" ? base : "/";
     }
 
     if (tdDescription !== "") {
