@@ -46,8 +46,9 @@ input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration {
   display: none;
 }
-/*********/
 
+
+/* changes the detail arrow to a animated chevron*/
 details>summary::before {
   content: url(../../assets/chevron-right.svg);
   width: 1.5rem;
