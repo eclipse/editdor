@@ -1,20 +1,14 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext, useState } from 'react';
+import ediTDorContext from '../../context/ediTDorContext';
+import { AddActionDialog } from '../Dialogs/AddActionDialog';
+import { AddEventDialog } from '../Dialogs/AddEventDialog';
+import { AddPropertyDialog } from '../Dialogs/AddPropertyDialog';
 import { InfoIconWrapper } from '../InfoIcon/InfoIcon';
 import { tooltipMapper } from '../InfoIcon/InfoTooltips';
-import { SearchBar } from './SearchBar';
-import ediTDorContext from '../../context/ediTDorContext';
 import Action from './Action';
 import Event from './Event';
 import Property from './Property';
-import addProperty from './AddProperty';
-import addAction from './AddAction';
-import addEvent from './AddEvent';
-
-const addInteractionMapper = {
-    "properties": addProperty,
-    "actions": addAction,
-    "events": addEvent,
-}
+import { SearchBar } from './SearchBar';
 
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
@@ -114,22 +108,6 @@ export const InteractionSection = (props) => {
         </svg>)
     }
 
-    const addSubfieldToExistingTD = (type, name, property) => {
-        if (!td[type]) {
-            td[type] = {};
-        }
-        td[type][name] = property
-        context.updateOfflineTD(JSON.stringify(td, null, 2))
-    }
-
-    const onClickAddInteraction = async () => {
-        const interactionToAdd = await addInteractionMapper[interaction]();
-
-        if (interactionToAdd) {
-            addSubfieldToExistingTD(interaction, interactionToAdd.title, interactionToAdd);
-        }
-    }
-
     const buildChildren = () => {
         const filteredInteractions = applyFilter();
 
@@ -150,6 +128,17 @@ export const InteractionSection = (props) => {
         }
     }
 
+    const createPropertyDialog = React.useRef();
+    const openCreatePropertyDialog = () => { createPropertyDialog.current.openModal() }
+
+    let addInteractionDialog;
+    switch (interaction) {
+        case 'properties': addInteractionDialog = <AddPropertyDialog ref={createPropertyDialog} />; break;
+        case 'actions': addInteractionDialog = <AddActionDialog ref={createPropertyDialog} />; break;
+        case 'events': addInteractionDialog = <AddEventDialog ref={createPropertyDialog} />; break;
+        default:
+    }
+
     return (
         <>
             <div className="flex justify-start items-end pt-8 pb-4">
@@ -168,7 +157,8 @@ export const InteractionSection = (props) => {
                     {sortedIcon()}
                 </button>
                 <div className="w-2"></div>
-                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" onClick={onClickAddInteraction}>Add</button>
+                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" onClick={openCreatePropertyDialog}>Add</button>
+                {addInteractionDialog}
             </div>
             {buildChildren() && <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{buildChildren()}</div>}
         </>

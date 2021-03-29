@@ -15,17 +15,14 @@ import logo from "../../../assets/editdor.png";
 import wot from "../../../assets/WoT.png";
 import ediTDorContext from "../../../context/ediTDorContext";
 import "../../../assets/main.css";
-import "./Button.js";
 import "../App.css"
-import Button from "./Button.js";
-import CreateNewTD from "./CreateNewTD.js";
-import Swal from "sweetalert2";
+import Button from "./Button";
+import { ShareDialog } from "../../Dialogs/ShareDialog";
+import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
+import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
 
 export default function AppHeader() {
   const context = useContext(ediTDorContext);
-  const [showModal, setShowModal] = React.useState(false);
-  const [htmlPlaceholders, sethtmlPlaceholders] = React.useState([]);
-
   /**
    * Check if the Browser Supports the new Native File System Api (Chromium 86.0)
    */
@@ -65,7 +62,7 @@ export default function AppHeader() {
       } catch (ex) {
         const msg = `An error occured reading ${context.offlineTD}`;
         console.error(msg, ex);
-        //TODO: Replace with SweetAlert2
+        //TODO: Replace with custom alert
         alert(msg);
       }
     },
@@ -138,63 +135,6 @@ export default function AppHeader() {
     aDownload.click();
   }, []);
 
-  const saveFileAsTD = () => {
-    try {
-      let regex = /{{/gi,
-        result,
-        startIindices = [];
-      while ((result = regex.exec(context.offlineTD))) {
-        startIindices.push(result.index);
-      }
-      regex = /}}/gi;
-      let endIndices = [];
-      while ((result = regex.exec(context.offlineTD))) {
-        endIndices.push(result.index);
-      }
-      let placeholders = [];
-      for (let i = 0; i < startIindices.length; i++) {
-        placeholders.push(
-          context.offlineTD.slice(startIindices[i] + 2, endIndices[i])
-        );
-      }
-      placeholders = [...new Set(placeholders)];
-      const htmlPlaceholdersTMP = placeholders.map((holder) => {
-        return (
-          <div key={holder} className="py-1">
-            <label htmlFor={holder} className="text-sm text-gray-400 font-medium pl-2">
-              {holder}:
-            </label>
-            <input
-              type="text"
-              name={holder}
-              id={holder}
-              className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border text-white rounded-md"
-              placeholder="Enter a value..."
-            />
-          </div>
-        );
-      });
-      sethtmlPlaceholders(htmlPlaceholdersTMP);
-      setShowModal(true);
-    } catch (e) { }
-  };
-
-  const saveTMasTD = () => {
-    let mappingObject = {}
-    htmlPlaceholders.forEach((y) => {
-      const elem = document.getElementById(y.key)
-      mappingObject[y.key] = elem.value
-      return elem.value
-    });
-    let JSONResult = context.offlineTD;
-    Object.keys(mappingObject).forEach(key => {
-      JSONResult = JSONResult.split(`{{${key}}}`).join(mappingObject[key])
-    })
-    const parse = JSON.parse(JSONResult);
-    const permalink = `${window.location.href}?td=${encodeURI(JSON.stringify(parse))}`
-    window.open(permalink, "_blank");
-  }
-
   const saveFileAs = useCallback(async () => {
     if (!hasNativeFS()) {
       saveAsHTML5(context.name, context.offlineTD);
@@ -220,13 +160,6 @@ export default function AppHeader() {
       alert(msg);
     }
   }, [saveAsHTML5, hasNativeFS, context, writeFile]);
-
-  const newFile = useCallback(async () => {
-    const thing = await CreateNewTD();
-    if (thing) {
-      context.updateOfflineTD(JSON.stringify(thing, null, "\t"), "AppHEader");
-    }
-  }, [context]);
 
   const saveFile = useCallback(async () => {
     try {
@@ -318,34 +251,6 @@ export default function AppHeader() {
     });
   };
 
-  const createPermalink = () => {
-    const parse = JSON.parse(context.offlineTD);
-    const permalink = `${window.location.href}?td=${encodeURI(
-      JSON.stringify(parse)
-    )}`;
-    navigator.clipboard.writeText(permalink).then(
-      function () {
-        console.log("Async: Copying to clipboard was successful!");
-      },
-      function (err) {
-        console.error("Async: Could not copy text: ", err);
-      }
-    );
-    Swal.fire({
-      title: "Permalink",
-      input: "text",
-      inputLabel: "The link was copied to your clipboard",
-      inputValue: permalink,
-      showCloseButton: true,
-    }).then((x) => {
-      console.log(x);
-    });
-    setTimeout(() => {
-      const textfield = document.getElementById("swal2-input");
-      textfield.select();
-    }, 500);
-  };
-
   useEffect(() => {
     if (window.location.search.indexOf("td") > -1) {
       const url = new URL(window.location.href);
@@ -381,7 +286,7 @@ export default function AppHeader() {
       ) {
         e.preventDefault();
         e.stopPropagation();
-        newFile();
+        openCreateTdDialog();
       }
     };
 
@@ -402,7 +307,16 @@ export default function AppHeader() {
       //Remove Eventlistener for shortcuts before unmounting component
       document.removeEventListener("keydown", shortcutHandler, false);
     };
-  }, [openFile, saveFile, newFile, context]);
+  }, [openFile, saveFile, context]);
+
+  const convertTmDialog = React.useRef();
+  const openConvertTmDialog = () => { convertTmDialog.current.openModal() }
+
+  const shareDialog = React.useRef();
+  const openShareDialog = () => { shareDialog.current.openModal() }
+
+  const createTdDialog = React.useRef();
+  const openCreateTdDialog = () => { createTdDialog.current.openModal() }
 
   return (
     <>
@@ -413,31 +327,17 @@ export default function AppHeader() {
           <img className="pl-2 h-8" src={logo} alt="LOGO" />
         </div>
         <div className="flex space-x-2 pr-2">
-          <Button onClick={createPermalink}>Create Permalink</Button>
-          <Button onClick={newFile}>New TD/TM</Button>
-          <Button onClick={openFile}>Open TD/TM</Button>
+          <Button onClick={openShareDialog}>Share</Button>
+          <Button onClick={openCreateTdDialog}>New</Button>
+          <Button onClick={openFile}>Open</Button>
           <Button onClick={saveFile}>Save</Button>
           <Button onClick={saveFileAs}>Save As</Button>
-          {context.isThingModel && <Button onClick={saveFileAsTD}>Create as TD</Button>}
+          {context.isThingModel && <Button onClick={openConvertTmDialog}>Convert To TD</Button>}
         </div>
-        {showModal ? (
-          <div className="flex bg-gray-300 bg-opacity-50 w-full h-full absolute top-0 left-0 justify-center items-center z-10 text-white">
-            <div className="bg-gray-500 w-1/3 flex flex-col justify-start rounded-xl shadow-xl p-4 max-h-screen">
-              <div className="flex flex-row justify-start items-center  ">
-                <h1 className="text-xl font-bold flex-grow pl-2">Generate TD from TM</h1>
-              </div>
-              <h2 className="text-gray-400 py-2 pl-2">Please provide values to switch the placeholders with.</h2>
-              <div className="overflow-auto p-2">
-                {htmlPlaceholders}
-              </div>
-              <div className="flex justify-end pt-4 p-2">
-                <button className="text-white bg-gray-500 p-2 mr-1 rounded-md" onClick={() => setShowModal(false)}>Cancel</button>
-                <button className="flex text-white bg-blue-500 p-2 rounded-md" onClick={() => saveTMasTD()}>Generate TD</button>
-              </div>
-            </div>
-          </div>
-        ) : null}
       </header>
+      <ConvertTmDialog ref={convertTmDialog} />
+      <ShareDialog ref={shareDialog} />
+      <CreateTdDialog ref={createTdDialog} />
       <input
         className="h-0"
         type="file"
