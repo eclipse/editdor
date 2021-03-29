@@ -11,24 +11,25 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { useContext } from 'react';
-import ediTDorContext from '../../context/ediTDorContext';
-import addGlobalForm from './AddForm';
-import { buildAttributeListObject, checkIfFormIsInItem, hasForms, separateForms } from '../../util';
 import '../../assets/main.css';
-import Form from './Form';
-import Swal from 'sweetalert2';
+import ediTDorContext from '../../context/ediTDorContext';
+import { buildAttributeListObject, separateForms } from '../../util';
+import { AddFormDialog } from "../Dialogs/AddFormDialog";
 import { InfoIconWrapper } from '../InfoIcon/InfoIcon';
 import { getFormsTooltipContent } from '../InfoIcon/InfoTooltips';
+import Form from './Form';
 import { InteractionSection } from './InteractionSection';
 import { RenderedObject } from './RenderedObject';
 let tdJSON = {};
 let oldtdJSON = {};
 let error = "";
 
-const JSON_SPACING = 2;
-
 export default function TDViewer() {
     const context = useContext(ediTDorContext);
+
+    const addFormDialog = React.useRef();
+    const openAddFormDialog = () => { addFormDialog.current.openModal() }
+
     try {
         oldtdJSON = tdJSON;
         tdJSON = JSON.parse(context.offlineTD);
@@ -44,34 +45,6 @@ export default function TDViewer() {
                 <div className="text-4xl text-white place-self-center">Start writing a new TD by clicking "New TD"</div>
             </div>
         )
-    }
-
-    const onClickAddGlobalForm = async () => {
-        const formToAdd = await addGlobalForm();
-        if (formToAdd) {
-            if (!hasForms(tdJSON)) {
-                tdJSON.forms = [];
-            }
-            if (checkIfFormIsInItem(formToAdd, tdJSON)) {
-                Swal.fire({
-                    title: 'Duplication?',
-                    html: 'A Form with same fields already exists, are you sure you want to add this?',
-                    icon: 'warning',
-                    confirmButtonText: 'Yes',
-                    confirmButtonAriaLabel: 'Yes',
-                    showCancelButton: true,
-                    cancelButtonText: 'No',
-                    cancelButtonAriaLabel: 'No'
-                }).then(x => {
-                    if (x.isConfirmed) {
-                        tdJSON.forms.push(formToAdd)
-                        context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
-                    }
-                })
-            }
-            tdJSON.forms.push(formToAdd)
-            context.updateOfflineTD(JSON.stringify(tdJSON, null, JSON_SPACING))
-        }
     }
 
     let forms;
@@ -114,7 +87,11 @@ export default function TDViewer() {
                                 <h2 className="text-2xl text-white p-1 flex-grow">Forms</h2>
                             </InfoIconWrapper>
                         </div>
-                        <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={onClickAddGlobalForm}>Add new Form</button>
+                        <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={openAddFormDialog}>Add Top Level Form</button>
+                        <AddFormDialog type="thing"
+                            interaction={tdJSON}
+                            ref={addFormDialog}
+                        />
                     </summary>
                     {forms && <div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{forms}</div></div>}
                 </details>

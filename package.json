@@ -1,6 +1,6 @@
 {
   "name": "editdor",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "dependencies": {
     "@babel/core": "7.9.0",
@@ -60,7 +60,6 @@
     "sass-loader": "8.0.2",
     "semver": "6.3.0",
     "style-loader": "0.23.1",
-    "sweetalert2": "^10.9.1",
     "tailwindcss": "^2.0.3",
     "ts-pnp": "1.1.6",
     "url-loader": "2.3.0",

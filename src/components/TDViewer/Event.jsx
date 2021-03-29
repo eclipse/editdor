@@ -11,20 +11,23 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { useContext } from "react";
-import "../../assets/main.css"
+import { PlusCircle, Trash2 } from "react-feather";
+import "../../assets/main.css";
 import ediTDorContext from "../../context/ediTDorContext";
-import { buildAttributeListObject, checkIfFormIsInItem, hasForms, separateForms } from "../../util.js"
-import addEventForm from "./AddEventForm";
-import Form from "./Form";
-import Swal from 'sweetalert2'
+import { buildAttributeListObject, separateForms } from "../../util.js";
+import { AddFormDialog } from "../Dialogs/AddFormDialog";
 import { InfoIconWrapper } from "../InfoIcon/InfoIcon";
 import { getFormsTooltipContent } from "../InfoIcon/InfoTooltips";
-import { Trash2, PlusCircle } from "react-feather";
+import Form from "./Form";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
 
 export default function Event(props) {
     const context = useContext(ediTDorContext);
+
+    const addFormDialog = React.useRef();
+    const openAddFormDialog = () => { addFormDialog.current.openModal() }
+
     if ((Object.keys(props.event).length === 0 && props.event.constructor !== Object)) {
         return <div className="text-3xl text-white">Event could not be rendered because mandatory fields are missing.</div>
     }
@@ -35,37 +38,6 @@ export default function Event(props) {
     const attributes = Object.keys(attributeListObject).map(x => {
         return <li key={x}>{x} : {JSON.stringify(attributeListObject[x])}</li>
     });
-
-    const checkIfFormExists = (form) => {
-        if (hasForms(event)) {
-            return checkIfFormIsInItem(form, event)
-        }
-        return false
-    }
-
-    const onClickAddForm = async () => {
-        const formToAdd = await addEventForm()
-        if (formToAdd) {
-            if (checkIfFormExists(formToAdd)) {
-                Swal.fire({
-                    title: 'Duplication?',
-                    html: 'A Form with same fields already exists, are you sure you want to add this?',
-                    icon: 'warning',
-                    confirmButtonText: 'Yes',
-                    confirmButtonAriaLabel: 'Yes',
-                    showCancelButton: true,
-                    cancelButtonText: 'No',
-                    cancelButtonAriaLabel: 'No'
-                }).then(x => {
-                    if (x.isConfirmed) {
-                        context.addEventForm({ eventName: props.eventName, form: formToAdd })
-                    }
-                })
-            } else {
-                context.addEventForm({ eventName: props.eventName, form: formToAdd })
-            }
-        }
-    }
 
     const onDeleteEventClicked = () => {
         context.removeOneOfAKindReducer('events', props.eventName)
@@ -88,9 +60,14 @@ export default function Event(props) {
                             <h4 className="text-lg text-gray-400 pr-1 text-bold">Forms</h4>
                         </InfoIconWrapper>
                     </div>
-                    <button onClick={onClickAddForm}>
+                    <button onClick={openAddFormDialog}>
                         <PlusCircle color="#cacaca" size="18" />
                     </button>
+                    <AddFormDialog type="event"
+                        interaction={event}
+                        interactionName={props.eventName}
+                        ref={addFormDialog}
+                    />
                 </div>
                 {forms.map((form, i) => (
                     <Form key={i} form={form} propName={props.eventName} interactionType={"event"}></Form>
