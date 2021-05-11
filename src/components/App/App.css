@@ -38,8 +38,7 @@ input[type=search]::-ms-reveal {
   height: 0;
 }
 
-/* clears the ‘X’ from Chrome */
-
+/* clears the ‘X’ from Chrome in the Search*/
 input[type="search"]::-webkit-search-decoration, 
 input[type="search"]::-webkit-search-cancel-button, 
 input[type="search"]::-webkit-search-results-button, 
@@ -49,6 +48,7 @@ input[type="search"]::-webkit-search-results-decoration {
 
 
 /* changes the detail arrow to a animated chevron*/
+/* show Arrow in detail component */
 details>summary::before {
   content: url(../../assets/chevron-right.svg);
   width: 1.5rem;

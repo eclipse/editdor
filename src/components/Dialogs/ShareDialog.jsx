@@ -65,7 +65,7 @@ const createPermalink = (td) => {
         parsedTD = JSON.parse(td);
     } catch (_) { }
 
-    return `${window.location.href}?td=${encodeURI(
+    return `${window.location.href}?td=${encodeURIComponent(
         JSON.stringify(parsedTD)
     )}`;
 }
