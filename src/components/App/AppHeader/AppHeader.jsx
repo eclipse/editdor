@@ -255,8 +255,14 @@ export default function AppHeader() {
     if (window.location.search.indexOf("td") > -1) {
       const url = new URL(window.location.href);
       const td = url.searchParams.get("td");
-      const parsedTD = JSON.parse(td);
-      context.updateOfflineTD(JSON.stringify(parsedTD, null, 2));
+      try{
+        console.log(td)
+        const parsedTD = JSON.parse(td);
+        context.updateOfflineTD(JSON.stringify(parsedTD, null, 2));
+      }catch(error) {
+        console.log('parsing Error', error)
+        alert('Sorry, we were unable to parse the TD given in the URL')
+      }
     }
     //because the GET Param should be only loaded once, the next line was added
     // eslint-disable-next-line
