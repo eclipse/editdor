@@ -46,7 +46,7 @@ export const ConvertTmDialog = forwardRef((props, ref) => {
                 onSubmit={() => convertTmToTd(context.offlineTD, htmlInputs)}
                 submitText={"Generate TD"}
                 children={htmlInputs}
-                title={"Generate TM From TD"}
+                title={"Generate TD From TM"}
                 description={"Please provide values to switch the placeholders with."}
             />,
             document.getElementById("modal-root"));
