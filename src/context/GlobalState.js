@@ -13,7 +13,7 @@
 import React, { useReducer } from 'react';
 
 import EdiTDorContext from './ediTDorContext';
-import { editdorReducer, REMOVE_FORM_FROM_TD, UPDATE_IS_THINGMODEL, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_PROPERTYFORM_TO_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD, REMOVE_ONE_OF_A_KIND_FROM_TD } from './editorReducers';
+import { editdorReducer, REMOVE_FORM_FROM_TD, UPDATE_IS_THINGMODEL, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_PROPERTYFORM_TO_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD, REMOVE_ONE_OF_A_KIND_FROM_TD, UPDATE_SHOW_CONVERT_BTN } from './editorReducers';
 
 
 const GlobalState = props => {
@@ -52,6 +52,9 @@ const GlobalState = props => {
   const removeOneOfAKindReducer = (kind, oneOfAKindName) => {
     dispatch({ type: REMOVE_ONE_OF_A_KIND_FROM_TD, kind, oneOfAKindName });
   };
+  const updateShowConvertBtn = showConvertBtn => {
+    dispatch({ type: UPDATE_SHOW_CONVERT_BTN, showConvertBtn: showConvertBtn });
+  };
 
   return (
     <EdiTDorContext.Provider
@@ -62,6 +65,7 @@ const GlobalState = props => {
         isThingModel: editdorState.isThingModel,
         name: editdorState.name,
         fileHandle: editdorState.fileHandle,
+        showConvertBtn: editdorState.showConvertBtn,
         updateOfflineTD,
         updateIsModified,
         updateIsThingModel,
@@ -70,7 +74,8 @@ const GlobalState = props => {
         addForm,
         addActionForm,
         addEventForm,
-        removeOneOfAKindReducer
+        removeOneOfAKindReducer,
+        updateShowConvertBtn,
       }}
     >
       {props.children}

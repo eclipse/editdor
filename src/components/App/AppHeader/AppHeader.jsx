@@ -336,7 +336,7 @@ export default function AppHeader() {
           <Button onClick={openFile}>Open</Button>
           <Button onClick={saveFile}>Save</Button>
           <Button onClick={saveFileAs}>Save As</Button>
-          {context.isThingModel && <Button onClick={openConvertTmDialog}>Convert To TD</Button>}
+          {(context.showConvertBtn || context.isThingModel) && <Button onClick={openConvertTmDialog}>Convert To TD</Button>}
         </div>
       </header>
       <ConvertTmDialog ref={convertTmDialog} />

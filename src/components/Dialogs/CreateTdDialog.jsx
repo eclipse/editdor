@@ -19,6 +19,7 @@ import { ChevronDown } from 'react-feather';
 export const CreateTdDialog = forwardRef((props, ref) => {
     const context = useContext(ediTDorContext);
     const [display, setDisplay] = React.useState(() => { return false });
+    const [type, setType] = React.useState("TD");  // either TD or TM
 
     useImperativeHandle(ref, () => {
         return {
@@ -35,20 +36,31 @@ export const CreateTdDialog = forwardRef((props, ref) => {
         setDisplay(false);
     };
 
-    const content = buildForm();
+    const changeType = (e) => {
+        setType(e.target.value);
+    }
+
+    const content = buildForm(changeType);
 
     if (display) {
         return ReactDOM.createPortal(
             <DialogTemplate
                 onCancel={close}
                 onSubmit={() => {
-                    context.updateOfflineTD(JSON.stringify(createNewTD(), null, "\t"), "AppHeader");
+                    // If a user creates a TM and then again clicks New and creates TD this time,
+                    // the type state still be TM because the Select dropdown was not even clicked
+                    // That's why we are checking the type value once again before submitting the form
+                    const typeVal = document.getElementById("type").value;
+                    if (typeVal !== type) setType(typeVal);
+                    context.updateShowConvertBtn(typeVal === "TM");
+
+                    context.updateOfflineTD(JSON.stringify(createNewTD(type), null, "\t"), "AppHeader");
                     close();
                 }}
                 children={content}
-                submitText={"Create TD"}
-                title={"Create a New TD"}
-                description={"To quickly create a basis for your new TD just fill out this little template and we'll get you going."}
+                submitText={type === "TD" ? "Create TD" : "Create TM"}
+                title={"Create a New TD/TM"}
+                description={"To quickly create a basis for your new Thing Description/Thing Model just fill out this little template and we'll get you going."}
             />,
             document.getElementById("modal-root"));
     }
@@ -56,9 +68,18 @@ export const CreateTdDialog = forwardRef((props, ref) => {
     return null;
 });
 
-
-const buildForm = () => {
+const buildForm = (changeType) => {
     return <>
+        <label htmlFor="type" className="text-sm text-gray-400 font-medium pl-2">Type:</label>
+        <div className="relative">
+            <select className="block appearance-none w-full bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none" id="type" onChange={changeType}>
+                <option value="TD">Thing Description</option>
+                <option value="TM">Thing Model</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <ChevronDown color="#cacaca"></ChevronDown>
+            </div>
+        </div>
         {formField("ID", "urn:thing-id", "thing-id", "url", "autoFocus")}
         {formField("Title", "Thing Title", "thing-title", "text")}
         {formField("Base", "http://www.example.com/thing-path", "thing-base", "url")}
@@ -106,7 +127,7 @@ const formField = (label, placeholder, id, type, autoFocus) => {
     </div>;
 }
 
-const createNewTD = () => {
+const createNewTD = (type) => {   
     let id = document.getElementById('thing-id').value;
     let title = document.getElementById('thing-title').value;
     let base = document.getElementById('thing-base').value;
@@ -118,6 +139,10 @@ const createNewTD = () => {
 
     thing["@context"] = "https://www.w3.org/2019/wot/td/v1";
     thing["title"] = title !== "" ? title : "ediTDor Thing";
+
+    if (type === "TM") {
+        thing["@type"] = "tm:ThingModel";
+    }
 
     if (id !== "") {
         thing["id"] = id !== "" ? id : "urn:editdor-thing-id";
