@@ -187,31 +187,45 @@ const convertTmToTd = (td, htmlInputs) => {
     const parse = JSON.parse(td);
 
     // Create new affordances by leaving only the ticked ones
-    const newProperties = Object.keys(parse["properties"])
-        .filter(key => properties.includes(key))
-        .reduce((obj, key) => {
-            obj[key] = parse["properties"][key];
-            return obj;
-        }, {});
+    if (parse["properties"]) {
+        const newProperties = Object.keys(parse["properties"])
+            .filter(key => properties.includes(key))
+            .reduce((obj, key) => {
+                obj[key] = parse["properties"][key];
+                return obj;
+            }, {});
 
-    const newActions = Object.keys(parse["actions"])
-        .filter(key => actions.includes(key))
-        .reduce((obj, key) => {
-            obj[key] = parse["actions"][key];
-            return obj;
-        }, {});
+        // Adapt the new TD
+        parse["properties"] = newProperties;
+    }
 
-    const newEvents = Object.keys(parse["events"])
-        .filter(key => events.includes(key))
-        .reduce((obj, key) => {
-            obj[key] = parse["events"][key];
-            return obj;
-        }, {});
+    if (parse["actions"]) {
+        const newActions = Object.keys(parse["actions"])
+            .filter(key => actions.includes(key))
+            .reduce((obj, key) => {
+                obj[key] = parse["actions"][key];
+                return obj;
+            }, {});
 
-    // Adapt the new TD
-    parse["properties"] = newProperties;
-    parse["actions"] = newActions;
-    parse["events"] = newEvents;
+        // Adapt the new TD
+        parse["actions"] = newActions;
+    }
+
+    if (parse["events"]) {
+        const newEvents = Object.keys(parse["events"])
+            .filter(key => events.includes(key))
+            .reduce((obj, key) => {
+                obj[key] = parse["events"][key];
+                return obj;
+            }, {});
+
+        // Adapt the new TD
+        parse["events"] = newEvents;
+    }
+
+    // Remove TM related data
+    delete parse["@type"];
+    delete parse["tm:required"];
 
     let permalink = `${window.location.href}?td=${encodeURI(JSON.stringify(parse))}`;
     // Escaping hash signs manually since they are not escaped automatically
