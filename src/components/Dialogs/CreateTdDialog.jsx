@@ -40,20 +40,18 @@ export const CreateTdDialog = forwardRef((props, ref) => {
         setType(e.target.value);
     }
 
-    const content = buildForm(changeType);
+    const getType = () => {
+        return type;
+    }
+
+    const content = buildForm(changeType, getType);
 
     if (display) {
         return ReactDOM.createPortal(
             <DialogTemplate
                 onCancel={close}
                 onSubmit={() => {
-                    // If a user creates a TM and then again clicks New and creates TD this time,
-                    // the type state still be TM because the Select dropdown was not even clicked
-                    // That's why we are checking the type value once again before submitting the form
-                    const typeVal = document.getElementById("type").value;
-                    if (typeVal !== type) setType(typeVal);
-                    context.updateShowConvertBtn(typeVal === "TM");
-
+                    context.updateShowConvertBtn(type === "TM");
                     context.updateOfflineTD(JSON.stringify(createNewTD(type), null, "\t"), "AppHeader");
                     close();
                 }}
@@ -68,11 +66,11 @@ export const CreateTdDialog = forwardRef((props, ref) => {
     return null;
 });
 
-const buildForm = (changeType) => {
+const buildForm = (changeType, getType) => {
     return <>
         <label htmlFor="type" className="text-sm text-gray-400 font-medium pl-2">Type:</label>
         <div className="relative">
-            <select className="block appearance-none w-full bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none" id="type" onChange={changeType}>
+            <select className="block appearance-none w-full bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none" id="type" onChange={changeType} value={getType()}>
                 <option value="TD">Thing Description</option>
                 <option value="TM">Thing Model</option>
             </select>
