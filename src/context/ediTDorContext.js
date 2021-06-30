@@ -19,6 +19,7 @@ export default React.createContext({
   isThingModel: undefined,
   name: '',
   fileHandle:'',
+  showConvertBtn: false,
   updateOfflineTD: td => {},
   updateIsModified: isModified => {},
   updateIsThingModel: isThingModel => {},
@@ -27,5 +28,6 @@ export default React.createContext({
   addForm: form => {},
   addActionForm: params => {},
   addEventForm: params => {},
-  removeOneOfAKindReducer: (kind, oneOfAKind) => {}
+  removeOneOfAKindReducer: (kind, oneOfAKind) => {},
+  updateShowConvertBtn: showConvertBtn => {},
 });
