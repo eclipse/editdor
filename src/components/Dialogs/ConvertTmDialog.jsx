@@ -88,7 +88,65 @@ const createHtmlInputs = (td) => {
                 </div>
             );
         });
-        return htmlInputs;
+
+        // Containers for created html elements (checkboxes) of each interaction affordance
+        let htmlProperties = [];
+        let htmlActions = [];
+        let htmlEvents = [];
+
+        try {
+            const parsed = JSON.parse(td);
+            const properties = Object.keys(parsed["properties"] ? parsed["properties"] : {});
+            const actions = Object.keys(parsed["actions"] ? parsed["actions"] : {});
+            const events = Object.keys(parsed["events"] ? parsed["events"] : {});
+            const requiredFields = {"properties": [], "actions": [], "events": []};
+
+            // Parse the required interaction affordances
+            if (parsed["tm:required"]) {
+                for (const field of parsed["tm:required"]) {
+                    if (field.startsWith("#properties/"))
+                        requiredFields["properties"].push(field.split("/")[1]);
+                    else if (field.startsWith("#actions/"))
+                        requiredFields["actions"].push(field.split("/")[1]);
+                    else if (field.startsWith("#events/"))
+                        requiredFields["events"].push(field.split("/")[1]);
+                }
+            }
+
+            // Create html (checkboxes) for specific interaction affordances
+            function createAffordanceHtml(affName, affContainer) {
+                return affContainer.map((aff) => {
+                    const required = requiredFields[affName].includes(aff);
+                    return (
+                        <div key={`${affName}/${aff}`} className="form-checkbox py-1 pl-2">
+                            <input id={`${affName}/${aff}`}
+                                className="form-checkbox-input"
+                                type="checkbox"
+                                value={`#${affName}/${aff}`}
+                                disabled={required}
+                                defaultChecked={true}
+                                title={required ? "This field is required by the TM." : ""}
+                                data-interaction={affName}
+                            />
+                            <label className="form-checkbox-label pl-2" htmlFor={`${affName}/${aff}`}>{`#${affName}/${aff}`}</label>
+                        </div>
+                    );
+                });
+            };
+
+            htmlProperties = createAffordanceHtml("properties", properties);
+            htmlActions = createAffordanceHtml("actions", actions);
+            htmlEvents = createAffordanceHtml("events", events);
+
+        } catch (ignored) {}
+
+        const divider = (
+            <h2 key="modalDividerText" className="text-gray-400 pb-2 pt-4">
+                {"Also, select/unselect the interaction affordances you would like to see in the new TD."}
+            </h2>
+        );
+
+        return [...htmlInputs, divider, ...htmlProperties, ...htmlActions, ...htmlEvents];
     } catch (e) {
         console.log(e);
         return [];
@@ -97,6 +155,27 @@ const createHtmlInputs = (td) => {
 
 const convertTmToTd = (td, htmlInputs) => {
     let mappingObject = {}
+    const properties = [];
+    const actions = [];
+    const events = [];
+
+    // Process the ticked affordances and save them in respective arrays
+    for (const item of htmlInputs) {
+        if (item.props.className.indexOf("form-checkbox") > -1 &&
+        document.getElementById(item.props.children[0].props.id).checked) {
+            if (item.props.children[0].props["data-interaction"] === "properties")
+                properties.push(item["key"].split("/")[1]);
+            else if (item.props.children[0].props["data-interaction"] === "actions")
+                actions.push(item["key"].split("/")[1]);
+            else if (item.props.children[0].props["data-interaction"] === "events")
+                events.push(item["key"].split("/")[1]);
+        }
+    }
+
+    // Process the placeholders
+    htmlInputs = htmlInputs.filter((e) => {
+        return e.props.className.indexOf("form-checkbox") === -1 && e.key !== "modalDividerText";
+    });
     htmlInputs.forEach((y) => {
         const elem = document.getElementById(y.key)
         mappingObject[y.key] = elem.value
@@ -106,6 +185,48 @@ const convertTmToTd = (td, htmlInputs) => {
         td = td.split(`{{${key}}}`).join(mappingObject[key])
     })
     const parse = JSON.parse(td);
-    const permalink = `${window.location.href}?td=${encodeURI(JSON.stringify(parse))}`
+
+    // Create new affordances by leaving only the ticked ones
+    if (parse["properties"]) {
+        const newProperties = Object.keys(parse["properties"])
+            .filter(key => properties.includes(key))
+            .reduce((obj, key) => {
+                obj[key] = parse["properties"][key];
+                return obj;
+            }, {});
+
+        // Adapt the new TD
+        parse["properties"] = newProperties;
+    }
+
+    if (parse["actions"]) {
+        const newActions = Object.keys(parse["actions"])
+            .filter(key => actions.includes(key))
+            .reduce((obj, key) => {
+                obj[key] = parse["actions"][key];
+                return obj;
+            }, {});
+
+        // Adapt the new TD
+        parse["actions"] = newActions;
+    }
+
+    if (parse["events"]) {
+        const newEvents = Object.keys(parse["events"])
+            .filter(key => events.includes(key))
+            .reduce((obj, key) => {
+                obj[key] = parse["events"][key];
+                return obj;
+            }, {});
+
+        // Adapt the new TD
+        parse["events"] = newEvents;
+    }
+
+    // Remove TM related data
+    delete parse["@type"];
+    delete parse["tm:required"];
+
+    let permalink = `${window.location.href}?td=${encodeURIComponent(JSON.stringify(parse))}`;
     window.open(permalink, "_blank");
 }

@@ -19,6 +19,7 @@ export const ADD_PROPERTYFORM_TO_TD = 'ADD_PROPERTYFORM_TO_TD';
 export const ADD_ACTIONFORM_TO_TD = 'ADD_ACTIONFORM_TO_TD';
 export const ADD_EVENTFORM_TO_TD = 'ADD_EVENTFORM_TO_TD';
 export const REMOVE_ONE_OF_A_KIND_FROM_TD = 'REMOVE_ONE_OF_A_KIND_FROM_TD';
+export const UPDATE_SHOW_CONVERT_BTN = 'UPDATE_SHOW_CONVERT_BTN';
 
 const updateOfflineTDReducer = (offlineTD, state) => {
   return { ...state, offlineTD, isModified: true };
@@ -116,6 +117,10 @@ const updateFileHandleReducer = (fileHandle, state) => {
   return { ...state, fileHandle: fileHandle };
 };
 
+const updateShowConvertBtn = (showConvertBtn, state) => {
+  return { ...state, showConvertBtn: showConvertBtn };
+};
+
 const editdorReducer = (state, action) => {
   switch (action.type) {
     case UPDATE_OFFLINE_TD:
@@ -137,6 +142,8 @@ const editdorReducer = (state, action) => {
       return addActionFormReducer(action.params, state)
     case ADD_EVENTFORM_TO_TD:
       return addEventFormReducer(action.params, state)
+    case UPDATE_SHOW_CONVERT_BTN:
+      return updateShowConvertBtn(action.showConvertBtn, state);
     default:
       return state;
   }
