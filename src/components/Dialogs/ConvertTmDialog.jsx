@@ -227,8 +227,6 @@ const convertTmToTd = (td, htmlInputs) => {
     delete parse["@type"];
     delete parse["tm:required"];
 
-    let permalink = `${window.location.href}?td=${encodeURI(JSON.stringify(parse))}`;
-    // Escaping hash signs manually since they are not escaped automatically
-    permalink = permalink.replace(/#/g, "%23");
+    let permalink = `${window.location.href}?td=${encodeURIComponent(JSON.stringify(parse))}`;
     window.open(permalink, "_blank");
 }
