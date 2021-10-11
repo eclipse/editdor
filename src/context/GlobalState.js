@@ -13,7 +13,7 @@
 import React, { useReducer } from 'react';
 
 import EdiTDorContext from './ediTDorContext';
-import { editdorReducer, REMOVE_FORM_FROM_TD, UPDATE_IS_THINGMODEL, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_PROPERTYFORM_TO_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD, REMOVE_ONE_OF_A_KIND_FROM_TD, UPDATE_SHOW_CONVERT_BTN } from './editorReducers';
+import { editdorReducer, REMOVE_FORM_FROM_TD, REMOVE_LINK_FROM_TD, UPDATE_IS_THINGMODEL, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_PROPERTYFORM_TO_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD, REMOVE_ONE_OF_A_KIND_FROM_TD, UPDATE_SHOW_CONVERT_BTN } from './editorReducers';
 
 
 const GlobalState = props => {
@@ -37,6 +37,10 @@ const GlobalState = props => {
 
   const removeForm = form => {
     dispatch({ type: REMOVE_FORM_FROM_TD, form: form });
+  };
+
+  const removeLink = link => {
+    dispatch({ type: REMOVE_LINK_FROM_TD, link: link });
   };
 
   const addForm = form => {
@@ -71,6 +75,7 @@ const GlobalState = props => {
         updateIsThingModel,
         setFileHandle,
         removeForm,
+        removeLink,
         addForm,
         addActionForm,
         addEventForm,
