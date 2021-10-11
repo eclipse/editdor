@@ -15,6 +15,7 @@ export const UPDATE_IS_MODFIED = 'UPDATE_IS_MODFIED';
 export const UPDATE_IS_THINGMODEL = 'UPDATE_IS_THINGMODEL';
 export const SET_FILE_HANDLE = 'SET_FILE_HANDLE';
 export const REMOVE_FORM_FROM_TD = 'REMOVE_FORM_FROM_TD';
+export const REMOVE_LINK_FROM_TD = 'REMOVE_LINK_FROM_TD';
 export const ADD_PROPERTYFORM_TO_TD = 'ADD_PROPERTYFORM_TO_TD';
 export const ADD_ACTIONFORM_TO_TD = 'ADD_ACTIONFORM_TO_TD';
 export const ADD_EVENTFORM_TO_TD = 'ADD_EVENTFORM_TO_TD';
@@ -61,6 +62,18 @@ const removeFormReducer = (form, state) => {
       alert('Sorry we were unable to delete the Form.');
     }
   }
+  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+};
+
+const removeLinkReducer = (props, state) => {
+  let offlineTD = JSON.parse(state.offlineTD)
+    try {
+
+      offlineTD["links"].splice(props.propName)
+    } catch (e) {
+      alert('Sorry we were unable to delete the Form.');
+    }
+
   return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
 
@@ -134,6 +147,8 @@ const editdorReducer = (state, action) => {
       return newState;
     case REMOVE_FORM_FROM_TD:
       return removeFormReducer(action.form, state)
+    case REMOVE_LINK_FROM_TD:
+        return removeLinkReducer(action.link, state)
     case REMOVE_ONE_OF_A_KIND_FROM_TD:
       return removeOneOfAKindReducer(action.kind, action.oneOfAKindName, state)
     case ADD_PROPERTYFORM_TO_TD:

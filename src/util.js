@@ -66,6 +66,7 @@ export const separateForms = (forms) => {
 
 
 
+
 /**
  * 
  * @param {itemToCheck} itemToCheck 
@@ -77,6 +78,19 @@ export const hasForms = (itemToCheck) => {
     return itemToCheck.forms ? true : false;
 }
 
+export const hasLinks = (itemToCheck) => {
+    return itemToCheck.links ? true : false;
+}
+
+export const checkIfLinkIsInItem = (link, itemToCheck) => {
+    for (const element of itemToCheck.links) {
+        if(element.href === link.href){
+            return true
+        }
+    }
+    return false
+
+}
 export const checkIfFormIsInItem = (form, itemToCheck) => {
     for (const element of itemToCheck.forms) {
         if (typeof (form.op) === "string") {

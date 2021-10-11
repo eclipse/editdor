@@ -26,6 +26,7 @@ export default React.createContext({
   setFileHandle: handle => {},
   removeForm: form => {},
   addForm: form => {},
+  removeLink: link => {},
   addActionForm: params => {},
   addEventForm: params => {},
   removeOneOfAKindReducer: (kind, oneOfAKind) => {},

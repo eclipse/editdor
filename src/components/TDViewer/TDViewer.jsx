@@ -15,9 +15,12 @@ import '../../assets/main.css';
 import ediTDorContext from '../../context/ediTDorContext';
 import { buildAttributeListObject, separateForms } from '../../util';
 import { AddFormDialog } from "../Dialogs/AddFormDialog";
+import { AddLinkTdDialog } from '../Dialogs/AddLinkTdDialog';
 import { InfoIconWrapper } from '../InfoIcon/InfoIcon';
 import { getFormsTooltipContent } from '../InfoIcon/InfoTooltips';
+import { getLinksTooltipContent } from '../InfoIcon/InfoTooltips';
 import Form from './Form';
+import Link from './Link';
 import { InteractionSection } from './InteractionSection';
 import { RenderedObject } from './RenderedObject';
 let tdJSON = {};
@@ -29,6 +32,9 @@ export default function TDViewer() {
 
     const addFormDialog = React.useRef();
     const openAddFormDialog = () => { addFormDialog.current.openModal() }
+
+    const addLinkDialog = React.useRef();
+    const openAddLinkDialog = () => { addLinkDialog.current.openModal() }
 
     try {
         oldtdJSON = tdJSON;
@@ -48,6 +54,7 @@ export default function TDViewer() {
     }
 
     let forms;
+    let links;
     let metaData;
 
     if (tdJSON) {
@@ -57,9 +64,16 @@ export default function TDViewer() {
                 return (<Form form={key} propName={index} key={index} />);
             });
         }
+        if (tdJSON.links) {
+            const linksfromTd=tdJSON.links;
+            links = linksfromTd.map((key, index) => {
+                return (<Link link={key} propName={index} key={index} />);
+            });
+        }
+
         metaData = tdJSON;
 
-        const alreadyRenderedKeys = ["id", "properties", "actions", "events", "forms", "description", "title",];
+        const alreadyRenderedKeys = ["id", "properties", "actions", "events", "forms", "description", "title","links"];
         const attributeListObject = buildAttributeListObject(tdJSON.id ? { id: tdJSON.id } : {}, tdJSON, alreadyRenderedKeys);
 
         return (
@@ -94,6 +108,22 @@ export default function TDViewer() {
                         />
                     </summary>
                     {forms && <div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{forms}</div></div>}
+                </details>
+
+                <details className="pt-8">
+                    <summary className="flex justify-start items-center cursor-pointer">
+                        <div className="flex flex-grow">
+                            <InfoIconWrapper tooltip={getLinksTooltipContent()}>
+                                <h2 className="text-2xl text-white p-1 flex-grow">Links</h2>
+                            </InfoIconWrapper>
+                        </div>
+                        <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={openAddLinkDialog}>Add top level Link</button>
+                        <AddLinkTdDialog type="link"
+                            interaction={tdJSON}
+                            ref={addLinkDialog}
+                        />
+                    </summary>
+                    {links && <div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{links}</div></div>}
                 </details>
 
                 <InteractionSection interaction="Properties" ></InteractionSection>
