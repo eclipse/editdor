@@ -20,6 +20,7 @@ export default React.createContext({
   name: '',
   fileHandle:'',
   showConvertBtn: false,
+  linkedTd:{},
   updateOfflineTD: td => {},
   updateIsModified: isModified => {},
   updateIsThingModel: isThingModel => {},
@@ -31,4 +32,6 @@ export default React.createContext({
   addEventForm: params => {},
   removeOneOfAKindReducer: (kind, oneOfAKind) => {},
   updateShowConvertBtn: showConvertBtn => {},
+  addLinkedTd: linkedTd => {},
+  updateLinkedTd: linkedTd => {}
 });

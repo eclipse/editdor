@@ -10,7 +10,7 @@
  * 
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext } from 'react';
+import React, { useContext,useEffect } from 'react';
 import '../../assets/main.css';
 import ediTDorContext from '../../context/ediTDorContext';
 import { buildAttributeListObject, separateForms } from '../../util';
@@ -23,6 +23,8 @@ import Form from './Form';
 import Link from './Link';
 import { InteractionSection } from './InteractionSection';
 import { RenderedObject } from './RenderedObject';
+import * as joint from 'jointjs';
+
 let tdJSON = {};
 let oldtdJSON = {};
 let error = "";
@@ -36,6 +38,172 @@ export default function TDViewer() {
     const addLinkDialog = React.useRef();
     const openAddLinkDialog = () => { addLinkDialog.current.openModal() }
 
+    const [graphHeight, setGraphHeight] = React.useState(() => { return 0 });
+    const [radioStatus, setRadioStatus] = React.useState(() => { return "list" });
+
+
+    const representationFormatChange= (representationFormat) => {
+        setRadioStatus(representationFormat)
+    }
+
+
+    useEffect(() => {
+        let posx=100
+        let posy=30
+        // This graph is used to draw the thing description elements
+        let graphTd = new joint.dia.Graph();
+        let paperTd = new joint.dia.Paper({
+            el: document.getElementById('tdGraph'),
+            model: graphTd,
+            height: 270+graphHeight,
+            width:850,
+            gridSize: 10,
+            drawGrid: true,
+            restrictTranslate: true,
+        });
+        // Check if the links section exists to start drawing
+        let offlineTD={}
+        if(context.offlineTD){
+            offlineTD = JSON.parse(context.offlineTD)
+        }
+        if(offlineTD["links"]){
+            //Update/refresh the content of the context.linkedTd whenever the the useEffect is triggered
+            if(context.linkedTd){
+                let updatedLinkedTd={}
+                for(let i=0;i<offlineTD["links"].length;i++){
+                    updatedLinkedTd[offlineTD["links"][i]["href"]]=context.linkedTd[offlineTD["links"][i]["href"]]
+                }
+                updatedLinkedTd[offlineTD["title"]]=offlineTD
+                context.updateLinkedTd(updatedLinkedTd)
+            }
+            // Draw the links between Tds
+            var currentTdModel = new joint.shapes.standard.Rectangle();
+            currentTdModel.position(100, 10);
+            currentTdModel.resize(140, 40);
+            currentTdModel.attr({
+                body: {
+                    fill: '#008FF5'
+                },
+                label: {
+                    text: offlineTD["title"],
+                    fill: 'white'
+                }
+            });
+            currentTdModel.set("td",{})
+            graphTd.addCell(currentTdModel)
+            for(let i=0;i<offlineTD["links"].length;i++){
+                posx=posx+70
+                posy=posy+60
+                let href=offlineTD["links"][i]["href"]
+                let targetTdModel = new joint.shapes.standard.Rectangle();
+                //Draw as many rectangles as there are links in the links section
+                targetTdModel.position(posx, posy);
+                targetTdModel.attr({
+                    body: {
+                        fill: '#008FF5'
+                    },
+                    label: {
+                        text: href,
+                        fill: 'white'
+                    }
+                });
+                targetTdModel.resize((targetTdModel.attributes.attrs["label"]["text"].length)*12, 40);
+                graphTd.addCell(targetTdModel)
+                targetTdModel.set("href",href)
+                var removeButton = new joint.elementTools.Remove({
+                    useModelGeometry: true,
+                    y: '0%',
+                    x: '100%',
+                    action: async function(evt,elementView, buttonView) {
+                        if(context.linkedTd){
+                        let currentLinkedTd=context.linkedTd
+                        delete currentLinkedTd[elementView.model.get("href")]
+                        context.updateLinkedTd(currentLinkedTd)
+                        }
+                        for(let i=0;i<offlineTD["links"].length;i++){
+                            if(offlineTD["links"][i]["href"]===elementView.model.get("href")){
+                                offlineTD["links"].splice(i,1)
+                                break
+                            }
+                        }
+                        //update the links section in the Thing Description
+                        context.updateOfflineTD(JSON.stringify(offlineTD, null, 2))
+                        //update the linkedTd after removing the current linked Td
+                    }
+                });
+                var toolsView = new joint.dia.ToolsView({
+                    tools: [removeButton]
+                });
+                var elementView = targetTdModel.findView(paperTd);
+                elementView.addTools(toolsView);
+                //ADD info button only if context.linkedTd element  content is not empty ({})
+                if(context.linkedTd && context.linkedTd[href]&&Object.keys(context.linkedTd[href]).length !== 0){
+
+                            targetTdModel.set("td",context.linkedTd[href])
+                            var infoButton = new joint.elementTools.Button({
+                                markup: [{
+                                    tagName: 'circle',
+                                    selector: 'button',
+                                    attributes: {
+                                        'r': 7,
+                                        'fill': '#1e889a',
+                                        'cursor': 'pointer'
+                                    }
+                                }, {
+                                    tagName: 'path',
+                                    selector: 'icon',
+                                    attributes: {
+                                        'd': 'M -2 4 2 4 M 0 3 0 0 M -2 -1 1 -1 M -1 -4 1 -4',
+                                        'fill': 'none',
+                                        'stroke': '#FFFFFF',
+                                        'stroke-width': 2,
+                                        'pointer-events': 'none'
+                                    }
+                                }],
+                                x: '0%',
+                                y: '0%',
+                                rotate: true,
+                                action: async function(evt,elementView, buttonView) {
+                                    let parsedTD=elementView.model.get("td");
+                                    let baseUrl=window.location.protocol+"//"+window.location.host + "/"
+                                    let url=`${baseUrl}?td=${encodeURIComponent(
+                                        JSON.stringify(parsedTD)
+                                    )}`
+                                    window.open(url, '_blank').focus();
+                                }
+                            });
+                            let toolsView = new joint.dia.ToolsView({
+                                tools: [removeButton,infoButton]
+                            });
+                            elementView.addTools(toolsView);
+                       
+                }
+                let link = new joint.shapes.standard.Link(
+                    {
+                        attrs: {
+                            line: {
+                                'stroke': '#3498DB'
+                            }
+                        },
+                        labels : [ {
+                            position : .6,
+                            attrs : {
+                                text : {
+                                    text : offlineTD["links"][i]["rel"] ===undefined ? "" : offlineTD["links"][i]["rel"],
+                                    fill : 'grey'
+                                }
+                            }
+                        } ]
+                    }
+                )
+                link.source(currentTdModel);
+                link.target(targetTdModel);
+                link.addTo(graphTd);
+            }
+            setGraphHeight(posy+30)
+        }
+    }, [context.offlineTD,graphHeight,radioStatus]);
+
     try {
         oldtdJSON = tdJSON;
         tdJSON = JSON.parse(context.offlineTD);
@@ -44,6 +212,7 @@ export default function TDViewer() {
         error = e.message;
         tdJSON = oldtdJSON;
     }
+
 
     if (!Object.keys(tdJSON).length) {
         return (
@@ -110,20 +279,31 @@ export default function TDViewer() {
                     {forms && <div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{forms}</div></div>}
                 </details>
 
-                <details className="pt-8">
+                <details className="pt-8" open>
                     <summary className="flex justify-start items-center cursor-pointer">
                         <div className="flex flex-grow">
                             <InfoIconWrapper tooltip={getLinksTooltipContent()}>
                                 <h2 className="text-2xl text-white p-1 flex-grow">Links</h2>
                             </InfoIconWrapper>
+                            <input type="radio" id="list" name="representationFormat" value="list"
+                                checked={radioStatus === 'list'}
+                                onChange={event => { representationFormatChange("list"); }}/>&nbsp;&nbsp;
+                            <label htmlFor="list" className="text-sm text-gray-400 font-medium">List</label>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <input type="radio" id="url" name="representationFormat" value="graph"
+                                onChange={event => { representationFormatChange("graph"); }}
+                                checked={radioStatus === 'graph'}/>&nbsp;&nbsp;
+                            <label htmlFor="graph" className="text-sm text-gray-400 font-medium" >Graph</label>
                         </div>
-                        <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={openAddLinkDialog}>Add top level Link</button>
+                        <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={openAddLinkDialog}>Add Top Level Link</button>
                         <AddLinkTdDialog type="link"
                             interaction={tdJSON}
                             ref={addLinkDialog}
                         />
                     </summary>
-                    {links && <div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{links}</div></div>}
+                    {links && radioStatus==="graph" &&<div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4" id="tdGraph"></div></div>}
+                    {links && radioStatus==="list" && <div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{links}</div></div>}
+
                 </details>
 
                 <InteractionSection interaction="Properties" ></InteractionSection>

@@ -20,6 +20,7 @@
      const context = useContext(ediTDorContext);
      const [display, setDisplay] = React.useState(() => { return false });
      const [radioStatus, setRadioStatus] = React.useState(() => { return "url" });
+     const [currentLinkedTd, setCurrentLinkedTd] = React.useState(() => { return {} });
 
 
 
@@ -112,14 +113,16 @@
 
       const linkingMethodChange= (linkingOption) => {
           setRadioStatus(linkingOption)
-    }
+          if(currentLinkedTd && linkingOption === 'url'){
+            setCurrentLinkedTd({})
+          }
+      }
 
      const openFile = useCallback(
         async (_) => {
 
           if (!hasNativeFS()) {
             const file = await getFileHTML5();
-            console.log(file)
             if (file) {
                 document.getElementById("link-href").value="./"+file.name
             }
@@ -130,9 +133,12 @@
           try {
             fileHandle = await getFileHandle();
             const file = await fileHandle.getFile();
-            document.getElementById("link-href").value="./"+file.name
-            //context.updateIsThingModel(false)
+            const href="./"+file.name
+            const parsedTd=JSON.parse(await file.text())
+            setCurrentLinkedTd(parsedTd)
+            document.getElementById("link-href").value=href
           } catch (ex) {
+            console.log(ex)
             const msg = "We ran into an error trying to open your TD.";
             console.error(msg, ex);
             alert(msg);
@@ -177,18 +183,18 @@
               <input type="radio" id="upload" name="linkTd" value="upload"
                  checked={radioStatus === 'upload'}
                  onChange={event => { linkingMethodChange("upload"); }}/>&nbsp;&nbsp;
-                <label for="upload" className="text-sm text-gray-400 font-medium">From local machine</label>
+                <label htmlFor="upload" className="text-sm text-gray-400 font-medium">From local machine</label>
                 &nbsp;&nbsp;&nbsp;&nbsp;
               <input type="radio" id="url" name="linkTd" value="url"
                  onChange={event => { linkingMethodChange("url"); }}
                  checked={radioStatus === 'url'}/>&nbsp;&nbsp;
-                <label for="url" className="text-sm text-gray-400 font-medium" >Ressource url</label>
+                <label htmlFor="url" className="text-sm text-gray-400 font-medium" >Ressource url</label>
              <div>
              <input
                  type="text"
                  name="link-href"
                  id="link-href"
-                 style={{width: '350px'}}
+                 style={{width: '330px'}}
                  className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
                  placeholder="The target ressource"
                  onChange={() => { clearHrefErrorMessage(); }}
@@ -223,11 +229,13 @@
              <DialogTemplate
                  onCancel={close}
                  onSubmit={() => {
-                     let link = {};
+                     let link = {}
+                     let linkedTd= {}
                      const rel  = document.getElementById("rel").value;
                      const href = document.getElementById("link-href").value;
                      const type = document.getElementById("type").value;
                      link.href = href !== "" ? href.trim() : "/";
+                      linkedTd[href]=currentLinkedTd
                      if(rel !== ""){
                         link.rel=rel.trim()
                     }
@@ -242,7 +250,9 @@
                         showHrefErrorMessage("A Link with the target Thing Description already exists ...");
                     }
                     else {
-                         addLinksToInteraction(link);
+                         addLinksToInteraction(link)
+                         context.addLinkedTd(linkedTd)
+                         setCurrentLinkedTd({})
                          close();
                      }
                  }}

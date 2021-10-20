@@ -21,6 +21,8 @@ export const ADD_ACTIONFORM_TO_TD = 'ADD_ACTIONFORM_TO_TD';
 export const ADD_EVENTFORM_TO_TD = 'ADD_EVENTFORM_TO_TD';
 export const REMOVE_ONE_OF_A_KIND_FROM_TD = 'REMOVE_ONE_OF_A_KIND_FROM_TD';
 export const UPDATE_SHOW_CONVERT_BTN = 'UPDATE_SHOW_CONVERT_BTN';
+export const ADD_LINKED_TD = 'ADD_LINKED_TD';
+export const UPDATE_LINKED_TD = 'UPDATE_LINKED_TD'
 
 const updateOfflineTDReducer = (offlineTD, state) => {
   return { ...state, offlineTD, isModified: true };
@@ -68,10 +70,9 @@ const removeFormReducer = (form, state) => {
 const removeLinkReducer = (props, state) => {
   let offlineTD = JSON.parse(state.offlineTD)
     try {
-
-      offlineTD["links"].splice(props.propName)
+      offlineTD["links"].splice(props.propName,1)
     } catch (e) {
-      alert('Sorry we were unable to delete the Form.');
+      alert('Sorry we were unable to delete the Link.');
     }
 
   return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
@@ -96,6 +97,23 @@ const addPropertyFormReducer = (form, state) => {
   property.forms.push(form.form);
   return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
+
+const addLinkedTd = (td, state) =>{
+  let resultingLinkedTd ={}
+  let linkedTd= state.linkedTd
+
+  if(linkedTd === undefined){
+     resultingLinkedTd=td
+  }
+  else{
+  resultingLinkedTd = Object.assign(linkedTd, td)
+  }
+  return { ...state, linkedTd: resultingLinkedTd };
+}
+
+const updateLinkedTd = (td, state) =>{
+  return { ...state, linkedTd: td };
+}
 
 const addActionFormReducer = (params, state) => {
   let offlineTD = JSON.parse(state.offlineTD)
@@ -159,6 +177,10 @@ const editdorReducer = (state, action) => {
       return addEventFormReducer(action.params, state)
     case UPDATE_SHOW_CONVERT_BTN:
       return updateShowConvertBtn(action.showConvertBtn, state);
+    case ADD_LINKED_TD:
+      return addLinkedTd(action.linkedTd,state)
+    case UPDATE_LINKED_TD:
+      return updateLinkedTd(action.linkedTd,state)
     default:
       return state;
   }
