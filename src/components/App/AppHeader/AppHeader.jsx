@@ -56,7 +56,8 @@ export default function AppHeader() {
   const readFile = useCallback(
     async (file, fileHandle) => {
       try {
-        context.updateOfflineTD(await read(file));
+        let td= await read(file)
+        context.updateOfflineTD(td);
         context.setFileHandle(fileHandle || file.name);
         context.updateIsModified(false);
       } catch (ex) {
