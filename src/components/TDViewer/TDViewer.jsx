@@ -61,21 +61,24 @@ export default function TDViewer() {
             drawGrid: true,
             restrictTranslate: true,
         });
-        // Check if the links section exists to start drawing
         let offlineTD={}
         if(context.offlineTD){
             offlineTD = JSON.parse(context.offlineTD)
         }
+        // Check if the links section exists to start drawing
+        //Update/refresh the content of the context.linkedTd whenever the the useEffect is triggered
         if(offlineTD["links"]){
-            //Update/refresh the content of the context.linkedTd whenever the the useEffect is triggered
-            if(context.linkedTd){
-                let updatedLinkedTd={}
-                for(let i=0;i<offlineTD["links"].length;i++){
+            let updatedLinkedTd={}
+            for(let i=0;i<offlineTD["links"].length;i++){
+                if(!context.linkedTd){
+                    updatedLinkedTd[offlineTD["links"][i]["href"]]={}
+                }
+                else{
                     updatedLinkedTd[offlineTD["links"][i]["href"]]=context.linkedTd[offlineTD["links"][i]["href"]]
                 }
-                updatedLinkedTd[offlineTD["title"]]=offlineTD
-                context.updateLinkedTd(updatedLinkedTd)
             }
+            updatedLinkedTd[offlineTD["title"]]=offlineTD
+            context.updateLinkedTd(updatedLinkedTd)
             // Draw the links between Tds
             var currentTdModel = new joint.shapes.standard.Rectangle();
             currentTdModel.position(100, 10);
@@ -136,9 +139,8 @@ export default function TDViewer() {
                 });
                 var elementView = targetTdModel.findView(paperTd);
                 elementView.addTools(toolsView);
-                //ADD info button only if context.linkedTd element  content is not empty ({})
-                if(context.linkedTd && context.linkedTd[href]&&Object.keys(context.linkedTd[href]).length !== 0){
-
+                //ADD info button only if context.linkedTd element exist and its content is not empty/undefined ({})
+                if(context.linkedTd&&Object.keys(context.linkedTd[href]).length !== 0){
                             targetTdModel.set("td",context.linkedTd[href])
                             var infoButton = new joint.elementTools.Button({
                                 markup: [{
@@ -176,7 +178,6 @@ export default function TDViewer() {
                                 tools: [removeButton,infoButton]
                             });
                             elementView.addTools(toolsView);
-                       
                 }
                 let link = new joint.shapes.standard.Link(
                     {

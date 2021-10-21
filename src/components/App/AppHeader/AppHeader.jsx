@@ -36,8 +36,6 @@ export default function AppHeader() {
     if (!context.isModified) {
       return true;
     }
-
-    console.log("verifyDiscard", context.isModified);
     const msg =
       "Discard changes? All changes you made to your TD will be lost.";
     return await window.confirm(msg);
@@ -58,6 +56,7 @@ export default function AppHeader() {
       try {
         let td= await read(file)
         context.updateOfflineTD(td);
+        context.updateLinkedTd(undefined)
         context.setFileHandle(fileHandle || file.name);
         context.updateIsModified(false);
       } catch (ex) {
