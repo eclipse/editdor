@@ -38,7 +38,7 @@
           <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue" onClick={() => deleteLink(props)}>
               <Trash2 size={16} color="black" />
           </button>
-          { context.linkedTd &&context.linkedTd[props.link.href]&&Object.keys(context.linkedTd[props.link.href]).length>0 &&
+          { context.linkedTd&&Object.keys(context.linkedTd[props.link.href]).length>0 &&
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue" onClick={() => infoLink(props)}>
               <Info size={16} color="black" />
           </button>}

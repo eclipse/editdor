@@ -23,11 +23,7 @@
      const [currentLinkedTd, setCurrentLinkedTd] = React.useState(() => { return {} });
 
 
-
-     //const type = props.type ?? "";
-     //const name = type && type[0].toUpperCase() + type.slice(1);
      const interaction = props.interaction ?? {};
-     //const interactionName = props.interactionName ?? "";
      const offlineTD = JSON.parse(context.offlineTD)
 
      useEffect(() => {
