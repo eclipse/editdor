@@ -19,7 +19,7 @@
  export const AddLinkTdDialog = forwardRef((props, ref) => {
      const context = useContext(ediTDorContext);
      const [display, setDisplay] = React.useState(() => { return false });
-     const [radioStatus, setRadioStatus] = React.useState(() => { return "url" });
+     const [linkingMethod, setlinkingMethod] = React.useState(() => { return "url" });
      const [currentLinkedTd, setCurrentLinkedTd] = React.useState(() => { return {} });
 
 
@@ -108,7 +108,7 @@
        */
 
       const linkingMethodChange= (linkingOption) => {
-          setRadioStatus(linkingOption)
+          setlinkingMethod(linkingOption)
           if(currentLinkedTd && linkingOption === 'url'){
             setCurrentLinkedTd({})
           }
@@ -174,28 +174,21 @@
          </div>
          <div className="p-1 pt-2">
              <label htmlFor="link-href" className="text-sm text-gray-400 font-medium pl-2" >Target ressource:</label>
-             &nbsp;&nbsp;&nbsp;&nbsp;
-              <input type="radio" id="upload" name="linkTd" value="upload"
-                 checked={radioStatus === 'upload'}
-                 onChange={event => { linkingMethodChange("upload"); }}/>&nbsp;&nbsp;
-                <label htmlFor="upload" className="text-sm text-gray-400 font-medium">From local machine</label>
                 &nbsp;&nbsp;&nbsp;&nbsp;
-              <input type="radio" id="url" name="linkTd" value="url"
-                 onChange={event => { linkingMethodChange("url"); }}
-                 checked={radioStatus === 'url'}/>&nbsp;&nbsp;
-                <label htmlFor="url" className="text-sm text-gray-400 font-medium" >Ressource url</label>
-             <div>
+                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" disabled={linkingMethod === 'upload'} onClick={()=> { linkingMethodChange("upload"); }}>From local machine</button>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" disabled={linkingMethod === 'url'} onClick={()=> { linkingMethodChange("url"); }}>Ressource url</button>
+             <div className="p-1 pt-4" >
              <input
                  type="text"
                  name="link-href"
                  id="link-href"
-                 style={{width: '330px'}}
                  className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
                  placeholder="The target ressource"
                  onChange={() => { clearHrefErrorMessage(); }}
-                 disabled={radioStatus !== 'url'}
+                 disabled={linkingMethod !== 'url'}
              />
-             { radioStatus === 'upload' &&  <button  className="text-white bg-blue-500 cursor-pointer rounded-md p-2 h-9" onClick={openFile} disabled={radioStatus !== 'upload'} >
+             { linkingMethod === 'upload' &&  <button  className="text-white bg-blue-500 cursor-pointer rounded-md p-2 h-9" onClick={openFile} disabled={linkingMethod !== 'upload'} >
                 Open TD
              </button>}
              </div>
@@ -236,7 +229,7 @@
                       } catch (_) {
                         isValidUrl= false;
                       }
-                     if(radioStatus==="url" &&isValidUrl&&(url.protocol === "http:" || url.protocol === "https:")){
+                     if(linkingMethod==="url" &&isValidUrl&&(url.protocol === "http:" || url.protocol === "https:")){
                         try {
                           var httpRequest = new XMLHttpRequest()
                           httpRequest.open('GET', href, false)
