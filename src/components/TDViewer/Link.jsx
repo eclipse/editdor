@@ -19,15 +19,33 @@
 
      const context = useContext(ediTDorContext)
      const deleteLink = (e) => {
-         context.removeLink(e)
+      let currentLinkedTd=context.linkedTd
+      //update the linkedTd after removing the current linked Td
+      if(currentLinkedTd[e.link.href]){
+        delete currentLinkedTd[e.link.href]
+        context.updateLinkedTd(currentLinkedTd)
+      }
+       context.removeLink(e.propName)
      }
-     const infoLink = (e) =>{
-        let parsedTD=context.linkedTd[e.link.href]
-        let baseUrl=window.location.protocol+"//"+window.location.host + "/"
-        let url=`${baseUrl}?td=${encodeURIComponent(
-            JSON.stringify(parsedTD)
-        )}`
-        window.open(url, '_blank').focus();
+     const infoLink = async (e) =>{
+      let href=e.link.href
+      document.getElementById("linkedTd").value=href
+      context.setFileHandle(undefined)
+      if (context.linkedTd[href]["kind"]==="file"){
+          let fileHandle=context.linkedTd[href]
+          const file = await fileHandle.getFile();
+          const td=JSON.parse(await file.text())
+          let offlineTd=JSON.stringify(td, null, 2)
+          context.setFileHandle(fileHandle)
+          context.updateOfflineTD(offlineTd)
+        }
+        // If we create a TD using the New button then we don't have a file handler
+        // In that case the entry in linkedTd is not a file handler but a Thing Description Json 
+        else if(Object.keys(context.linkedTd[href]).length !== 0){
+          const td=context.linkedTd[href]
+          let offlineTd=JSON.stringify(td, null, 2)
+          context.updateOfflineTD(offlineTd)
+        }
      }
      return (
         <div className="flex flex-row items-center justify-start h-10 w-full bg-formBlue rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formBlue">
@@ -38,7 +56,7 @@
           <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue" onClick={() => deleteLink(props)}>
               <Trash2 size={16} color="black" />
           </button>
-          { context.linkedTd&&Object.keys(context.linkedTd[props.link.href]).length>0 &&
+          { context.linkedTd&&context.linkedTd[props.link.href]&&((Object.keys(context.linkedTd[props.link.href]).length)||context.linkedTd[props.link.href]["kind"]==="file") &&
             <button className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue" onClick={() => infoLink(props)}>
               <Info size={16} color="black" />
           </button>}

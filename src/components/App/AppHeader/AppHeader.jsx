@@ -55,8 +55,12 @@ export default function AppHeader() {
     async (file, fileHandle) => {
       try {
         let td= await read(file)
-        context.updateOfflineTD(td);
+        let linkedTd={}
+        let parsedTd= JSON.parse(td)
+        linkedTd[parsedTd["title"]]=fileHandle
         context.updateLinkedTd(undefined)
+        context.addLinkedTd(linkedTd)
+        context.updateOfflineTD(td);
         context.setFileHandle(fileHandle || file.name);
         context.updateIsModified(false);
       } catch (ex) {
@@ -152,6 +156,13 @@ export default function AppHeader() {
 
     try {
       await writeFile(fileHandle, context.offlineTD);
+      let parsedTd=JSON.parse(context.offlineTD)
+      if(context.linkedTd[parsedTd["title"]]){
+        let linkedTd=context.linkedTd
+        linkedTd[parsedTd["title"]]=fileHandle
+        context.updateLinkedTd(linkedTd)
+      }
+
       context.setFileHandle(fileHandle);
       context.updateIsModified(false);
     } catch (ex) {
