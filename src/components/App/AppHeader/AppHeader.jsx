@@ -56,8 +56,7 @@ export default function AppHeader() {
       try {
         let td= await read(file)
         let linkedTd={}
-        let parsedTd= JSON.parse(td)
-        linkedTd[parsedTd["title"]]=fileHandle
+        linkedTd["./"+file.name]=fileHandle
         context.updateLinkedTd(undefined)
         context.addLinkedTd(linkedTd)
         context.updateOfflineTD(td);

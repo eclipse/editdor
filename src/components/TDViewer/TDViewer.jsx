@@ -39,15 +39,28 @@ export default function TDViewer() {
     const openAddLinkDialog = () => { addLinkDialog.current.openModal() }
 
     const [graphHeight, setGraphHeight] = React.useState(() => { return 0 });
-    const [radioStatus, setRadioStatus] = React.useState(() => { return "list" });
+    const [representationFormat, setRepresentationFormat] = React.useState(() => { return "list" });
+    const [isLinksOpen, setIsLinksOpen] = React.useState(() => { return false });
+
 
 
     const representationFormatChange= (representationFormat) => {
-        setRadioStatus(representationFormat)
+        setRepresentationFormat(representationFormat)
     }
 
 
     useEffect(() => {
+        if(document.getElementsByTagName("details")[1]){
+            document.getElementsByTagName("details")[1].addEventListener("toggle", function(evt){
+                if(document.getElementsByTagName("details")[1].attributes.open){
+                        setIsLinksOpen(true)
+                }
+                else{
+                        setIsLinksOpen(false)
+
+                }
+            }, false);
+        }
         let posx=100
         let posy=30
         // This graph is used to draw the thing description elements
@@ -118,6 +131,7 @@ export default function TDViewer() {
                         for(let i=0;i<offlineTD["links"].length;i++){
                             if(offlineTD["links"][i]["href"]===elementView.model.get("href")){
                                 context.removeLink(i)
+                                context.updateIsModified(true)
                                 break
                             }
                         }
@@ -155,29 +169,53 @@ export default function TDViewer() {
                                 rotate: true,
                                 action: async function(evt,elementView, buttonView) {
                                     let href=elementView.model.get("href")
-                                    document.getElementById("linkedTd").value=href
                                     context.setFileHandle(undefined)
                                     if (context.linkedTd[href]["kind"]==="file"){
+                                        try{
+                                            if(context.isModified){
+                                                 var  writable = await context.fileHandle.createWritable();
+                                            }
+                                        } catch(e){
+                                            document.getElementById("linkedTd").value=href
+                                            let fileHandle=context.linkedTd[href]
+                                            const file = await fileHandle.getFile();
+                                            const td=JSON.parse(await file.text())
+                                            let offlineTd=JSON.stringify(td, null, 2)
+                                            context.setFileHandle(fileHandle)
+                                            context.updateOfflineTD(offlineTd)
+                                            context.updateIsModified(false)
+
+                                        }
+                                        if(writable){
+                                            await writable.write(context.offlineTD);
+                                            await writable.close();
+                                        }
+                                        document.getElementById("linkedTd").value=href
                                         let fileHandle=context.linkedTd[href]
                                         const file = await fileHandle.getFile();
                                         const td=JSON.parse(await file.text())
                                         let offlineTd=JSON.stringify(td, null, 2)
                                         context.setFileHandle(fileHandle)
                                         context.updateOfflineTD(offlineTd)
+                                        context.updateIsModified(false)
+
                                       }
                                       // If we create a TD using the New button then we don't have a file handler
                                       // In that case the entry in linkedTd is not a file handler but a Thing Description .json 
                                       else if(Object.keys(context.linkedTd[href]).length !== 0){
+                                        document.getElementById("linkedTd").value=href
                                         const td=context.linkedTd[href]
                                         let offlineTd=JSON.stringify(td, null, 2)
                                         context.updateOfflineTD(offlineTd)
+                                        context.updateIsModified(false)
+
                                       }
-                                }
-                            });
-                            let toolsView = new joint.dia.ToolsView({
-                                tools: [removeButton,infoButton]
-                            });
-                            elementView.addTools(toolsView);
+                                    }
+                                });
+                    let toolsView = new joint.dia.ToolsView({
+                        tools: [removeButton,infoButton]
+                    });
+                    elementView.addTools(toolsView);
                 }
                 let link = new joint.shapes.standard.Link(
                     {
@@ -203,7 +241,7 @@ export default function TDViewer() {
             }
             setGraphHeight(posy+30)
         }
-    }, [context,graphHeight,radioStatus]);
+    }, [context.offlineTD,graphHeight,representationFormat]);
 
     try {
         oldtdJSON = tdJSON;
@@ -280,21 +318,16 @@ export default function TDViewer() {
                     {forms && <div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{forms}</div></div>}
                 </details>
 
-                <details className="pt-8" open>
+                <details className="pt-8">
                     <summary className="flex justify-start items-center cursor-pointer">
                         <div className="flex flex-grow">
                             <InfoIconWrapper tooltip={getLinksTooltipContent()}>
                                 <h2 className="text-2xl text-white p-1 flex-grow">Links</h2>
                             </InfoIconWrapper>
-                            <input type="radio" id="list" name="representationFormat" value="list"
-                                checked={radioStatus === 'list'}
-                                onChange={event => { representationFormatChange("list"); }}/>&nbsp;&nbsp;
-                            <label htmlFor="list" className="text-sm text-gray-400 font-medium">List</label>
+
+                            {isLinksOpen&&<button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" disabled={representationFormat==="list"} onClick={()=>representationFormatChange("list")}>List</button>}
                             &nbsp;&nbsp;&nbsp;&nbsp;
-                            <input type="radio" id="url" name="representationFormat" value="graph"
-                                onChange={event => { representationFormatChange("graph"); }}
-                                checked={radioStatus === 'graph'}/>&nbsp;&nbsp;
-                            <label htmlFor="graph" className="text-sm text-gray-400 font-medium" >Graph</label>
+                            {isLinksOpen&&<button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9"  disabled={representationFormat==="graph"} onClick={()=>representationFormatChange("graph")}>Graph</button>}
                         </div>
                         <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={openAddLinkDialog}>Add Top Level Link</button>
                         <AddLinkTdDialog type="link"
@@ -302,8 +335,8 @@ export default function TDViewer() {
                             ref={addLinkDialog}
                         />
                     </summary>
-                    {links && radioStatus==="graph" &&<div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4" id="tdGraph"></div></div>}
-                    {links && radioStatus==="list" && <div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{links}</div></div>}
+                    {links && representationFormat==="graph" &&<div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4" id="tdGraph"></div></div>}
+                    {links && representationFormat==="list" && <div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{links}</div></div>}
 
                 </details>
 
