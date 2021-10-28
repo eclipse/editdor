@@ -10,9 +10,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext, useState, useRef } from "react";
-import MonacoEditor from "react-monaco-editor";
-import ediTDorContext from "../../context/ediTDorContext";
+ import React, { useContext, useState, useRef, useEffect } from "react";
+ import MonacoEditor from "react-monaco-editor";
+ import ediTDorContext from "../../context/ediTDorContext";
 
 const mapping = require("../../assets/mapping.json");
 
@@ -33,6 +33,7 @@ const JSONEditorComponent = (props) => {
   const [schemas] = useState([]);
   const [proxy, setProxy] = useState(undefined);
   const editorInstance = useRef(null);
+  const [tabs, setTabs] = useState([]);
 
   const editorWillMount = async (monaco) => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
@@ -204,7 +205,56 @@ const JSONEditorComponent = (props) => {
     }
   };
 
+   useEffect( () => { 
+     async function getTabs() {
+         try {
+           if(context.linkedTd){
+             let tabs=[]
+             let index=0
+             for(let key in context.linkedTd){
+                if(context.linkedTd[key]["kind"]==="file"||Object.keys(context.linkedTd[key]).length){
+                  tabs.push(<option value={key} key={index}>{key}</option>)
+                  index++
+                }
+             }
+             setTabs(tabs)
+           }
+         } catch (err) {
+             console.log(err);
+         }
+     }
+     getTabs()
+   },[context.linkedTd,context.offlineTD]);
+
+   const changeLinkedTd = async () =>{
+      let href = document.getElementById("linkedTd").value;
+      context.setFileHandle(undefined)
+      if (context.linkedTd[href]["kind"]==="file"){
+        let fileHandle=context.linkedTd[href]
+        const file = await fileHandle.getFile();
+        const td=JSON.parse(await file.text())
+        let offlineTd=JSON.stringify(td, null, 2)
+        context.setFileHandle(fileHandle)
+        context.updateOfflineTD(offlineTd)
+      }
+      // If we create a TD using the New button then we don't have a file handler
+      // In that case the entry in linkedTd is not a file handler but a Thing Description Json 
+      else if(Object.keys(context.linkedTd[href]).length){
+        const td=context.linkedTd[href]
+        let offlineTd=JSON.stringify(td, null, 2)
+        context.updateOfflineTD(offlineTd)
+      }
+    }
   return (
+     <>
+     {
+     context.offlineTD && context.linkedTd &&
+    <div  style={{backgroundColor: '#1E1E1E'}}>
+     <select style={{backgroundColor: '#1E1E1E' ,color:"white",width: "250px"}} name="linkedTd" id="linkedTd" onChange={()=>changeLinkedTd()}>
+        {tabs}
+    </select>
+    </div>
+    }
     <div className="w-full h-full">
       <MonacoEditor
         options={editorOptions}
@@ -219,6 +269,8 @@ const JSONEditorComponent = (props) => {
         }}
       />
     </div>
+     </>
+
   );
 };
 

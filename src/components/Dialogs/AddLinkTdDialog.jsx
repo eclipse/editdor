@@ -130,8 +130,7 @@
             fileHandle = await getFileHandle();
             const file = await fileHandle.getFile();
             const href="./"+file.name
-            const parsedTd=JSON.parse(await file.text())
-            setCurrentLinkedTd(parsedTd)
+            setCurrentLinkedTd(fileHandle)
             document.getElementById("link-href").value=href
           } catch (ex) {
             console.log(ex)
@@ -231,7 +230,32 @@
                      const href = document.getElementById("link-href").value;
                      const type = document.getElementById("type").value;
                      link.href = href !== "" ? href.trim() : "/";
-                      linkedTd[href]=currentLinkedTd
+                     let isValidUrl=true
+                     try {
+                        var url = new URL(href);
+                      } catch (_) {
+                        isValidUrl= false;
+                      }
+                     if(radioStatus==="url" &&isValidUrl&&(url.protocol === "http:" || url.protocol === "https:")){
+                        try {
+                          var httpRequest = new XMLHttpRequest()
+                          httpRequest.open('GET', href, false)
+                          httpRequest.send()
+                          if(httpRequest.getResponseHeader('content-type')==="application/td+json"){
+                                  const thingDescription=httpRequest.response
+                                  let parsedTd= JSON.parse(thingDescription)
+                                  linkedTd[href]=parsedTd
+                          }
+                        } catch (ex) {
+                        console.log(ex)
+                        const msg = "We ran into an error trying to fetch your TD.";
+                        console.error(msg, ex);
+                        alert(msg);
+                      }
+                    }
+                    else{
+                    linkedTd[href]=currentLinkedTd
+                    }
                      if(rel !== ""){
                         link.rel=rel.trim()
                     }

@@ -68,17 +68,6 @@ export default function TDViewer() {
         // Check if the links section exists to start drawing
         //Update/refresh the content of the context.linkedTd whenever the the useEffect is triggered
         if(offlineTD["links"]){
-            let updatedLinkedTd={}
-            for(let i=0;i<offlineTD["links"].length;i++){
-                if(!context.linkedTd){
-                    updatedLinkedTd[offlineTD["links"][i]["href"]]={}
-                }
-                else{
-                    updatedLinkedTd[offlineTD["links"][i]["href"]]=context.linkedTd[offlineTD["links"][i]["href"]]
-                }
-            }
-            updatedLinkedTd[offlineTD["title"]]=offlineTD
-            context.updateLinkedTd(updatedLinkedTd)
             // Draw the links between Tds
             var currentTdModel = new joint.shapes.standard.Rectangle();
             currentTdModel.position(100, 10);
@@ -120,18 +109,18 @@ export default function TDViewer() {
                     action: async function(evt,elementView, buttonView) {
                         if(context.linkedTd){
                         let currentLinkedTd=context.linkedTd
-                        delete currentLinkedTd[elementView.model.get("href")]
-                        context.updateLinkedTd(currentLinkedTd)
+                        //update the linkedTd after removing the current linked Td
+                        if(currentLinkedTd[elementView.model.get("href")]){
+                            delete currentLinkedTd[elementView.model.get("href")]
+                            context.updateLinkedTd(currentLinkedTd)
+                            }
                         }
                         for(let i=0;i<offlineTD["links"].length;i++){
                             if(offlineTD["links"][i]["href"]===elementView.model.get("href")){
-                                offlineTD["links"].splice(i,1)
+                                context.removeLink(i)
                                 break
                             }
                         }
-                        //update the links section in the Thing Description
-                        context.updateOfflineTD(JSON.stringify(offlineTD, null, 2))
-                        //update the linkedTd after removing the current linked Td
                     }
                 });
                 var toolsView = new joint.dia.ToolsView({
@@ -139,8 +128,7 @@ export default function TDViewer() {
                 });
                 var elementView = targetTdModel.findView(paperTd);
                 elementView.addTools(toolsView);
-                //ADD info button only if context.linkedTd element exist and its content is not empty/undefined ({})
-                if(context.linkedTd&&Object.keys(context.linkedTd[href]).length !== 0){
+                if(context.linkedTd&&context.linkedTd[href]&&(context.linkedTd[href]["kind"]==="file"||Object.keys(context.linkedTd[href]).length)){
                             targetTdModel.set("td",context.linkedTd[href])
                             var infoButton = new joint.elementTools.Button({
                                 markup: [{
@@ -166,12 +154,24 @@ export default function TDViewer() {
                                 y: '0%',
                                 rotate: true,
                                 action: async function(evt,elementView, buttonView) {
-                                    let parsedTD=elementView.model.get("td");
-                                    let baseUrl=window.location.protocol+"//"+window.location.host + "/"
-                                    let url=`${baseUrl}?td=${encodeURIComponent(
-                                        JSON.stringify(parsedTD)
-                                    )}`
-                                    window.open(url, '_blank').focus();
+                                    let href=elementView.model.get("href")
+                                    document.getElementById("linkedTd").value=href
+                                    context.setFileHandle(undefined)
+                                    if (context.linkedTd[href]["kind"]==="file"){
+                                        let fileHandle=context.linkedTd[href]
+                                        const file = await fileHandle.getFile();
+                                        const td=JSON.parse(await file.text())
+                                        let offlineTd=JSON.stringify(td, null, 2)
+                                        context.setFileHandle(fileHandle)
+                                        context.updateOfflineTD(offlineTd)
+                                      }
+                                      // If we create a TD using the New button then we don't have a file handler
+                                      // In that case the entry in linkedTd is not a file handler but a Thing Description .json 
+                                      else if(Object.keys(context.linkedTd[href]).length !== 0){
+                                        const td=context.linkedTd[href]
+                                        let offlineTd=JSON.stringify(td, null, 2)
+                                        context.updateOfflineTD(offlineTd)
+                                      }
                                 }
                             });
                             let toolsView = new joint.dia.ToolsView({
@@ -203,7 +203,7 @@ export default function TDViewer() {
             }
             setGraphHeight(posy+30)
         }
-    }, [context.offlineTD,graphHeight,radioStatus]);
+    }, [context,graphHeight,radioStatus]);
 
     try {
         oldtdJSON = tdJSON;

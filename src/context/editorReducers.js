@@ -25,7 +25,25 @@ export const ADD_LINKED_TD = 'ADD_LINKED_TD';
 export const UPDATE_LINKED_TD = 'UPDATE_LINKED_TD'
 
 const updateOfflineTDReducer = (offlineTD, state) => {
-  return { ...state, offlineTD, isModified: true };
+  let linkedTd=state.linkedTd
+  if(linkedTd&&!state.fileHandle){
+    let parsedTd=JSON.parse(offlineTD)
+    for(let href in linkedTd){
+      if (linkedTd[href]["title"]&&linkedTd[href]["title"]===parsedTd["title"]){
+          linkedTd[href]=parsedTd
+      }
+    }
+  }
+  // if we use the monaco editor directly to write Thing Description
+  /*
+  else{
+    let parsedTd=JSON.parse(offlineTD)
+    linkedTd={}
+    if (parsedTd["title"]){
+        linkedTd[parsedTd["title"]]=parsedTd
+    }
+  }*/
+  return { ...state, offlineTD, isModified: true, linkedTd:linkedTd };
 };
 
 const removeFormReducer = (form, state) => {
@@ -67,10 +85,10 @@ const removeFormReducer = (form, state) => {
   return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
 
-const removeLinkReducer = (props, state) => {
+const removeLinkReducer = (index, state) => {
   let offlineTD = JSON.parse(state.offlineTD)
     try {
-      offlineTD["links"].splice(props.propName,1)
+      offlineTD["links"].splice(index,1)
     } catch (e) {
       alert('Sorry we were unable to delete the Link.');
     }
