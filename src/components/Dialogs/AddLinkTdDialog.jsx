@@ -234,7 +234,7 @@
                           var httpRequest = new XMLHttpRequest()
                           httpRequest.open('GET', href, false)
                           httpRequest.send()
-                          if(httpRequest.getResponseHeader('content-type')==="application/td+json"){
+                          if(httpRequest.getResponseHeader('content-type').includes("application/td+json")){
                                   const thingDescription=httpRequest.response
                                   let parsedTd= JSON.parse(thingDescription)
                                   linkedTd[href]=parsedTd
