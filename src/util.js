@@ -18,7 +18,12 @@
  * 
  * @description
  * Parses all key-value pairs of an object into an object'. 
+ * 
  */
+
+
+
+
 export const buildAttributeListObject = (firstAttribute, object, dontRender) => {
     let attributeListObject = { ...firstAttribute }
 
@@ -140,4 +145,61 @@ const checkIfFormIsInElement = (form, element) => {
                 return true
         }
     }
+}
+
+export const changeBetweenTd = async (context,href) => {
+      var  writable
+      if (context.linkedTd[href]["kind"]==="file"){
+        try{
+          if(context.isModified&&context.fileHandle){
+            writable = await context.fileHandle.createWritable();
+            await writable.write(context.offlineTD)
+            await writable.close()
+          }
+          } catch(e){
+              document.getElementById("linkedTd").value=href
+              let fileHandle=context.linkedTd[href]
+              const file = await fileHandle.getFile();
+              const td=JSON.parse(await file.text())
+              let offlineTd=JSON.stringify(td, null, 2)
+              context.setFileHandle(fileHandle)
+              context.updateOfflineTD(offlineTd)
+              context.updateIsModified(false)
+
+          }
+          document.getElementById("linkedTd").value=href
+          let fileHandle=context.linkedTd[href]
+          const file = await fileHandle.getFile();
+          const td=JSON.parse(await file.text())
+          let offlineTd=JSON.stringify(td, null, 2)
+          context.setFileHandle(fileHandle)
+          context.updateOfflineTD(offlineTd)
+          context.updateIsModified(false)
+      }
+      // If we create a TD using the New button then we don't have a file handler
+      // In that case the entry in linkedTd is not a file handler but a Thing Description Json 
+      else if(Object.keys(context.linkedTd[href]).length){
+        try{
+          if(context.isModified&&context.fileHandle){
+            writable = await context.fileHandle.createWritable();
+            await writable.write(context.offlineTD)
+            await writable.close()
+          }
+        }
+        catch(e){
+          context.setFileHandle(undefined)
+          document.getElementById("linkedTd").value=href
+          const td=context.linkedTd[href]
+          let offlineTd=JSON.stringify(td, null, 2)
+          context.updateOfflineTD(offlineTd)
+          context.updateIsModified(false)
+        }
+        context.setFileHandle(undefined)
+        document.getElementById("linkedTd").value=href
+        const td=context.linkedTd[href]
+        let offlineTd=JSON.stringify(td, null, 2)
+        context.updateOfflineTD(offlineTd)
+        context.updateIsModified(false)
+
+      }
 }

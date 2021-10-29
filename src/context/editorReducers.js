@@ -34,15 +34,6 @@ const updateOfflineTDReducer = (offlineTD, state) => {
       }
     }
   }
-  // if we use the monaco editor directly to write Thing Description
-  /*
-  else{
-    let parsedTd=JSON.parse(offlineTD)
-    linkedTd={}
-    if (parsedTd["title"]){
-        linkedTd[parsedTd["title"]]=parsedTd
-    }
-  }*/
   return { ...state, offlineTD, isModified: true, linkedTd:linkedTd };
 };
 
@@ -92,8 +83,15 @@ const removeLinkReducer = (index, state) => {
     } catch (e) {
       alert('Sorry we were unable to delete the Link.');
     }
-
-  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+  let linkedTd=state.linkedTd
+  if(linkedTd&&!state.fileHandle){
+    for(let href in linkedTd){
+      if (linkedTd[href]["title"]&&linkedTd[href]["title"]===offlineTD["title"]){
+          linkedTd[href]=offlineTD
+      }
+    }
+  }
+  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2),linkedTd:linkedTd };
 };
 
 const removeOneOfAKindReducer = (kind, oneOfAKindName, state) => {
