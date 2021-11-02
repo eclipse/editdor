@@ -67,14 +67,17 @@ details>summary::marker {
   display: none;
 }
 #tabsBackground{
-  background-color: #1E1E1E
+  background-color: #1E1E1E;
+  height:25px
 }
 #linkedTd{
   background-color: #1E1E1E ;
   color: white;
-  width: 250px;
+  width: calc( 100vh - 500px );
 }
 #link-href{
   width: 330px;
 }
-
+#editor{
+ height: calc( 100vh - 120px );
+}
