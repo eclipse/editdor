@@ -233,15 +233,15 @@ const JSONEditorComponent = (props) => {
     }
   return (
      <>
+     <div  id="tabsBackground" >
      {
      context.offlineTD && context.linkedTd &&
-    <div  id="tabsBackground">
      <select name="linkedTd" id="linkedTd" onChange={()=>changeLinkedTd()}>
         {tabs}
     </select>
+     }
     </div>
-    }
-    <div className="w-full h-full">
+    <div className="w-full h-full" id="editor">
       <MonacoEditor
         options={editorOptions}
         theme={"vs-" + context.theme}
