@@ -286,8 +286,7 @@ export default function TDViewer() {
                             </InfoIconWrapper>
 
                             {isLinksOpen&&<button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" disabled={representationFormat==="list"} onClick={()=>representationFormatChange("list")}>List</button>}
-                            &nbsp;&nbsp;&nbsp;&nbsp;
-                            {isLinksOpen&&<button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9"  disabled={representationFormat==="graph"} onClick={()=>representationFormatChange("graph")}>Graph</button>}
+                            {isLinksOpen&&<button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" style={{marginLeft:"10px"}}  disabled={representationFormat==="graph"} onClick={()=>representationFormatChange("graph")}>Graph</button>}
                         </div>
                         <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={openAddLinkDialog}>Add Top Level Link</button>
                         <AddLinkTdDialog type="link"

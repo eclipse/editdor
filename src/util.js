@@ -79,10 +79,16 @@ export const hasForms = (itemToCheck) => {
     return itemToCheck.forms ? true : false;
 }
 
+/**   
+  *Check if link exists in the links section of iteamToCheck  
+*/
 export const hasLinks = (itemToCheck) => {
     return itemToCheck.links ? true : false;
 }
 
+/**  
+  *Check if link exists in the links section of iteamToCheck 
+*/
 export const checkIfLinkIsInItem = (link, itemToCheck) => {
     for (const element of itemToCheck.links) {
         if(element.href === link.href){
@@ -143,6 +149,11 @@ const checkIfFormIsInElement = (form, element) => {
     }
 }
 
+/**
+    * Display the selected Thing description 
+    * Save the current Thing Description if wanted
+    * Method supports both fileHandler and jsonld file
+*/
 export const changeBetweenTd = async (context,href) => {
       var  writable
       if (context.linkedTd[href]["kind"]==="file"){

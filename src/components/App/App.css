@@ -68,7 +68,7 @@ details>summary::marker {
 }
 #tabsBackground{
   background-color: #1E1E1E;
-  height:25px
+  height: 25px;
 }
 #linkedTd{
   background-color: #1E1E1E ;
@@ -76,7 +76,7 @@ details>summary::marker {
   width: calc( 100vh - 500px );
 }
 #link-href{
-  width: 330px;
+  width: calc( 100vh - 400px );
 }
 #editor{
  height: calc( 100vh - 120px );
