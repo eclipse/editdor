@@ -10,10 +10,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
- import React, { forwardRef, useContext, useEffect, useImperativeHandle,useCallback } from 'react';
+ import React, { forwardRef, useContext, useImperativeHandle,useCallback } from 'react';
  import ReactDOM from "react-dom";
  import ediTDorContext from "../../context/ediTDorContext";
- import {hasLinks,checkIfLinkIsInItem } from "../../util.js";
+ import {hasLinks,checkIfLinkIsInItem,getFileHandle,getFileHTML5} from "../../util.js";
  import { DialogTemplate } from "./DialogTemplate";
 
  export const AddLinkTdDialog = forwardRef((props, ref) => {
@@ -25,9 +25,6 @@
 
      const interaction = props.interaction ?? {};
      const offlineTD = JSON.parse(context.offlineTD)
-
-     useEffect(() => {
-     }, [display, context]);
 
      useImperativeHandle(ref, () => {
          return {
@@ -52,7 +49,7 @@
          return false
      }
 
-     const addLinksToInteraction = (link) => {
+     const addLinksToTd = (link) => {
                 let td = {}
                  try {
                      td = JSON.parse(context.offlineTD);
@@ -64,48 +61,11 @@
                  context.updateOfflineTD(JSON.stringify(td, null, 2))
      }
 
-     const getFileHandle = () => {
-        const opts = {
-          types: [
-            {
-              description: "Thing Description",
-              accept: { "application/ld+json": [".jsonld", ".json"] },
-            },
-          ],
-        };
-        if ("showOpenFilePicker" in window) {
-          return window.showOpenFilePicker(opts).then((handles) => handles[0]);
-        }
-        return window.chooseFileSystemEntries();
-      };
-
-     const getFileHTML5 = async () => {
-        return new Promise((resolve, reject) => {
-          const fileInput = document.getElementById("fileInput");
-          fileInput.onchange = (e) => {
-            const file = fileInput.files[0];
-            if (file) {
-              return resolve(file);
-            }
-            return reject(new Error("AbortError"));
-          };
-          fileInput.click();
-        });
-      };
-
-
      const hasNativeFS = useCallback(() => {
         return (
           "chooseFileSystemEntries" in window || "showOpenFilePicker" in window
         );
       }, []);
-
-      /**
-       *
-       * @param {*} file
-       *
-       * Read file content
-       */
 
       const linkingMethodChange= (linkingOption) => {
           setlinkingMethod(linkingOption)
@@ -142,6 +102,17 @@
         [hasNativeFS]
       );
 
+      const RelationType=()=>{
+        const relations=["icon","service-doc","alternate","type","tm:extends",
+        "proxy-to","collection","item","predecessor-version","controlledBy"]
+        let index=0
+        const relationsHtml=relations.map((currentRelation)=>{
+            index++
+            return <option value={currentRelation} key={index}/>
+        })
+        return relationsHtml
+      }
+
      const children = <>
          <label className="text-sm text-gray-400 font-medium pl-3">Thing Description:</label>
          <div className="p-1">
@@ -158,26 +129,15 @@
                  placeholder="relation name"
              />
               <datalist id="relationType">
-                <option value="icon" />
-                <option value="service-doc"/>
-                <option value="alternate" />
-                <option value="type" />
-                <option value="tm:extends" />
-                <option value="proxy-to" />
-                <option value="collection" />
-                <option value="item" />
-                <option value="predecessor-version" />
-                <option value="controlledBy" />
+                <RelationType></RelationType>
              </datalist>
 
              <span id="link-rel-info" className="text-xs text-red-400 pl-2"></span>
          </div>
          <div className="p-1 pt-2">
-             <label htmlFor="link-href" className="text-sm text-gray-400 font-medium pl-2" >Target ressource:</label>
-                &nbsp;&nbsp;&nbsp;&nbsp;
+             <label htmlFor="link-href" className="text-sm text-gray-400 font-medium pl-2 pr-2" >Target ressource:</label>
                 <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" disabled={linkingMethod === 'upload'} onClick={()=> { linkingMethodChange("upload"); }}>From local machine</button>
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" disabled={linkingMethod === 'url'} onClick={()=> { linkingMethodChange("url"); }}>Ressource url</button>
+                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" style={{marginLeft:"10px"}} disabled={linkingMethod === 'url'} onClick={()=> { linkingMethodChange("url"); }}>Ressource url</button>
              <div className="p-1 pt-4" >
              <input
                  type="text"
@@ -263,7 +223,7 @@
                         showHrefErrorMessage("A Link with the target Thing Description already exists ...");
                     }
                     else {
-                         addLinksToInteraction(link)
+                         addLinksToTd(link)
                          context.addLinkedTd(linkedTd)
                          setCurrentLinkedTd({})
                          close();

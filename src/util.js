@@ -20,10 +20,6 @@
  * Parses all key-value pairs of an object into an object'. 
  * 
  */
-
-
-
-
 export const buildAttributeListObject = (firstAttribute, object, dontRender) => {
     let attributeListObject = { ...firstAttribute }
 
@@ -203,3 +199,39 @@ export const changeBetweenTd = async (context,href) => {
 
       }
 }
+
+/**
+   * File Handle from native filesystem api
+   * Only JSON/JSON+LD Files are supported
+*/
+export const getFileHandle = () => {
+    const opts = {
+      types: [
+        {
+          description: "Thing Description",
+          accept: { "application/ld+json": [".jsonld", ".json"] },
+        },
+      ],
+    };
+    if ("showOpenFilePicker" in window) {
+      return window.showOpenFilePicker(opts).then((handles) => handles[0]);
+    }
+    return window.chooseFileSystemEntries();
+  };
+
+/**
+   * Reading files with HTML5 input
+*/
+export const getFileHTML5 = async () => {
+    return new Promise((resolve, reject) => {
+      const fileInput = document.getElementById("fileInput");
+      fileInput.onchange = (e) => {
+        const file = fileInput.files[0];
+        if (file) {
+          return resolve(file);
+        }
+        return reject(new Error("AbortError"));
+      };
+      fileInput.click();
+    });
+};
