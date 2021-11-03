@@ -20,6 +20,8 @@ import Button from "./Button";
 import { ShareDialog } from "../../Dialogs/ShareDialog";
 import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
 import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
+import {getFileHandle,getFileHTML5} from "../../../util.js";
+
 
 export default function AppHeader() {
   const context = useContext(ediTDorContext);
@@ -183,42 +185,6 @@ export default function AppHeader() {
       alert(msg);
     }
   }, [context, saveFileAs, writeFile]);
-
-  /**
-   * Reading files with HTML5 input
-   */
-  const getFileHTML5 = async () => {
-    return new Promise((resolve, reject) => {
-      const fileInput = document.getElementById("fileInput");
-      fileInput.onchange = (e) => {
-        const file = fileInput.files[0];
-        if (file) {
-          return resolve(file);
-        }
-        return reject(new Error("AbortError"));
-      };
-      fileInput.click();
-    });
-  };
-
-  /**
-   * File Handle from native filesystem api
-   * Only JSON/JSON+LD Files are supported
-   */
-  const getFileHandle = () => {
-    const opts = {
-      types: [
-        {
-          description: "Thing Description",
-          accept: { "application/ld+json": [".jsonld", ".json"] },
-        },
-      ],
-    };
-    if ("showOpenFilePicker" in window) {
-      return window.showOpenFilePicker(opts).then((handles) => handles[0]);
-    }
-    return window.chooseFileSystemEntries();
-  };
 
   const getNewFileHandle = async () => {
     // new file system api
