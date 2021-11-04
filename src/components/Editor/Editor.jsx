@@ -236,7 +236,7 @@ const JSONEditorComponent = (props) => {
      <div  id="tabsBackground" >
      {
      context.offlineTD && context.linkedTd &&
-     <select name="linkedTd" id="linkedTd" onChange={()=>changeLinkedTd()}>
+     <select name="linkedTd" id="linkedTd" className="text-white" onChange={()=>changeLinkedTd()}>
         {tabs}
     </select>
      }

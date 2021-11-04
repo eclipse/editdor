@@ -68,16 +68,15 @@ details>summary::marker {
 }
 #tabsBackground{
   background-color: #1E1E1E;
-  height: 25px;
+  height: 5%;
 }
 #linkedTd{
   background-color: #1E1E1E ;
-  color: white;
-  width: calc( 100vh - 500px );
+  width: 50%;
 }
 #link-href{
-  width: calc( 100vh - 400px );
+  width: 75%;
 }
 #editor{
- height: calc( 100vh - 120px );
+ height: 95.1%;
 }

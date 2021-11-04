@@ -137,13 +137,13 @@
          <div className="p-1 pt-2">
              <label htmlFor="link-href" className="text-sm text-gray-400 font-medium pl-2 pr-2" >Target ressource:</label>
                 <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" disabled={linkingMethod === 'upload'} onClick={()=> { linkingMethodChange("upload"); }}>From local machine</button>
-                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" style={{marginLeft:"10px"}} disabled={linkingMethod === 'url'} onClick={()=> { linkingMethodChange("url"); }}>Ressource url</button>
+                <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" style={{marginLeft:"2%"}} disabled={linkingMethod === 'url'} onClick={()=> { linkingMethodChange("url"); }}>Ressource url</button>
              <div className="p-1 pt-4" >
              <input
                  type="text"
                  name="link-href"
                  id="link-href"
-                 className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+                 className="border-gray-600 bg-gray-600 p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
                  placeholder="The target ressource"
                  onChange={() => { clearHrefErrorMessage(); }}
                  disabled={linkingMethod !== 'url'}
