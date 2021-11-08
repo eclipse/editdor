@@ -18,6 +18,7 @@
  * 
  * @description
  * Parses all key-value pairs of an object into an object'. 
+ * 
  */
 export const buildAttributeListObject = (firstAttribute, object, dontRender) => {
     let attributeListObject = { ...firstAttribute }
@@ -66,6 +67,7 @@ export const separateForms = (forms) => {
 
 
 
+
 /**
  * 
  * @param {itemToCheck} itemToCheck 
@@ -77,6 +79,25 @@ export const hasForms = (itemToCheck) => {
     return itemToCheck.forms ? true : false;
 }
 
+/**   
+  *Check if link exists in the links section of iteamToCheck  
+*/
+export const hasLinks = (itemToCheck) => {
+    return itemToCheck.links ? true : false;
+}
+
+/**  
+  *Check if link exists in the links section of iteamToCheck 
+*/
+export const checkIfLinkIsInItem = (link, itemToCheck) => {
+    for (const element of itemToCheck.links) {
+        if(element.href === link.href){
+            return true
+        }
+    }
+    return false
+
+}
 export const checkIfFormIsInItem = (form, itemToCheck) => {
     for (const element of itemToCheck.forms) {
         if (typeof (form.op) === "string") {
@@ -127,3 +148,101 @@ const checkIfFormIsInElement = (form, element) => {
         }
     }
 }
+
+/**
+    * Display the selected Thing description 
+    * Save the current Thing Description if wanted
+    * Method supports both fileHandler and jsonld file
+*/
+export const changeBetweenTd = async (context,href) => {
+      var  writable
+      if (context.linkedTd[href]["kind"]==="file"){
+        try{
+          if(context.isModified&&context.fileHandle){
+            writable = await context.fileHandle.createWritable();
+            await writable.write(context.offlineTD)
+            await writable.close()
+          }
+          } catch(e){
+              document.getElementById("linkedTd").value=href
+              let fileHandle=context.linkedTd[href]
+              const file = await fileHandle.getFile();
+              const td=JSON.parse(await file.text())
+              let offlineTd=JSON.stringify(td, null, 2)
+              context.setFileHandle(fileHandle)
+              context.updateOfflineTD(offlineTd)
+              context.updateIsModified(false)
+
+          }
+          document.getElementById("linkedTd").value=href
+          let fileHandle=context.linkedTd[href]
+          const file = await fileHandle.getFile();
+          const td=JSON.parse(await file.text())
+          let offlineTd=JSON.stringify(td, null, 2)
+          context.setFileHandle(fileHandle)
+          context.updateOfflineTD(offlineTd)
+          context.updateIsModified(false)
+      }
+      // If we create a TD using the New button then we don't have a file handler
+      // In that case the entry in linkedTd is not a file handler but a Thing Description Json 
+      else if(Object.keys(context.linkedTd[href]).length){
+        try{
+          if(context.isModified&&context.fileHandle){
+            writable = await context.fileHandle.createWritable();
+            await writable.write(context.offlineTD)
+            await writable.close()
+          }
+        }
+        catch(e){
+          context.setFileHandle(undefined)
+          document.getElementById("linkedTd").value=href
+          const td=context.linkedTd[href]
+          let offlineTd=JSON.stringify(td, null, 2)
+          context.updateOfflineTD(offlineTd)
+          context.updateIsModified(false)
+        }
+        context.setFileHandle(undefined)
+        document.getElementById("linkedTd").value=href
+        const td=context.linkedTd[href]
+        let offlineTd=JSON.stringify(td, null, 2)
+        context.updateOfflineTD(offlineTd)
+        context.updateIsModified(false)
+
+      }
+}
+
+/**
+   * File Handle from native filesystem api
+   * Only JSON/JSON+LD Files are supported
+*/
+export const getFileHandle = () => {
+    const opts = {
+      types: [
+        {
+          description: "Thing Description",
+          accept: { "application/ld+json": [".jsonld", ".json"] },
+        },
+      ],
+    };
+    if ("showOpenFilePicker" in window) {
+      return window.showOpenFilePicker(opts).then((handles) => handles[0]);
+    }
+    return window.chooseFileSystemEntries();
+  };
+
+/**
+   * Reading files with HTML5 input
+*/
+export const getFileHTML5 = async () => {
+    return new Promise((resolve, reject) => {
+      const fileInput = document.getElementById("fileInput");
+      fileInput.onchange = (e) => {
+        const file = fileInput.files[0];
+        if (file) {
+          return resolve(file);
+        }
+        return reject(new Error("AbortError"));
+      };
+      fileInput.click();
+    });
+};

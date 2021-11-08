@@ -51,8 +51,13 @@ export const CreateTdDialog = forwardRef((props, ref) => {
             <DialogTemplate
                 onCancel={close}
                 onSubmit={() => {
+                    let td=createNewTD(type)
+                    let linkedTd={}
+                    linkedTd[td["title"]]=td
+                    context.updateLinkedTd(undefined)
+                    context.addLinkedTd(linkedTd)
                     context.updateShowConvertBtn(type === "TM");
-                    context.updateOfflineTD(JSON.stringify(createNewTD(type), null, "\t"), "AppHeader");
+                    context.updateOfflineTD(JSON.stringify(td, null, "\t"),"AppHeader");
                     close();
                 }}
                 children={content}

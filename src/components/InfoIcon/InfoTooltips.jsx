@@ -64,9 +64,22 @@ export const getFormsTooltipContent = () => {
     return new TooltipContent(html, href);
 }
 
+export const getLinksTooltipContent = () => {
+    const html = `<h2 class='text-lg'>Web of Things Link</h2>
+                    <p>A link can be viewed as a statement of the form link context has a relation type resource at link target</p>
+                    <p>Used to link Thing Description with other ressources.</p>
+                    <br />
+                    <p>Click to get more information about Links.</p>
+                `
+    const href = "https://www.w3.org/TR/wot-thing-description/#link";
+
+    return new TooltipContent(html, href);
+}
+
 export const tooltipMapper = {
     "properties": getPropertiesTooltipContent(),
     "actions": getActionsTooltipContent(),
     "events": getEventsTooltipContent(),
     "forms": getFormsTooltipContent(),
+    "links": getLinksTooltipContent(),
 };
