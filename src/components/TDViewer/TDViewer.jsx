@@ -201,7 +201,7 @@ export default function TDViewer() {
             }
             setGraphHeight(posy+30)
         }
-    }, [context.offlineTD,graphHeight,representationFormat]);
+    }, [context.offlineTD,graphHeight,representationFormat,context]);
 
     try {
         oldtdJSON = tdJSON;
