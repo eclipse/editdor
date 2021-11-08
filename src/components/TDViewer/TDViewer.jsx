@@ -10,16 +10,21 @@
  * 
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext } from 'react';
+import React, { useContext,useEffect } from 'react';
 import '../../assets/main.css';
 import ediTDorContext from '../../context/ediTDorContext';
-import { buildAttributeListObject, separateForms } from '../../util';
+import { buildAttributeListObject, separateForms,changeBetweenTd } from '../../util';
 import { AddFormDialog } from "../Dialogs/AddFormDialog";
+import { AddLinkTdDialog } from '../Dialogs/AddLinkTdDialog';
 import { InfoIconWrapper } from '../InfoIcon/InfoIcon';
 import { getFormsTooltipContent } from '../InfoIcon/InfoTooltips';
+import { getLinksTooltipContent } from '../InfoIcon/InfoTooltips';
 import Form from './Form';
+import Link from './Link';
 import { InteractionSection } from './InteractionSection';
 import { RenderedObject } from './RenderedObject';
+import * as joint from 'jointjs';
+
 let tdJSON = {};
 let oldtdJSON = {};
 let error = "";
@@ -30,6 +35,174 @@ export default function TDViewer() {
     const addFormDialog = React.useRef();
     const openAddFormDialog = () => { addFormDialog.current.openModal() }
 
+    const addLinkDialog = React.useRef();
+    const openAddLinkDialog = () => { addLinkDialog.current.openModal() }
+
+    const [graphHeight, setGraphHeight] = React.useState(() => { return 0 });
+    const [representationFormat, setRepresentationFormat] = React.useState(() => { return "list" });
+    const [isLinksOpen, setIsLinksOpen] = React.useState(() => { return false });
+
+
+
+    const representationFormatChange= (representationFormat) => {
+        setRepresentationFormat(representationFormat)
+    }
+
+
+    useEffect(() => {
+        if(document.getElementsByTagName("details")[1]){
+            document.getElementsByTagName("details")[1].addEventListener("toggle", function(evt){
+                if(document.getElementsByTagName("details")[1].attributes.open){
+                        setIsLinksOpen(true)
+                }
+                else{
+                        setIsLinksOpen(false)
+
+                }
+            }, false);
+        }
+        let posx=100
+        let posy=30
+        // This graph is used to draw the thing description elements
+        let graphTd = new joint.dia.Graph();
+        let paperTd = new joint.dia.Paper({
+            el: document.getElementById('tdGraph'),
+            model: graphTd,
+            height: 270+graphHeight,
+            width:850,
+            gridSize: 10,
+            drawGrid: true,
+            restrictTranslate: true,
+        });
+        let offlineTD={}
+        if(context.offlineTD){
+            offlineTD = JSON.parse(context.offlineTD)
+        }
+        // Check if the links section exists to start drawing
+        //Update/refresh the content of the context.linkedTd whenever the the useEffect is triggered
+        if(offlineTD["links"]){
+            // Draw the links between Tds
+            var currentTdModel = new joint.shapes.standard.Rectangle();
+            currentTdModel.position(100, 10);
+            currentTdModel.resize(140, 40);
+            currentTdModel.attr({
+                body: {
+                    fill: '#008FF5'
+                },
+                label: {
+                    text: offlineTD["title"],
+                    fill: 'white'
+                }
+            });
+            currentTdModel.set("td",{})
+            graphTd.addCell(currentTdModel)
+            for(let i=0;i<offlineTD["links"].length;i++){
+                posx=posx+70
+                posy=posy+60
+                let href=offlineTD["links"][i]["href"]
+                let targetTdModel = new joint.shapes.standard.Rectangle();
+                //Draw as many rectangles as there are links in the links section
+                targetTdModel.position(posx, posy);
+                targetTdModel.attr({
+                    body: {
+                        fill: '#008FF5'
+                    },
+                    label: {
+                        text: href,
+                        fill: 'white'
+                    }
+                });
+                targetTdModel.resize((targetTdModel.attributes.attrs["label"]["text"].length)*12, 40);
+                graphTd.addCell(targetTdModel)
+                targetTdModel.set("href",href)
+                var removeButton = new joint.elementTools.Remove({
+                    useModelGeometry: true,
+                    y: '0%',
+                    x: '100%',
+                    action: async function(evt,elementView, buttonView) {
+                        if(context.linkedTd){
+                        let currentLinkedTd=context.linkedTd
+                        //update the linkedTd after removing the current linked Td
+                        if(currentLinkedTd[elementView.model.get("href")]){
+                            delete currentLinkedTd[elementView.model.get("href")]
+                            context.updateLinkedTd(currentLinkedTd)
+                            }
+                        }
+                        for(let i=0;i<offlineTD["links"].length;i++){
+                            if(offlineTD["links"][i]["href"]===elementView.model.get("href")){
+                                context.removeLink(i)
+                                context.updateIsModified(true)
+                                break
+                            }
+                        }
+                    }
+                });
+                var toolsView = new joint.dia.ToolsView({
+                    tools: [removeButton]
+                });
+                var elementView = targetTdModel.findView(paperTd);
+                elementView.addTools(toolsView);
+                if(context.linkedTd&&context.linkedTd[href]&&(context.linkedTd[href]["kind"]==="file"||Object.keys(context.linkedTd[href]).length)){
+                            targetTdModel.set("td",context.linkedTd[href])
+                            var infoButton = new joint.elementTools.Button({
+                                markup: [{
+                                    tagName: 'circle',
+                                    selector: 'button',
+                                    attributes: {
+                                        'r': 7,
+                                        'fill': '#1e889a',
+                                        'cursor': 'pointer'
+                                    }
+                                }, {
+                                    tagName: 'path',
+                                    selector: 'icon',
+                                    attributes: {
+                                        'd': 'M -2 4 2 4 M 0 3 0 0 M -2 -1 1 -1 M -1 -4 1 -4',
+                                        'fill': 'none',
+                                        'stroke': '#FFFFFF',
+                                        'stroke-width': 2,
+                                        'pointer-events': 'none'
+                                    }
+                                }],
+                                x: '0%',
+                                y: '0%',
+                                rotate: true,
+                                action: async function(evt,elementView, buttonView) {
+                                    let href=elementView.model.get("href")
+                                    changeBetweenTd(context,href)
+                                }
+                            });
+                    let toolsView = new joint.dia.ToolsView({
+                        tools: [removeButton,infoButton]
+                    });
+                    elementView.addTools(toolsView);
+                }
+                let link = new joint.shapes.standard.Link(
+                    {
+                        attrs: {
+                            line: {
+                                'stroke': '#3498DB'
+                            }
+                        },
+                        labels : [ {
+                            position : .6,
+                            attrs : {
+                                text : {
+                                    text : offlineTD["links"][i]["rel"] ===undefined ? "" : offlineTD["links"][i]["rel"],
+                                    fill : 'grey'
+                                }
+                            }
+                        } ]
+                    }
+                )
+                link.source(currentTdModel);
+                link.target(targetTdModel);
+                link.addTo(graphTd);
+            }
+            setGraphHeight(posy+30)
+        }
+    }, [context.offlineTD,graphHeight,representationFormat]);
+
     try {
         oldtdJSON = tdJSON;
         tdJSON = JSON.parse(context.offlineTD);
@@ -38,6 +211,7 @@ export default function TDViewer() {
         error = e.message;
         tdJSON = oldtdJSON;
     }
+
 
     if (!Object.keys(tdJSON).length) {
         return (
@@ -48,6 +222,7 @@ export default function TDViewer() {
     }
 
     let forms;
+    let links;
     let metaData;
 
     if (tdJSON) {
@@ -57,9 +232,16 @@ export default function TDViewer() {
                 return (<Form form={key} propName={index} key={index} />);
             });
         }
+        if (tdJSON.links) {
+            const linksfromTd=tdJSON.links;
+            links = linksfromTd.map((key, index) => {
+                return (<Link link={key} propName={index} key={index} />);
+            });
+        }
+
         metaData = tdJSON;
 
-        const alreadyRenderedKeys = ["id", "properties", "actions", "events", "forms", "description", "title",];
+        const alreadyRenderedKeys = ["id", "properties", "actions", "events", "forms", "description", "title","links"];
         const attributeListObject = buildAttributeListObject(tdJSON.id ? { id: tdJSON.id } : {}, tdJSON, alreadyRenderedKeys);
 
         return (
@@ -94,6 +276,27 @@ export default function TDViewer() {
                         />
                     </summary>
                     {forms && <div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{forms}</div></div>}
+                </details>
+
+                <details className="pt-8">
+                    <summary className="flex justify-start items-center cursor-pointer">
+                        <div className="flex flex-grow">
+                            <InfoIconWrapper tooltip={getLinksTooltipContent()}>
+                                <h2 className="text-2xl text-white p-1 flex-grow">Links</h2>
+                            </InfoIconWrapper>
+
+                            {isLinksOpen&&<button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" disabled={representationFormat==="list"} onClick={()=>representationFormatChange("list")}>List</button>}
+                            {isLinksOpen&&<button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9" style={{marginLeft:"10px"}}  disabled={representationFormat==="graph"} onClick={()=>representationFormatChange("graph")}>Graph</button>}
+                        </div>
+                        <button className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2" onClick={openAddLinkDialog}>Add Top Level Link</button>
+                        <AddLinkTdDialog type="link"
+                            interaction={tdJSON}
+                            ref={addLinkDialog}
+                        />
+                    </summary>
+                    {links && representationFormat==="graph" &&<div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4" id="tdGraph"></div></div>}
+                    {links && representationFormat==="list" && <div className="pt-4"><div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{links}</div></div>}
+
                 </details>
 
                 <InteractionSection interaction="Properties" ></InteractionSection>

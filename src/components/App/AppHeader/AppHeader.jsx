@@ -20,6 +20,8 @@ import Button from "./Button";
 import { ShareDialog } from "../../Dialogs/ShareDialog";
 import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
 import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
+import {getFileHandle,getFileHTML5} from "../../../util.js";
+
 
 export default function AppHeader() {
   const context = useContext(ediTDorContext);
@@ -36,8 +38,6 @@ export default function AppHeader() {
     if (!context.isModified) {
       return true;
     }
-
-    console.log("verifyDiscard", context.isModified);
     const msg =
       "Discard changes? All changes you made to your TD will be lost.";
     return await window.confirm(msg);
@@ -56,7 +56,12 @@ export default function AppHeader() {
   const readFile = useCallback(
     async (file, fileHandle) => {
       try {
-        context.updateOfflineTD(await read(file));
+        let td= await read(file)
+        let linkedTd={}
+        linkedTd["./"+file.name]=fileHandle
+        context.updateLinkedTd(undefined)
+        context.addLinkedTd(linkedTd)
+        context.updateOfflineTD(td);
         context.setFileHandle(fileHandle || file.name);
         context.updateIsModified(false);
       } catch (ex) {
@@ -152,6 +157,13 @@ export default function AppHeader() {
 
     try {
       await writeFile(fileHandle, context.offlineTD);
+      let parsedTd=JSON.parse(context.offlineTD)
+      if(context.linkedTd[parsedTd["title"]]){
+        let linkedTd=context.linkedTd
+        linkedTd[parsedTd["title"]]=fileHandle
+        context.updateLinkedTd(linkedTd)
+      }
+
       context.setFileHandle(fileHandle);
       context.updateIsModified(false);
     } catch (ex) {
@@ -173,42 +185,6 @@ export default function AppHeader() {
       alert(msg);
     }
   }, [context, saveFileAs, writeFile]);
-
-  /**
-   * Reading files with HTML5 input
-   */
-  const getFileHTML5 = async () => {
-    return new Promise((resolve, reject) => {
-      const fileInput = document.getElementById("fileInput");
-      fileInput.onchange = (e) => {
-        const file = fileInput.files[0];
-        if (file) {
-          return resolve(file);
-        }
-        return reject(new Error("AbortError"));
-      };
-      fileInput.click();
-    });
-  };
-
-  /**
-   * File Handle from native filesystem api
-   * Only JSON/JSON+LD Files are supported
-   */
-  const getFileHandle = () => {
-    const opts = {
-      types: [
-        {
-          description: "Thing Description",
-          accept: { "application/ld+json": [".jsonld", ".json"] },
-        },
-      ],
-    };
-    if ("showOpenFilePicker" in window) {
-      return window.showOpenFilePicker(opts).then((handles) => handles[0]);
-    }
-    return window.chooseFileSystemEntries();
-  };
 
   const getNewFileHandle = async () => {
     // new file system api

@@ -20,14 +20,18 @@ export default React.createContext({
   name: '',
   fileHandle:'',
   showConvertBtn: false,
+  linkedTd:{},
   updateOfflineTD: td => {},
   updateIsModified: isModified => {},
   updateIsThingModel: isThingModel => {},
   setFileHandle: handle => {},
   removeForm: form => {},
   addForm: form => {},
+  removeLink: link => {},
   addActionForm: params => {},
   addEventForm: params => {},
   removeOneOfAKindReducer: (kind, oneOfAKind) => {},
   updateShowConvertBtn: showConvertBtn => {},
+  addLinkedTd: linkedTd => {},
+  updateLinkedTd: linkedTd => {}
 });

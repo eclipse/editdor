@@ -66,3 +66,17 @@ details[open]>summary::before {
 details>summary::marker {
   display: none;
 }
+#tabsBackground{
+  background-color: #1E1E1E;
+  height: 5%;
+}
+#linkedTd{
+  background-color: #1E1E1E ;
+  width: 50%;
+}
+#link-href{
+  width: 75%;
+}
+#editor{
+ height: 95.1%;
+}

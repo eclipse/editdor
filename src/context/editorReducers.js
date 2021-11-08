@@ -15,14 +15,26 @@ export const UPDATE_IS_MODFIED = 'UPDATE_IS_MODFIED';
 export const UPDATE_IS_THINGMODEL = 'UPDATE_IS_THINGMODEL';
 export const SET_FILE_HANDLE = 'SET_FILE_HANDLE';
 export const REMOVE_FORM_FROM_TD = 'REMOVE_FORM_FROM_TD';
+export const REMOVE_LINK_FROM_TD = 'REMOVE_LINK_FROM_TD';
 export const ADD_PROPERTYFORM_TO_TD = 'ADD_PROPERTYFORM_TO_TD';
 export const ADD_ACTIONFORM_TO_TD = 'ADD_ACTIONFORM_TO_TD';
 export const ADD_EVENTFORM_TO_TD = 'ADD_EVENTFORM_TO_TD';
 export const REMOVE_ONE_OF_A_KIND_FROM_TD = 'REMOVE_ONE_OF_A_KIND_FROM_TD';
 export const UPDATE_SHOW_CONVERT_BTN = 'UPDATE_SHOW_CONVERT_BTN';
+export const ADD_LINKED_TD = 'ADD_LINKED_TD';
+export const UPDATE_LINKED_TD = 'UPDATE_LINKED_TD'
 
 const updateOfflineTDReducer = (offlineTD, state) => {
-  return { ...state, offlineTD, isModified: true };
+  let linkedTd=state.linkedTd
+  if(linkedTd&&!state.fileHandle){
+    let parsedTd=JSON.parse(offlineTD)
+    for(let href in linkedTd){
+      if (linkedTd[href]["title"]&&linkedTd[href]["title"]===parsedTd["title"]){
+          linkedTd[href]=parsedTd
+      }
+    }
+  }
+  return { ...state, offlineTD, isModified: true, linkedTd:linkedTd };
 };
 
 const removeFormReducer = (form, state) => {
@@ -64,6 +76,24 @@ const removeFormReducer = (form, state) => {
   return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
 
+const removeLinkReducer = (index, state) => {
+  let offlineTD = JSON.parse(state.offlineTD)
+    try {
+      offlineTD["links"].splice(index,1)
+    } catch (e) {
+      alert('Sorry we were unable to delete the Link.');
+    }
+  let linkedTd=state.linkedTd
+  if(linkedTd&&!state.fileHandle){
+    for(let href in linkedTd){
+      if (linkedTd[href]["title"]&&linkedTd[href]["title"]===offlineTD["title"]){
+          linkedTd[href]=offlineTD
+      }
+    }
+  }
+  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2),linkedTd:linkedTd };
+};
+
 const removeOneOfAKindReducer = (kind, oneOfAKindName, state) => {
   let offlineTD = JSON.parse(state.offlineTD)
   try {
@@ -83,6 +113,23 @@ const addPropertyFormReducer = (form, state) => {
   property.forms.push(form.form);
   return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
+
+const addLinkedTd = (td, state) =>{
+  let resultingLinkedTd ={}
+  let linkedTd= state.linkedTd
+
+  if(linkedTd === undefined){
+     resultingLinkedTd=td
+  }
+  else{
+  resultingLinkedTd = Object.assign(linkedTd, td)
+  }
+  return { ...state, linkedTd: resultingLinkedTd };
+}
+
+const updateLinkedTd = (td, state) =>{
+  return { ...state, linkedTd: td };
+}
 
 const addActionFormReducer = (params, state) => {
   let offlineTD = JSON.parse(state.offlineTD)
@@ -134,6 +181,8 @@ const editdorReducer = (state, action) => {
       return newState;
     case REMOVE_FORM_FROM_TD:
       return removeFormReducer(action.form, state)
+    case REMOVE_LINK_FROM_TD:
+        return removeLinkReducer(action.link, state)
     case REMOVE_ONE_OF_A_KIND_FROM_TD:
       return removeOneOfAKindReducer(action.kind, action.oneOfAKindName, state)
     case ADD_PROPERTYFORM_TO_TD:
@@ -144,6 +193,10 @@ const editdorReducer = (state, action) => {
       return addEventFormReducer(action.params, state)
     case UPDATE_SHOW_CONVERT_BTN:
       return updateShowConvertBtn(action.showConvertBtn, state);
+    case ADD_LINKED_TD:
+      return addLinkedTd(action.linkedTd,state)
+    case UPDATE_LINKED_TD:
+      return updateLinkedTd(action.linkedTd,state)
     default:
       return state;
   }

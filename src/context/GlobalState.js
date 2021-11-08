@@ -13,7 +13,7 @@
 import React, { useReducer } from 'react';
 
 import EdiTDorContext from './ediTDorContext';
-import { editdorReducer, REMOVE_FORM_FROM_TD, UPDATE_IS_THINGMODEL, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_PROPERTYFORM_TO_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD, REMOVE_ONE_OF_A_KIND_FROM_TD, UPDATE_SHOW_CONVERT_BTN } from './editorReducers';
+import { editdorReducer, REMOVE_FORM_FROM_TD, REMOVE_LINK_FROM_TD, UPDATE_IS_THINGMODEL, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_PROPERTYFORM_TO_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD, REMOVE_ONE_OF_A_KIND_FROM_TD, UPDATE_SHOW_CONVERT_BTN, ADD_LINKED_TD, UPDATE_LINKED_TD} from './editorReducers';
 
 
 const GlobalState = props => {
@@ -39,6 +39,10 @@ const GlobalState = props => {
     dispatch({ type: REMOVE_FORM_FROM_TD, form: form });
   };
 
+  const removeLink = link => {
+    dispatch({ type: REMOVE_LINK_FROM_TD, link: link });
+  };
+
   const addForm = form => {
     dispatch({ type: ADD_PROPERTYFORM_TO_TD, form: form });
   };
@@ -56,6 +60,14 @@ const GlobalState = props => {
     dispatch({ type: UPDATE_SHOW_CONVERT_BTN, showConvertBtn: showConvertBtn });
   };
 
+  const addLinkedTd = linkedTd => {
+    dispatch({ type: ADD_LINKED_TD, linkedTd: linkedTd });
+  };
+
+  const updateLinkedTd = linkedTd => {
+    dispatch({ type: UPDATE_LINKED_TD, linkedTd: linkedTd });
+  };
+
   return (
     <EdiTDorContext.Provider
       value={{
@@ -66,16 +78,20 @@ const GlobalState = props => {
         name: editdorState.name,
         fileHandle: editdorState.fileHandle,
         showConvertBtn: editdorState.showConvertBtn,
+        linkedTd: editdorState.linkedTd,
         updateOfflineTD,
         updateIsModified,
         updateIsThingModel,
         setFileHandle,
         removeForm,
+        removeLink,
         addForm,
         addActionForm,
         addEventForm,
         removeOneOfAKindReducer,
         updateShowConvertBtn,
+        addLinkedTd,
+        updateLinkedTd
       }}
     >
       {props.children}
