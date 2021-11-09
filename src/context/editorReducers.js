@@ -26,12 +26,11 @@ export const UPDATE_LINKED_TD = 'UPDATE_LINKED_TD'
 
 const updateOfflineTDReducer = (offlineTD, state) => {
   let linkedTd=state.linkedTd
-  if(linkedTd&&!state.fileHandle){
+  if(linkedTd&& typeof state.fileHandle !== "object"){
     let parsedTd=JSON.parse(offlineTD)
-    for(let href in linkedTd){
-      if (linkedTd[href]["title"]&&linkedTd[href]["title"]===parsedTd["title"]){
-          linkedTd[href]=parsedTd
-      }
+    if(document.getElementById("linkedTd")){
+      let href= document.getElementById("linkedTd").value
+      linkedTd[href]=parsedTd
     }
   }
   return { ...state, offlineTD, isModified: true, linkedTd:linkedTd };
