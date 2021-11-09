@@ -246,3 +246,14 @@ export const getFileHTML5 = async () => {
       fileInput.click();
     });
 };
+
+export const _readFileHTML5 = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.addEventListener("loadend", (event) => {
+        const text = event.srcElement.result;
+        return resolve(text);
+      });
+      reader.readAsText(file);
+    });
+  }
