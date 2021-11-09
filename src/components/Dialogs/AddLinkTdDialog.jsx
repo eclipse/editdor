@@ -13,7 +13,7 @@
  import React, { forwardRef, useContext, useImperativeHandle,useCallback } from 'react';
  import ReactDOM from "react-dom";
  import ediTDorContext from "../../context/ediTDorContext";
- import {hasLinks,checkIfLinkIsInItem,getFileHandle,getFileHTML5} from "../../util.js";
+ import {hasLinks,checkIfLinkIsInItem,getFileHandle,getFileHTML5,_readFileHTML5} from "../../util.js";
  import { DialogTemplate } from "./DialogTemplate";
 
  export const AddLinkTdDialog = forwardRef((props, ref) => {
@@ -74,6 +74,10 @@
           }
       }
 
+      const read = useCallback((file) => {
+        return file.text ? file.text() : _readFileHTML5(file);
+      }, []);
+
      const openFile = useCallback(
         async (_) => {
 
@@ -81,6 +85,8 @@
             const file = await getFileHTML5();
             if (file) {
                 document.getElementById("link-href").value="./"+file.name
+                let td=await read(file);
+                setCurrentLinkedTd(JSON.parse(await td))
             }
             return;
           }
@@ -99,7 +105,7 @@
             alert(msg);
           }
         },
-        [hasNativeFS]
+        [hasNativeFS,read]
       );
 
       const RelationType=()=>{
@@ -189,7 +195,7 @@
                       } catch (_) {
                         isValidUrl= false;
                       }
-                     if(linkingMethod==="url" &&isValidUrl&&(url.protocol === "http:" || url.protocol === "https:")){
+                    if(linkingMethod==="url" &&isValidUrl&&(url.protocol === "http:" || url.protocol === "https:")){
                         try {
                           var httpRequest = new XMLHttpRequest()
                           httpRequest.open('GET', href, false)
@@ -200,11 +206,11 @@
                                   linkedTd[href]=parsedTd
                           }
                         } catch (ex) {
-                        console.log(ex)
-                        const msg = "We ran into an error trying to fetch your TD.";
-                        console.error(msg, ex);
-                        alert(msg);
-                      }
+                          console.log(ex)
+                          const msg = "We ran into an error trying to fetch your TD.";
+                          console.error(msg, ex);
+                          alert(msg);
+                        }
                     }
                     else{
                     linkedTd[href]=currentLinkedTd
