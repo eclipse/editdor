@@ -20,7 +20,7 @@ import Button from "./Button";
 import { ShareDialog } from "../../Dialogs/ShareDialog";
 import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
 import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
-import {getFileHandle,getFileHTML5} from "../../../util.js";
+import {getFileHandle,getFileHTML5,_readFileHTML5} from "../../../util.js";
 
 
 export default function AppHeader() {
@@ -58,7 +58,12 @@ export default function AppHeader() {
       try {
         let td= await read(file)
         let linkedTd={}
-        linkedTd["./"+file.name]=fileHandle
+        if(fileHandle!==undefined){
+          linkedTd["./"+file.name]=fileHandle
+        }
+        else{
+          linkedTd["./"+file.name]=JSON.parse(td)
+        }
         context.updateLinkedTd(undefined)
         context.addLinkedTd(linkedTd)
         context.updateOfflineTD(td);
@@ -93,7 +98,6 @@ export default function AppHeader() {
         }
         return;
       }
-
       let fileHandle;
       try {
         fileHandle = await getFileHandle();
@@ -157,13 +161,14 @@ export default function AppHeader() {
 
     try {
       await writeFile(fileHandle, context.offlineTD);
-      let parsedTd=JSON.parse(context.offlineTD)
-      if(context.linkedTd[parsedTd["title"]]){
-        let linkedTd=context.linkedTd
-        linkedTd[parsedTd["title"]]=fileHandle
-        context.updateLinkedTd(linkedTd)
+      if(document.getElementById("linkedTd")){
+        let href= document.getElementById("linkedTd").value
+        if(typeof context.fileHandle !== "object"){
+          let linkedTd=context.linkedTd
+          linkedTd[href]=fileHandle
+          context.updateLinkedTd(linkedTd)
+        }
       }
-
       context.setFileHandle(fileHandle);
       context.updateIsModified(false);
     } catch (ex) {
@@ -216,16 +221,6 @@ export default function AppHeader() {
     return await window.chooseFileSystemEntries(opts);
   };
 
-  const _readFileHTML5 = (file) => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.addEventListener("loadend", (event) => {
-        const text = event.srcElement.result;
-        return resolve(text);
-      });
-      reader.readAsText(file);
-    });
-  };
 
   useEffect(() => {
     if (window.location.search.indexOf("td") > -1) {

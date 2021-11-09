@@ -63,6 +63,8 @@ details[open]>summary::before {
   transform: rotate(90deg);
 }
 
+summary {list-style: none}
+
 details>summary::marker {
   display: none;
 }
