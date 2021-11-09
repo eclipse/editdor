@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.css": "/editdor/static/css/main.f5c93180.chunk.css",
-    "main.js": "/editdor/static/js/main.3a8a4fcf.chunk.js",
-    "main.js.map": "/editdor/static/js/main.3a8a4fcf.chunk.js.map",
+    "main.css": "/editdor/static/css/main.f8d75b39.chunk.css",
+    "main.js": "/editdor/static/js/main.c28dea21.chunk.js",
+    "main.js.map": "/editdor/static/js/main.c28dea21.chunk.js.map",
     "runtime-main.js": "/editdor/static/js/runtime-main.5ba2c99d.js",
     "runtime-main.js.map": "/editdor/static/js/runtime-main.5ba2c99d.js.map",
     "static/css/2.22988fd9.chunk.css": "/editdor/static/css/2.22988fd9.chunk.css",
@@ -15,10 +15,10 @@
     "index.html": "/editdor/index.html",
     "json.worker.js": "/editdor/json.worker.js",
     "json.worker.js.map": "/editdor/json.worker.js.map",
-    "precache-manifest.b58f960a06133bd69ee8a49308504f64.js": "/editdor/precache-manifest.b58f960a06133bd69ee8a49308504f64.js",
+    "precache-manifest.02e8caeaaeb4223b7e28831b962745a3.js": "/editdor/precache-manifest.02e8caeaaeb4223b7e28831b962745a3.js",
     "service-worker.js": "/editdor/service-worker.js",
     "static/css/2.22988fd9.chunk.css.map": "/editdor/static/css/2.22988fd9.chunk.css.map",
-    "static/css/main.f5c93180.chunk.css.map": "/editdor/static/css/main.f5c93180.chunk.css.map",
+    "static/css/main.f8d75b39.chunk.css.map": "/editdor/static/css/main.f8d75b39.chunk.css.map",
     "static/js/2.177bf2cb.chunk.js.LICENSE.txt": "/editdor/static/js/2.177bf2cb.chunk.js.LICENSE.txt",
     "static/media/WoT.png": "/editdor/static/media/WoT.89768410.png",
     "static/media/App.css": "/editdor/static/media/chevron-right.5f74bd2a.svg",
@@ -29,7 +29,7 @@
     "static/js/runtime-main.5ba2c99d.js",
     "static/css/2.22988fd9.chunk.css",
     "static/js/2.177bf2cb.chunk.js",
-    "static/css/main.f5c93180.chunk.css",
-    "static/js/main.3a8a4fcf.chunk.js"
+    "static/css/main.f8d75b39.chunk.css",
+    "static/js/main.c28dea21.chunk.js"
   ]
 }
