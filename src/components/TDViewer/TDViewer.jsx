@@ -76,7 +76,12 @@ export default function TDViewer() {
         });
         let offlineTD={}
         if(context.offlineTD){
+            try{
             offlineTD = JSON.parse(context.offlineTD)
+            }catch(e){
+                let error = e.message;
+                console.log(error)
+            }
         }
         // Check if the links section exists to start drawing
         //Update/refresh the content of the context.linkedTd whenever the the useEffect is triggered
