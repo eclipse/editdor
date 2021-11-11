@@ -4,7 +4,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/editdor/editor.worker.js"
   },
   {
-    "revision": "a1dd75923ff39cd90abe8c5d5cbdeb05",
+    "revision": "c6b1fd3a80be38711a67d96dba40bc02",
     "url": "/editdor/index.html"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/editdor/static/css/2.22988fd9.chunk.css"
   },
   {
-    "revision": "5f86983763437d010e09",
-    "url": "/editdor/static/css/main.f8d75b39.chunk.css"
+    "revision": "84eaf098e470c72ac9d4",
+    "url": "/editdor/static/css/main.137648f3.chunk.css"
   },
   {
     "revision": "df40faa36dc0be74a3ae",
@@ -32,8 +32,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/editdor/static/js/3.e57c2423.chunk.js"
   },
   {
-    "revision": "5f86983763437d010e09",
-    "url": "/editdor/static/js/main.c28dea21.chunk.js"
+    "revision": "84eaf098e470c72ac9d4",
+    "url": "/editdor/static/js/main.3f0ae1fa.chunk.js"
   },
   {
     "revision": "e66d3af6dd680f609864",
