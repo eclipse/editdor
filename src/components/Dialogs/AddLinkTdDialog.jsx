@@ -16,6 +16,10 @@
  import {hasLinks,checkIfLinkIsInItem,getFileHandle,getFileHTML5,_readFileHTML5} from "../../util.js";
  import { DialogTemplate } from "./DialogTemplate";
 
+ let error = "";
+ let tdJSON = {};
+ let oldtdJSON = {};
+
  export const AddLinkTdDialog = forwardRef((props, ref) => {
      const context = useContext(ediTDorContext);
      const [display, setDisplay] = React.useState(() => { return false });
@@ -24,7 +28,15 @@
 
 
      const interaction = props.interaction ?? {};
-     const offlineTD = JSON.parse(context.offlineTD)
+     try {
+      oldtdJSON = tdJSON;
+      tdJSON = JSON.parse(context.offlineTD);
+      error = '';
+     } catch (e) {
+      error = e.message;
+      console.log(error)
+      tdJSON = oldtdJSON;
+     }
 
      useImperativeHandle(ref, () => {
          return {
@@ -122,7 +134,7 @@
      const children = <>
          <label className="text-sm text-gray-400 font-medium pl-3">Thing Description:</label>
          <div className="p-1">
-                {offlineTD["title"]}
+                {tdJSON["title"]}
          </div>
          <div className="p-1 pt-2">
              <label htmlFor="rel" className="text-sm text-gray-400 font-medium pl-2">Relation:</label>
@@ -239,7 +251,7 @@
                  submitText={"Add"}
                  children={children}
                  title={`Add Link `}
-                 description={`Tell us how this ${offlineTD.title} can interact with other ressources`}
+                 description={`Tell us how this ${tdJSON.title} can interact with other ressources`}
              />,
              document.getElementById("modal-root"));
      }
