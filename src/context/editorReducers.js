@@ -26,12 +26,29 @@ export const UPDATE_LINKED_TD = 'UPDATE_LINKED_TD'
 
 const updateOfflineTDReducer = (offlineTD, state) => {
   let linkedTd=state.linkedTd
-  if(linkedTd&& typeof state.fileHandle !== "object"){
-    let parsedTd=JSON.parse(offlineTD)
-    if(document.getElementById("linkedTd")){
-      let href= document.getElementById("linkedTd").value
+  try{
+    //If the user write Thing description without wizard, we save it in linkedTd
+    if(!linkedTd){
+      let parsedTd=JSON.parse(offlineTD)
+      linkedTd={}
+      let href=parsedTd["title"]||"ediTDor Thing"
       linkedTd[href]=parsedTd
     }
+    else if(linkedTd&& typeof state.fileHandle !== "object"){
+      let parsedTd=JSON.parse(offlineTD)
+      if(document.getElementById("linkedTd")){
+        let href= document.getElementById("linkedTd").value
+        if(href===""){
+        linkedTd[parsedTd["title"]||"ediTDor Thing"]=parsedTd
+        }
+        else{
+          linkedTd[href]=parsedTd
+        }
+      }
+    }
+  }catch(e){
+    let error = e.message;
+    console.log(error)
   }
   return { ...state, offlineTD, isModified: true, linkedTd:linkedTd };
 };
