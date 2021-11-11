@@ -65,6 +65,8 @@ details[open]>summary::before {
 
 summary {list-style: none}
 
+summary::-webkit-details-marker {display: none;}
+
 details>summary::marker {
   display: none;
 }
