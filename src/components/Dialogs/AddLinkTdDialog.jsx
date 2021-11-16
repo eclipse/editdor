@@ -137,7 +137,7 @@
                 {tdJSON["title"]}
          </div>
          <div className="p-1 pt-2">
-             <label htmlFor="rel" className="text-sm text-gray-400 font-medium pl-2">Relation:</label>
+             <label htmlFor="rel" className="text-sm text-gray-400 font-medium pl-2">Relation:(select one of the proposed relations or type your custom relation)</label>
              <input
                 list="relationType"
                  type="text"
@@ -172,7 +172,7 @@
              </div>
              <span id="link-href-info" className="text-xs text-red-400 pl-2"></span>
              <div>
-                    <label htmlFor="type" className="text-sm text-gray-400 font-medium pl-2">Type:</label>
+                    <label htmlFor="type" className="text-sm text-gray-400 font-medium pl-2">Type:(select one of the proposed types or tape your custom type)</label>
                     <input
                          list="mediaType"
                          type="text"
