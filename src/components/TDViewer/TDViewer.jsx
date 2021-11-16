@@ -100,6 +100,7 @@ export default function TDViewer() {
                 }
             });
             currentTdModel.set("td",{})
+            currentTdModel.resize((currentTdModel.attributes.attrs["label"]["text"].length)*12, 40);
             graphTd.addCell(currentTdModel)
             for(let i=0;i<offlineTD["links"].length;i++){
                 posx=posx+70
