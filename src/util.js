@@ -91,11 +91,11 @@ export const hasLinks = (itemToCheck) => {
 */
 export const checkIfLinkIsInItem = (link, itemToCheck) => {
     for (const element of itemToCheck.links) {
-        if(element.href === link.href){
-            return true
+        if (element.href === link.href) {
+            return true;
         }
     }
-    return false
+    return false;
 
 }
 export const checkIfFormIsInItem = (form, itemToCheck) => {
@@ -154,61 +154,38 @@ const checkIfFormIsInElement = (form, element) => {
     * Save the current Thing Description if wanted
     * Method supports both fileHandler and jsonld file
 */
-export const changeBetweenTd = async (context,href) => {
-      var  writable
-      if (context.linkedTd[href]["kind"]==="file"){
-        try{
-          if(context.isModified&&context.fileHandle){
-            writable = await context.fileHandle.createWritable();
-            await writable.write(context.offlineTD)
-            await writable.close()
-          }
-          } catch(e){
-              document.getElementById("linkedTd").value=href
-              let fileHandle=context.linkedTd[href]
-              const file = await fileHandle.getFile();
-              const td=JSON.parse(await file.text())
-              let offlineTd=JSON.stringify(td, null, 2)
-              context.setFileHandle(fileHandle)
-              context.updateOfflineTD(offlineTd)
-              context.updateIsModified(false)
-
-          }
-          document.getElementById("linkedTd").value=href
-          let fileHandle=context.linkedTd[href]
-          const file = await fileHandle.getFile();
-          const td=JSON.parse(await file.text())
-          let offlineTd=JSON.stringify(td, null, 2)
-          context.setFileHandle(fileHandle)
-          context.updateOfflineTD(offlineTd)
-          context.updateIsModified(false)
-      }
-      // If we create a TD using the New button then we don't have a file handler
-      // In that case the entry in linkedTd is not a file handler but a Thing Description Json 
-      else if(Object.keys(context.linkedTd[href]).length){
-        try{
-          if(context.isModified&&context.fileHandle){
-            writable = await context.fileHandle.createWritable();
-            await writable.write(context.offlineTD)
-            await writable.close()
-          }
+export const changeBetweenTd = async (context, href) => {
+    var writable
+    if (context.linkedTd[href]["kind"] === "file") {
+        try {
+            if (context.isModified && context.fileHandle) {
+                writable = await context.fileHandle.createWritable();
+                await writable.write(context.offlineTD);
+                await writable.close();
+            }
+        } catch (e) {
+            console.error(e.message);
         }
-        catch(e){
-          context.setFileHandle(undefined)
-          document.getElementById("linkedTd").value=href
-          const td=context.linkedTd[href]
-          let offlineTd=JSON.stringify(td, null, 2)
-          context.updateOfflineTD(offlineTd)
-          context.updateIsModified(false)
-        }
-        context.setFileHandle(undefined)
-        document.getElementById("linkedTd").value=href
-        const td=context.linkedTd[href]
-        let offlineTd=JSON.stringify(td, null, 2)
-        context.updateOfflineTD(offlineTd)
-        context.updateIsModified(false)
+        let fileHandle = context.linkedTd[href];
+        const file = await fileHandle.getFile();
+        const td = JSON.parse(await file.text());
+        let offlineTd = JSON.stringify(td, null, 2);
+        context.setFileHandle(fileHandle);
+        context.updateOfflineTD(offlineTd);
+        context.updateIsModified(false);
+        document.getElementById("linkedTd").value = href;
+    }
+    // If we create a TD using the New button then we don't have a file handler
+    // In that case the entry in linkedTd is not a file handler but a Thing Description Json 
+    else if (Object.keys(context.linkedTd[href]).length) {
+        context.setFileHandle(undefined);
+        const td = context.linkedTd[href];
+        let offlineTd = JSON.stringify(td, null, 2);
+        context.updateOfflineTD(offlineTd);
+        context.updateIsModified(false);
+        document.getElementById("linkedTd").value = href;
 
-      }
+    }
 }
 
 /**
@@ -217,43 +194,43 @@ export const changeBetweenTd = async (context,href) => {
 */
 export const getFileHandle = () => {
     const opts = {
-      types: [
-        {
-          description: "Thing Description",
-          accept: { "application/ld+json": [".jsonld", ".json"] },
-        },
-      ],
+        types: [
+            {
+                description: "Thing Description",
+                accept: { "application/ld+json": [".jsonld", ".json"] },
+            },
+        ],
     };
     if ("showOpenFilePicker" in window) {
-      return window.showOpenFilePicker(opts).then((handles) => handles[0]);
+        return window.showOpenFilePicker(opts).then((handles) => handles[0]);
     }
     return window.chooseFileSystemEntries();
-  };
+};
 
 /**
    * Reading files with HTML5 input
 */
 export const getFileHTML5 = async () => {
     return new Promise((resolve, reject) => {
-      const fileInput = document.getElementById("fileInput");
-      fileInput.onchange = (e) => {
-        const file = fileInput.files[0];
-        if (file) {
-          return resolve(file);
-        }
-        return reject(new Error("AbortError"));
-      };
-      fileInput.click();
+        const fileInput = document.getElementById("fileInput");
+        fileInput.onchange = (e) => {
+            const file = fileInput.files[0];
+            if (file) {
+                return resolve(file);
+            }
+            return reject(new Error("AbortError"));
+        };
+        fileInput.click();
     });
 };
 
 export const _readFileHTML5 = (file) => {
     return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.addEventListener("loadend", (event) => {
-        const text = event.srcElement.result;
-        return resolve(text);
-      });
-      reader.readAsText(file);
+        const reader = new FileReader();
+        reader.addEventListener("loadend", (event) => {
+            const text = event.srcElement.result;
+            return resolve(text);
+        });
+        reader.readAsText(file);
     });
-  }
+}
