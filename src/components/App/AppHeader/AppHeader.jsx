@@ -20,7 +20,7 @@ import Button from "./Button";
 import { ShareDialog } from "../../Dialogs/ShareDialog";
 import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
 import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
-import {getFileHandle,getFileHTML5,_readFileHTML5} from "../../../util.js";
+import { getFileHandle, getFileHTML5, _readFileHTML5 } from "../../../util.js";
 
 
 export default function AppHeader() {
@@ -56,16 +56,16 @@ export default function AppHeader() {
   const readFile = useCallback(
     async (file, fileHandle) => {
       try {
-        let td= await read(file)
-        let linkedTd={}
-        if(fileHandle!==undefined){
-          linkedTd["./"+file.name]=fileHandle
+        let td = await read(file)
+        let linkedTd = {}
+        if (fileHandle !== undefined) {
+          linkedTd["./" + file.name] = fileHandle;
         }
-        else{
-          linkedTd["./"+file.name]=JSON.parse(td)
+        else {
+          linkedTd["./" + file.name] = JSON.parse(td);
         }
-        context.updateLinkedTd(undefined)
-        context.addLinkedTd(linkedTd)
+        context.updateLinkedTd(undefined);
+        context.addLinkedTd(linkedTd);
         context.updateOfflineTD(td);
         context.setFileHandle(fileHandle || file.name);
         context.updateIsModified(false);
@@ -161,12 +161,12 @@ export default function AppHeader() {
 
     try {
       await writeFile(fileHandle, context.offlineTD);
-      if(document.getElementById("linkedTd")){
-        let href= document.getElementById("linkedTd").value
-        if(typeof context.fileHandle !== "object"){
-          let linkedTd=context.linkedTd
-          linkedTd[href]=fileHandle
-          context.updateLinkedTd(linkedTd)
+      if (document.getElementById("linkedTd")) {
+        let href = document.getElementById("linkedTd").value;
+        if (typeof context.fileHandle !== "object") {
+          let linkedTd = context.linkedTd;
+          linkedTd[href] = fileHandle;
+          context.updateLinkedTd(linkedTd);
         }
       }
       context.setFileHandle(fileHandle);
@@ -226,10 +226,10 @@ export default function AppHeader() {
     if (window.location.search.indexOf("td") > -1) {
       const url = new URL(window.location.href);
       const td = url.searchParams.get("td");
-      try{
+      try {
         const parsedTD = JSON.parse(td);
         context.updateOfflineTD(JSON.stringify(parsedTD, null, 2));
-      }catch(error) {
+      } catch (error) {
         alert('Sorry, we were unable to parse the TD given in the URL')
       }
     }

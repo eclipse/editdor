@@ -10,10 +10,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
- import React, { useContext, useState, useRef, useEffect } from "react";
- import MonacoEditor from "react-monaco-editor";
- import ediTDorContext from "../../context/ediTDorContext";
- import { changeBetweenTd} from '../../util';
+import React, { useContext, useState, useRef, useEffect } from "react";
+import MonacoEditor from "react-monaco-editor";
+import ediTDorContext from "../../context/ediTDorContext";
+import { changeBetweenTd } from '../../util';
 
 const mapping = require("../../assets/mapping.json");
 
@@ -206,56 +206,56 @@ const JSONEditorComponent = (props) => {
     }
   };
 
-   useEffect( () => { 
-     async function getTabs() {
-         try {
-           if(context.linkedTd){
-             let tabs=[]
-             let index=0
-             for(let key in context.linkedTd){
-                if(context.linkedTd[key]["kind"]==="file"||Object.keys(context.linkedTd[key]).length){
-                  tabs.push(<option value={key} key={index}>{key}</option>)
-                  index++
-                }
-             }
-             setTabs(tabs)
-           }
-         } catch (err) {
-             console.log(err);
-         }
-     }
-     getTabs()
-   },[context.linkedTd,context.offlineTD]);
-
-   const changeLinkedTd = async () =>{
-      let href = document.getElementById("linkedTd").value;
-      changeBetweenTd(context,href)
+  useEffect(() => {
+    async function getTabs() {
+      try {
+        if (context.linkedTd) {
+          let tabs = [];
+          let index = 0;
+          for (let key in context.linkedTd) {
+            if (context.linkedTd[key]["kind"] === "file" || Object.keys(context.linkedTd[key]).length) {
+              tabs.push(<option value={key} key={index}>{key}</option>);
+              index++;
+            }
+          }
+          setTabs(tabs);
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
+    getTabs();
+  }, [context.linkedTd, context.offlineTD]);
+
+  const changeLinkedTd = async () => {
+    let href = document.getElementById("linkedTd").value;
+    changeBetweenTd(context, href);
+  }
   return (
-     <>
-     <div  id="tabsBackground" >
-     {
-     context.offlineTD && context.linkedTd &&
-     <select name="linkedTd" id="linkedTd" className="text-white" onChange={()=>changeLinkedTd()}>
-        {tabs}
-    </select>
-     }
-    </div>
-    <div className="w-full h-full" id="editor">
-      <MonacoEditor
-        options={editorOptions}
-        theme={"vs-" + context.theme}
-        language="json"
-        ref={editorInstance}
-        value={context.offlineTD}
-        editorWillMount={editorWillMount}
-        editorDidMount={editorDidMount}
-        onChange={async (editorText) => {
-          await onChange(editorText);
-        }}
-      />
-    </div>
-     </>
+    <>
+      <div id="tabsBackground" >
+        {
+          context.offlineTD && context.linkedTd &&
+          <select name="linkedTd" id="linkedTd" className="text-white" onChange={() => changeLinkedTd()}>
+            {tabs}
+          </select>
+        }
+      </div>
+      <div className="w-full h-full" id="editor">
+        <MonacoEditor
+          options={editorOptions}
+          theme={"vs-" + context.theme}
+          language="json"
+          ref={editorInstance}
+          value={context.offlineTD}
+          editorWillMount={editorWillMount}
+          editorDidMount={editorDidMount}
+          onChange={async (editorText) => {
+            await onChange(editorText);
+          }}
+        />
+      </div>
+    </>
 
   );
 };
