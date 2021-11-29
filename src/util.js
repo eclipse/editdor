@@ -178,6 +178,15 @@ export const changeBetweenTd = async (context, href) => {
     // If we create a TD using the New button then we don't have a file handler
     // In that case the entry in linkedTd is not a file handler but a Thing Description Json 
     else if (Object.keys(context.linkedTd[href]).length) {
+        try {
+            if (context.isModified && context.fileHandle) {
+                writable = await context.fileHandle.createWritable();
+                await writable.write(context.offlineTD);
+                await writable.close();
+            }
+        } catch (e) {
+            console.error(e.message);
+        }
         context.setFileHandle(undefined);
         const td = context.linkedTd[href];
         let offlineTd = JSON.stringify(td, null, 2);
