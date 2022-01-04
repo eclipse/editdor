@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/editdor/static/css/main.137648f3.chunk.css",
-    "main.js": "/editdor/static/js/main.3f0ae1fa.chunk.js",
-    "main.js.map": "/editdor/static/js/main.3f0ae1fa.chunk.js.map",
+    "main.js": "/editdor/static/js/main.702482c9.chunk.js",
+    "main.js.map": "/editdor/static/js/main.702482c9.chunk.js.map",
     "runtime-main.js": "/editdor/static/js/runtime-main.5ba2c99d.js",
     "runtime-main.js.map": "/editdor/static/js/runtime-main.5ba2c99d.js.map",
     "static/css/2.22988fd9.chunk.css": "/editdor/static/css/2.22988fd9.chunk.css",
@@ -15,7 +15,7 @@
     "index.html": "/editdor/index.html",
     "json.worker.js": "/editdor/json.worker.js",
     "json.worker.js.map": "/editdor/json.worker.js.map",
-    "precache-manifest.f3d9ffa047ccee78049b9bb2770830bc.js": "/editdor/precache-manifest.f3d9ffa047ccee78049b9bb2770830bc.js",
+    "precache-manifest.f18e81699d72e74f28881622eefa6269.js": "/editdor/precache-manifest.f18e81699d72e74f28881622eefa6269.js",
     "service-worker.js": "/editdor/service-worker.js",
     "static/css/2.22988fd9.chunk.css.map": "/editdor/static/css/2.22988fd9.chunk.css.map",
     "static/css/main.137648f3.chunk.css.map": "/editdor/static/css/main.137648f3.chunk.css.map",
@@ -30,6 +30,6 @@
     "static/css/2.22988fd9.chunk.css",
     "static/js/2.177bf2cb.chunk.js",
     "static/css/main.137648f3.chunk.css",
-    "static/js/main.3f0ae1fa.chunk.js"
+    "static/js/main.702482c9.chunk.js"
   ]
 }
