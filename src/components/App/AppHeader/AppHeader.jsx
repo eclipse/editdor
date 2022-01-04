@@ -136,8 +136,17 @@ export default function AppHeader() {
 
   const saveAsHTML5 = useCallback((filename, contents) => {
     const aDownload = document.getElementById("aDownload");
-    filename = filename || "untitled.txt";
-    const opts = { type: "text/plain" };
+    let tdJSON = {}
+    let tdTitle
+    try {
+      tdJSON = JSON.parse(contents);
+      tdTitle = tdJSON["id"] || tdJSON["title"]
+      tdTitle = tdTitle.replace(/\s/g, "") + ".jsonld"
+    } catch (e) {
+      console.error(e);
+    }
+    filename = filename || tdTitle;
+    const opts = { type: "application/ld+json" };
     const file = new File([contents], "", opts);
     aDownload.href = window.URL.createObjectURL(file);
     aDownload.setAttribute("download", filename);
@@ -184,6 +193,7 @@ export default function AppHeader() {
         return await saveFileAs();
       }
       await writeFile(context.fileHandle, context.offlineTD);
+      alert("File saved")
     } catch (ex) {
       const msg = "Unfortunately we were unable to save your TD.";
       console.error(msg, ex);
@@ -299,13 +309,15 @@ export default function AppHeader() {
         <div className="flex items-center">
           <img className="pl-2 h-12" src={wot} alt="WOT" />
           <div className="w-2"></div>
-          <img className="pl-2 h-8" src={logo} alt="LOGO" />
+          <button>
+          <img className="pl-2 h-8" src={logo} alt="LOGO" onClick={() => window.open("https://eclipse.github.io/editdor/","_blank")}/>
+          </button>
         </div>
         <div className="flex space-x-2 pr-2">
           <Button onClick={openShareDialog}>Share</Button>
           <Button onClick={openCreateTdDialog}>New</Button>
           <Button onClick={openFile}>Open</Button>
-          <Button onClick={saveFile}>Save</Button>
+          {(hasNativeFS()) && <Button onClick={saveFile}>Save</Button>}
           <Button onClick={saveFileAs}>Save As</Button>
           {(context.showConvertBtn || context.isThingModel) && <Button onClick={openConvertTmDialog}>Convert To TD</Button>}
         </div>
