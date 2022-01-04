@@ -100,10 +100,14 @@ const removeLinkReducer = (index, state) => {
       alert('Sorry we were unable to delete the Link.');
     }
   let linkedTd=state.linkedTd
-  if(linkedTd&&!state.fileHandle){
-    for(let href in linkedTd){
-      if (linkedTd[href]["title"]&&linkedTd[href]["title"]===offlineTD["title"]){
-          linkedTd[href]=offlineTD
+  if(linkedTd&& typeof state.fileHandle !== "object"){
+    if(document.getElementById("linkedTd")){
+      let href= document.getElementById("linkedTd").value
+      if(href===""){
+      linkedTd[offlineTD["title"]||"ediTDor Thing"]=offlineTD
+      }
+      else{
+        linkedTd[href]=offlineTD
       }
     }
   }
