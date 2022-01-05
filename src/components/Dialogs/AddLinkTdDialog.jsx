@@ -219,6 +219,7 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
             } catch (ex) {
               const msg = "We ran into an error trying to fetch your TD.";
               console.error(msg, ex);
+              linkedTd[href] = currentLinkedTd;
             }
           }
           else {
