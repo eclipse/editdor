@@ -47,8 +47,8 @@ export const ShareDialog = forwardRef((props, ref) => {
         return ReactDOM.createPortal(
             <DialogTemplate
                 onCancel={close}
-                onSubmit={close}
-                submitText={"Share"}
+                cancelText={"Close"}
+                hasSubmit={false}
                 children={urlField}
                 title={"Share This TD"}
                 description={"A link to this TD was copied to your clipboard."}
