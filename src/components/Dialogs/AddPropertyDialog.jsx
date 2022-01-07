@@ -91,6 +91,13 @@ export const AddPropertyDialog = forwardRef((_, ref) => {
         if (dataType !== NO_TYPE) {
             property.type = dataType;
         }
+        if (dataType === "array") {
+            property.items = {};
+        }
+        else if (dataType === "object") {
+            property.properties = {};
+        }
+
         property.forms = [];
 
         let td = JSON.parse(context.offlineTD);
