@@ -227,6 +227,6 @@ const convertTmToTd = (td, htmlInputs) => {
     delete parse["@type"];
     delete parse["tm:required"];
 
-    let permalink = `${window.location.href}?td=${encodeURIComponent(JSON.stringify(parse))}`;
+    let permalink = `${window.location.origin+window.location.pathname}?td=${encodeURIComponent(JSON.stringify(parse))}`;
     window.open(permalink, "_blank");
 }
