@@ -238,6 +238,9 @@ export default function AppHeader() {
       const td = url.searchParams.get("td");
       try {
         const parsedTD = JSON.parse(td);
+        if (parsedTD["@type"] === "tm:ThingModel") {
+          context.updateIsThingModel(true)
+        }
         context.updateOfflineTD(JSON.stringify(parsedTD, null, 2));
       } catch (error) {
         alert('Sorry, we were unable to parse the TD given in the URL')
