@@ -132,12 +132,13 @@ const JSONEditorComponent = (props) => {
 
       const atContext = json["@context"];
       const atType = json["@type"];
-      if (atType.indexOf("ThingModel") > -1) {
+      if (atType && atType.indexOf("ThingModel") > -1) {
         if (!context.isThingModel) {
           context.updateIsThingModel(true);
           const schema = await fetchSchema(tmSchema);
           if (schema) {
             addSchema(tmSchema);
+            removeSchema(tdSchema);
           }
         }
       } else if (context.isThingModel) {
@@ -150,6 +151,7 @@ const JSONEditorComponent = (props) => {
           const schema = await fetchSchema(tdSchema);
           if (schema) {
             addSchema(tdSchema);
+            removeSchema(tmSchema);
           }
         }
       }
