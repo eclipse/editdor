@@ -23,7 +23,17 @@ export const DialogTemplate = (props) => {
     const submitText = props.submitText ?? "Submit";
     const onSubmit = props.onSubmit ?? (() => { });
     const hasSubmit=props.hasSubmit ?? true
+    let keysDown = {};
+    window.onkeydown = function (e) {
+        keysDown[e.key] = true;
+        if (keysDown["Control"] && keysDown["Enter"]) {
+            document.getElementById("submitButton").click();
+        }
+    }
 
+    window.onkeyup = function (e) {
+        keysDown[e.key] = false;
+    }
 
     return (<div className="flex bg-gray-400 bg-opacity-50 w-full h-full absolute top-0 left-0 justify-center items-center z-10 text-white">
         <div className="bg-gray-500 w-1/3 flex flex-col justify-start rounded-xl shadow-xl p-4 max-h-screen">
@@ -36,7 +46,7 @@ export const DialogTemplate = (props) => {
             </div>
             <div className="flex justify-end pt-4 p-2">
                 <button className="text-white bg-gray-500 p-2 mr-1 rounded-md" onClick={() => { onCancel(); }}>{cancelText}</button>
-                {hasSubmit&& <button className="flex text-white bg-blue-500 p-2 rounded-md" onClick={() => onSubmit()}>{submitText}</button>}
+                {hasSubmit&& <button id="submitButton" className="flex text-white bg-blue-500 p-2 rounded-md" onClick={() => onSubmit()}>{submitText}</button>}
             </div>
         </div>
     </div>);
