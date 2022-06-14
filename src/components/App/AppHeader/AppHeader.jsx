@@ -20,6 +20,7 @@ import Button from "./Button";
 import { ShareDialog } from "../../Dialogs/ShareDialog";
 import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
 import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
+import { LoadTmDialog } from "../../Dialogs/LoadTmDialog";
 import { getFileHandle, getFileHTML5, _readFileHTML5 } from "../../../util.js";
 
 
@@ -306,6 +307,10 @@ export default function AppHeader() {
   const createTdDialog = React.useRef();
   const openCreateTdDialog = () => { createTdDialog.current.openModal() }
 
+  const loadTmDialog = React.useRef();
+  const openLoadTmDialog = () => { loadTmDialog.current.openModal() }
+
+
   return (
     <>
       <header className="flex justify-between items-center h-16 bg-blue-500">
@@ -320,6 +325,7 @@ export default function AppHeader() {
           <Button onClick={openShareDialog}>Share</Button>
           <Button onClick={openCreateTdDialog}>New</Button>
           <Button onClick={openFile}>Open</Button>
+          <Button onClick={openLoadTmDialog}>Load TM</Button>
           {(hasNativeFS()) && <Button onClick={saveFile}>Save</Button>}
           <Button onClick={saveFileAs}>Save As</Button>
           {(context.showConvertBtn || context.isThingModel) && <Button onClick={openConvertTmDialog}>Convert To TD</Button>}
@@ -328,6 +334,7 @@ export default function AppHeader() {
       <ConvertTmDialog ref={convertTmDialog} />
       <ShareDialog ref={shareDialog} />
       <CreateTdDialog ref={createTdDialog} />
+      <LoadTmDialog ref={loadTmDialog} />
       <input
         className="h-0"
         type="file"
