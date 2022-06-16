@@ -24,9 +24,6 @@ import {
   ChevronLeft,
 } from "react-feather";
 
-//TODO move to .env
-const emporioUrl = `http://localhost:3003`;
-
 export const LoadTmDialog = forwardRef((props, ref) => {
   const context = useContext(ediTDorContext);
   const [display, setDisplay] = React.useState(() => {
@@ -74,7 +71,7 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     searchText
   ) => {
     const offset = pagination.thingModelsPerPage * page;
-    let url = `${emporioUrl}/models?limit=${pagination.thingModelsPerPage}&offset=${offset}`;
+    let url = `http://${process.env.REACT_APP_TM_SERVER_HOST}:${process.env.REACT_APP_TM_SERVER_PORT}/models?limit=${pagination.thingModelsPerPage}&offset=${offset}`;
     if (attribute) url += `&${attribute}=${searchText}`;
     const res = await fetch(url);
     const data = await res.json();
@@ -221,7 +218,8 @@ const buildForm = (
           <ChevronLeft color="#cacaca"></ChevronLeft>
         </button>
         <span className="text-white bg-gray-500 p-2 mr-1 rounded-md">
-          {" "}{page + 1}{" "}
+          {" "}
+          {page + 1}{" "}
         </span>
         <button
           className="text-white bg-gray-500 p-2 mr-1 rounded-md"
