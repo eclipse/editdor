@@ -175,10 +175,11 @@ const buildForm = (
           <select
             className="block appearance-none w-full bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none"
             id="search-option"
+            defaultValue="title"
           >
-            <option selected>title</option>
-            <option>description</option>
-            <option>type</option>
+            <option value="title">title</option>
+            <option value="description">description</option>
+            <option value="type">type</option>
           </select>
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
             <ChevronDown color="#cacaca"></ChevronDown>
@@ -194,7 +195,7 @@ const buildForm = (
 
         <button
           type="submit"
-          class="text-white bg-blue-500 p-2 rounded-md"
+          className="text-white bg-blue-500 p-2 rounded-md"
           onClick={() => {
             searchThingModels();
           }}
@@ -220,8 +221,7 @@ const buildForm = (
           <ChevronLeft color="#cacaca"></ChevronLeft>
         </button>
         <span className="text-white bg-gray-500 p-2 mr-1 rounded-md">
-          {" "}
-          {page + 1}{" "}
+          {" "}{page + 1}{" "}
         </span>
         <button
           className="text-white bg-gray-500 p-2 mr-1 rounded-md"
