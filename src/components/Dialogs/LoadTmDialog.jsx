@@ -71,7 +71,7 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     searchText
   ) => {
     const offset = pagination.thingModelsPerPage * page;
-    let url = `http://${process.env.REACT_APP_TM_SERVER_HOST}:${process.env.REACT_APP_TM_SERVER_PORT}/models?limit=${pagination.thingModelsPerPage}&offset=${offset}`;
+    let url = `${process.env.REACT_APP_TM_SERVER_SCHEME}://${process.env.REACT_APP_TM_SERVER_HOST}:${process.env.REACT_APP_TM_SERVER_PORT}/models?limit=${pagination.thingModelsPerPage}&offset=${offset}`;
     if (attribute) url += `&${attribute}=${searchText}`;
     const res = await fetch(url);
     const data = await res.json();
