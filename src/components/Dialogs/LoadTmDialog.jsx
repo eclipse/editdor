@@ -29,7 +29,8 @@ export const LoadTmDialog = forwardRef((props, ref) => {
   const [display, setDisplay] = React.useState(() => {
     return false;
   });
-  const [thingModels, setThingModels] = React.useState([]);
+  const [thingModelObjects, setThingModelObjects] =
+    React.useState([]);
   const [choosenModel, setChoosenModel] = React.useState(
     []
   );
@@ -47,7 +48,10 @@ export const LoadTmDialog = forwardRef((props, ref) => {
   });
 
   const open = async () => {
-    setThingModels(await fetchThingModels());
+    const thingModels = await fetchThingModels();
+    const thingModelObjects =
+      thingModelToThingModelObjects(thingModels);
+    setThingModelObjects(thingModelObjects);
     setPagination({ ...pagination, loading: false });
     setDisplay(true);
   };
@@ -56,11 +60,12 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     setDisplay(false);
   };
   const setSelectedThingModel = (index) => {
-    setThingModels(
-      thingModels.map((thing, thingIndex) => {
-        if (thingIndex === index) thing.selected = true;
-        else thing.selected = false;
-        return thing;
+    setThingModelObjects(
+      thingModelObjects.map((thingObject, thingIndex) => {
+        if (thingIndex === index)
+          thingObject.selected = true;
+        else thingObject.selected = false;
+        return thingObject;
       })
     );
   };
@@ -78,6 +83,10 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     return data;
   };
 
+  const thingModelToThingModelObjects = (thingModels) =>
+    thingModels.map((thingModel) => {
+      return { thingModel: thingModel, select: false };
+    });
   const paginate = async (direction) => {
     const page =
       direction === "right"
@@ -97,7 +106,9 @@ export const LoadTmDialog = forwardRef((props, ref) => {
             searchText
           );
     if (thingModels.length <= 0) return;
-    setThingModels(thingModels);
+    const thingModelObjects =
+      thingModelToThingModelObjects(thingModels);
+    setThingModelObjects(thingModelObjects);
     setPagination({ ...pagination, currentPage: page });
   };
 
@@ -107,19 +118,22 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     const attribute =
       document.getElementById("search-option").value;
     setPagination({ ...pagination, currentPage: 0 });
-    return searchText === ""
-      ? setThingModels(await fetchThingModels(page))
-      : setThingModels(
-          await fetchThingModels(
+
+    const thingModels =
+      searchText === ""
+        ? await fetchThingModels(page)
+        : await fetchThingModels(
             page,
             attribute,
             searchText
-          )
-        );
+          );
+    return setThingModelObjects(
+      thingModelToThingModelObjects(thingModels)
+    );
   };
 
   const content = buildForm(
-    thingModels,
+    thingModelObjects,
     pagination.currentPage,
     setChoosenModel,
     setSelectedThingModel,
@@ -158,7 +172,7 @@ export const LoadTmDialog = forwardRef((props, ref) => {
 });
 
 const buildForm = (
-  thingModels,
+  thingModelObjects,
   page,
   setChoosenModel,
   setSelectedThingModel,
@@ -200,11 +214,11 @@ const buildForm = (
           Search
         </button>
       </div>
-      {thingModels.map((thingModel, index) => (
+      {thingModelObjects.map((thingModelObject, index) => (
         <ThingModel
           key={index}
           index={index}
-          thingModel={thingModel}
+          thingModelObject={thingModelObject}
           setChoosenModel={setChoosenModel}
           setSelectedThingModel={setSelectedThingModel}
         />
@@ -233,12 +247,14 @@ const buildForm = (
 };
 
 const ThingModel = ({
-  thingModel,
+  thingModelObject,
   index,
   setChoosenModel,
   setSelectedThingModel,
 }) => {
-  const types = formatThingModeltypes(thingModel["@type"]);
+  const types = formatThingModeltypes(
+    thingModelObject.thingModel["@type"]
+  );
   return (
     <div
       className={`thingModel 
@@ -249,23 +265,25 @@ const ThingModel = ({
         rounded w-full 
         text-white
         ${
-          thingModel.selected
+          thingModelObject.selected
             ? "border-blue-500"
             : "border-gray-600"
         }`}
       onClick={() => {
         setSelectedThingModel(index);
-        setChoosenModel(thingModel);
+        setChoosenModel(thingModelObject.thingModel);
       }}
     >
       <div className="relative">
-        <h3 className="px-2">{thingModel.title}</h3>
+        <h3 className="px-2">
+          {thingModelObject.thingModel.title}
+        </h3>
         <div className="absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
           {types ? types.map((type) => <p>{type}</p>) : ""}
         </div>
       </div>
       <p className="text-gray-300 py-1 pl-1 my-1">
-        {thingModel.description}
+        {thingModelObject.thingModel.description}
       </p>
     </div>
   );
