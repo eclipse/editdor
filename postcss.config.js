@@ -10,10 +10,9 @@
  * 
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-const tailwindcss = require('tailwindcss');
-module.exports = {
-    plugins: [
-        tailwindcss('./tailwind.js'),
-        require('autoprefixer')
-    ],
-};
+ module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}

@@ -10,9 +10,10 @@
  * 
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  purge: {enabled: true, content: ['./src/**/*.html', './src/**/*.jsx', './src/**/*.js',]},
-  darkMode: false, // or 'media' or 'class'
+  content: ["./src/**/*.{html,js,jsx,ts,tsx}"],
+  media: false,
   theme: {
     colors: {
       transparent: 'transparent',
