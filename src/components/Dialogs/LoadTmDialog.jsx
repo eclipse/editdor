@@ -34,6 +34,17 @@ export const LoadTmDialog = forwardRef((props, ref) => {
   const [choosenModel, setChoosenModel] = React.useState(
     []
   );
+
+  const [showUrlForm, setShowUrlForm] =
+    React.useState(false);
+
+  const show = () => {
+    setShowUrlForm(!showUrlForm);
+  };
+  const [emporioUrl, setEmporioUrl] = React.useState(
+    `${process.env.REACT_APP_TM_SERVER_SCHEME}://${process.env.REACT_APP_TM_SERVER_HOST}:${process.env.REACT_APP_TM_SERVER_PORT}`
+  );
+
   const [pagination, setPagination] = React.useState({
     currentPage: 0,
     loading: null,
@@ -70,13 +81,16 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     );
   };
 
-  const fetchThingModels = async (
+  const fetchThingModels = async ({
     page = 0,
     attribute = false,
-    searchText
-  ) => {
+    searchText,
+    remoteUrl = emporioUrl,
+  } = {}) => {
+    console.log(page);
+    console.log(remoteUrl);
     const offset = pagination.thingModelsPerPage * page;
-    let url = `${process.env.REACT_APP_TM_SERVER_SCHEME}://${process.env.REACT_APP_TM_SERVER_HOST}:${process.env.REACT_APP_TM_SERVER_PORT}/models?limit=${pagination.thingModelsPerPage}&offset=${offset}`;
+    let url = `${remoteUrl}/models?limit=${pagination.thingModelsPerPage}&offset=${offset}`;
     if (attribute) url += `&${attribute}=${searchText}`;
     const res = await fetch(url);
     const data = await res.json();
@@ -99,12 +113,12 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     if (page < 0) return;
     const thingModels =
       searchText === ""
-        ? await fetchThingModels(page)
-        : await fetchThingModels(
-            page,
-            attribute,
-            searchText
-          );
+        ? await fetchThingModels({ page: page })
+        : await fetchThingModels({
+            page: page,
+            attribute: attribute,
+            searchText: searchText,
+          });
     if (thingModels.length <= 0) return;
     const thingModelObjects =
       thingModelToThingModelObjects(thingModels);
@@ -112,6 +126,18 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     setPagination({ ...pagination, currentPage: page });
   };
 
+  const changeThingModelUrl = async () => {
+    const url = document.getElementById("remote-url").value;
+    console.log(`URL: ${url}`);
+    //validate URL
+    setEmporioUrl(url);
+    const thingModels = await fetchThingModels({
+      remoteUrl: url,
+    });
+    return setThingModelObjects(
+      thingModelToThingModelObjects(thingModels)
+    );
+  };
   const searchThingModels = async (page = 0) => {
     const searchText =
       document.getElementById("search-id").value;
@@ -121,12 +147,12 @@ export const LoadTmDialog = forwardRef((props, ref) => {
 
     const thingModels =
       searchText === ""
-        ? await fetchThingModels(page)
-        : await fetchThingModels(
-            page,
-            attribute,
-            searchText
-          );
+        ? await fetchThingModels({ page: page })
+        : await fetchThingModels({
+            page: page,
+            attribute: attribute,
+            searchText: searchText,
+          });
     return setThingModelObjects(
       thingModelToThingModelObjects(thingModels)
     );
@@ -138,7 +164,11 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     setChoosenModel,
     setSelectedThingModel,
     searchThingModels,
-    paginate
+    paginate,
+    show,
+    showUrlForm,
+    emporioUrl,
+    changeThingModelUrl
   );
 
   if (display) {
@@ -177,10 +207,50 @@ const buildForm = (
   setChoosenModel,
   setSelectedThingModel,
   searchThingModels,
-  paginate
+  paginate,
+  show,
+  showUrlForm,
+  emporioUrl,
+  changeUrl
 ) => {
   return (
     <>
+      <button
+        className="flex align-top my-1"
+        onClick={() => show()}
+      >
+        <div className="flex text-white font-bold bg-gray-600 py-1 px-2 rounded-md align-middle">
+          <h4>TM Repository</h4>
+          {showUrlForm === true ? (
+            <ChevronDown className="pl-1" />
+          ) : (
+            <ChevronRight className="pl-1" />
+          )}
+        </div>
+      </button>
+
+      {showUrlForm && (
+        <div className="flex my-1">
+          <input
+            name="remote-url"
+            id="remote-url"
+            className="w-full border-gray-600 bg-gray-600 p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+            defaultValue={emporioUrl}
+            type="url"
+          />
+
+          <button
+            type="submit"
+            className="text-white bg-blue-500 p-2 rounded-md"
+            onClick={() => {
+              changeUrl();
+            }}
+          >
+            Change
+          </button>
+        </div>
+      )}
+
       <div className="flex">
         <div className="relative w-1/4">
           <select
