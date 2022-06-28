@@ -225,18 +225,22 @@ const buildForm = (
           className="w-35 align-top my-1"
           onClick={() => show()}
         >
-          <div className="flex w-full text-white font-bold bg-gray-600 py-1 px-2 rounded-md align-middle">
-            <h4 className="whitespace-nowrap">TM Repository</h4>
-            {showUrlForm === true ? (
-              <ChevronDown color="#cacaca" />
-            ) : (
-              <ChevronRight color="#cacaca" />
-            )}
+          <div className="relative w-full text-white bg-gray-600 py-3 px-4 pr-8 rounded-md align-middle">
+            <h4 className="whitespace-nowrap">
+              TM Repository
+            </h4>
+            <div className="pointer-events-none absolute items-center inset-y-0 right-0 flex px-2 text-gray-700">
+              {showUrlForm === true ? (
+                <ChevronDown color="#cacaca" />
+              ) : (
+                <ChevronRight color="#cacaca" />
+              )}
+            </div>
           </div>
         </button>
 
         {showUrlForm && (
-          <div className="flex w-screen my-1">
+          <div className="flex w-screen my-1 ml-2">
             <input
               name="remote-url"
               id="remote-url"
