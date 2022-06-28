@@ -128,15 +128,21 @@ export const LoadTmDialog = forwardRef((props, ref) => {
 
   const changeThingModelUrl = async () => {
     const url = document.getElementById("remote-url").value;
-    console.log(`URL: ${url}`);
+    try {
+      const thingModels = await fetchThingModels({
+        remoteUrl: url,
+      });
+      setEmporioUrl(url);
+
+      return setThingModelObjects(
+        thingModelToThingModelObjects(thingModels)
+      );
+
+    } catch (error) {
+      const msg = `Error processing URL - Thing Model Repository was not found` 
+      alert(msg);
+    }
     //validate URL
-    setEmporioUrl(url);
-    const thingModels = await fetchThingModels({
-      remoteUrl: url,
-    });
-    return setThingModelObjects(
-      thingModelToThingModelObjects(thingModels)
-    );
   };
   const searchThingModels = async (page = 0) => {
     const searchText =
