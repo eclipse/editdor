@@ -137,9 +137,8 @@ export const LoadTmDialog = forwardRef((props, ref) => {
       return setThingModelObjects(
         thingModelToThingModelObjects(thingModels)
       );
-
     } catch (error) {
-      const msg = `Error processing URL - Thing Model Repository was not found` 
+      const msg = `Error processing URL - Thing Model Repository was not found`;
       alert(msg);
     }
     //validate URL
@@ -221,42 +220,43 @@ const buildForm = (
 ) => {
   return (
     <>
-      <button
-        className="flex align-top my-1"
-        onClick={() => show()}
-      >
-        <div className="flex text-white font-bold bg-gray-600 py-1 px-2 rounded-md align-middle">
-          <h4>TM Repository</h4>
-          {showUrlForm === true ? (
-            <ChevronDown className="pl-1" />
-          ) : (
-            <ChevronRight className="pl-1" />
-          )}
-        </div>
-      </button>
+      <div className="flex">
+        <button
+          className="w-35 align-top my-1"
+          onClick={() => show()}
+        >
+          <div className="flex w-full text-white font-bold bg-gray-600 py-1 px-2 rounded-md align-middle">
+            <h4 className="whitespace-nowrap">TM Repository</h4>
+            {showUrlForm === true ? (
+              <ChevronDown color="#cacaca" />
+            ) : (
+              <ChevronRight color="#cacaca" />
+            )}
+          </div>
+        </button>
 
-      {showUrlForm && (
-        <div className="flex my-1">
-          <input
-            name="remote-url"
-            id="remote-url"
-            className="w-full border-gray-600 bg-gray-600 p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
-            defaultValue={emporioUrl}
-            type="url"
-          />
+        {showUrlForm && (
+          <div className="flex w-screen my-1">
+            <input
+              name="remote-url"
+              id="remote-url"
+              className="w-full border-gray-600 bg-gray-600 p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+              defaultValue={emporioUrl}
+              type="url"
+            />
 
-          <button
-            type="submit"
-            className="text-white bg-blue-500 p-2 rounded-md"
-            onClick={() => {
-              changeUrl();
-            }}
-          >
-            Change
-          </button>
-        </div>
-      )}
-
+            <button
+              type="submit"
+              className="text-white bg-blue-500 p-2 rounded-md"
+              onClick={() => {
+                changeUrl();
+              }}
+            >
+              Change
+            </button>
+          </div>
+        )}
+      </div>
       <div className="flex">
         <div className="relative w-1/4">
           <select
