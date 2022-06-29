@@ -253,11 +253,11 @@ const buildForm = (
           Search
         </button>
       </div>
-      <button
+      <p
         className="flex align-top my-1"
         onClick={() => show()}
       >
-        <div className="relative w-full bg-gray-600 py-3 px-4 pr-8 rounded-md align-middle">
+        <div className="relative cursor-pointer border-none py-3 px-4 pr-8  align-middle">
           <h4 className="whitespace-nowrap text-gray-400">
             Advanced Options
           </h4>
@@ -269,7 +269,7 @@ const buildForm = (
             )}
           </div>
         </div>
-      </button>
+      </p>
 
       {showUrlForm && (
         <div>
@@ -284,15 +284,14 @@ const buildForm = (
               defaultValue={emporioUrl}
               type="url"
             />
-            <button
-              type="submit"
-              className="text-white bg-blue-500 p-2 rounded-md"
+            <p
+              className="text-white p-2"
               onClick={() => {
                 changeUrl();
               }}
             >
               Change
-            </button>
+            </p>
           </div>
         </div>
       )}
