@@ -221,47 +221,6 @@ const buildForm = (
   return (
     <>
       <div className="flex">
-        <button
-          className="w-35 align-top my-1"
-          onClick={() => show()}
-        >
-          <div className="relative w-full text-white bg-gray-600 py-3 px-4 pr-8 rounded-md align-middle">
-            <h4 className="whitespace-nowrap">
-              TM Repository
-            </h4>
-            <div className="pointer-events-none absolute items-center inset-y-0 right-0 flex px-2 text-gray-700">
-              {showUrlForm === true ? (
-                <ChevronDown color="#cacaca" />
-              ) : (
-                <ChevronRight color="#cacaca" />
-              )}
-            </div>
-          </div>
-        </button>
-
-        {showUrlForm && (
-          <div className="flex w-screen my-1 ml-2">
-            <input
-              name="remote-url"
-              id="remote-url"
-              className="w-full border-gray-600 bg-gray-600 p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
-              defaultValue={emporioUrl}
-              type="url"
-            />
-
-            <button
-              type="submit"
-              className="text-white bg-blue-500 p-2 rounded-md"
-              onClick={() => {
-                changeUrl();
-              }}
-            >
-              Change
-            </button>
-          </div>
-        )}
-      </div>
-      <div className="flex">
         <div className="relative w-1/4">
           <select
             className="block appearance-none w-full bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none"
@@ -294,6 +253,49 @@ const buildForm = (
           Search
         </button>
       </div>
+      <button
+        className="flex align-top my-1"
+        onClick={() => show()}
+      >
+        <div className="relative w-full bg-gray-600 py-3 px-4 pr-8 rounded-md align-middle">
+          <h4 className="whitespace-nowrap text-gray-400">
+            Advanced Options
+          </h4>
+          <div className="pointer-events-none absolute items-center inset-y-0 right-0 flex px-2 text-gray-700">
+            {showUrlForm === true ? (
+              <ChevronDown color="#cacaca" />
+            ) : (
+              <ChevronRight color="#cacaca" />
+            )}
+          </div>
+        </div>
+      </button>
+
+      {showUrlForm && (
+        <div>
+          <label className="text-sm text-gray-400 font-medium pl-2">
+            TM Repository:
+          </label>
+          <div className="flex w-fill my-1 ml-2">
+            <input
+              name="remote-url"
+              id="remote-url"
+              className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+              defaultValue={emporioUrl}
+              type="url"
+            />
+            <button
+              type="submit"
+              className="text-white bg-blue-500 p-2 rounded-md"
+              onClick={() => {
+                changeUrl();
+              }}
+            >
+              Change
+            </button>
+          </div>
+        </div>
+      )}
       {thingModelObjects.map((thingModelObject, index) => (
         <ThingModel
           key={index}
