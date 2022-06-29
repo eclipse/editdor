@@ -284,14 +284,15 @@ const buildForm = (
               defaultValue={emporioUrl}
               type="url"
             />
-            <p
-              className="text-white p-2"
+            <button
+              type="submit"
+              className="text-white bg-blue-500 p-2 rounded-md"
               onClick={() => {
                 changeUrl();
               }}
             >
               Change
-            </p>
+            </button>
           </div>
         </div>
       )}
