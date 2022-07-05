@@ -25,7 +25,6 @@ import {
   ChevronLeft,
 } from "react-feather";
 
-
 function tmReducer(state, action) {
   switch (action.type) {
     case "thingModels": {
@@ -253,6 +252,7 @@ export const LoadTmDialog = forwardRef((props, ref) => {
       <DialogTemplate
         onCancel={close}
         onSubmit={() => {
+          if (choosenModel === null) return;
           let linkedModel = {};
           linkedModel[choosenModel["title"]] = choosenModel;
           context.updateLinkedTd(undefined);
@@ -281,7 +281,6 @@ export const LoadTmDialog = forwardRef((props, ref) => {
 const buildForm = (
   thingModelObjects,
   page,
-  //setChoosenModel,
   setSelectedThingModel,
   searchThingModels,
   paginate,
@@ -373,7 +372,6 @@ const buildForm = (
           key={index}
           index={index}
           thingModelObject={thingModelObject}
-          // setChoosenModel={setChoosenModel}
           setSelectedThingModel={setSelectedThingModel}
         />
       ))}
@@ -403,7 +401,6 @@ const buildForm = (
 const ThingModel = ({
   thingModelObject,
   index,
-  //setChoosenModel,
   setSelectedThingModel,
 }) => {
   const types = formatThingModeltypes(
@@ -425,7 +422,6 @@ const ThingModel = ({
         }`}
       onClick={() => {
         setSelectedThingModel(index);
-        //setChoosenModel(thingModelObject.thingModel);
       }}
     >
       <div className="relative">
