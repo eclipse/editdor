@@ -665,6 +665,11 @@ video {
     var(--tw-border-opacity)
   );
 }
+.border-none{
+  border-style: none;
+}
+
+
 
 .focus\:border-blue-500:focus {
   --tw-border-opacity: 1;
