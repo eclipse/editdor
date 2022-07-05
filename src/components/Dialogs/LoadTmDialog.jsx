@@ -291,43 +291,75 @@ const buildForm = (
 ) => {
   return (
     <>
-      {/* SEARCH BAR */}
-      <div className="flex">
-        <div className="relative w-1/4">
-          <select
-            className="block appearance-none w-full bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none"
-            id="search-option"
-            defaultValue="title"
-          >
-            <option value="title">title</option>
-            <option value="description">description</option>
-            <option value="type">type</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-            <ChevronDown color="#cacaca"></ChevronDown>
-          </div>
-        </div>
-        <input
-          name="search-id"
-          id="search-id"
-          className="w-7/10 border-gray-600 bg-gray-600 p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
-          placeholder="Search Thing Models"
-          type="search"
+      <SearchBar searchThingModels={searchThingModels} />
+      
+      <AdvancedOptions
+        showUrlForm={showUrlForm}
+        emporioUrl={emporioUrl}
+        show={show}
+        changeUrl={changeUrl}
+      />
+
+      {thingModelObjects.map((thingModelObject, index) => (
+        <ThingModel
+          key={index}
+          index={index}
+          thingModelObject={thingModelObject}
+          setSelectedThingModel={setSelectedThingModel}
         />
+      ))}
 
-        <button
-          type="submit"
-          className="text-white bg-blue-500 p-2 rounded-md"
-          onClick={() => {
-            searchThingModels();
-          }}
+      <Pagination paginate={paginate} page={page} />
+    </>
+  );
+};
+
+const SearchBar = ({ searchThingModels }) => {
+  return (
+    <div className="flex">
+      <div className="relative w-1/4">
+        <select
+          className="block appearance-none w-full bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none"
+          id="search-option"
+          defaultValue="title"
         >
-          Search
-        </button>
+          <option value="title">title</option>
+          <option value="description">description</option>
+          <option value="type">type</option>
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+          <ChevronDown color="#cacaca"></ChevronDown>
+        </div>
       </div>
-      {/* SEARCH BAR */}
+      <input
+        name="search-id"
+        id="search-id"
+        className="w-7/10 border-gray-600 bg-gray-600 p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+        placeholder="Search Thing Models"
+        type="search"
+      />
 
-      {/* ADV OPTIONS */}
+      <button
+        type="submit"
+        className="text-white bg-blue-500 p-2 rounded-md"
+        onClick={() => {
+          searchThingModels();
+        }}
+      >
+        Search
+      </button>
+    </div>
+  );
+};
+
+const AdvancedOptions = ({
+  showUrlForm,
+  emporioUrl,
+  show,
+  changeUrl,
+}) => {
+  return (
+    <>
       <div
         className="flex align-top my-1"
         onClick={() => show()}
@@ -370,20 +402,6 @@ const buildForm = (
           </div>
         </div>
       )}
-      {/* ADV OPTIONS */}
-
-      {thingModelObjects.map((thingModelObject, index) => (
-        <ThingModel
-          key={index}
-          index={index}
-          thingModelObject={thingModelObject}
-          setSelectedThingModel={setSelectedThingModel}
-        />
-      ))}
-
-      {/* PAGINATION */}
-      <Pagination paginate={paginate} page={page} />
-      {/* PAGINATION */}
     </>
   );
 };
