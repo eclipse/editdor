@@ -14,6 +14,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useContext,
+  useReducer,
 } from "react";
 import ReactDOM from "react-dom";
 import { DialogTemplate } from "./DialogTemplate";
@@ -24,33 +25,106 @@ import {
   ChevronLeft,
 } from "react-feather";
 
+
+function tmReducer(state, action) {
+  switch (action.type) {
+    case "thingModels": {
+      return {
+        ...state,
+        thingModels: action.payload.map((thingModel) => {
+          return { thingModel: thingModel, select: false };
+        }),
+      };
+    }
+    case "selected": {
+      const index = action.payload;
+      let choosenModel;
+      const thingModels = state.thingModels.map(
+        (thingObject, thingIndex) => {
+          if (thingIndex === index) {
+            thingObject.selected = true;
+            choosenModel = thingObject.thingModel;
+          } else thingObject.selected = false;
+          return thingObject;
+        }
+      );
+      return {
+        ...state,
+        thingModels: thingModels,
+        choosenModel: choosenModel,
+      };
+    }
+    case "changePage": {
+      const pagination = {
+        ...state.pagination,
+        currentPage: action.payload,
+      };
+      return {
+        ...state,
+        pagination: pagination,
+        showUrlForm: false,
+      };
+    }
+    case "reset": {
+      const pagination = {
+        ...state.pagination,
+        currentPage: 0,
+      };
+      return {
+        ...state,
+        pagination: pagination,
+        showUrlForm: false,
+      };
+    }
+    case "field": {
+      return {
+        ...state,
+        [action.fieldName]: action.payload,
+      };
+    }
+    default:
+      throw Error(
+        "Unexected reducer case in Thing Model Modal"
+      );
+  }
+}
+
+const initialState = {
+  thingModels: [],
+  choosenModel: null,
+  showUrlForm: false,
+  emporioUrl: `${process.env.REACT_APP_TM_SERVER_SCHEME}://${process.env.REACT_APP_TM_SERVER_HOST}:${process.env.REACT_APP_TM_SERVER_PORT}`,
+  pagination: {
+    currentPage: 0,
+    thingModelsPerPage: 5,
+  },
+};
+
 export const LoadTmDialog = forwardRef((props, ref) => {
   const context = useContext(ediTDorContext);
   const [display, setDisplay] = React.useState(() => {
     return false;
   });
-  const [thingModelObjects, setThingModelObjects] =
-    React.useState([]);
-  const [choosenModel, setChoosenModel] = React.useState(
-    []
+  const [state, dispatch] = useReducer(
+    tmReducer,
+    initialState
   );
 
-  const [showUrlForm, setShowUrlForm] =
-    React.useState(false);
+  const {
+    thingModels,
+    choosenModel,
+    showUrlForm,
+    emporioUrl,
+    pagination,
+  } = state;
 
   const show = () => {
-    setShowUrlForm(!showUrlForm);
+    dispatch({
+      type: "field",
+      fieldName: "showUrlForm",
+      payload: !showUrlForm,
+    });
   };
-  const [emporioUrl, setEmporioUrl] = React.useState(
-    `${process.env.REACT_APP_TM_SERVER_SCHEME}://${process.env.REACT_APP_TM_SERVER_HOST}:${process.env.REACT_APP_TM_SERVER_PORT}`
-  );
-
-  const [pagination, setPagination] = React.useState({
-    currentPage: 0,
-    loading: null,
-    thingModelsPerPage: 5,
-  });
-
   useImperativeHandle(ref, () => {
     return {
       openModal: () => open(),
@@ -59,26 +133,20 @@ export const LoadTmDialog = forwardRef((props, ref) => {
   });
 
   const open = async () => {
-    const thingModels = await fetchThingModels();
-    const thingModelObjects =
-      thingModelToThingModelObjects(thingModels);
-    setThingModelObjects(thingModelObjects);
-    setPagination({ ...pagination, loading: false });
+    dispatch({
+      type: "thingModels",
+      payload: await fetchThingModels(),
+    });
+    dispatch({ type: "reset", payload: 0 });
     setDisplay(true);
   };
 
   const close = () => {
     setDisplay(false);
   };
+
   const setSelectedThingModel = (index) => {
-    setThingModelObjects(
-      thingModelObjects.map((thingObject, thingIndex) => {
-        if (thingIndex === index)
-          thingObject.selected = true;
-        else thingObject.selected = false;
-        return thingObject;
-      })
-    );
+    dispatch({ type: "selected", payload: index });
   };
 
   const fetchThingModels = async ({
@@ -87,8 +155,6 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     searchText,
     remoteUrl = emporioUrl,
   } = {}) => {
-    console.log(page);
-    console.log(remoteUrl);
     const offset = pagination.thingModelsPerPage * page;
     let url = `${remoteUrl}/models?limit=${pagination.thingModelsPerPage}&offset=${offset}`;
     if (attribute) url += `&${attribute}=${searchText}`;
@@ -97,20 +163,18 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     return data;
   };
 
-  const thingModelToThingModelObjects = (thingModels) =>
-    thingModels.map((thingModel) => {
-      return { thingModel: thingModel, select: false };
-    });
   const paginate = async (direction) => {
     const page =
       direction === "right"
         ? pagination.currentPage + 1
         : pagination.currentPage - 1;
+    if (page < 0) return;
+
     const searchText =
       document.getElementById("search-id").value;
     const attribute =
       document.getElementById("search-option").value;
-    if (page < 0) return;
+
     const thingModels =
       searchText === ""
         ? await fetchThingModels({ page: page })
@@ -120,10 +184,12 @@ export const LoadTmDialog = forwardRef((props, ref) => {
             searchText: searchText,
           });
     if (thingModels.length <= 0) return;
-    const thingModelObjects =
-      thingModelToThingModelObjects(thingModels);
-    setThingModelObjects(thingModelObjects);
-    setPagination({ ...pagination, currentPage: page });
+
+    dispatch({
+      type: "thingModels",
+      payload: thingModels,
+    });
+    dispatch({ type: "changePage", payload: page });
   };
 
   const changeThingModelUrl = async () => {
@@ -132,41 +198,47 @@ export const LoadTmDialog = forwardRef((props, ref) => {
       const thingModels = await fetchThingModels({
         remoteUrl: url,
       });
-      setEmporioUrl(url);
+      dispatch({
+        type: "field",
+        fieldName: "emporioUrl",
+        payload: url,
+      });
 
-      return setThingModelObjects(
-        thingModelToThingModelObjects(thingModels)
-      );
+      return dispatch({
+        type: "thingModels",
+        payload: thingModels,
+      });
     } catch (error) {
       const msg = `Error processing URL - Thing Model Repository was not found`;
       alert(msg);
     }
-    //validate URL
   };
-  const searchThingModels = async (page = 0) => {
+  const searchThingModels = async () => {
     const searchText =
       document.getElementById("search-id").value;
     const attribute =
       document.getElementById("search-option").value;
-    setPagination({ ...pagination, currentPage: 0 });
+
+    //TODO: is that right?
+    dispatch({ type: "reset" });
 
     const thingModels =
       searchText === ""
-        ? await fetchThingModels({ page: page })
+        ? await fetchThingModels()
         : await fetchThingModels({
-            page: page,
+            page: 0,
             attribute: attribute,
             searchText: searchText,
           });
-    return setThingModelObjects(
-      thingModelToThingModelObjects(thingModels)
-    );
+    return dispatch({
+      type: "thingModels",
+      payload: thingModels,
+    });
   };
 
   const content = buildForm(
-    thingModelObjects,
+    thingModels,
     pagination.currentPage,
-    setChoosenModel,
     setSelectedThingModel,
     searchThingModels,
     paginate,
@@ -209,7 +281,7 @@ export const LoadTmDialog = forwardRef((props, ref) => {
 const buildForm = (
   thingModelObjects,
   page,
-  setChoosenModel,
+  //setChoosenModel,
   setSelectedThingModel,
   searchThingModels,
   paginate,
@@ -301,7 +373,7 @@ const buildForm = (
           key={index}
           index={index}
           thingModelObject={thingModelObject}
-          setChoosenModel={setChoosenModel}
+          // setChoosenModel={setChoosenModel}
           setSelectedThingModel={setSelectedThingModel}
         />
       ))}
@@ -331,7 +403,7 @@ const buildForm = (
 const ThingModel = ({
   thingModelObject,
   index,
-  setChoosenModel,
+  //setChoosenModel,
   setSelectedThingModel,
 }) => {
   const types = formatThingModeltypes(
@@ -353,7 +425,7 @@ const ThingModel = ({
         }`}
       onClick={() => {
         setSelectedThingModel(index);
-        setChoosenModel(thingModelObject.thingModel);
+        //setChoosenModel(thingModelObject.thingModel);
       }}
     >
       <div className="relative">
