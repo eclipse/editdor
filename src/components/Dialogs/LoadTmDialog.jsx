@@ -291,6 +291,7 @@ const buildForm = (
 ) => {
   return (
     <>
+      {/* SEARCH BAR */}
       <div className="flex">
         <div className="relative w-1/4">
           <select
@@ -324,7 +325,10 @@ const buildForm = (
           Search
         </button>
       </div>
-      <p
+      {/* SEARCH BAR */}
+
+      {/* ADV OPTIONS */}
+      <div
         className="flex align-top my-1"
         onClick={() => show()}
       >
@@ -340,8 +344,7 @@ const buildForm = (
             )}
           </div>
         </div>
-      </p>
-
+      </div>
       {showUrlForm && (
         <div>
           <label className="text-sm text-gray-400 font-medium pl-2">
@@ -367,6 +370,8 @@ const buildForm = (
           </div>
         </div>
       )}
+      {/* ADV OPTIONS */}
+
       {thingModelObjects.map((thingModelObject, index) => (
         <ThingModel
           key={index}
@@ -376,25 +381,33 @@ const buildForm = (
         />
       ))}
 
-      <div className="flex justify-center pt-4 p-2">
-        <button
-          className="text-white bg-gray-500 p-2 mr-1 rounded-md"
-          onClick={() => paginate("left")}
-        >
-          <ChevronLeft color="#cacaca"></ChevronLeft>
-        </button>
-        <span className="text-white bg-gray-500 p-2 mr-1 rounded-md">
-          {" "}
-          {page + 1}{" "}
-        </span>
-        <button
-          className="text-white bg-gray-500 p-2 mr-1 rounded-md"
-          onClick={() => paginate("right")}
-        >
-          <ChevronRight color="#cacaca"></ChevronRight>
-        </button>
-      </div>
+      {/* PAGINATION */}
+      <Pagination paginate={paginate} page={page} />
+      {/* PAGINATION */}
     </>
+  );
+};
+
+const Pagination = ({ paginate, page }) => {
+  return (
+    <div className="flex justify-center pt-4 p-2">
+      <button
+        className="text-white bg-gray-500 p-2 mr-1 rounded-md"
+        onClick={() => paginate("left")}
+      >
+        <ChevronLeft color="#cacaca"></ChevronLeft>
+      </button>
+      <span className="text-white bg-gray-500 p-2 mr-1 rounded-md">
+        {" "}
+        {page + 1}{" "}
+      </span>
+      <button
+        className="text-white bg-gray-500 p-2 mr-1 rounded-md"
+        onClick={() => paginate("right")}
+      >
+        <ChevronRight color="#cacaca"></ChevronRight>
+      </button>
+    </div>
   );
 };
 
