@@ -18,10 +18,10 @@ import React, {
 } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
+import { AdvancedOptions } from "./components/AdvancedOptions"
 import { DialogTemplate } from "./DialogTemplate";
 
-export const SaveTmRemotelyDialog = forwardRef(
-  (props, ref) => {
+export const SaveTmRemotelyDialog = forwardRef((props, ref) => {
     const context = useContext(ediTDorContext);
     const [display, setDisplay] = React.useState(() => {
       return false;
@@ -63,7 +63,10 @@ export const SaveTmRemotelyDialog = forwardRef(
     };
 
     const saveTm = async (thingModel, credential) => {
-      const isDuplicate = await checkForDuplicates(thingModel, credential);
+      const isDuplicate = await checkForDuplicates(
+        thingModel,
+        credential
+      );
       let confirmation = false;
       if (isDuplicate) {
         const msg =
@@ -71,7 +74,10 @@ export const SaveTmRemotelyDialog = forwardRef(
         confirmation = window.confirm(msg);
       }
       if (!isDuplicate || confirmation) {
-        const response = await performPostRequest(thingModel, credential);
+        const response = await performPostRequest(
+          thingModel,
+          credential
+        );
         if (!response.ok) handleError(response);
       }
     };
@@ -94,7 +100,7 @@ export const SaveTmRemotelyDialog = forwardRef(
       }
       return alert(msg);
     };
-    
+
     const performPostRequest = async (
       thingModel,
       credential,
@@ -112,8 +118,20 @@ export const SaveTmRemotelyDialog = forwardRef(
         }
       );
     };
+    const changeUrl = async () =>{
+      const url = document.getElementById("remote-url").value;
+    try {
+      //* is this the best way to check if this url is a valid thing model repository?
+      await fetch(`${url}/models?limit=1`)
+      context.updateTmRepositoryUrl(url);
+    } catch (error) {
+      const msg = `Error processing URL - Thing Model Repository was not found`;
+      alert(msg);
+    }
 
-    const urlField = createCredentialField();
+
+    }
+    const urlField = createCredentialField(changeUrl);
 
     if (display) {
       return ReactDOM.createPortal(
@@ -143,14 +161,17 @@ export const SaveTmRemotelyDialog = forwardRef(
   }
 );
 
-const createCredentialField = () => {
+const createCredentialField = (changeUrl) => {
   return (
     <div className="py-1">
+      <AdvancedOptions
+        changeUrl={changeUrl}
+      />
       <label
         htmlFor="credential-field"
         className="text-sm text-gray-400 font-medium pl-2"
       >
-        Credential
+        Credential:
       </label>
       <input
         type="text"
