@@ -21,6 +21,7 @@ import { ShareDialog } from "../../Dialogs/ShareDialog";
 import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
 import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
 import { LoadTmDialog } from "../../Dialogs/LoadTmDialog";
+import { SaveTmRemotelyDialog } from "../../Dialogs/SaveTmRemotelyDialog";
 import { getFileHandle, getFileHTML5, _readFileHTML5 } from "../../../util.js";
 
 
@@ -310,7 +311,12 @@ export default function AppHeader() {
   const loadTmDialog = React.useRef();
   const openLoadTmDialog = () => { loadTmDialog.current.openModal() }
 
+  const saveTmRemotelyDialog = React.useRef();
+  const openSaveTmRemotelyDialog = () => { saveTmRemotelyDialog.current.openModal() }
 
+  const useRemoteServer = process.env.REACT_APP_REMOTE_SERVER.toLocaleLowerCase() === "true";
+  console.log(useRemoteServer);
+  console.log(useRemoteServer? 'true':'false');
   return (
     <>
       <header className="flex justify-between items-center h-16 bg-blue-500">
@@ -325,9 +331,10 @@ export default function AppHeader() {
           <Button onClick={openShareDialog}>Share</Button>
           <Button onClick={openCreateTdDialog}>New</Button>
           <Button onClick={openFile}>Open</Button>
-          <Button onClick={openLoadTmDialog}>Load TM</Button>
+          {useRemoteServer && <Button onClick={openLoadTmDialog}>Load TM</Button>}
           {(hasNativeFS()) && <Button onClick={saveFile}>Save</Button>}
           <Button onClick={saveFileAs}>Save As</Button>
+          {(context.isThingModel && useRemoteServer)  && <Button onClick={openSaveTmRemotelyDialog}>Save Remotely</Button>}
           {(context.showConvertBtn || context.isThingModel) && <Button onClick={openConvertTmDialog}>Convert To TD</Button>}
         </div>
       </header>
@@ -335,6 +342,7 @@ export default function AppHeader() {
       <ShareDialog ref={shareDialog} />
       <CreateTdDialog ref={createTdDialog} />
       <LoadTmDialog ref={loadTmDialog} />
+      <SaveTmRemotelyDialog ref={saveTmRemotelyDialog} />
       <input
         className="h-0"
         type="file"
