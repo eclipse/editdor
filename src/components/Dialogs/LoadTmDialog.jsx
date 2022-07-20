@@ -18,6 +18,7 @@ import React, {
 } from "react";
 import ReactDOM from "react-dom";
 import { DialogTemplate } from "./DialogTemplate";
+import { AdvancedOptions } from "./components/AdvancedOptions"
 import ediTDorContext from "../../context/ediTDorContext";
 import {
   ChevronDown,
@@ -61,7 +62,6 @@ function tmReducer(state, action) {
       return {
         ...state,
         pagination: pagination,
-        showUrlForm: false,
       };
     }
     case "reset": {
@@ -72,7 +72,6 @@ function tmReducer(state, action) {
       return {
         ...state,
         pagination: pagination,
-        showUrlForm: false,
       };
     }
     case "field": {
@@ -91,7 +90,6 @@ function tmReducer(state, action) {
 const initialState = {
   thingModels: [],
   choosenModel: null,
-  showUrlForm: false,
   pagination: {
     currentPage: 0,
     thingModelsPerPage: 5,
@@ -112,17 +110,9 @@ export const LoadTmDialog = forwardRef((props, ref) => {
   const {
     thingModels,
     choosenModel,
-    showUrlForm,
     pagination,
   } = state;
 
-  const show = () => {
-    dispatch({
-      type: "field",
-      fieldName: "showUrlForm",
-      payload: !showUrlForm,
-    });
-  };
   useImperativeHandle(ref, () => {
     return {
       openModal: () => open(),
@@ -236,9 +226,6 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     setSelectedThingModel,
     searchThingModels,
     paginate,
-    show,
-    showUrlForm,
-    context.tmRepositoryUrl,
     changeThingModelUrl
   );
 
@@ -280,9 +267,6 @@ const buildForm = (
   setSelectedThingModel,
   searchThingModels,
   paginate,
-  show,
-  showUrlForm,
-  emporioUrl,
   changeUrl
 ) => {
   return (
@@ -290,9 +274,6 @@ const buildForm = (
       <SearchBar searchThingModels={searchThingModels} />
 
       <AdvancedOptions
-        showUrlForm={showUrlForm}
-        emporioUrl={emporioUrl}
-        show={show}
         changeUrl={changeUrl}
       />
 
@@ -345,60 +326,6 @@ const SearchBar = ({ searchThingModels }) => {
         Search
       </button>
     </div>
-  );
-};
-
-const AdvancedOptions = ({
-  showUrlForm,
-  emporioUrl,
-  show,
-  changeUrl,
-}) => {
-  return (
-    <>
-      <div
-        className="flex align-top my-1"
-        onClick={() => show()}
-      >
-        <div className="relative cursor-pointer border-none py-3 px-4 pr-8  align-middle">
-          <h4 className="whitespace-nowrap text-gray-400">
-            Advanced Options
-          </h4>
-          <div className="pointer-events-none absolute items-center inset-y-0 right-0 flex px-2 text-gray-700">
-            {showUrlForm === true ? (
-              <ChevronDown color="#cacaca" />
-            ) : (
-              <ChevronRight color="#cacaca" />
-            )}
-          </div>
-        </div>
-      </div>
-      {showUrlForm && (
-        <div>
-          <label className="text-sm text-gray-400 font-medium pl-2">
-            TM Repository:
-          </label>
-          <div className="flex w-fill my-1 ml-2">
-            <input
-              name="remote-url"
-              id="remote-url"
-              className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
-              defaultValue={emporioUrl}
-              type="url"
-            />
-            <button
-              type="submit"
-              className="text-white bg-blue-500 p-2 rounded-md"
-              onClick={() => {
-                changeUrl();
-              }}
-            >
-              Change
-            </button>
-          </div>
-        </div>
-      )}
-    </>
   );
 };
 
