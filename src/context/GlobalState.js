@@ -13,11 +13,15 @@
 import React, { useReducer } from 'react';
 
 import EdiTDorContext from './ediTDorContext';
-import { editdorReducer, REMOVE_FORM_FROM_TD, REMOVE_LINK_FROM_TD, UPDATE_IS_THINGMODEL, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_PROPERTYFORM_TO_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD, REMOVE_ONE_OF_A_KIND_FROM_TD, UPDATE_SHOW_CONVERT_BTN, ADD_LINKED_TD, UPDATE_LINKED_TD} from './editorReducers';
+import { editdorReducer, REMOVE_FORM_FROM_TD, REMOVE_LINK_FROM_TD, UPDATE_IS_THINGMODEL, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_PROPERTYFORM_TO_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD, REMOVE_ONE_OF_A_KIND_FROM_TD, UPDATE_SHOW_CONVERT_BTN,UPDATE_TM_REPOSITORY_URL, ADD_LINKED_TD, UPDATE_LINKED_TD} from './editorReducers';
 
 
 const GlobalState = props => {
-  const [editdorState, dispatch] = useReducer(editdorReducer, { offlineTD: '', theme: 'dark' });
+  const [editdorState, dispatch] = useReducer(editdorReducer, { 
+    offlineTD: '', 
+    theme: 'dark', 
+    tmRepositoryUrl: `${process.env.REACT_APP_TM_SERVER_SCHEME}://${process.env.REACT_APP_TM_SERVER_HOST}:${process.env.REACT_APP_TM_SERVER_PORT}` 
+  });
 
   const updateOfflineTD = (offlineTD, props) => {
     dispatch({ type: UPDATE_OFFLINE_TD, offlineTD: offlineTD });
@@ -59,6 +63,9 @@ const GlobalState = props => {
   const updateShowConvertBtn = showConvertBtn => {
     dispatch({ type: UPDATE_SHOW_CONVERT_BTN, showConvertBtn: showConvertBtn });
   };
+  const updateTmRepositoryUrl = tmRepositoryUrl => {
+    dispatch({ type: UPDATE_TM_REPOSITORY_URL, tmRepositoryUrl: tmRepositoryUrl });
+  };
 
   const addLinkedTd = linkedTd => {
     dispatch({ type: ADD_LINKED_TD, linkedTd: linkedTd });
@@ -79,6 +86,7 @@ const GlobalState = props => {
         fileHandle: editdorState.fileHandle,
         showConvertBtn: editdorState.showConvertBtn,
         linkedTd: editdorState.linkedTd,
+        tmRepositoryUrl: editdorState.tmRepositoryUrl,
         updateOfflineTD,
         updateIsModified,
         updateIsThingModel,
@@ -91,7 +99,8 @@ const GlobalState = props => {
         removeOneOfAKindReducer,
         updateShowConvertBtn,
         addLinkedTd,
-        updateLinkedTd
+        updateLinkedTd,
+        updateTmRepositoryUrl,
       }}
     >
       {props.children}

@@ -92,7 +92,6 @@ const initialState = {
   thingModels: [],
   choosenModel: null,
   showUrlForm: false,
-  emporioUrl: `${process.env.REACT_APP_TM_SERVER_SCHEME}://${process.env.REACT_APP_TM_SERVER_HOST}:${process.env.REACT_APP_TM_SERVER_PORT}`,
   pagination: {
     currentPage: 0,
     thingModelsPerPage: 5,
@@ -101,6 +100,7 @@ const initialState = {
 
 export const LoadTmDialog = forwardRef((props, ref) => {
   const context = useContext(ediTDorContext);
+
   const [display, setDisplay] = React.useState(() => {
     return false;
   });
@@ -113,7 +113,6 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     thingModels,
     choosenModel,
     showUrlForm,
-    emporioUrl,
     pagination,
   } = state;
 
@@ -152,7 +151,7 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     page = 0,
     attribute = false,
     searchText,
-    remoteUrl = emporioUrl,
+    remoteUrl = context.tmRepositoryUrl,
   } = {}) => {
     const offset = pagination.thingModelsPerPage * page;
     let url = `${remoteUrl}/models?limit=${pagination.thingModelsPerPage}&offset=${offset}`;
@@ -197,11 +196,7 @@ export const LoadTmDialog = forwardRef((props, ref) => {
       const thingModels = await fetchThingModels({
         remoteUrl: url,
       });
-      dispatch({
-        type: "field",
-        fieldName: "emporioUrl",
-        payload: url,
-      });
+      context.updateTmRepositoryUrl(url);
 
       return dispatch({
         type: "thingModels",
@@ -243,7 +238,7 @@ export const LoadTmDialog = forwardRef((props, ref) => {
     paginate,
     show,
     showUrlForm,
-    emporioUrl,
+    context.tmRepositoryUrl,
     changeThingModelUrl
   );
 
@@ -258,6 +253,7 @@ export const LoadTmDialog = forwardRef((props, ref) => {
           context.updateLinkedTd(undefined);
           context.addLinkedTd(linkedModel);
           context.updateShowConvertBtn(true);
+          context.updateIsThingModel(true);
           context.updateOfflineTD(
             JSON.stringify(choosenModel, null, "\t"),
             "AppHeader"
@@ -292,7 +288,7 @@ const buildForm = (
   return (
     <>
       <SearchBar searchThingModels={searchThingModels} />
-      
+
       <AdvancedOptions
         showUrlForm={showUrlForm}
         emporioUrl={emporioUrl}
