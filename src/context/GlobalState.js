@@ -1,23 +1,23 @@
 /********************************************************************************
  * Copyright (c) 2018 - 2020 Contributors to the Eclipse Foundation
- * 
+ *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
- * 
+ *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { useReducer } from 'react';
 
 import EdiTDorContext from './ediTDorContext';
-import { editdorReducer, REMOVE_FORM_FROM_TD, REMOVE_LINK_FROM_TD, UPDATE_IS_THINGMODEL, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_PROPERTYFORM_TO_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD, REMOVE_ONE_OF_A_KIND_FROM_TD, UPDATE_SHOW_CONVERT_BTN, ADD_LINKED_TD, UPDATE_LINKED_TD} from './editorReducers';
+import { editdorReducer, REMOVE_FORM_FROM_TD, REMOVE_LINK_FROM_TD, UPDATE_IS_THINGMODEL, SET_FILE_HANDLE, UPDATE_IS_MODFIED, UPDATE_OFFLINE_TD, ADD_PROPERTYFORM_TO_TD, ADD_ACTIONFORM_TO_TD, ADD_EVENTFORM_TO_TD, REMOVE_ONE_OF_A_KIND_FROM_TD, UPDATE_SHOW_CONVERT_BTN, ADD_LINKED_TD, UPDATE_LINKED_TD, UPDATE_VALIDATION_MESSAGE} from './editorReducers';
 
 
 const GlobalState = props => {
-  const [editdorState, dispatch] = useReducer(editdorReducer, { offlineTD: '', theme: 'dark' });
+  const [editdorState, dispatch] = useReducer(editdorReducer, { offlineTD: '', theme: 'dark' , validationMessage: ''});
 
   const updateOfflineTD = (offlineTD, props) => {
     dispatch({ type: UPDATE_OFFLINE_TD, offlineTD: offlineTD });
@@ -68,6 +68,10 @@ const GlobalState = props => {
     dispatch({ type: UPDATE_LINKED_TD, linkedTd: linkedTd });
   };
 
+  const updateValidationMessage= validationMessage  => {
+      dispatch({type: UPDATE_VALIDATION_MESSAGE, validationMessage: validationMessage})
+  }
+
   return (
     <EdiTDorContext.Provider
       value={{
@@ -79,6 +83,7 @@ const GlobalState = props => {
         fileHandle: editdorState.fileHandle,
         showConvertBtn: editdorState.showConvertBtn,
         linkedTd: editdorState.linkedTd,
+        validationMessage: editdorState.validationMessage,
         updateOfflineTD,
         updateIsModified,
         updateIsThingModel,
@@ -91,7 +96,9 @@ const GlobalState = props => {
         removeOneOfAKindReducer,
         updateShowConvertBtn,
         addLinkedTd,
-        updateLinkedTd
+        updateLinkedTd,
+        updateValidationMessage
+
       }}
     >
       {props.children}

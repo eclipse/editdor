@@ -1,13 +1,13 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2021 Contributors to the Eclipse Foundation
- * 
+ * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
+ *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
- * 
+ *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { forwardRef, useImperativeHandle, useContext } from 'react';
@@ -15,6 +15,7 @@ import ReactDOM from "react-dom";
 import { DialogTemplate } from "./DialogTemplate";
 import ediTDorContext from '../../context/ediTDorContext';
 import { ChevronDown } from 'react-feather';
+import {tdValidator} from "../../external/TdPlayground";
 
 export const CreateTdDialog = forwardRef((props, ref) => {
     const context = useContext(ediTDorContext);
@@ -57,7 +58,13 @@ export const CreateTdDialog = forwardRef((props, ref) => {
                     context.updateLinkedTd(undefined)
                     context.addLinkedTd(linkedTd)
                     context.updateShowConvertBtn(type === "TM");
-                    context.updateOfflineTD(JSON.stringify(td, null, "\t"),"AppHeader");
+                    tdValidator(JSON.stringify(td, null, "\t"), console.log, {}).then(result => {
+                        context.updateOfflineTD(JSON.stringify(td, null, "\t"),"AppHeader");
+                        context.updateValidationMessage(result);
+                    }, err => {
+                        console.log("Error");
+                        console.log(err);
+                    })
                     close();
                 }}
                 children={content}
@@ -90,12 +97,12 @@ const buildForm = (changeType, getType) => {
         <textarea id="thing-description" rows="5"
             className="bg-gray-600
                 sm:text-sm
-                appearance-none 
-                border-2 border-gray-600 rounded w-full 
+                appearance-none
+                border-2 border-gray-600 rounded w-full
                 p-2
-                text-white 
-                leading-tight 
-                focus:outline-none 
+                text-white
+                leading-tight
+                focus:outline-none
                 focus:border-blue-500"
             placeholder="A short description about this new Thing..." />
         <label htmlFor="thing-security" className="text-sm text-gray-400 font-medium pl-2">Security:</label>
@@ -130,7 +137,7 @@ const formField = (label, placeholder, id, type, autoFocus) => {
     </div>;
 }
 
-const createNewTD = (type) => {   
+const createNewTD = (type) => {
     let id = document.getElementById('thing-id').value;
     let title = document.getElementById('thing-title').value;
     let base = document.getElementById('thing-base').value;

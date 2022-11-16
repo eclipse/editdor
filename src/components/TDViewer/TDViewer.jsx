@@ -1,13 +1,13 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2021 Contributors to the Eclipse Foundation
- * 
+ * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
+ *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
- * 
+ *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { useContext, useEffect } from 'react';
@@ -24,10 +24,15 @@ import Link from './Link';
 import { InteractionSection } from './InteractionSection';
 import { RenderedObject } from './RenderedObject';
 import * as joint from 'jointjs';
+import {ImCheckmark, ImCross} from 'react-icons/im';
 
 let tdJSON = {};
 let oldtdJSON = {};
-let error = "";
+let validationMessage = "";
+let jsonValidation = "";
+let jsonSchemaValidation = "";
+let jsonValidationError = "";
+let jsonSchemaValidationError = "";
 
 export default function TDViewer() {
     const context = useContext(ediTDorContext);
@@ -211,10 +216,13 @@ export default function TDViewer() {
 
     try {
         oldtdJSON = tdJSON;
+        validationMessage = context.validationMessage;
+        jsonValidation = validationMessage.report.json;
+        jsonSchemaValidation = validationMessage.report.schema;
+        jsonValidationError = validationMessage.validationErrors.json;
+        jsonSchemaValidationError = validationMessage.validationErrors.schema;
         tdJSON = JSON.parse(context.offlineTD);
-        error = '';
     } catch (e) {
-        error = e.message;
         tdJSON = oldtdJSON;
     }
 
@@ -252,13 +260,49 @@ export default function TDViewer() {
 
         return (
             <div className="h-full w-full bg-gray-500 p-8 overflow-auto">
-                {(error.length > 0 && (
-                    <div className="flex h-10 w-full bg-formRed rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formRed">
-                        <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
-                            <div className="text-formRed place-self-center text-center text-xs px-4">Error</div>
-                        </div>
-                        <div className=" place-self-center pl-3 text-base text-white overflow-hidden">{error}</div>
-                    </div>))}
+                <div className="container bg-white text-black rounded-md p-4 mb-4">
+                    <div className="flex">
+                        <h3>JSON Validation</h3>
+                        {jsonValidation === "passed" && (
+                            <ImCheckmark style={{
+                                marginLeft: '5px', position: 'relative', top: '5px',
+                            }}/>)}
+                        {jsonValidation === "failed" && (
+                            <ImCross style={{
+                                marginLeft: '5px'
+                            }}/>)}
+                    </div>
+                    {(jsonValidationError !== null && (
+                        <div
+                            className="flex h-10 w-full bg-formRed rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formRed">
+                            <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
+                                <div className="text-formRed place-self-center text-center text-xs px-4">Error</div>
+                            </div>
+                            <div
+                                className=" place-self-center pl-3 text-base text-white overflow-hidden">{jsonValidationError}</div>
+                        </div>))}
+
+                    <div className="flex">
+                        <h2>JSON Schema Validation </h2>
+                        {jsonSchemaValidation === "passed" && (
+                            <ImCheckmark style={{
+                                marginLeft: '5px'
+                            }}/>)}
+                        {jsonSchemaValidation === "failed" && (
+                            <ImCross style={{
+                                marginLeft: '5px', position: 'relative', top: '5px',
+                            }}/>)}
+                    </div>
+                    {(jsonSchemaValidationError !== null && (
+                        <div
+                            className="flex h-full w-full bg-formRed rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formRed">
+                            <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
+                                <div className="text-formRed place-self-center text-center text-xs px-4">Error</div>
+                            </div>
+                            <div
+                                className=" place-self-center pl-3 text-base text-white overflow-hidden">{jsonSchemaValidationError}</div>
+                        </div>))}
+                </div>
                 {(metaData !== undefined && Object.keys(metaData).length > 0) && (
                     <div>
                         <div className="text-3xl text-white">{metaData.title}</div>

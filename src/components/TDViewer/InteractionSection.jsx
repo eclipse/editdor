@@ -9,6 +9,7 @@ import Action from './Action';
 import Event from './Event';
 import Property from './Property';
 import { SearchBar } from './SearchBar';
+import {tdValidator} from "../../external/TdPlayground";
 
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
@@ -17,9 +18,9 @@ let td = {};
 let oldTd = {};
 
 /**
- * Renders a section for an interaction (Property, Action, Event) with a 
+ * Renders a section for an interaction (Property, Action, Event) with a
  * search bar, a sorting icon and a button to add a new interaction.
- * 
+ *
  * The parameter interaction can be one of "Properties", "Actions" or "Events".
  * @param {String} interaction
  */
@@ -41,7 +42,7 @@ export const InteractionSection = (props) => {
     const updateFilter = (event) => setFilter(event.target.value);
 
     /**
-    * Returns an Object containing all interactions with keys 
+    * Returns an Object containing all interactions with keys
     * matching to the filter.
     */
     const applyFilter = () => {
@@ -93,7 +94,16 @@ export const InteractionSection = (props) => {
             setSortOrder(SORT_ASC);
         }
         td[kind] = ordered
-        context.updateOfflineTD(JSON.stringify(td, null, 2))
+        tdValidator(JSON.stringify(td, null, 2), console.log, {}).then(result => {
+            context.updateOfflineTD(JSON.stringify(td, null, 2));
+            context.updateValidationMessage(result);
+        }, err => {
+            console.log("Error");
+            console.log(err);
+        })
+
+
+
     }
 
     const sortedIcon = () => {
