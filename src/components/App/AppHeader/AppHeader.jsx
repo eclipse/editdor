@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2020 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -21,6 +21,7 @@ import { ShareDialog } from "../../Dialogs/ShareDialog";
 import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
 import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
 import { getFileHandle, getFileHTML5, _readFileHTML5 } from "../../../util.js";
+import {tdValidator} from "../../../external/TdPlayground";
 
 
 export default function AppHeader() {
@@ -64,11 +65,18 @@ export default function AppHeader() {
         else {
           linkedTd["./" + file.name] = JSON.parse(td);
         }
-        context.updateLinkedTd(undefined);
-        context.addLinkedTd(linkedTd);
-        context.updateOfflineTD(td);
-        context.setFileHandle(fileHandle || file.name);
-        context.updateIsModified(false);
+        tdValidator(td, console.log, {}).then(result => {
+          context.updateLinkedTd(undefined);
+          context.addLinkedTd(linkedTd);
+          context.updateOfflineTD(td);
+          context.setFileHandle(fileHandle || file.name);
+          context.updateIsModified(false);
+          context.updateValidationMessage(result);
+        }, err => {
+          console.log("Error");
+          console.log(err);
+        })
+
       } catch (ex) {
         const msg = `An error occured reading ${context.offlineTD}`;
         console.error(msg, ex);

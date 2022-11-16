@@ -14,6 +14,7 @@ import React, { useContext, useState, useRef, useEffect } from "react";
 import MonacoEditor from "react-monaco-editor";
 import ediTDorContext from "../../context/ediTDorContext";
 import { changeBetweenTd } from '../../util';
+import {tdValidator} from "../../external/TdPlayground";
 
 const mapping = require("../../assets/mapping.json");
 
@@ -204,7 +205,13 @@ const JSONEditorComponent = (props) => {
       }
     } catch (e) {
     } finally {
-      context.updateOfflineTD(editorText, "Editor");
+      tdValidator(editorText, console.log, {}).then(result =>{
+        context.updateOfflineTD(editorText, "Editor");
+        context.updateValidationMessage(result);
+      }, err =>{
+        console.log("Error");
+        console.log(err);
+      })
     }
   };
 

@@ -33,12 +33,12 @@ All systems require:
 * [NodeJS](https://nodejs.org/) version 10+ (e.g., 10.13.0 LTS)
 
 ## Start Locally
-`yarn start` starts a local development server on Port 3000 (http://localhost:3000)
+`npm run start` starts a local development server on Port 3000 (http://localhost:3000)
 
 ## Build
-`yarn install` install all the dependencies listed within package.json
+`npm install` install all the dependencies listed within package.json
 
-`yarn build` builds the project for deployment
+`npm build` builds the project for deployment
 
 ## Implemented Features: 
 * JSON Editor with JSON Schema support for TD (Autocompletion, JSON Schema Validation)

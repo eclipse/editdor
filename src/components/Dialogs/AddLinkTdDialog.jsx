@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2021 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -15,6 +15,7 @@ import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import { hasLinks, checkIfLinkIsInItem, getFileHandle, getFileHTML5, _readFileHTML5 } from "../../util.js";
 import { DialogTemplate } from "./DialogTemplate";
+import {tdValidator} from "../../external/TdPlayground";
 
 let error = "";
 let tdJSON = {};
@@ -70,7 +71,13 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
       td.links = [];
     }
     td.links.push(link);
-    context.updateOfflineTD(JSON.stringify(td, null, 2));
+    tdValidator(JSON.stringify(td, null, 2), console.log, {}).then(result => {
+      context.updateOfflineTD(JSON.stringify(td, null, 2));
+      context.updateValidationMessage(result);
+    }, err => {
+      console.log("Error");
+      console.log(err);
+    })
   }
 
   const hasNativeFS = useCallback(() => {
