@@ -13,7 +13,7 @@
 import React, { useContext, useEffect } from 'react';
 import '../../assets/main.css';
 import ediTDorContext from '../../context/ediTDorContext';
-import { buildAttributeListObject, separateForms, changeBetweenTd } from '../../util';
+import { buildAttributeListObject, separateForms, changeBetweenTd, getDirectedValue } from '../../util';
 import { AddFormDialog } from "../Dialogs/AddFormDialog";
 import { AddLinkTdDialog } from '../Dialogs/AddLinkTdDialog';
 import { InfoIconWrapper } from '../InfoIcon/InfoIcon';
@@ -261,10 +261,10 @@ export default function TDViewer() {
                     </div>))}
                 {(metaData !== undefined && Object.keys(metaData).length > 0) && (
                     <div>
-                        <div className="text-3xl text-white">{metaData.title}</div>
+                        <div className="text-3xl text-white">{getDirectedValue(metaData, 'title', metaData['@context'])}</div>
                         <RenderedObject {...attributeListObject}></RenderedObject>
                         {
-                            metaData.description ? <div className="text-xl text-white pt-4">{metaData.description}</div> : <></>
+                            metaData.description ? <div className="text-xl text-white pt-4">{getDirectedValue(metaData, 'description', metaData['@context'])}</div> : <></>
                         }
                     </div>)
                 }
