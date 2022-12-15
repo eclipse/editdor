@@ -243,3 +243,191 @@ export const _readFileHTML5 = (file) => {
         reader.readAsText(file);
     });
 }
+
+/**
+ * @param {*} source Source object
+ * @param {string} key Source key
+ * @param {*} atContext Respective @context value
+ * 
+ * @returns {string} String value of source[key] with prepended LRI or RLI symbol
+ *
+ * @description
+ * Returns the value of source[key] with the direction information (rtl/ltr).
+ */
+export const getDirectedValue = (source, key, atContext) => {
+    const LRI = '\u2066';
+    const RLI = '\u2067';
+    const TABLE = {
+      ar: 'rtl',
+      fa: 'rtl',
+      ps: 'rtl',
+      ur: 'rtl',
+      hy: 'ltr',
+      as: 'ltr',
+      bn: 'ltr',
+      zb: 'ltr',
+      ab: 'ltr',
+      be: 'ltr',
+      bg: 'ltr',
+      kk: 'ltr',
+      mk: 'ltr',
+      ru: 'ltr',
+      uk: 'ltr',
+      hi: 'ltr',
+      mr: 'ltr',
+      ne: 'ltr',
+      ko: 'ltr',
+      ma: 'ltr',
+      am: 'ltr',
+      ti: 'ltr',
+      ka: 'ltr',
+      el: 'ltr',
+      gu: 'ltr',
+      pa: 'ltr',
+      he: 'rtl',
+      iw: 'rtl',
+      yi: 'rtl',
+      ja: 'ltr',
+      km: 'ltr',
+      kn: 'ltr',
+      lo: 'ltr',
+      af: 'ltr',
+      ay: 'ltr',
+      bs: 'ltr',
+      ca: 'ltr',
+      ch: 'ltr',
+      cs: 'ltr',
+      cy: 'ltr',
+      da: 'ltr',
+      de: 'ltr',
+      en: 'ltr',
+      eo: 'ltr',
+      es: 'ltr',
+      et: 'ltr',
+      eu: 'ltr',
+      fi: 'ltr',
+      fj: 'ltr',
+      fo: 'ltr',
+      fr: 'ltr',
+      fy: 'ltr',
+      ga: 'ltr',
+      gl: 'ltr',
+      gn: 'ltr',
+      gv: 'ltr',
+      hr: 'ltr',
+      ht: 'ltr',
+      hu: 'ltr',
+      id: 'ltr',
+      in: 'ltr',
+      is: 'ltr',
+      it: 'ltr',
+      kl: 'ltr',
+      la: 'ltr',
+      lb: 'ltr',
+      ln: 'ltr',
+      lt: 'ltr',
+      lv: 'ltr',
+      mg: 'ltr',
+      mh: 'ltr',
+      mo: 'ltr',
+      ms: 'ltr',
+      mt: 'ltr',
+      na: 'ltr',
+      nb: 'ltr',
+      nd: 'ltr',
+      nl: 'ltr',
+      nn: 'ltr',
+      no: 'ltr',
+      nr: 'ltr',
+      ny: 'ltr',
+      om: 'ltr',
+      pl: 'ltr',
+      pt: 'ltr',
+      qu: 'ltr',
+      rm: 'ltr',
+      rn: 'ltr',
+      ro: 'ltr',
+      rw: 'ltr',
+      sg: 'ltr',
+      sk: 'ltr',
+      sl: 'ltr',
+      sm: 'ltr',
+      so: 'ltr',
+      sq: 'ltr',
+      ss: 'ltr',
+      st: 'ltr',
+      sv: 'ltr',
+      sw: 'ltr',
+      tl: 'ltr',
+      tn: 'ltr',
+      to: 'ltr',
+      tr: 'ltr',
+      ts: 'ltr',
+      ve: 'ltr',
+      vi: 'ltr',
+      xh: 'ltr',
+      zu: 'ltr',
+      ds: 'ltr',
+      gs: 'ltr',
+      hs: 'ltr',
+      me: 'ltr',
+      ni: 'ltr',
+      ns: 'ltr',
+      te: 'ltr',
+      tk: 'ltr',
+      tm: 'ltr',
+      tp: 'ltr',
+      tv: 'ltr',
+      ml: 'ltr',
+      my: 'ltr',
+      nq: 'ltr',
+      or: 'ltr',
+      si: 'ltr',
+      ta: 'ltr',
+      dv: 'rtl',
+      th: 'ltr',
+      dz: 'ltr'
+    };
+
+    const getDirectionSymbol = dir => (dir === 'ltr') ? LRI : RLI;
+
+    // title, description and language tags (like "en" or "en-US") are treated differently
+    if (!['title', 'description'].includes(key) && !/^[A-Za-z]{2}(-[A-Za-z]{2})?$/.test(key)) {
+      return getDirectionSymbol(source[key].toString().getDirection()) + source[key];
+    }
+
+    if (/^[A-Za-z]{2}(-[A-Za-z]{2})?$/.test(key)) {
+      // Language tags can be compound like ar-EG or en-US, split when needed
+      // Also, we ignore the case for language tags
+      const lookupKey = (key.includes('-')) ? key.split('-')[0] : key.toLowerCase();
+      const dir = TABLE[lookupKey];
+      if (dir) return getDirectionSymbol(dir) + source[key];
+      return getDirectionSymbol('ltr') + source[key];
+    }
+
+    let direction;
+    let lang;
+
+    if (!Array.isArray(atContext)) {
+      atContext = [atContext];
+    }
+
+    atContext.forEach(e => {
+      if (typeof e === 'object') {
+        if (e['@direction']) direction = e['@direction'];
+        if (e['@language']) lang = e['@language'];
+      }
+    });
+
+    if (key === 'title' || key === 'description') {
+      if (direction) return getDirectionSymbol(direction) + source[key];
+      if (lang) {
+        const lookupKey = (lang.includes('-')) ? lang.split('-')[0] : lang.toLowerCase();
+        const dir = TABLE[lookupKey];
+        if (dir) return getDirectionSymbol(dir) + source[key];
+        return getDirectionSymbol('ltr') + source[key];
+      }
+    }
+
+    return getDirectionSymbol(source[key].toString().getDirection()) + source[key];
+}

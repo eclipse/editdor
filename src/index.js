@@ -17,6 +17,8 @@ import './index.css'
 import App from './components/App/App';
 import * as serviceWorker from './serviceWorker';
 
+require('string-direction').patch();
+
 ReactDOM.render(
   <React.StrictMode>
     <App />
