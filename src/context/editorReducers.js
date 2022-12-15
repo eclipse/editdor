@@ -1,13 +1,13 @@
 /********************************************************************************
  * Copyright (c) 2018 - 2020 Contributors to the Eclipse Foundation
- * 
+ *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
- * 
+ *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 export const UPDATE_OFFLINE_TD = 'UPDATE_OFFLINE_TD';
@@ -22,7 +22,8 @@ export const ADD_EVENTFORM_TO_TD = 'ADD_EVENTFORM_TO_TD';
 export const REMOVE_ONE_OF_A_KIND_FROM_TD = 'REMOVE_ONE_OF_A_KIND_FROM_TD';
 export const UPDATE_SHOW_CONVERT_BTN = 'UPDATE_SHOW_CONVERT_BTN';
 export const ADD_LINKED_TD = 'ADD_LINKED_TD';
-export const UPDATE_LINKED_TD = 'UPDATE_LINKED_TD'
+export const UPDATE_LINKED_TD = 'UPDATE_LINKED_TD';
+export const UPDATE_VALIDATION_MESSAGE = 'UPDATE_VALIDATION_MESSAGE';
 
 const updateOfflineTDReducer = (offlineTD, state) => {
   let linkedTd=state.linkedTd
@@ -188,6 +189,12 @@ const updateShowConvertBtn = (showConvertBtn, state) => {
   return { ...state, showConvertBtn: showConvertBtn };
 };
 
+const updateValidationMessage = (validationMessage, state) =>{
+  return { ...state, validationMessage };
+
+}
+
+
 const editdorReducer = (state, action) => {
   switch (action.type) {
     case UPDATE_OFFLINE_TD:
@@ -217,6 +224,8 @@ const editdorReducer = (state, action) => {
       return addLinkedTd(action.linkedTd,state)
     case UPDATE_LINKED_TD:
       return updateLinkedTd(action.linkedTd,state)
+    case UPDATE_VALIDATION_MESSAGE:
+      return updateValidationMessage(action.validationMessage, state)
     default:
       return state;
   }
