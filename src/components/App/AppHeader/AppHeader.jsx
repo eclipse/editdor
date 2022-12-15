@@ -68,10 +68,10 @@ export default function AppHeader() {
         tdValidator(td, console.log, {}).then(result => {
           context.updateLinkedTd(undefined);
           context.addLinkedTd(linkedTd);
-          context.updateOfflineTD(td);
           context.setFileHandle(fileHandle || file.name);
           context.updateIsModified(false);
           context.updateValidationMessage(result);
+          context.updateOfflineTD(td);
         }, err => {
           console.log("Error");
           console.log(err);

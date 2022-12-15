@@ -118,8 +118,8 @@ export const AddPropertyDialog = forwardRef((_, ref) => {
         }
         td[key][property.title] = property;
         tdValidator(JSON.stringify(td, null, 2), console.log, {}).then(result => {
-            context.updateOfflineTD(JSON.stringify(td, null, 2));
             context.updateValidationMessage(result);
+            context.updateOfflineTD(JSON.stringify(td, null, 2));
         }, err => {
             console.log("Error");
             console.log(err);

@@ -206,8 +206,8 @@ const JSONEditorComponent = (props) => {
     } catch (e) {
     } finally {
       tdValidator(editorText, console.log, {}).then(result =>{
-        context.updateOfflineTD(editorText, "Editor");
         context.updateValidationMessage(result);
+        context.updateOfflineTD(editorText, "Editor");
       }, err =>{
         console.log("Error");
         console.log(err);

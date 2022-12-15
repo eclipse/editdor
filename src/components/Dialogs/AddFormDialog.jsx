@@ -72,8 +72,8 @@ export const AddFormDialog = forwardRef((props, ref) => {
                 }
                 td.forms.push(form);
                 tdValidator(JSON.stringify(td, null, 2), console.log, {}).then(result => {
-                    context.updateOfflineTD(JSON.stringify(td, null, 2));
                     context.updateValidationMessage(result);
+                    context.updateOfflineTD(JSON.stringify(td, null, 2));
                 }, err => {
                     console.log("Error");
                     console.log(err);
