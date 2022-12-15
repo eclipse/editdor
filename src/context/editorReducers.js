@@ -21,6 +21,7 @@ export const ADD_ACTIONFORM_TO_TD = 'ADD_ACTIONFORM_TO_TD';
 export const ADD_EVENTFORM_TO_TD = 'ADD_EVENTFORM_TO_TD';
 export const REMOVE_ONE_OF_A_KIND_FROM_TD = 'REMOVE_ONE_OF_A_KIND_FROM_TD';
 export const UPDATE_SHOW_CONVERT_BTN = 'UPDATE_SHOW_CONVERT_BTN';
+export const UPDATE_TM_REPOSITORY_URL = 'UPDATE_TM_REPOSITORY_URL';
 export const ADD_LINKED_TD = 'ADD_LINKED_TD';
 export const UPDATE_LINKED_TD = 'UPDATE_LINKED_TD'
 
@@ -188,6 +189,11 @@ const updateShowConvertBtn = (showConvertBtn, state) => {
   return { ...state, showConvertBtn: showConvertBtn };
 };
 
+const updateTmRepositoryUrl = (tmRepositoryUrl, state) => {
+  console.log('updateTmRepositoryUrl')
+  return { ...state, tmRepositoryUrl: tmRepositoryUrl };
+};
+
 const editdorReducer = (state, action) => {
   switch (action.type) {
     case UPDATE_OFFLINE_TD:
@@ -213,6 +219,8 @@ const editdorReducer = (state, action) => {
       return addEventFormReducer(action.params, state)
     case UPDATE_SHOW_CONVERT_BTN:
       return updateShowConvertBtn(action.showConvertBtn, state);
+    case UPDATE_TM_REPOSITORY_URL:
+      return updateTmRepositoryUrl(action.tmRepositoryUrl, state);
     case ADD_LINKED_TD:
       return addLinkedTd(action.linkedTd,state)
     case UPDATE_LINKED_TD:
