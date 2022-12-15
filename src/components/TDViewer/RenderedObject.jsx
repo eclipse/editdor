@@ -10,9 +10,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useCallback, useState } from 'react';
+import React, { useContext, useCallback, useState } from 'react';
+import ediTDorContext from '../../context/ediTDorContext';
 import "../../assets/main.css"
 import { ChevronRight, ChevronDown } from 'react-feather';
+import { getDirectedValue } from '../../util';
 
 function isObject(val) {
     if (val === null) { return false; }
@@ -20,6 +22,7 @@ function isObject(val) {
 }
 
 export const RenderedObject = (map) => {
+    const context = useContext(ediTDorContext);
     const [showChildren, setShowChildren] = useState(new Array(Object.entries(map).length));
     const handleClick = useCallback((i) => {
         let temp = showChildren;
@@ -58,10 +61,13 @@ export const RenderedObject = (map) => {
                     )
                 }
 
+                const value = getDirectedValue(map, k,
+                    context.linkedTd[Object.keys(context.linkedTd)[0]]['@context']
+                );
                 return (
                     <div className="flex mb-1" key={i}>
                         <h4 className="text-white font-bold bg-gray-600 py-1 px-2 rounded-md">{k}</h4>
-                        <div className="text-gray-400 px-2 py-1">{`${v}`}</div>
+                        <div className="text-gray-400 px-2 py-1">{value}</div>
                     </div>
                 )
             })}
