@@ -1,7 +1,8 @@
 {
   "name": "editdor",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
+  "homepage": "https://eclipse.github.io/editdor/",
   "dependencies": {
     "@babel/core": "7.9.0",
     "@svgr/webpack": "4.3.3",
@@ -69,7 +70,6 @@
     "webpack-manifest-plugin": "2.2.0",
     "workbox-webpack-plugin": "4.3.1"
   },
-  "homepage": "https://eclipse.github.io/editdor/",
   "scripts": {
     "start": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version node scripts/start.js",
     "build": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version node scripts/build.js",
