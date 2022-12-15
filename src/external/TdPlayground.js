@@ -9,19 +9,10 @@ const tdSchema = require("./td-schema.json")
 const fullTdSchema = require("./td-schema-full.json")
 const tmSchema = require("./tm-schema.json")
 
-module.exports.tdValidator = tdValidator
-module.exports.tmValidator = tmValidator
-module.exports.propUniqueness = coreAssertions.checkPropUniqueness
-module.exports.multiLangConsistency = coreAssertions.checkMultiLangConsistency
-module.exports.checkLinksRelTypeCount = coreAssertions.checkLinksRelTypeCount
-module.exports.security = coreAssertions.checkSecurity
-module.exports.checkUriSecurity = coreAssertions.checkUriSecurity
-module.exports.compress = compress
-module.exports.decompress = decompress
-module.exports.checkTypos = checkTypos
-module.exports.checkTmOptionalPointer = coreAssertions.checkTmOptionalPointer
-
 const jsonValidator = require('json-dup-key-validator')
+
+
+export { tdValidator, tmValidator, coreAssertions , compress, decompress, checkTypos }
 
 /**
  * A function that provides the core functionality of the TD Playground.

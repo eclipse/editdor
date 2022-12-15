@@ -36,5 +36,4 @@ export default React.createContext({
   addLinkedTd: linkedTd => {},
   updateLinkedTd: linkedTd => {},
   updateValidationMessage: validationMessage => {}
-
 });

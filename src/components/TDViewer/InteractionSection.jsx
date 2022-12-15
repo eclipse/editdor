@@ -95,8 +95,8 @@ export const InteractionSection = (props) => {
         }
         td[kind] = ordered
         tdValidator(JSON.stringify(td, null, 2), console.log, {}).then(result => {
-            context.updateOfflineTD(JSON.stringify(td, null, 2));
             context.updateValidationMessage(result);
+            context.updateOfflineTD(JSON.stringify(td, null, 2));
         }, err => {
             console.log("Error");
             console.log(err);

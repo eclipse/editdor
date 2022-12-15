@@ -59,8 +59,8 @@ export const CreateTdDialog = forwardRef((props, ref) => {
                     context.addLinkedTd(linkedTd)
                     context.updateShowConvertBtn(type === "TM");
                     tdValidator(JSON.stringify(td, null, "\t"), console.log, {}).then(result => {
-                        context.updateOfflineTD(JSON.stringify(td, null, "\t"),"AppHeader");
                         context.updateValidationMessage(result);
+                        context.updateOfflineTD(JSON.stringify(td, null, "\t"),"AppHeader");
                     }, err => {
                         console.log("Error");
                         console.log(err);
