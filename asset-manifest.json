@@ -1,35 +1,35 @@
 {
   "files": {
     "main.css": "/editdor/static/css/main.137648f3.chunk.css",
-    "main.js": "/editdor/static/js/main.37001923.chunk.js",
-    "main.js.map": "/editdor/static/js/main.37001923.chunk.js.map",
-    "runtime-main.js": "/editdor/static/js/runtime-main.5ba2c99d.js",
-    "runtime-main.js.map": "/editdor/static/js/runtime-main.5ba2c99d.js.map",
+    "main.js": "/editdor/static/js/main.df434a00.chunk.js",
+    "main.js.map": "/editdor/static/js/main.df434a00.chunk.js.map",
+    "runtime-main.js": "/editdor/static/js/runtime-main.0a3962be.js",
+    "runtime-main.js.map": "/editdor/static/js/runtime-main.0a3962be.js.map",
     "static/css/2.22988fd9.chunk.css": "/editdor/static/css/2.22988fd9.chunk.css",
-    "static/js/2.177bf2cb.chunk.js": "/editdor/static/js/2.177bf2cb.chunk.js",
-    "static/js/2.177bf2cb.chunk.js.map": "/editdor/static/js/2.177bf2cb.chunk.js.map",
-    "static/js/3.e57c2423.chunk.js": "/editdor/static/js/3.e57c2423.chunk.js",
-    "static/js/3.e57c2423.chunk.js.map": "/editdor/static/js/3.e57c2423.chunk.js.map",
+    "static/js/2.42005277.chunk.js": "/editdor/static/js/2.42005277.chunk.js",
+    "static/js/2.42005277.chunk.js.map": "/editdor/static/js/2.42005277.chunk.js.map",
+    "static/js/3.2982d2f7.chunk.js": "/editdor/static/js/3.2982d2f7.chunk.js",
+    "static/js/3.2982d2f7.chunk.js.map": "/editdor/static/js/3.2982d2f7.chunk.js.map",
     "editor.worker.js": "/editdor/editor.worker.js",
     "editor.worker.js.map": "/editdor/editor.worker.js.map",
     "index.html": "/editdor/index.html",
     "json.worker.js": "/editdor/json.worker.js",
     "json.worker.js.map": "/editdor/json.worker.js.map",
-    "precache-manifest.275feef5e1ac67137775b71acf74e9a4.js": "/editdor/precache-manifest.275feef5e1ac67137775b71acf74e9a4.js",
+    "precache-manifest.60e900d8637b1f00961f2dfe9fab6a3e.js": "/editdor/precache-manifest.60e900d8637b1f00961f2dfe9fab6a3e.js",
     "service-worker.js": "/editdor/service-worker.js",
     "static/css/2.22988fd9.chunk.css.map": "/editdor/static/css/2.22988fd9.chunk.css.map",
     "static/css/main.137648f3.chunk.css.map": "/editdor/static/css/main.137648f3.chunk.css.map",
-    "static/js/2.177bf2cb.chunk.js.LICENSE.txt": "/editdor/static/js/2.177bf2cb.chunk.js.LICENSE.txt",
+    "static/js/2.42005277.chunk.js.LICENSE.txt": "/editdor/static/js/2.42005277.chunk.js.LICENSE.txt",
     "static/media/WoT.png": "/editdor/static/media/WoT.89768410.png",
     "static/media/App.css": "/editdor/static/media/chevron-right.5f74bd2a.svg",
     "static/media/codicon.css": "/editdor/static/media/codicon.b13daaad.ttf",
     "static/media/editdor.png": "/editdor/static/media/editdor.6cac600d.png"
   },
   "entrypoints": [
-    "static/js/runtime-main.5ba2c99d.js",
+    "static/js/runtime-main.0a3962be.js",
     "static/css/2.22988fd9.chunk.css",
-    "static/js/2.177bf2cb.chunk.js",
+    "static/js/2.42005277.chunk.js",
     "static/css/main.137648f3.chunk.css",
-    "static/js/main.37001923.chunk.js"
+    "static/js/main.df434a00.chunk.js"
   ]
 }
