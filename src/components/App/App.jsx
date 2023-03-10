@@ -10,31 +10,70 @@
  * 
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useEffect } from 'react';
-import './App.css';
-import TDViewer from '../TDViewer/TDViewer'
-import JSONEditorComponent from "../Editor/Editor";
-import AppHeader from './AppHeader/AppHeader';
-import AppFooter from './AppFooter';
+import React, { useContext, useEffect } from 'react';
+import ediTDorContext from "../../context/ediTDorContext";
 import GlobalState from '../../context/GlobalState';
+import { decompress } from "../../external/TdPlayground";
+import JSONEditorComponent from "../Editor/Editor";
+import TDViewer from '../TDViewer/TDViewer';
+import './App.css';
+import AppFooter from './AppFooter';
+import AppHeader from './AppHeader/AppHeader';
 
-import '../../assets/main.css'
+import '../../assets/main.css';
 
-const App = (props) => {
-    useEffect(() => { dragElement(document.getElementById("separator"), "H"); }, [props])
+const GlobalStateWrapper = (props) => {
     return (
         <GlobalState>
-            <main className="h-full w-screen flex flex-col">
-                <AppHeader></AppHeader>
-                <div className="flex-grow splitter flex flex-row w-full height-adjust">
-                    <div className="w-7/12" id="second"><TDViewer /></div>
-                    <div id="separator"></div>
-                    <div className="w-5/12" id="first"><JSONEditorComponent /></div>
-                </div>
-                <AppFooter></AppFooter>
-                <div id="modal-root"></div>
-            </main>
+            <App />
         </GlobalState>
+    );
+}
+
+// The useEffect hook for checking the URI was called twice somehow.
+// This variable prevents the callback from being executed twice.
+let checkedUrl = false;
+const App = (props) => {
+    const context = useContext(ediTDorContext);
+
+    useEffect(() => { dragElement(document.getElementById("separator"), "H"); }, [props])
+
+    useEffect(() => {
+        if (checkedUrl || window.location.search.indexOf("td") <= -1) {
+            return;
+        }
+        checkedUrl = true;
+
+        const url = new URL(window.location.href);
+        const compressedTd = url.searchParams.get("td");
+        if (compressedTd == null) return;
+
+        const decompressedTd = decompress(compressedTd);
+        if (decompressedTd == null || decompressedTd === "") {
+            alert("The TD found in the URLs path couldn't be reconstructed.");
+            return;
+        };
+
+        try {
+            const parsedTD = JSON.parse(decompressedTd);
+            context.updateOfflineTD(JSON.stringify(parsedTD, null, 2));
+        } catch (error) {
+            context.updateOfflineTD(decompressedTd);
+            alert("The TD found in the URLs path couldn't be parsed, the displayed JSON may contain errors.");
+        }
+    }, []);
+
+    return (
+        <main className="h-full w-screen flex flex-col">
+            <AppHeader></AppHeader>
+            <div className="flex-grow splitter flex flex-row w-full height-adjust">
+                <div className="w-7/12" id="second"><TDViewer /></div>
+                <div id="separator"></div>
+                <div className="w-5/12" id="first"><JSONEditorComponent /></div>
+            </div>
+            <AppFooter></AppFooter>
+            <div id="modal-root"></div>
+        </main>
     );
 }
 
@@ -84,4 +123,4 @@ const dragElement = (element, direction) => {
     element.onmousedown = onMouseDown;
 }
 
-export default App;
+export default GlobalStateWrapper;
