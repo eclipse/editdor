@@ -10,21 +10,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
+import * as joint from "jointjs";
 import React, { useContext, useEffect, useState } from "react";
+import { ImCheckmark, ImCross } from "react-icons/im";
 import "../../assets/main.css";
 import ediTDorContext from "../../context/ediTDorContext";
-import { buildAttributeListObject, separateForms, changeBetweenTd } from "../../util";
+import { buildAttributeListObject, changeBetweenTd, getDirectedValue, separateForms } from "../../util";
 import { AddFormDialog } from "../Dialogs/AddFormDialog";
 import { AddLinkTdDialog } from "../Dialogs/AddLinkTdDialog";
 import { InfoIconWrapper } from "../InfoIcon/InfoIcon";
-import { getFormsTooltipContent } from "../InfoIcon/InfoTooltips";
-import { getLinksTooltipContent } from "../InfoIcon/InfoTooltips";
+import { getFormsTooltipContent, getLinksTooltipContent } from "../InfoIcon/InfoTooltips";
 import Form from "./Form";
-import Link from "./Link";
 import { InteractionSection } from "./InteractionSection";
+import Link from "./Link";
 import { RenderedObject } from "./RenderedObject";
-import * as joint from "jointjs";
-import { ImCheckmark, ImCross } from "react-icons/im";
 
 export default function TDViewer() {
   const context = useContext(ediTDorContext);
@@ -240,6 +239,10 @@ export default function TDViewer() {
     }
 
     const validationMessage = context.validationMessage;
+    if (!validationMessage) {
+      return;
+    }
+
     if (validationMessage.report) {
       setJsonValidation(validationMessage.report.json);
       setJsonSchemaValidation(validationMessage.report.schema);
