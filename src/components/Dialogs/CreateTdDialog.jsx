@@ -10,12 +10,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { forwardRef, useImperativeHandle, useContext } from 'react';
+import React, { forwardRef, useContext, useImperativeHandle } from 'react';
 import ReactDOM from "react-dom";
-import { DialogTemplate } from "./DialogTemplate";
-import ediTDorContext from '../../context/ediTDorContext';
 import { ChevronDown } from 'react-feather';
-import {tdValidator} from "../../external/TdPlayground";
+import ediTDorContext from '../../context/ediTDorContext';
+import { DialogTemplate } from "./DialogTemplate";
 
 export const CreateTdDialog = forwardRef((props, ref) => {
     const context = useContext(ediTDorContext);
@@ -52,19 +51,13 @@ export const CreateTdDialog = forwardRef((props, ref) => {
             <DialogTemplate
                 onCancel={close}
                 onSubmit={() => {
-                    let td=createNewTD(type)
-                    let linkedTd={}
-                    linkedTd[td["title"]]=td
+                    let td = createNewTD(type)
+                    let linkedTd = {}
+                    linkedTd[td["title"]] = td
                     context.updateLinkedTd(undefined)
                     context.addLinkedTd(linkedTd)
                     context.updateShowConvertBtn(type === "TM");
-                    tdValidator(JSON.stringify(td, null, "\t"), console.log, {}).then(result => {
-                        context.updateValidationMessage(result);
-                        context.updateOfflineTD(JSON.stringify(td, null, "\t"),"AppHeader");
-                    }, err => {
-                        console.log("Error");
-                        console.log(err);
-                    })
+                    context.updateOfflineTD(JSON.stringify(td, null, "\t"));
                     close();
                 }}
                 children={content}

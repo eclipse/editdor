@@ -15,7 +15,6 @@ import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import { hasLinks, checkIfLinkIsInItem, getFileHandle, getFileHTML5, _readFileHTML5 } from "../../util.js";
 import { DialogTemplate } from "./DialogTemplate";
-import {tdValidator} from "../../external/TdPlayground";
 
 let error = "";
 let tdJSON = {};
@@ -71,13 +70,7 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
       td.links = [];
     }
     td.links.push(link);
-    tdValidator(JSON.stringify(td, null, 2), console.log, {}).then(result => {
-      context.updateOfflineTD(JSON.stringify(td, null, 2));
-      context.updateValidationMessage(result);
-    }, err => {
-      console.log("Error");
-      console.log(err);
-    })
+    context.updateOfflineTD(JSON.stringify(td, null, 2));
   }
 
   const hasNativeFS = useCallback(() => {

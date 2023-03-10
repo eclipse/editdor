@@ -12,7 +12,7 @@
  ********************************************************************************/
 import React from 'react';
 import { Info } from 'react-feather';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip } from 'react-tooltip';
 
 /**
  * Display an info icon that shows a information text when hovered
@@ -53,7 +53,7 @@ export const InfoIcon = (props) => {
                 data-tip={props.html}
                 data-background-color="#2c2c2e"
             />
-            <ReactTooltip html={true} type="info" />
+            <Tooltip html={true} type="info" />
         </ >
     );
 }

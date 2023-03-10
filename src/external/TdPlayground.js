@@ -1,18 +1,24 @@
-const jsonld = require("jsonld")
-const Ajv = require("ajv")
-const addFormats = require("ajv-formats")
-const apply = require('ajv-formats-draft2019')
-const lzs = require('lz-string')
+import jsonld from 'jsonld';
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
+import apply from 'ajv-formats-draft2019';
+import lzs from 'lz-string';
 
-const coreAssertions = require("./shared")
-const tdSchema = require("./td-schema.json")
-const fullTdSchema = require("./td-schema-full.json")
-const tmSchema = require("./tm-schema.json")
+import {
+    checkPropUniqueness,
+    checkSecurity,
+    checkMultiLangConsistency,
+    checkLinksRelTypeCount,
+    checkUriSecurity,
+    checkTmOptionalPointer
+} from './shared';
+import tdSchema from './td-schema.json';
+import fullTdSchema from './td-schema-full.json';
+import tmSchema from './tm-schema.json';
 
-const jsonValidator = require('json-dup-key-validator')
+import jsonValidator from 'json-dup-key-validator';
 
-
-export { tdValidator, tmValidator, coreAssertions , compress, decompress, checkTypos }
+export { tdValidator, tmValidator, compress, decompress, checkTypos }
 
 /**
  * A function that provides the core functionality of the TD Playground.
@@ -21,8 +27,7 @@ export { tdValidator, tmValidator, coreAssertions , compress, decompress, checkT
  * @param {object} options additional options, which checks should be executed
  * @returns {Promise<object>} Results of the validation as {report, details, detailComments} object
  */
-function tdValidator(tdString, logFunc, {checkDefaults = true, checkJsonLd = true})
-{
+function tdValidator(tdString, logFunc, { checkDefaults = true, checkJsonLd = true }) {
     return new Promise((res, rej) => {
 
         // check input
@@ -72,7 +77,7 @@ function tdValidator(tdString, logFunc, {checkDefaults = true, checkJsonLd = tru
             uriVariableSecurity: "Checks if the name of an APIKey security scheme with in:uri show up in href and does not conflict with normal uriVariables"
         }
 
-        const validationErrors ={
+        const validationErrors = {
             json: null,
             schema: null
         }
@@ -87,10 +92,10 @@ function tdValidator(tdString, logFunc, {checkDefaults = true, checkJsonLd = tru
             validationErrors.json = err.message;
             logFunc(err)
 
-            res({report, details, detailComments, validationErrors})
+            res({ report, details, detailComments, validationErrors })
         }
 
-        let ajv = new Ajv({strict: false}) // options can be passed, e.g. {allErrors: true}
+        let ajv = new Ajv({ strict: false }) // options can be passed, e.g. {allErrors: true}
 
         // ajv = addFormats(ajv) // ajv does not support formats by default anymore
         ajv = apply(ajv) // new formats that include iri
@@ -113,7 +118,7 @@ function tdValidator(tdString, logFunc, {checkDefaults = true, checkJsonLd = tru
                     report.defaults = "warning"
                     logFunc("Optional validation failed:")
                     logFunc("> " + ajv.errorsText(filterErrorMessages(ajv.errors)))
-                    res({report, details, detailComments, validationErrors})
+                    res({ report, details, detailComments, validationErrors })
                 }
             }
 
@@ -121,16 +126,16 @@ function tdValidator(tdString, logFunc, {checkDefaults = true, checkJsonLd = tru
             checkEnumConst(tdJson)
             checkPropItems(tdJson)
             checkReadWriteOnly(tdJson)
-            details.security = evalAssertion(coreAssertions.checkSecurity(tdJson))
-            details.propUniqueness = evalAssertion(coreAssertions.checkPropUniqueness(tdString))
+            details.security = evalAssertion(checkSecurity(tdJson))
+            details.propUniqueness = evalAssertion(checkPropUniqueness(tdString))
             if (details.propUniqueness === "passed") {
                 details.propUniqueness = checkSecPropUniqueness(tdString, tdJson)
             } else {
                 checkSecPropUniqueness(tdString, tdJson)
             }
-            details.multiLangConsistency = evalAssertion(coreAssertions.checkMultiLangConsistency(tdJson))
-            details.linksRelTypeCount = evalAssertion(coreAssertions.checkLinksRelTypeCount(tdJson))
-            details.uriVariableSecurity = evalAssertion(coreAssertions.checkUriSecurity(tdJson))
+            details.multiLangConsistency = evalAssertion(checkMultiLangConsistency(tdJson))
+            details.linksRelTypeCount = evalAssertion(checkLinksRelTypeCount(tdJson))
+            details.uriVariableSecurity = evalAssertion(checkUriSecurity(tdJson))
 
             // determine additional check state
             // passed + warning -> warning
@@ -148,10 +153,10 @@ function tdValidator(tdString, logFunc, {checkDefaults = true, checkJsonLd = tru
 
             report.schema = "failed"
             logFunc("X JSON Schema validation failed:")
-            validationErrors.schema=  ajv.errorsText(filterErrorMessages(ajv.errors))
+            validationErrors.schema = ajv.errorsText(filterErrorMessages(ajv.errors))
             logFunc('> ' + validationErrors.schema)
 
-            res({report, details, detailComments, validationErrors })
+            res({ report, details, detailComments, validationErrors })
         }
 
         // json ld validation
@@ -160,16 +165,16 @@ function tdValidator(tdString, logFunc, {checkDefaults = true, checkJsonLd = tru
                 format: 'application/nquads'
             }).then(nquads => {
                 report.jsonld = "passed"
-                res({report, details, detailComments})
+                res({ report, details, detailComments })
             }, err => {
                 report.jsonld = "failed"
                 logFunc("X JSON-LD validation failed:")
                 logFunc("Hint: Make sure you have internet connection available.")
                 logFunc('> ' + err)
-                res({report, details, detailComments})
+                res({ report, details, detailComments })
             })
         } else {
-            res({report, details, detailComments})
+            res({ report, details, detailComments })
         }
 
 
@@ -491,11 +496,11 @@ function tdValidator(tdString, logFunc, {checkDefaults = true, checkJsonLd = tru
  * @param {object} options additional options, which checks should be executed
  * @returns {Promise<object>} Results of the validation as {report, details, detailComments} object
  */
-function tmValidator(tmString, logFunc, { checkDefaults=true, checkJsonLd=true }) {
-    return new Promise( (res, rej) => {
+function tmValidator(tmString, logFunc, { checkDefaults = true, checkJsonLd = true }) {
+    return new Promise((res, rej) => {
 
         // check input
-        if (typeof tmString !== "string") {rej("Thing Model input should be a String")}
+        if (typeof tmString !== "string") { rej("Thing Model input should be a String") }
 
         if (checkDefaults === undefined) {
             checkDefaults = true
@@ -503,7 +508,7 @@ function tmValidator(tmString, logFunc, { checkDefaults=true, checkJsonLd=true }
         if (checkJsonLd === undefined) {
             checkJsonLd = true
         }
-        if (typeof logFunc !== "function") {rej("Expected logFunc to be a function")}
+        if (typeof logFunc !== "function") { rej("Expected logFunc to be a function") }
 
         // report that is returned by the function, possible values for every property:
         // null -> not tested, "passed", "failed", "warning"
@@ -545,10 +550,10 @@ function tmValidator(tmString, logFunc, { checkDefaults=true, checkJsonLd=true }
             logFunc("X JSON validation failed:")
             logFunc(err)
 
-            res({report, details, detailComments})
+            res({ report, details, detailComments })
         }
 
-        let ajv = new Ajv({strict: false}) // options can be passed, e.g. {allErrors: true}
+        let ajv = new Ajv({ strict: false }) // options can be passed, e.g. {allErrors: true}
         ajv = addFormats(ajv) // ajv does not support formats by default anymore
         ajv = apply(ajv) // new formats that include iri
 
@@ -564,23 +569,23 @@ function tmValidator(tmString, logFunc, { checkDefaults=true, checkJsonLd=true }
             checkPropItems(tmJson)
             checkReadWriteOnly(tmJson)
             // ! no need to do security checking
-            // details.security = evalAssertion(coreAssertions.checkSecurity(tmJson))
-            details.propUniqueness = evalAssertion(coreAssertions.checkPropUniqueness(tmString))
+            // details.security = evalAssertion(checkSecurity(tmJson))
+            details.propUniqueness = evalAssertion(checkPropUniqueness(tmString))
             if (details.propUniqueness === "passed") {
                 details.propUniqueness = checkSecPropUniqueness(tmString, tmJson)
             }
             else {
                 checkSecPropUniqueness(tmString, tmJson)
             }
-            details.multiLangConsistency = evalAssertion(coreAssertions.checkMultiLangConsistency(tmJson))
-            details.linksRelTypeCount = evalAssertion(coreAssertions.checkLinksRelTypeCount(tmJson))
-            details.tmOptionalPointer = evalAssertion(coreAssertions.checkTmOptionalPointer(tmJson))
+            details.multiLangConsistency = evalAssertion(checkMultiLangConsistency(tmJson))
+            details.linksRelTypeCount = evalAssertion(checkLinksRelTypeCount(tmJson))
+            details.tmOptionalPointer = evalAssertion(checkTmOptionalPointer(tmJson))
 
             // determine additional check state
             // passed + warning -> warning
             // passed AND OR warning + error -> error
             report.additional = "passed"
-            Object.keys(details).forEach( prop => {
+            Object.keys(details).forEach(prop => {
                 if (details[prop] === "warning" && report.additional === "passed") {
                     report.additional = "warning"
                 }
@@ -596,26 +601,26 @@ function tmValidator(tmString, logFunc, { checkDefaults=true, checkJsonLd=true }
 
             logFunc('> ' + ajv.errorsText(filterErrorMessages(ajv.errors)))
 
-            res({report, details, detailComments})
+            res({ report, details, detailComments })
         }
 
         // json ld validation
-        if(checkJsonLd) {
+        if (checkJsonLd) {
             jsonld.toRDF(tmJson, {
                 format: 'application/nquads'
-            }).then( nquads => {
+            }).then(nquads => {
                 report.jsonld = "passed"
-                res({report, details, detailComments})
+                res({ report, details, detailComments })
             }, err => {
-                report.jsonld =  "failed"
+                report.jsonld = "failed"
                 logFunc("X JSON-LD validation failed:")
                 logFunc("Hint: Make sure you have internet connection available.")
                 logFunc('> ' + err)
-                res({report, details, detailComments})
+                res({ report, details, detailComments })
             })
         }
         else {
-            res({report, details, detailComments})
+            res({ report, details, detailComments })
         }
 
 
@@ -800,13 +805,12 @@ function tmValidator(tmString, logFunc, { checkDefaults=true, checkJsonLd=true }
 
                         // check forms if op writeProperty is set
                         if (curProperty.hasOwnProperty("forms")) {
-                            for(const formElIndex in curProperty.forms) {
+                            for (const formElIndex in curProperty.forms) {
                                 if (curProperty.forms.hasOwnProperty(formElIndex)) {
                                     const formEl = curProperty.forms[formElIndex]
-                                    if(formEl.hasOwnProperty("op")) {
+                                    if (formEl.hasOwnProperty("op")) {
                                         if ((typeof formEl.op === "string" && formEl.op === "writeproperty") ||
-                                            (typeof formEl.op === "object" && formEl.op.some( el => (el === "writeproperty"))))
-                                        {
+                                            (typeof formEl.op === "object" && formEl.op.some(el => (el === "writeproperty")))) {
                                             details.readWriteOnly = "warning"
                                             logFunc('! Warning: In property ' + curPropertyName + " in forms[" + formElIndex +
                                                 '], readOnly is set but the op property contains "writeproperty"')
@@ -827,20 +831,18 @@ function tmValidator(tmString, logFunc, { checkDefaults=true, checkJsonLd=true }
 
                         // check forms if op readProperty is set
                         if (curProperty.hasOwnProperty("forms")) {
-                            for(const formElIndex in curProperty.forms) {
+                            for (const formElIndex in curProperty.forms) {
                                 if (curProperty.forms.hasOwnProperty(formElIndex)) {
                                     const formEl = curProperty.forms[formElIndex]
-                                    if(formEl.hasOwnProperty("op")) {
+                                    if (formEl.hasOwnProperty("op")) {
                                         if ((typeof formEl.op === "string" && formEl.op === "readproperty") ||
-                                            (typeof formEl.op === "object" && formEl.op.some( el => (el === "readproperty"))))
-                                        {
+                                            (typeof formEl.op === "object" && formEl.op.some(el => (el === "readproperty")))) {
                                             details.readWriteOnly = "warning"
                                             logFunc('! Warning: In property ' + curPropertyName + " in forms[" + formElIndex +
                                                 '], writeOnly is set but the op property contains "readproperty"')
                                         }
                                         else if ((typeof formEl.op === "string" && formEl.op === "observeproperty") ||
-                                            (typeof formEl.op === "object" && formEl.op.some( el => (el === "observeproperty"))))
-                                        {
+                                            (typeof formEl.op === "object" && formEl.op.some(el => (el === "observeproperty")))) {
                                             details.readWriteOnly = "warning"
                                             logFunc('! Warning: In property ' + curPropertyName + " in forms[" + formElIndex +
                                                 '], writeOnly is set but the op property contains "observeproperty"')
@@ -910,7 +912,7 @@ function tmValidator(tmString, logFunc, { checkDefaults=true, checkJsonLd=true }
          */
         function evalAssertion(results) {
             let out = "passed"
-            results.forEach( resultobj => {
+            results.forEach(resultobj => {
                 if (resultobj.Status === "fail") {
                     out = "failed"
                     logFunc("KO Error: Assertion: " + resultobj.ID)
@@ -928,8 +930,8 @@ function tmValidator(tmString, logFunc, { checkDefaults=true, checkJsonLd=true }
         function filterErrorMessages(errors) {
 
             const output = []
-            errors.forEach( el => {
-                if(!output.some(ce => (ce.dataPath === el.dataPath && ce.message === el.message))) {
+            errors.forEach(el => {
+                if (!output.some(ce => (ce.dataPath === el.dataPath && ce.message === el.message))) {
                     output.push(el)
                 }
             })
@@ -982,7 +984,7 @@ function checkTypos(td) {
 
     try {
         tdJson = JSON.parse(td)
-    } catch(err) {
+    } catch (err) {
         console.log("Error occurred while parsing JSON!")
     }
 
@@ -1278,7 +1280,7 @@ function calculateSimilarity(actual, desired) {
         }
     }
 
-    let similarity = ( (m / actual.length) + (m / desired.length) + ((m - (transpositionCount / 2) ) / m)) / 3
+    let similarity = ((m / actual.length) + (m / desired.length) + ((m - (transpositionCount / 2)) / m)) / 3
     let l = 0
     const p = 0.1
 

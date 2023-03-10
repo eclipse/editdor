@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2020 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -12,20 +12,37 @@
  ********************************************************************************/
 import React, { useCallback, useContext, useEffect } from "react";
 import logo from "../../../assets/editdor.png";
+import "../../../assets/main.css";
 import wot from "../../../assets/WoT.png";
 import ediTDorContext from "../../../context/ediTDorContext";
-import "../../../assets/main.css";
-import "../App.css"
-import Button from "./Button";
-import { ShareDialog } from "../../Dialogs/ShareDialog";
+import { getFileHandle, getFileHTML5, _readFileHTML5 } from "../../../util.js";
 import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
 import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
-import { getFileHandle, getFileHTML5, _readFileHTML5 } from "../../../util.js";
-import {tdValidator} from "../../../external/TdPlayground";
-
+import { ShareDialog } from "../../Dialogs/ShareDialog";
+import "../App.css";
+import Button from "./Button";
 
 export default function AppHeader() {
   const context = useContext(ediTDorContext);
+
+  /**
+  * @param {Object} td
+  * @returns {boolean}
+  */
+  function isThingModel(td) {
+    try {
+      td = JSON.parse(td);
+    } catch {
+      return false;
+    }
+
+    if (!td.hasOwnProperty("@type")) {
+      return false;
+    }
+
+    return td["@type"].indexOf("ThingModel") > -1;
+  }
+
   /**
    * Check if the Browser Supports the new Native File System Api (Chromium 86.0)
    */
@@ -57,26 +74,20 @@ export default function AppHeader() {
   const readFile = useCallback(
     async (file, fileHandle) => {
       try {
-        let td = await read(file)
-        let linkedTd = {}
+        let td = await read(file);
+        let linkedTd = {};
         if (fileHandle !== undefined) {
           linkedTd["./" + file.name] = fileHandle;
-        }
-        else {
+        } else {
           linkedTd["./" + file.name] = JSON.parse(td);
         }
-        tdValidator(td, console.log, {}).then(result => {
-          context.updateLinkedTd(undefined);
-          context.addLinkedTd(linkedTd);
-          context.setFileHandle(fileHandle || file.name);
-          context.updateIsModified(false);
-          context.updateValidationMessage(result);
-          context.updateOfflineTD(td);
-        }, err => {
-          console.log("Error");
-          console.log(err);
-        })
+        context.updateLinkedTd(undefined);
+        context.addLinkedTd(linkedTd);
 
+        context.updateOfflineTD(td);
+
+        context.setFileHandle(fileHandle || file.name);
+        context.updateIsModified(false);
       } catch (ex) {
         const msg = `An error occured reading ${context.offlineTD}`;
         console.error(msg, ex);
@@ -144,12 +155,12 @@ export default function AppHeader() {
 
   const saveAsHTML5 = useCallback((filename, contents) => {
     const aDownload = document.getElementById("aDownload");
-    let tdJSON = {}
-    let tdTitle
+    let tdJSON = {};
+    let tdTitle;
     try {
       tdJSON = JSON.parse(contents);
-      tdTitle = tdJSON["id"] || tdJSON["title"]
-      tdTitle = tdTitle.replace(/\s/g, "") + ".jsonld"
+      tdTitle = tdJSON["id"] || tdJSON["title"];
+      tdTitle = tdTitle.replace(/\s/g, "") + ".jsonld";
     } catch (e) {
       console.error(e);
     }
@@ -201,7 +212,7 @@ export default function AppHeader() {
         return await saveFileAs();
       }
       await writeFile(context.fileHandle, context.offlineTD);
-      alert("File saved")
+      alert("File saved");
     } catch (ex) {
       const msg = "Unfortunately we were unable to save your TD.";
       console.error(msg, ex);
@@ -239,19 +250,15 @@ export default function AppHeader() {
     return await window.chooseFileSystemEntries(opts);
   };
 
-
   useEffect(() => {
     if (window.location.search.indexOf("td") > -1) {
       const url = new URL(window.location.href);
       const td = url.searchParams.get("td");
       try {
         const parsedTD = JSON.parse(td);
-        if (parsedTD["@type"] === "tm:ThingModel") {
-          context.updateIsThingModel(true)
-        }
         context.updateOfflineTD(JSON.stringify(parsedTD, null, 2));
       } catch (error) {
-        alert('Sorry, we were unable to parse the TD given in the URL')
+        alert('Sorry, we were unable to parse the TD given in the URL');
       }
     }
     //because the GET Param should be only loaded once, the next line was added
@@ -306,13 +313,19 @@ export default function AppHeader() {
   }, [openFile, saveFile, context]);
 
   const convertTmDialog = React.useRef();
-  const openConvertTmDialog = () => { convertTmDialog.current.openModal() }
+  const openConvertTmDialog = () => {
+    convertTmDialog.current.openModal();
+  };
 
   const shareDialog = React.useRef();
-  const openShareDialog = () => { shareDialog.current.openModal() }
+  const openShareDialog = () => {
+    shareDialog.current.openModal();
+  };
 
   const createTdDialog = React.useRef();
-  const openCreateTdDialog = () => { createTdDialog.current.openModal() }
+  const openCreateTdDialog = () => {
+    createTdDialog.current.openModal();
+  };
 
   return (
     <>
@@ -321,16 +334,25 @@ export default function AppHeader() {
           <img className="pl-2 h-12" src={wot} alt="WOT" />
           <div className="w-2"></div>
           <button>
-          <img className="pl-2 h-8" src={logo} alt="LOGO" onClick={() => window.open("https://eclipse.github.io/editdor/","_blank")}/>
+            <img
+              className="pl-2 h-8"
+              src={logo}
+              alt="LOGO"
+              onClick={() =>
+                window.open("https://eclipse.github.io/editdor/", "_blank")
+              }
+            />
           </button>
         </div>
         <div className="flex space-x-2 pr-2">
           <Button onClick={openShareDialog}>Share</Button>
           <Button onClick={openCreateTdDialog}>New</Button>
           <Button onClick={openFile}>Open</Button>
-          {(hasNativeFS()) && <Button onClick={saveFile}>Save</Button>}
+          {hasNativeFS() && <Button onClick={saveFile}>Save</Button>}
           <Button onClick={saveFileAs}>Save As</Button>
-          {(context.showConvertBtn || context.isThingModel) && <Button onClick={openConvertTmDialog}>Convert To TD</Button>}
+          {(context.showConvertBtn || isThingModel(context.offlineTD)) && (
+            <Button onClick={openConvertTmDialog}>Convert To TD</Button>
+          )}
         </div>
       </header>
       <ConvertTmDialog ref={convertTmDialog} />
