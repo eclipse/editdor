@@ -34,7 +34,7 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
     error = '';
   } catch (e) {
     error = e.message;
-    console.error(error);
+    console.debug(error);
     tdJSON = oldtdJSON;
   }
 

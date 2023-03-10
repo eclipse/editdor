@@ -162,7 +162,7 @@ export default function AppHeader() {
       tdTitle = tdJSON["id"] || tdJSON["title"];
       tdTitle = tdTitle.replace(/\s/g, "") + ".jsonld";
     } catch (e) {
-      console.error(e);
+      console.debug(e);
     }
     filename = filename || tdTitle;
     const opts = { type: "application/ld+json" };

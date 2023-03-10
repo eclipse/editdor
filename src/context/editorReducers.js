@@ -48,7 +48,7 @@ const updateOfflineTDReducer = (offlineTD, state) => {
     }
   }catch(e){
     let error = e.message;
-    console.log(error)
+    console.debug(error)
   }
   return { ...state, offlineTD, isModified: true, linkedTd:linkedTd };
 };

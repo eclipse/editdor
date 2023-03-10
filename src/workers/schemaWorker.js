@@ -4,7 +4,7 @@ import {
     extractSchemaUriFromBase,
     fetchSchemas,
     updateSchemaCache,
-} from './schemaWorkerFunctions';
+} from './workerFunctions';
 
 // If the JSON sent to the worker is faulty it returns the last valid schema map.
 let lastSentSchemaMap = new Map();
@@ -38,6 +38,9 @@ self.onmessage = async (message) => {
     let baseSchemaUris = extractSchemaUriFromBase(td);
 
     let newSchemas = [basicSchema, ...contextSchemaUris, ...baseSchemaUris];
+    if (isThingModel) {
+        newSchemas = newSchemas.filter(schema => schema !== "https://www.w3.org/2019/wot/td/v1");
+    }
 
     let schemaMap = await fetchSchemas(newSchemas);
     updateSchemaCache(schemaMap);
