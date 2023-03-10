@@ -239,25 +239,6 @@ export default function AppHeader() {
     return await window.chooseFileSystemEntries(opts);
   };
 
-
-  useEffect(() => {
-    if (window.location.search.indexOf("td") > -1) {
-      const url = new URL(window.location.href);
-      const td = url.searchParams.get("td");
-      try {
-        const parsedTD = JSON.parse(td);
-        if (parsedTD["@type"] === "tm:ThingModel") {
-          context.updateIsThingModel(true)
-        }
-        context.updateOfflineTD(JSON.stringify(parsedTD, null, 2));
-      } catch (error) {
-        alert('Sorry, we were unable to parse the TD given in the URL')
-      }
-    }
-    //because the GET Param should be only loaded once, the next line was added
-    // eslint-disable-next-line
-  }, []);
-
   useEffect(() => {
     const shortcutHandler = (e) => {
       if (
