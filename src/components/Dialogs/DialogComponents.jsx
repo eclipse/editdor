@@ -37,12 +37,12 @@ export const DialogTextArea = (props) => {
             rows="5"
             className="bg-gray-600
                 sm:text-sm
-                appearance-none 
-                border-2 border-gray-600 rounded w-full 
+                appearance-none
+                border-2 border-gray-600 rounded w-full
                 p-2
-                text-white 
-                leading-tight 
-                focus:outline-none 
+                text-white
+                leading-tight
+                focus:outline-none
                 focus:border-blue-500"
             placeholder={props.placeholder}
         />

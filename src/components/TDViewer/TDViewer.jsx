@@ -10,15 +10,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "../../assets/main.css";
 import ediTDorContext from "../../context/ediTDorContext";
-import {
-  buildAttributeListObject,
-  separateForms,
-  changeBetweenTd,
-  getDirectedValue,
-} from "../../util";
+import { buildAttributeListObject, separateForms, changeBetweenTd } from "../../util";
 import { AddFormDialog } from "../Dialogs/AddFormDialog";
 import { AddLinkTdDialog } from "../Dialogs/AddLinkTdDialog";
 import { InfoIconWrapper } from "../InfoIcon/InfoIcon";
@@ -31,14 +26,6 @@ import { RenderedObject } from "./RenderedObject";
 import * as joint from "jointjs";
 import { ImCheckmark, ImCross } from "react-icons/im";
 
-let tdJSON = {};
-let oldtdJSON = {};
-let validationMessage = "";
-let jsonValidation = "";
-let jsonSchemaValidation = "";
-let jsonValidationError = "";
-let jsonSchemaValidationError = "";
-
 export default function TDViewer() {
   const context = useContext(ediTDorContext);
 
@@ -46,6 +33,13 @@ export default function TDViewer() {
   const openAddFormDialog = () => {
     addFormDialog.current.openModal();
   };
+
+  const [jsonSchemaValidation, setJsonSchemaValidation] = useState(undefined);
+  const [jsonValidation, setJsonValidation] = useState(undefined);
+  const [jsonValidationError, setJsonValidationError] = useState(undefined);
+  const [jsonSchemaValidationError, setJsonSchemaValidationError] = useState(undefined);
+
+  const [td, setTd] = useState(undefined);
 
   const addLinkDialog = React.useRef();
   const openAddLinkDialog = () => {
@@ -70,7 +64,7 @@ export default function TDViewer() {
     if (document.getElementsByTagName("details")[1]) {
       document.getElementsByTagName("details")[1].addEventListener(
         "toggle",
-        function (evt) {
+        function (_) {
           if (document.getElementsByTagName("details")[1].attributes.open) {
             setIsLinksOpen(true);
           } else {
@@ -98,8 +92,7 @@ export default function TDViewer() {
       try {
         offlineTD = JSON.parse(context.offlineTD);
       } catch (e) {
-        let error = e.message;
-        console.error(error);
+        console.debug(e);
       }
     }
     // Check if the links section exists to start drawing
@@ -245,37 +238,34 @@ export default function TDViewer() {
       }
       setGraphHeight(posy + 30);
     }
-    try {
-      validationMessage = context.validationMessage;
-      if (validationMessage.report) {
-        jsonValidation = validationMessage.report.json;
-      }
-      if (validationMessage.report) {
-        jsonSchemaValidation = validationMessage.report.schema;
-      }
 
-      if (validationMessage.validationErrors) {
-        jsonValidationError = validationMessage.validationErrors.json;
-        console.log("Error", jsonValidationError);
-        jsonSchemaValidationError = validationMessage.validationErrors.schema;
-        console.log("SchemaError", jsonSchemaValidationError);
-      } else {
-        jsonValidationError = null;
-        jsonSchemaValidationError = null;
-      }
-    } catch (e) {
-      console.error(e);
+    const validationMessage = context.validationMessage;
+    if (validationMessage.report) {
+      setJsonValidation(validationMessage.report.json);
+      setJsonSchemaValidation(validationMessage.report.schema);
     }
-  }, [graphHeight, representationFormat, context]);
 
-  try {
-    oldtdJSON = tdJSON;
-    tdJSON = JSON.parse(context.offlineTD);
-  } catch (e) {
-    tdJSON = oldtdJSON;
-  }
+    if (validationMessage.validationErrors) {
+      setJsonValidationError(validationMessage.validationErrors.json);
+      setJsonSchemaValidationError(validationMessage.validationErrors.schema);
 
-  if (!Object.keys(tdJSON).length) {
+      console.debug("JSON validation error", jsonValidationError);
+      console.debug("JSON Schema validation error", jsonSchemaValidationError);
+    } else {
+      setJsonValidationError(undefined);
+      setJsonSchemaValidationError(undefined);
+    }
+  }, [graphHeight, representationFormat, context, jsonSchemaValidationError, jsonValidationError]);
+
+  useEffect(() => {
+    try {
+      setTd(JSON.parse(context.offlineTD));
+    } catch (e) {
+      console.debug(e);
+    }
+  }, [context.offlineTD]);
+
+  if (!td || !Object.keys(td).length) {
     return (
       <div className="flex h-full w-full bg-gray-500 justify-center align-center text-center ">
         <div className="text-4xl text-white place-self-center">
@@ -289,21 +279,21 @@ export default function TDViewer() {
   let links;
   let metaData;
 
-  if (tdJSON) {
-    if (tdJSON.forms) {
-      const formsSeparated = separateForms(tdJSON.forms);
+  if (td) {
+    if (td.forms) {
+      const formsSeparated = separateForms(td.forms);
       forms = formsSeparated.map((key, index) => {
         return <Form form={key} propName={index} key={index} />;
       });
     }
-    if (tdJSON.links) {
-      const linksfromTd = tdJSON.links;
+    if (td.links) {
+      const linksfromTd = td.links;
       links = linksfromTd.map((key, index) => {
         return <Link link={key} propName={index} key={index} />;
       });
     }
 
-    metaData = tdJSON;
+    metaData = td;
 
     const alreadyRenderedKeys = [
       "id",
@@ -316,8 +306,8 @@ export default function TDViewer() {
       "links",
     ];
     const attributeListObject = buildAttributeListObject(
-      tdJSON.id ? { id: tdJSON.id } : {},
-      tdJSON,
+      td.id ? { id: td.id } : {},
+      td,
       alreadyRenderedKeys
     );
 
@@ -343,7 +333,7 @@ export default function TDViewer() {
               />
             )}
           </div>
-          {jsonValidationError !== null && (
+          {jsonValidationError && (
             <div className="flex h-10 w-full bg-formRed rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formRed">
               <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
                 <div className="text-formRed place-self-center text-center text-xs px-4">
@@ -375,7 +365,7 @@ export default function TDViewer() {
               />
             )}
           </div>
-          {jsonSchemaValidationError !== null && (
+          {jsonSchemaValidationError && (
             <div className="flex h-full w-full bg-formRed rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formRed">
               <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
                 <div className="text-formRed place-self-center text-center text-xs px-4">
@@ -422,7 +412,7 @@ export default function TDViewer() {
             </button>
             <AddFormDialog
               type="thing"
-              interaction={tdJSON}
+              interaction={td}
               ref={addFormDialog}
             />
           </summary>
@@ -470,7 +460,7 @@ export default function TDViewer() {
             </button>
             <AddLinkTdDialog
               type="link"
-              interaction={tdJSON}
+              interaction={td}
               ref={addLinkDialog}
             />
           </summary>
