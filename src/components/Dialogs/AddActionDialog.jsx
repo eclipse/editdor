@@ -15,7 +15,6 @@ import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import { DialogTextArea, DialogTextField } from './DialogComponents';
 import { DialogTemplate } from "./DialogTemplate";
-import {tdValidator} from "../../external/TdPlayground";
 
 export const AddActionDialog = forwardRef((_, ref) => {
     const context = useContext(ediTDorContext);
@@ -86,13 +85,7 @@ export const AddActionDialog = forwardRef((_, ref) => {
 
         td[key][action.title] = action;
 
-        tdValidator(JSON.stringify(td, null, 2), console.log, {}).then(result => {
-            context.updateValidationMessage(result);
-            context.updateOfflineTD(JSON.stringify(td, null, 2));
-        }, err => {
-            console.log("Error");
-            console.log(err);
-        })
+        context.updateOfflineTD(JSON.stringify(td, null, 2));
         return;
     }
 
