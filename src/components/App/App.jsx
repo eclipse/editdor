@@ -53,7 +53,7 @@ const dragElement = (element, direction) => {
 
     const onMouseMove = (e) => {
         var delta = {
-            x: e.clientX - md.e.clientX,
+            x: md.e.clientX - e.clientX,
             y: e.clientY - md.e.clientY
         };
 
