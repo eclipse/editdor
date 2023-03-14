@@ -6,7 +6,8 @@
 // A special JSON validator that is used only to check whether the given object has duplicate keys.
 // The standard library doesn't detect duplicate keys and overwrites the first one with the second one.
 // TODO: replace with jsonlint ??
-const jsonValidator = require('json-dup-key-validator')
+import jsonValidator from 'json-dup-key-validator';
+
 
 // This is used to validate if the multi language JSON keys are valid according to the BCP47 spec
 const bcp47pattern = /^(?:(en-GB-oed|i-ami|i-bnn|i-default|i-enochian|i-hak|i-klingon|i-lux|i-mingo|i-navajo|i-pwn|i-tao|i-tay|i-tsu|sgn-BE-FR|sgn-BE-NL|sgn-CH-DE)|(art-lojban|cel-gaulish|no-bok|no-nyn|zh-guoyu|zh-hakka|zh-min|zh-min-nan|zh-xiang))$|^((?:[a-z]{2,3}(?:(?:-[a-z]{3}){1,3})?)|[a-z]{4}|[a-z]{5,8})(?:-([a-z]{4}))?(?:-([a-z]{2}|\d{3}))?((?:-(?:[\da-z]{5,8}|\d[\da-z]{3}))*)?((?:-[\da-wy-z](?:-[\da-z]{2,8})+)*)?(-x(?:-[\da-z]{1,8})+)?$|^(x(?:-[\da-z]{1,8})+)$/i // eslint-disable-line max-len
@@ -57,11 +58,11 @@ function checkPropUniqueness(tdString) {
 
         // no problem in interaction level
         //eslint-disable-next-line
-        let tdInteractions = []
+        // let tdInteractions = [] // not used
 
         // checking whether there are properties at all, if not uniqueness is not impl
         if (td.hasOwnProperty("properties")) {
-            tdInteractions = tdInteractions.concat(Object.keys(td.properties))
+            // tdInteractions = tdInteractions.concat(Object.keys(td.properties)) // not used
             // then we can add unique properties pass
             results.push({
                 "ID": "td-properties_uniqueness",
@@ -79,7 +80,7 @@ function checkPropUniqueness(tdString) {
 
         // similar to just before, checking whether there are actions at all, if not uniqueness is not impl
         if (td.hasOwnProperty("actions")) {
-            tdInteractions = tdInteractions.concat(Object.keys(td.actions))
+            // tdInteractions = tdInteractions.concat(Object.keys(td.actions)) // not used
             results.push({
                 "ID": "td-actions_uniqueness",
                 "Status": "pass",
@@ -96,7 +97,7 @@ function checkPropUniqueness(tdString) {
 
         // similar to just before, checking whether there are events at all, if not uniqueness is not impl
         if (td.hasOwnProperty("events")) {
-            tdInteractions = tdInteractions.concat(Object.keys(td.events))
+            // tdInteractions = tdInteractions.concat(Object.keys(td.events)) // not used
             results.push({
                 "ID": "td-events_uniqueness",
                 "Status": "pass",
