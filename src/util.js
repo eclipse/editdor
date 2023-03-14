@@ -277,6 +277,12 @@ export const _readFileHTML5 = (file) => {
  * Returns the value of source[key] with the direction information (rtl/ltr).
  */
 export const getDirectedValue = (source, key, atContext) => {
+    // if there is no value to be directed this function returns
+    // to prevent any further call on undefined errors.
+    if (!source[key]) {
+        return "";
+    }
+
     const LRI = '\u2066';
     const RLI = '\u2067';
     const TABLE = {
