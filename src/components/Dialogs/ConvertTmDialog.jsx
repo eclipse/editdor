@@ -14,6 +14,7 @@ import React, { forwardRef, useContext, useEffect, useImperativeHandle } from 'r
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import { DialogTemplate } from "./DialogTemplate";
+import { compress } from "../../external/TdPlayground"
 
 export const ConvertTmDialog = forwardRef((props, ref) => {
     const context = useContext(ediTDorContext);
@@ -99,7 +100,7 @@ const createHtmlInputs = (td) => {
             const properties = Object.keys(parsed["properties"] ? parsed["properties"] : {});
             const actions = Object.keys(parsed["actions"] ? parsed["actions"] : {});
             const events = Object.keys(parsed["events"] ? parsed["events"] : {});
-            const requiredFields = {"properties": [], "actions": [], "events": []};
+            const requiredFields = { "properties": [], "actions": [], "events": [] };
 
             // Parse the required interaction affordances
             if (parsed["tm:required"]) {
@@ -138,7 +139,7 @@ const createHtmlInputs = (td) => {
             htmlActions = createAffordanceHtml("actions", actions);
             htmlEvents = createAffordanceHtml("events", events);
 
-        } catch (ignored) {}
+        } catch (ignored) { }
 
         const divider = (
             <h2 key="modalDividerText" className="text-gray-400 pb-2 pt-4">
@@ -162,7 +163,7 @@ const convertTmToTd = (td, htmlInputs) => {
     // Process the ticked affordances and save them in respective arrays
     for (const item of htmlInputs) {
         if (item.props.className.indexOf("form-checkbox") > -1 &&
-        document.getElementById(item.props.children[0].props.id).checked) {
+            document.getElementById(item.props.children[0].props.id).checked) {
             if (item.props.children[0].props["data-interaction"] === "properties")
                 properties.push(item["key"].split("/")[1]);
             else if (item.props.children[0].props["data-interaction"] === "actions")
@@ -227,6 +228,6 @@ const convertTmToTd = (td, htmlInputs) => {
     delete parse["@type"];
     delete parse["tm:required"];
 
-    let permalink = `${window.location.origin+window.location.pathname}?td=${encodeURIComponent(JSON.stringify(parse))}`;
+    let permalink = `${window.location.origin + window.location.pathname}?td=${compress(JSON.stringify(parse))}`;
     window.open(permalink, "_blank");
 }

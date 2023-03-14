@@ -1,5 +1,5 @@
-import { tdValidator, tmValidator } from "../external/TdPlayground.js";
-import { isThingModel } from "./workerFunctions.js";
+import { tdValidator, tmValidator } from "../external/TdPlayground";
+import { isThingModel } from "../util"
 
 // eslint-disable-next-line no-restricted-globals
 self.onmessage = async (message) => {

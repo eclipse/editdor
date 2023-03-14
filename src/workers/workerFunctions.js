@@ -1,7 +1,7 @@
 // Caches the fetched schemas and is used for future requests to the same schema address.
 let schemaCache = new Map();
 
-export { extractSchemaUrisFromContext, extractSchemaUriFromBase, isThingModel, fetchSchemas, updateSchemaCache }
+export { extractSchemaUrisFromContext, extractSchemaUriFromBase, fetchSchemas, updateSchemaCache }
 
 /**
 * Extracts the schemas from a WoT context.
@@ -73,18 +73,6 @@ function extractSchemaUrisFromContext(context) {
     }
 
     return schemaUris;
-}
-
-/**
- * @param {Object} td
- * @returns {boolean}
- */
-function isThingModel(td) {
-    if (!td.hasOwnProperty("@type")) {
-        return false;
-    }
-
-    return td["@type"].indexOf("ThingModel") > -1;
 }
 
 /**

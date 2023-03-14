@@ -15,7 +15,7 @@ import logo from "../../../assets/editdor.png";
 import "../../../assets/main.css";
 import wot from "../../../assets/WoT.png";
 import ediTDorContext from "../../../context/ediTDorContext";
-import { getFileHandle, getFileHTML5, _readFileHTML5 } from "../../../util.js";
+import { getFileHandle, getFileHTML5, isThingModel, _readFileHTML5 } from "../../../util.js";
 import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
 import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
 import { ShareDialog } from "../../Dialogs/ShareDialog";
@@ -24,24 +24,6 @@ import Button from "./Button";
 
 export default function AppHeader() {
   const context = useContext(ediTDorContext);
-
-  /**
-  * @param {Object} td
-  * @returns {boolean}
-  */
-  function isThingModel(td) {
-    try {
-      td = JSON.parse(td);
-    } catch {
-      return false;
-    }
-
-    if (!td.hasOwnProperty("@type")) {
-      return false;
-    }
-
-    return td["@type"].indexOf("ThingModel") > -1;
-  }
 
   /**
    * Check if the Browser Supports the new Native File System Api (Chromium 86.0)
@@ -249,21 +231,6 @@ export default function AppHeader() {
 
     return await window.chooseFileSystemEntries(opts);
   };
-
-  useEffect(() => {
-    if (window.location.search.indexOf("td") > -1) {
-      const url = new URL(window.location.href);
-      const td = url.searchParams.get("td");
-      try {
-        const parsedTD = JSON.parse(td);
-        context.updateOfflineTD(JSON.stringify(parsedTD, null, 2));
-      } catch (error) {
-        alert('Sorry, we were unable to parse the TD given in the URL');
-      }
-    }
-    //because the GET Param should be only loaded once, the next line was added
-    // eslint-disable-next-line
-  }, []);
 
   useEffect(() => {
     const shortcutHandler = (e) => {
