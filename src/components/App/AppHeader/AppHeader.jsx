@@ -15,7 +15,7 @@ import logo from "../../../assets/editdor.png";
 import "../../../assets/main.css";
 import wot from "../../../assets/WoT.png";
 import ediTDorContext from "../../../context/ediTDorContext";
-import { getFileHandle, getFileHTML5, _readFileHTML5 } from "../../../util.js";
+import { getFileHandle, getFileHTML5, isThingModel, _readFileHTML5 } from "../../../util.js";
 import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
 import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
 import { ShareDialog } from "../../Dialogs/ShareDialog";
@@ -24,24 +24,6 @@ import Button from "./Button";
 
 export default function AppHeader() {
   const context = useContext(ediTDorContext);
-
-  /**
-  * @param {Object} td
-  * @returns {boolean}
-  */
-  function isThingModel(td) {
-    try {
-      td = JSON.parse(td);
-    } catch {
-      return false;
-    }
-
-    if (!td.hasOwnProperty("@type")) {
-      return false;
-    }
-
-    return td["@type"].indexOf("ThingModel") > -1;
-  }
 
   /**
    * Check if the Browser Supports the new Native File System Api (Chromium 86.0)
