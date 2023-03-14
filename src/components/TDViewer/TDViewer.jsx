@@ -280,7 +280,6 @@ export default function TDViewer() {
 
   let forms;
   let links;
-  let metaData;
 
   if (td) {
     if (td.forms) {
@@ -295,8 +294,6 @@ export default function TDViewer() {
         return <Link link={key} propName={index} key={index} />;
       });
     }
-
-    metaData = td;
 
     const alreadyRenderedKeys = [
       "id",
@@ -381,23 +378,26 @@ export default function TDViewer() {
             </div>
           )}
         </div>
-        {metaData !== undefined && Object.keys(metaData).length > 0 && (
+        {td !== undefined && Object.keys(td).length > 0 && (
           <div>
             <div className="text-3xl text-white">
-              {getDirectedValue(metaData, "title", metaData["@context"])}
+              {td.title ?
+                getDirectedValue(td, "title", td["@context"]) :
+                <></>
+              }
             </div>
             <RenderedObject {...attributeListObject}></RenderedObject>
-            {metaData.description ? (
+            {td.description ?
               <div className="text-xl text-white pt-4">
                 {getDirectedValue(
-                  metaData,
+                  td,
                   "description",
-                  metaData["@context"]
+                  td["@context"]
                 )}
               </div>
-            ) : (
+              :
               <></>
-            )}
+            }
           </div>
         )}
         <details className="pt-8">
