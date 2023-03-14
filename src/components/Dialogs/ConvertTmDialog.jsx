@@ -13,8 +13,8 @@
 import React, { forwardRef, useContext, useEffect, useImperativeHandle } from 'react';
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
+import { prepareTdForSharing } from '../../share';
 import { DialogTemplate } from "./DialogTemplate";
-import { compress } from "../../external/TdPlayground"
 
 export const ConvertTmDialog = forwardRef((props, ref) => {
     const context = useContext(ediTDorContext);
@@ -228,6 +228,7 @@ const convertTmToTd = (td, htmlInputs) => {
     delete parse["@type"];
     delete parse["tm:required"];
 
-    let permalink = `${window.location.origin + window.location.pathname}?td=${compress(JSON.stringify(parse))}`;
+    const compressedTd = prepareTdForSharing(JSON.stringify(parse));
+    let permalink = `${window.location.origin + window.location.pathname}?td=${compressedTd}`;
     window.open(permalink, "_blank");
 }
