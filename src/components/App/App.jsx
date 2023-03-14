@@ -13,7 +13,6 @@
 import React, { useContext, useEffect } from 'react';
 import ediTDorContext from "../../context/ediTDorContext";
 import GlobalState from '../../context/GlobalState';
-import { decompress } from "../../external/TdPlayground";
 import JSONEditorComponent from "../Editor/Editor";
 import TDViewer from '../TDViewer/TDViewer';
 import './App.css';
@@ -21,6 +20,7 @@ import AppFooter from './AppFooter';
 import AppHeader from './AppHeader/AppHeader';
 
 import '../../assets/main.css';
+import { decompressSharedTd as decompressAndParseSharedTd } from '../../share';
 
 const GlobalStateWrapper = (props) => {
     return (
@@ -48,20 +48,14 @@ const App = (props) => {
         const compressedTd = url.searchParams.get("td");
         if (compressedTd == null) return;
 
-        const decompressedTd = decompress(compressedTd);
-        if (decompressedTd == null || decompressedTd === "") {
+        const td = decompressAndParseSharedTd(compressedTd);
+        if (td === undefined) {
             alert("The TD found in the URLs path couldn't be reconstructed.");
             return;
         };
 
-        try {
-            const parsedTD = JSON.parse(decompressedTd);
-            context.updateOfflineTD(JSON.stringify(parsedTD, null, 2));
-        } catch (error) {
-            context.updateOfflineTD(decompressedTd);
-            alert("The TD found in the URLs path couldn't be parsed, the displayed JSON may contain errors.");
-        }
-    }, []);
+        context.updateOfflineTD(JSON.stringify(td, null, 2));
+    }, [context]);
 
     return (
         <main className="h-full w-screen flex flex-col">

@@ -13,13 +13,14 @@
 import React, { forwardRef, useContext, useImperativeHandle } from 'react';
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
+import { prepareTdForSharing } from '../../share';
 import { DialogTemplate } from "./DialogTemplate";
-import { compress } from "../../external/TdPlayground"
 
 export const ShareDialog = forwardRef((props, ref) => {
     const context = useContext(ediTDorContext);
     const [display, setDisplay] = React.useState(false);
     const [compressedTdLink, setCompressedTdLink] = React.useState("");
+    const [compressedTd, setCompressedTd] = React.useState("");
 
     useImperativeHandle(ref, () => {
         return {
@@ -31,11 +32,13 @@ export const ShareDialog = forwardRef((props, ref) => {
     const open = () => {
         setDisplay(true)
 
-        const tmpCompressedTd = compress(context.offlineTD);
+        const tmpCompressedTd = prepareTdForSharing(context.offlineTD);
+        setCompressedTd(tmpCompressedTd);
+
         const tmpCompressedTdLink = `${window.location.origin + window.location.pathname}?td=${tmpCompressedTd}`;
         setCompressedTdLink(tmpCompressedTdLink);
-        copyLinkToClipboard(tmpCompressedTdLink);
 
+        copyLinkToClipboard(tmpCompressedTdLink);
         focusPermalinkField();
     };
 
@@ -52,9 +55,16 @@ export const ShareDialog = forwardRef((props, ref) => {
     if (display) {
         return ReactDOM.createPortal(
             <DialogTemplate
-                onCancel={close}
-                cancelText={"Close"}
-                hasSubmit={false}
+                hasSubmit={true}
+                onSubmit={close}
+                submitText={"Okay"}
+                cancelText={"Open in Playground"}
+                onCancel={
+                    () => {
+                        window.open(`http://plugfest.thingweb.io/playground/#${compressedTd}`);
+                        close();
+                    }
+                }
                 children={child}
                 title={"Share This TD"}
                 description={"A link to this TD was copied to your clipboard."}
