@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html, body, #root {
     height: 100%;
     width: 100%;
@@ -9,8 +13,95 @@ html, body, #root {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+.text-formBlue {
+    --tw-text-opacity: 1;
+    color: rgba(10, 132, 255, var(--tw-text-opacity));
+}
+
+.text-formRed {
+    --tw-text-opacity: 1;
+    color: rgba(255, 69, 58, var(--tw-text-opacity));
+}
+
+.text-formGreen {
+    --tw-text-opacity: 1;
+    color: rgba(48, 209, 88, var(--tw-text-opacity));
+}
+
+.text-formOrange {
+    --tw-text-opacity: 1;
+    color: rgba(255, 159, 10, var(--tw-text-opacity));
+}
+
+
+.bg-formBlue {
+    --tw-bg-opacity: 1;
+    background-color: rgba(10, 132, 255, var(--tw-bg-opacity));
+}
+
+.bg-formRed {
+    --tw-bg-opacity: 1;
+    background-color: rgba(255, 69, 58, var(--tw-bg-opacity));
+}
+
+.bg-formGreen {
+    --tw-bg-opacity: 1;
+    background-color: rgba(48, 209, 88, var(--tw-bg-opacity));
+}
+
+.bg-formOrange {
+    --tw-bg-opacity: 1;
+    background-color: rgba(255, 159, 10, var(--tw-bg-opacity));
+}
+
+.border-formBlue {
+    --tw-border-opacity: 1;
+    border-color: rgba(10, 132, 255, var(--tw-border-opacity));
+}
+
+.border-formRed {
+    --tw-border-opacity: 1;
+    border-color: rgba(255, 69, 58, var(--tw-border-opacity));
+}
+
+.border-formGreen {
+    --tw-border-opacity: 1;
+    border-color: rgba(48, 209, 88, var(--tw-border-opacity));
+}
+
+.border-formOrange {
+    --tw-border-opacity: 1;
+    border-color: rgba(255, 159, 10, var(--tw-border-opacity));
+}
+
+.bg-blue-400 {
+    --tw-bg-opacity: 1;
+    background-color: rgba(0, 119, 204, var(--tw-bg-opacity));
+}
+
+.bg-blue-500 {
+    --tw-bg-opacity: 1;
+    background-color: rgba(0, 90, 156, var(--tw-bg-opacity));
+}
+
+.bg-gray-500 {
+    --tw-bg-opacity: 1;
+    background-color: rgba(34, 34, 36, var(--tw-bg-opacity));
+}
+
+
+.bg-gray-600 {
+    --tw-bg-opacity: 1;
+    background-color: rgba(28, 28, 30, var(--tw-bg-opacity));
+}
+
+.hover\:bg-blue-300:hover {
+    --tw-bg-opacity: 1;
+    background-color: rgba(0, 143, 245, var(--tw-bg-opacity));
 }

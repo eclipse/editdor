@@ -9,7 +9,6 @@ import Action from './Action';
 import Event from './Event';
 import Property from './Property';
 import { SearchBar } from './SearchBar';
-import {tdValidator} from "../../external/TdPlayground";
 
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
@@ -94,16 +93,7 @@ export const InteractionSection = (props) => {
             setSortOrder(SORT_ASC);
         }
         td[kind] = ordered
-        tdValidator(JSON.stringify(td, null, 2), console.log, {}).then(result => {
-            context.updateValidationMessage(result);
-            context.updateOfflineTD(JSON.stringify(td, null, 2));
-        }, err => {
-            console.log("Error");
-            console.log(err);
-        })
-
-
-
+        context.updateOfflineTD(JSON.stringify(td, null, 2));
     }
 
     const sortedIcon = () => {
