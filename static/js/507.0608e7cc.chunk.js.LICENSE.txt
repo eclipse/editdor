@@ -1,0 +1,26 @@
+/*!
+ * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
+ */
+
+/*!
+ * Copyright (c) 2016-2022 Digital Bazaar, Inc. All rights reserved.
+ */
+
+/*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
+
+/**
+ * Removes the @preserve keywords from expanded result of framing.
+ *
+ * @param input the framed, framed output.
+ * @param options the framing options used.
+ *
+ * @return the resulting output.
+ */
+
+/** @license URI.js v4.4.1 (c) 2011 Gary Court. License: http://github.com/garycourt/uri-js */
+
+// disallow aliasing @context and @preserve
+
+// remove @preserve
+
+// remove @preserve from results
