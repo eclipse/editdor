@@ -1,10 +1,11 @@
 import {
     extractSchemaUrisFromContext,
-    isThingModel,
     extractSchemaUriFromBase,
     fetchSchemas,
     updateSchemaCache,
 } from './workerFunctions';
+
+import { isThingModel } from '../util';
 
 // If the JSON sent to the worker is faulty it returns the last valid schema map.
 let lastSentSchemaMap = new Map();

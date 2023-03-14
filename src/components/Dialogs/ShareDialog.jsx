@@ -10,21 +10,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { forwardRef, useContext, useEffect, useImperativeHandle } from 'react';
+import React, { forwardRef, useContext, useImperativeHandle } from 'react';
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
+import { prepareTdForSharing } from '../../share';
 import { DialogTemplate } from "./DialogTemplate";
 
 export const ShareDialog = forwardRef((props, ref) => {
     const context = useContext(ediTDorContext);
-    const [display, setDisplay] = React.useState(() => { return false });
-
-    useEffect(() => {
-        if (display === true) {
-            copyLinkToClipboard(createPermalink(context.offlineTD));
-            focusPermalinkField()
-        }
-    }, [display, context]);
+    const [display, setDisplay] = React.useState(false);
+    const [compressedTdLink, setCompressedTdLink] = React.useState("");
+    const [compressedTd, setCompressedTd] = React.useState("");
 
     useImperativeHandle(ref, () => {
         return {
@@ -35,21 +31,41 @@ export const ShareDialog = forwardRef((props, ref) => {
 
     const open = () => {
         setDisplay(true)
+
+        const tmpCompressedTd = prepareTdForSharing(context.offlineTD);
+        setCompressedTd(tmpCompressedTd);
+
+        const tmpCompressedTdLink = `${window.location.origin + window.location.pathname}?td=${tmpCompressedTd}`;
+        setCompressedTdLink(tmpCompressedTdLink);
+
+        copyLinkToClipboard(tmpCompressedTdLink);
+        focusPermalinkField();
     };
 
-    const close = () => {
-        setDisplay(false);
-    };
+    const close = () => { setDisplay(false); };
 
-    const urlField = createPermalinkField(context.offlineTD);
+    let child = <input
+        type="text"
+        name="share-td-field"
+        id="share-td-field"
+        className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+        defaultValue={compressedTdLink}
+    />
 
     if (display) {
         return ReactDOM.createPortal(
             <DialogTemplate
-                onCancel={close}
-                cancelText={"Close"}
-                hasSubmit={false}
-                children={urlField}
+                hasSubmit={true}
+                onSubmit={close}
+                submitText={"Okay"}
+                cancelText={"Open in Playground"}
+                onCancel={
+                    () => {
+                        window.open(`http://plugfest.thingweb.io/playground/#${compressedTd}`);
+                        close();
+                    }
+                }
+                children={child}
                 title={"Share This TD"}
                 description={"A link to this TD was copied to your clipboard."}
             />,
@@ -59,30 +75,9 @@ export const ShareDialog = forwardRef((props, ref) => {
     return null;
 });
 
-const createPermalink = (td) => {
-    let parsedTD = {};
-    try {
-        parsedTD = JSON.parse(td);
-    } catch (_) { }
-
-    return `${window.location.origin+window.location.pathname}?td=${encodeURIComponent(
-        JSON.stringify(parsedTD)
-    )}`;
-}
-
-const createPermalinkField = (td) => {
-    return (<input
-        type="text"
-        name="share-td-field"
-        id="share-td-field"
-        className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
-        defaultValue={createPermalink(td)}
-    />);
-};
-
-const copyLinkToClipboard = (link) => {
+const copyLinkToClipboard = (compressedTdLink) => {
     if (document.hasFocus()) {
-        navigator.clipboard.writeText(link).then(
+        navigator.clipboard.writeText(compressedTdLink).then(
             function () {
                 console.log("Async: Copied TD link to clipboard!");
             },
