@@ -37,6 +37,8 @@ const AppFooter = (props) => {
                 <div className="mx-2">Actions: {actionsCount}</div>
                 <div className="mx-2">Events: {eventsCount}</div>
                 <div className="mx-2 flex-grow">Size: {megaBytes}</div>
+                {context.isModified && <div>You have unsaved changes. - </div>}
+                {!context.isModified && <div>Your changes are synchronized. - </div>}
                 <div className="mx-2 justify-self-end">Version: {process.env.REACT_APP_NPM_PACKAGE_VERSION} | <u><a href="https://github.com/eclipse/editdor" target="_blank" rel="noopener noreferrer">We are on GitHub</a></u></div>
             </div>
         </footer>

@@ -13,7 +13,7 @@
 import React, { forwardRef, useContext, useEffect, useImperativeHandle } from 'react';
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
-import { prepareTdForSharing } from '../../share';
+import { prepareTdForSharing } from "../../share";
 import { DialogTemplate } from "./DialogTemplate";
 
 export const ConvertTmDialog = forwardRef((props, ref) => {

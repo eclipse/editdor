@@ -56,7 +56,6 @@ export const CreateTdDialog = forwardRef((props, ref) => {
                     linkedTd[td["title"]] = td
                     context.updateLinkedTd(undefined)
                     context.addLinkedTd(linkedTd)
-                    context.updateShowConvertBtn(type === "TM");
                     context.updateOfflineTD(JSON.stringify(td, null, "\t"));
                     close();
                 }}
