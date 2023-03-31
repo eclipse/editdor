@@ -19,7 +19,6 @@ export const ADD_PROPERTYFORM_TO_TD = 'ADD_PROPERTYFORM_TO_TD';
 export const ADD_ACTIONFORM_TO_TD = 'ADD_ACTIONFORM_TO_TD';
 export const ADD_EVENTFORM_TO_TD = 'ADD_EVENTFORM_TO_TD';
 export const REMOVE_ONE_OF_A_KIND_FROM_TD = 'REMOVE_ONE_OF_A_KIND_FROM_TD';
-export const UPDATE_SHOW_CONVERT_BTN = 'UPDATE_SHOW_CONVERT_BTN';
 export const ADD_LINKED_TD = 'ADD_LINKED_TD';
 export const UPDATE_LINKED_TD = 'UPDATE_LINKED_TD';
 export const UPDATE_VALIDATION_MESSAGE = 'UPDATE_VALIDATION_MESSAGE';
@@ -180,10 +179,6 @@ const updateFileHandleReducer = (fileHandle, state) => {
   return { ...state, fileHandle: fileHandle };
 };
 
-const updateShowConvertBtn = (showConvertBtn, state) => {
-  return { ...state, showConvertBtn: showConvertBtn };
-};
-
 const updateValidationMessage = (validationMessage, state) =>{
   return { ...state, validationMessage };
 
@@ -211,8 +206,6 @@ const editdorReducer = (state, action) => {
       return addActionFormReducer(action.params, state)
     case ADD_EVENTFORM_TO_TD:
       return addEventFormReducer(action.params, state)
-    case UPDATE_SHOW_CONVERT_BTN:
-      return updateShowConvertBtn(action.showConvertBtn, state);
     case ADD_LINKED_TD:
       return addLinkedTd(action.linkedTd,state)
     case UPDATE_LINKED_TD:
