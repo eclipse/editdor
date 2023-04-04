@@ -11,6 +11,35 @@ html, body, #root {
     flex-direction: column;
 }
 
+
+@keyframes spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 10px solid #f3f3f3;
+    border-top: 10px solid #383636;
+    border-radius: 50%;
+    animation: spinner 1.5s linear infinite;
+}
+
+.app-header-spinner {
+    width: 25px;
+    height: 25px;
+    border: 2.5px solid #f3f3f3;
+    border-top: 2.5px solid #005a9c;
+    border-radius: 50%;
+    animation: spinner 1.5s linear infinite;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -38,7 +67,6 @@ body {
     --tw-text-opacity: 1;
     color: rgba(255, 159, 10, var(--tw-text-opacity));
 }
-
 
 .bg-formBlue {
     --tw-bg-opacity: 1;
@@ -94,7 +122,6 @@ body {
     --tw-bg-opacity: 1;
     background-color: rgba(34, 34, 36, var(--tw-bg-opacity));
 }
-
 
 .bg-gray-600 {
     --tw-bg-opacity: 1;

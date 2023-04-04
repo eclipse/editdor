@@ -10,10 +10,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { forwardRef, useContext, useImperativeHandle, useCallback } from 'react';
+import React, { forwardRef, useCallback, useContext, useImperativeHandle } from 'react';
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
-import { hasLinks, checkIfLinkIsInItem, getFileHandle, getFileHTML5, _readFileHTML5 } from "../../util.js";
+import * as fileTdService from "../../services/fileTdService";
+import { checkIfLinkIsInItem, hasLinks } from "../../util.js";
 import { DialogTemplate } from "./DialogTemplate";
 
 let error = "";
@@ -73,12 +74,6 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
     context.updateOfflineTD(JSON.stringify(td, null, 2));
   }
 
-  const hasNativeFS = useCallback(() => {
-    return (
-      "chooseFileSystemEntries" in window || "showOpenFilePicker" in window
-    );
-  }, []);
-
   const linkingMethodChange = (linkingOption) => {
     setlinkingMethod(linkingOption);
     if (currentLinkedTd && linkingOption === 'url') {
@@ -86,38 +81,18 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
     }
   }
 
-  const read = useCallback((file) => {
-    return file.text ? file.text() : _readFileHTML5(file);
+  const openFile = useCallback(async () => {
+    try {
+      const res = await fileTdService.readFromFile();
+
+      document.getElementById("link-href").value = `./${res.fileName}`;
+      setCurrentLinkedTd(res.fileHandle ? res.fileHandle : JSON.parse(res.td));
+    } catch (error) {
+      const msg = "We ran into an error trying to open your TD.";
+      console.error(msg, error);
+      alert(msg);
+    }
   }, []);
-
-  const openFile = useCallback(
-    async (_) => {
-
-      if (!hasNativeFS()) {
-        const file = await getFileHTML5();
-        if (file) {
-          document.getElementById("link-href").value = "./" + file.name;
-          let td = await read(file);
-          setCurrentLinkedTd(JSON.parse(await td));
-        }
-        return;
-      }
-
-      let fileHandle;
-      try {
-        fileHandle = await getFileHandle();
-        const file = await fileHandle.getFile();
-        const href = "./" + file.name;
-        setCurrentLinkedTd(fileHandle);
-        document.getElementById("link-href").value = href;
-      } catch (ex) {
-        const msg = "We ran into an error trying to open your TD.";
-        console.error(msg, ex);
-        alert(msg);
-      }
-    },
-    [hasNativeFS, read]
-  );
 
   const RelationType = () => {
     const relations = ["icon", "service-doc", "alternate", "type", "tm:extends",

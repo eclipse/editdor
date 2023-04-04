@@ -18,7 +18,6 @@ export default React.createContext({
   isModified: false,
   name: '',
   fileHandle:'',
-  showConvertBtn: false,
   linkedTd: {},
   validationMessage: undefined,
 
@@ -31,7 +30,6 @@ export default React.createContext({
   addActionForm: params => {},
   addEventForm: params => {},
   removeOneOfAKindReducer: (kind, oneOfAKind) => {},
-  updateShowConvertBtn: showConvertBtn => {},
   addLinkedTd: linkedTd => {},
   updateLinkedTd: linkedTd => {},
   updateValidationMessage: validationMessage => {}

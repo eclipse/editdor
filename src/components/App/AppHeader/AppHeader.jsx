@@ -11,74 +11,28 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { useCallback, useContext, useEffect } from "react";
-import logo from "../../../assets/editdor.png";
+import editdorLogo from "../../../assets/editdor.png";
 import "../../../assets/main.css";
-import wot from "../../../assets/WoT.png";
+import wotLogo from "../../../assets/WoT.png";
 import ediTDorContext from "../../../context/ediTDorContext";
-import { getFileHandle, getFileHTML5, isThingModel, _readFileHTML5 } from "../../../util.js";
+import * as fileTdService from "../../../services/fileTdService";
 import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
 import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
 import { ShareDialog } from "../../Dialogs/ShareDialog";
-import "../App.css";
 import Button from "./Button";
 
 export default function AppHeader() {
   const context = useContext(ediTDorContext);
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  /**
-   * Check if the Browser Supports the new Native File System Api (Chromium 86.0)
-   */
-  const hasNativeFS = useCallback(() => {
-    return (
-      "chooseFileSystemEntries" in window || "showOpenFilePicker" in window
-    );
-  }, []);
-
-  const verifyDiscard = useCallback(async () => {
+  const verifyDiscard = useCallback(() => {
     if (!context.isModified) {
       return true;
     }
-    const msg =
-      "Discard changes? All changes you made to your TD will be lost.";
-    return await window.confirm(msg);
+
+    const msg = "Discard changes? All changes you made to your TD will be lost.";
+    return window.confirm(msg);
   }, [context.isModified]);
-
-  /**
-   *
-   * @param {*} file
-   *
-   * Read file content
-   */
-  const read = useCallback((file) => {
-    return file.text ? file.text() : _readFileHTML5(file);
-  }, []);
-
-  const readFile = useCallback(
-    async (file, fileHandle) => {
-      try {
-        let td = await read(file);
-        let linkedTd = {};
-        if (fileHandle !== undefined) {
-          linkedTd["./" + file.name] = fileHandle;
-        } else {
-          linkedTd["./" + file.name] = JSON.parse(td);
-        }
-        context.updateLinkedTd(undefined);
-        context.addLinkedTd(linkedTd);
-
-        context.updateOfflineTD(td);
-
-        context.setFileHandle(fileHandle || file.name);
-        context.updateIsModified(false);
-      } catch (ex) {
-        const msg = `An error occured reading ${context.offlineTD}`;
-        console.error(msg, ex);
-        //TODO: Replace with custom alert
-        alert(msg);
-      }
-    },
-    [context, read]
-  );
 
   /**
    *
@@ -86,151 +40,68 @@ export default function AppHeader() {
    *
    * Open File from Filesystem
    */
-  const openFile = useCallback(
-    async (_) => {
-      if (!(await verifyDiscard())) {
-        return;
-      }
-
-      if (!hasNativeFS()) {
-        const file = await getFileHTML5();
-        if (file) {
-          await readFile(file);
-        }
-        return;
-      }
-      let fileHandle;
-      try {
-        fileHandle = await getFileHandle();
-        const file = await fileHandle.getFile();
-        await readFile(file, fileHandle);
-      } catch (ex) {
-        const msg = "We ran into an error trying to open your TD.";
-        console.error(msg, ex);
-        alert(msg);
-      }
-    },
-    [readFile, verifyDiscard, hasNativeFS]
-  );
-
-  const writeFile = useCallback(
-    async (fileHandle, contents) => {
-      if (fileHandle.createWriter) {
-        const writer = await fileHandle.createWriter();
-        await writer.write(0, contents);
-        await writer.close();
-        return;
-      }
-
-      const writable = await fileHandle.createWritable();
-      await writable.write(contents);
-      await writable.close();
-
-      // refresh td for rendered view
-      setTimeout(() => {
-        context.updateOfflineTD(contents, "AppHEader");
-        context.updateIsModified(false);
-      }, 500);
-    },
-    [context]
-  );
-
-  const saveAsHTML5 = useCallback((filename, contents) => {
-    const aDownload = document.getElementById("aDownload");
-    let tdJSON = {};
-    let tdTitle;
-    try {
-      tdJSON = JSON.parse(contents);
-      tdTitle = tdJSON["id"] || tdJSON["title"];
-      tdTitle = tdTitle.replace(/\s/g, "") + ".jsonld";
-    } catch (e) {
-      console.debug(e);
-    }
-    filename = filename || tdTitle;
-    const opts = { type: "application/ld+json" };
-    const file = new File([contents], "", opts);
-    aDownload.href = window.URL.createObjectURL(file);
-    aDownload.setAttribute("download", filename);
-    aDownload.click();
-  }, []);
-
-  const saveFileAs = useCallback(async () => {
-    if (!hasNativeFS()) {
-      saveAsHTML5(context.name, context.offlineTD);
+  const openFile = useCallback(async () => {
+    if (!(verifyDiscard())) {
       return;
     }
 
-    let fileHandle;
     try {
-      fileHandle = await getNewFileHandle();
-    } catch (ex) {
-      const msg = "We ran into an error trying to save your TD.";
-      console.error(msg, ex);
-      return alert(msg);
-    }
+      const res = await fileTdService.readFromFile();
 
-    try {
-      await writeFile(fileHandle, context.offlineTD);
-      if (document.getElementById("linkedTd")) {
-        let href = document.getElementById("linkedTd").value;
-        if (typeof context.fileHandle !== "object") {
-          let linkedTd = context.linkedTd;
-          linkedTd[href] = fileHandle;
-          context.updateLinkedTd(linkedTd);
-        }
-      }
-      context.setFileHandle(fileHandle);
+      const linkedFileName = `./${res.fileName}`;
+      let linkedTd = {};
+      linkedTd[linkedFileName] = res.fileHandle ? res.fileHandle : JSON.parse(res.td)
+
+      context.updateOfflineTD(res.td);
       context.updateIsModified(false);
-    } catch (ex) {
-      const msg = "Unfortunately we were unable to save your TD.";
-      console.error(msg, ex);
+
+      context.setFileHandle(res.fileHandle || res.fileNname);
+      context.updateLinkedTd(undefined);
+      context.addLinkedTd(linkedTd);
+    } catch (error) {
+      const msg = "Opening a new TD was canceled or an error occured.";
+      console.error(msg, error);
       alert(msg);
     }
-  }, [saveAsHTML5, hasNativeFS, context, writeFile]);
+  }, [context, verifyDiscard]);
 
   const saveFile = useCallback(async () => {
+    let td;
     try {
-      if (!context.fileHandle) {
-        return await saveFileAs();
-      }
-      await writeFile(context.fileHandle, context.offlineTD);
-      alert("File saved");
-    } catch (ex) {
-      const msg = "Unfortunately we were unable to save your TD.";
-      console.error(msg, ex);
-      alert(msg);
-    }
-  }, [context, saveFileAs, writeFile]);
-
-  const getNewFileHandle = async () => {
-    // new file system api
-    if ("showSaveFilePicker" in window) {
-      const opts = {
-        types: [
-          {
-            description: "Thing Description",
-            accept: { "application/ld+json": [".jsonld", ".json"] },
-          },
-        ],
-      };
-
-      return await window.showSaveFilePicker(opts);
+      td = JSON.parse(context.offlineTD);
+    } catch (error) {
+      return alert("Didn't save TD. The given TD can't be parsed into a JSON object.");
     }
 
-    // old html file input
-    const opts = {
-      type: "save-file",
-      accepts: [
-        {
-          description: "Thing Description",
-          extensions: [".jsonld", ".json"],
-          mimeTypes: ["application/ld+json"],
-        },
-      ],
-    };
+    try {
+      const fileHandle = await fileTdService.saveToFile(context.name, context.fileHandle, context.offlineTD);
+      context.setFileHandle(fileHandle ?? context.fileHandle);
 
-    return await window.chooseFileSystemEntries(opts);
-  };
+      context.updateIsModified(false);
+    } catch (error) {
+      console.debug(error);
+      alert("Didn't save TD. The action was either canceled or ran into an error.");
+    }
+  }, [context]);
+
+  const createNewFile = useCallback(async () => {
+    try {
+      const fileHandle = await fileTdService.saveToFile(context.name, undefined, context.offlineTD);
+      context.setFileHandle(fileHandle ?? context.fileHandle);
+      context.updateIsModified(false);
+    } catch (error) {
+      console.debug(error);
+      alert("Didn't save TD. The action was either canceled or ran into an error.");
+    }
+  }, [context]);
+
+  const loadingCall = (func) => {
+    return async () => {
+      setIsLoading(true);
+      await func();
+      setIsLoading(false);
+    }
+  }
 
   useEffect(() => {
     const shortcutHandler = (e) => {
@@ -240,7 +111,7 @@ export default function AppHeader() {
       ) {
         e.preventDefault();
         e.stopPropagation();
-        saveFile();
+        loadingCall(saveFile)();
       }
       if (
         (window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) &&
@@ -248,7 +119,7 @@ export default function AppHeader() {
       ) {
         e.preventDefault();
         e.stopPropagation();
-        openFile();
+        loadingCall(openFile)();
       }
       if (
         (window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) &&
@@ -263,8 +134,7 @@ export default function AppHeader() {
     // Adding Eventlistener for shortcuts
     document.addEventListener("keydown", shortcutHandler, false);
     window.onbeforeunload = function (event) {
-      var message =
-        "Important: Please click on 'Save' button to leave this page.";
+      var message = "Important: Please click on 'Save' button to leave this page.";
       if (typeof event == "undefined") {
         event = window.event;
       }
@@ -277,33 +147,45 @@ export default function AppHeader() {
       //Remove Eventlistener for shortcuts before unmounting component
       document.removeEventListener("keydown", shortcutHandler, false);
     };
-  }, [openFile, saveFile, context]);
+  }, [openFile, saveFile]);
 
   const convertTmDialog = React.useRef();
-  const openConvertTmDialog = () => {
-    convertTmDialog.current.openModal();
-  };
+  const openConvertTmDialog = () => { convertTmDialog.current.openModal(); };
 
   const shareDialog = React.useRef();
-  const openShareDialog = () => {
-    shareDialog.current.openModal();
-  };
+  const openShareDialog = () => { shareDialog.current.openModal(); };
 
   const createTdDialog = React.useRef();
-  const openCreateTdDialog = () => {
-    createTdDialog.current.openModal();
-  };
+  const openCreateTdDialog = () => { createTdDialog.current.openModal(); };
+
+  /**
+   * @param {Object} td
+   * @returns {boolean}
+   */
+  function isThingModel(td) {
+    try {
+      td = JSON.parse(td);
+    } catch {
+      return false;
+    }
+
+    if (!td.hasOwnProperty("@type")) {
+      return false;
+    }
+
+    return td["@type"].indexOf("tm:ThingModel") > -1;
+  }
 
   return (
     <>
       <header className="flex justify-between items-center h-16 bg-blue-500">
         <div className="flex items-center">
-          <img className="pl-2 h-12" src={wot} alt="WOT" />
+          <img className="pl-2 h-12" src={wotLogo} alt="WOT" />
           <div className="w-2"></div>
           <button>
             <img
               className="pl-2 h-8"
-              src={logo}
+              src={editdorLogo}
               alt="LOGO"
               onClick={() =>
                 window.open("https://eclipse.github.io/editdor/", "_blank")
@@ -311,13 +193,14 @@ export default function AppHeader() {
             />
           </button>
         </div>
-        <div className="flex space-x-2 pr-2">
+        <div className="flex space-x-2 pr-2 items-center">
+          {isLoading && <div className="app-header-spinner" />}
           <Button onClick={openShareDialog}>Share</Button>
           <Button onClick={openCreateTdDialog}>New</Button>
-          <Button onClick={openFile}>Open</Button>
-          {hasNativeFS() && <Button onClick={saveFile}>Save</Button>}
-          <Button onClick={saveFileAs}>Save As</Button>
-          {(context.showConvertBtn || isThingModel(context.offlineTD)) && (
+          <Button onClick={loadingCall(openFile)}>Open</Button>
+          <Button onClick={loadingCall(saveFile)}>Save</Button>
+          <Button onClick={loadingCall(createNewFile)}>Persist As File</Button>
+          {isThingModel(context.offlineTD) && (
             <Button onClick={openConvertTmDialog}>Convert To TD</Button>
           )}
         </div>
