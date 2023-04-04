@@ -377,8 +377,7 @@ export default function TDViewer() {
               </div>
             </div>
           )}
-        </div>
-        {td !== undefined && Object.keys(td).length > 0 && (
+        </div>        {td !== undefined && Object.keys(td).length > 0 && (
           <div>
             <div className="text-3xl text-white">
               {td.title ?
@@ -386,7 +385,6 @@ export default function TDViewer() {
                 <></>
               }
             </div>
-            <RenderedObject {...attributeListObject}></RenderedObject>
             {td.description ?
               <div className="text-xl text-white pt-4">
                 {getDirectedValue(
@@ -398,6 +396,9 @@ export default function TDViewer() {
               :
               <></>
             }
+            <div className="pt-4">
+              <RenderedObject  {...attributeListObject}></RenderedObject>
+            </div>
           </div>
         )}
         <details className="pt-8">

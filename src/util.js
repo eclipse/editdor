@@ -16,7 +16,7 @@
 * @returns {boolean}
 *
 * @description
-* isThingModel takes a object as argument and checks wether
+* isThingModel takes an object as argument and checks wether
 * it is a TD or a TM. If anything, but an object is passed,
 * the function will return false by default.
 */
@@ -217,53 +217,6 @@ export const changeBetweenTd = async (context, href) => {
         document.getElementById("linkedTd").value = href;
 
     }
-}
-
-/**
-   * File Handle from native filesystem api
-   * Only JSON/JSON+LD Files are supported
-*/
-export const getFileHandle = () => {
-    const opts = {
-        types: [
-            {
-                description: "Thing Description",
-                accept: { "application/ld+json": [".jsonld", ".json"] },
-            },
-        ],
-    };
-    if ("showOpenFilePicker" in window) {
-        return window.showOpenFilePicker(opts).then((handles) => handles[0]);
-    }
-    return window.chooseFileSystemEntries();
-};
-
-/**
-   * Reading files with HTML5 input
-*/
-export const getFileHTML5 = async () => {
-    return new Promise((resolve, reject) => {
-        const fileInput = document.getElementById("fileInput");
-        fileInput.onchange = (e) => {
-            const file = fileInput.files[0];
-            if (file) {
-                return resolve(file);
-            }
-            return reject(new Error("AbortError"));
-        };
-        fileInput.click();
-    });
-};
-
-export const _readFileHTML5 = (file) => {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.addEventListener("loadend", (event) => {
-            const text = event.srcElement.result;
-            return resolve(text);
-        });
-        reader.readAsText(file);
-    });
 }
 
 /**
