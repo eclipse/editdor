@@ -66,9 +66,8 @@ export default function AppHeader() {
   }, [context, verifyDiscard]);
 
   const saveFile = useCallback(async () => {
-    let td;
     try {
-      td = JSON.parse(context.offlineTD);
+      JSON.parse(context.offlineTD);
     } catch (error) {
       return alert("Didn't save TD. The given TD can't be parsed into a JSON object.");
     }
