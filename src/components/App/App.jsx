@@ -19,8 +19,7 @@ import './App.css';
 import AppFooter from './AppFooter';
 import AppHeader from './AppHeader/AppHeader';
 
-import '../../assets/main.css';
-import { decompressSharedTd as decompressAndParseSharedTd } from '../../share';
+import { decompressSharedTd } from '../../share';
 
 const GlobalStateWrapper = (props) => {
     return (
@@ -39,22 +38,33 @@ const App = (props) => {
     useEffect(() => { dragElement(document.getElementById("separator"), "H"); }, [props])
 
     useEffect(() => {
-        if (checkedUrl || window.location.search.indexOf("td") <= -1) {
+        if (checkedUrl || (window.location.search.indexOf("td") <= -1 &&
+            window.location.search.indexOf("localstorage") <= -1)) {
             return;
         }
         checkedUrl = true;
 
         const url = new URL(window.location.href);
         const compressedTd = url.searchParams.get("td");
-        if (compressedTd == null) return;
+        if (compressedTd !== null) {
+            const td = decompressSharedTd(compressedTd);
+            if (td === undefined) {
+                alert("The lz compressed TD found in the URL couldn't be reconstructed.");
+                return;
+            };
 
-        const td = decompressAndParseSharedTd(compressedTd);
-        if (td === undefined) {
-            alert("The TD found in the URLs path couldn't be reconstructed.");
-            return;
-        };
+            context.updateOfflineTD(JSON.stringify(td, null, 2));
+        }
 
-        context.updateOfflineTD(JSON.stringify(td, null, 2));
+        if (url.searchParams.has("localstorage")) {
+            let td = localStorage.getItem("td")
+            if (td === undefined) {
+                alert('Request to read TD from local storage failed.')
+                return
+            }
+            td = JSON.parse(td)
+            context.updateOfflineTD(JSON.stringify(td, null, 2));
+        }
     }, [context]);
 
     return (

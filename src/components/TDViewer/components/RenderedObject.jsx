@@ -11,10 +11,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { useContext, useCallback, useState } from 'react';
-import ediTDorContext from '../../context/ediTDorContext';
-import "../../assets/main.css"
+import ediTDorContext from '../../../context/ediTDorContext';
 import { ChevronRight, ChevronDown } from 'react-feather';
-import { getDirectedValue } from '../../util';
+import { getDirectedValue } from '../../../util';
 
 function isObject(val) {
     if (val === null) { return false; }

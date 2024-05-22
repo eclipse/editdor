@@ -12,12 +12,11 @@
  ********************************************************************************/
 import React, { useContext } from "react";
 import { PlusCircle, Trash2 } from "react-feather";
-import "../../assets/main.css";
-import ediTDorContext from "../../context/ediTDorContext";
-import { buildAttributeListObject, separateForms } from "../../util.js";
-import { AddFormDialog } from "../Dialogs/AddFormDialog";
-import { InfoIconWrapper } from "../InfoIcon/InfoIcon";
-import { getFormsTooltipContent } from "../InfoIcon/InfoTooltips";
+import ediTDorContext from "../../../context/ediTDorContext";
+import { buildAttributeListObject, separateForms } from "../../../util.js";
+import { AddFormDialog } from "../../Dialogs/AddFormDialog";
+import { InfoIconWrapper } from "../../InfoIcon/InfoIcon";
+import { getFormsTooltipContent } from "../../InfoIcon/InfoTooltips";
 import Form from "./Form";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];

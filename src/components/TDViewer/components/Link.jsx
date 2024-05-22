@@ -11,10 +11,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { useContext } from "react";
-import "../../assets/main.css"
-import ediTDorContext from "../../context/ediTDorContext";
+import ediTDorContext from "../../../context/ediTDorContext";
 import { Trash2, Info } from "react-feather";
-import { changeBetweenTd } from '../../util';
+import { changeBetweenTd } from '../../../util';
 
 export default function Link(props) {
 

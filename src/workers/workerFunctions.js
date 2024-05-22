@@ -1,7 +1,41 @@
 // Caches the fetched schemas and is used for future requests to the same schema address.
 let schemaCache = new Map();
 
+const modbusSchemaUri = "https://w3c.github.io/wot-binding-templates/bindings/protocols/modbus/modbus.schema.json";
+const coapSchemaUri = "https://w3c.github.io/wot-binding-templates/bindings/protocols/coap/coap.schema.json";
+const httpSchemaUri = "https://w3c.github.io/wot-binding-templates/bindings/protocols/http/http.schema.json";
+const mqttSchemaUri = "https://w3c.github.io/wot-binding-templates/bindings/protocols/mqtt/mqtt.schema.json";
+
+let schemaUriMap = undefined;
+
 export { extractSchemaUrisFromContext, extractSchemaUriFromBase, fetchSchemas, updateSchemaCache }
+
+/**
+ * Initializes the map that contains information about all supported schemas.
+ */
+function initializeSchemaUriMap() {
+    const tmpSchemaUriMap = new Map();
+    tmpSchemaUriMap.set("modbus", modbusSchemaUri);
+    tmpSchemaUriMap.set("modbus+tcp", modbusSchemaUri);
+    tmpSchemaUriMap.set("modbus+udp", modbusSchemaUri);
+
+    tmpSchemaUriMap.set("coap", coapSchemaUri);
+    tmpSchemaUriMap.set("coap+tcp", coapSchemaUri);
+    tmpSchemaUriMap.set("coap+ws", coapSchemaUri);
+    tmpSchemaUriMap.set("coaps", coapSchemaUri);
+    tmpSchemaUriMap.set("coaps+tcp", coapSchemaUri);
+    tmpSchemaUriMap.set("coaps+ws", coapSchemaUri);
+
+    tmpSchemaUriMap.set("http", httpSchemaUri);
+    tmpSchemaUriMap.set("https", httpSchemaUri);
+
+    tmpSchemaUriMap.set("mqtt", mqttSchemaUri);
+    tmpSchemaUriMap.set("mqtt+tcp", mqttSchemaUri);
+    tmpSchemaUriMap.set("mqtt+ssl", mqttSchemaUri);
+    tmpSchemaUriMap.set("mqtt+ws", mqttSchemaUri);
+
+    schemaUriMap = tmpSchemaUriMap;
+}
 
 /**
 * Extracts the schemas from a WoT context.
@@ -96,12 +130,13 @@ function extractSchemaUriFromBase(td) {
         return [];
     }
 
-    const bindingSchemaUriMap = new Map();
-    bindingSchemaUriMap.set("modbus", "https://w3c.github.io/wot-binding-templates/bindings/protocols/modbus/modbus.schema.json");
+    if (schemaUriMap === undefined) {
+        initializeSchemaUriMap();
+    }
 
     let schema = parsedBaseUrl.protocol.substring(0, parsedBaseUrl.protocol.length - 1);
     console.debug(`cheking binding schema map for ${schema}...`);
-    let schemaUri = bindingSchemaUriMap.get(schema);
+    let schemaUri = schemaUriMap.get(schema);
 
     return !schemaUri ? [] : [schemaUri];
 }
