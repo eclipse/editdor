@@ -61,7 +61,7 @@ export const ShareDialog = forwardRef((props, ref) => {
                 cancelText={"Open in Playground"}
                 onCancel={
                     () => {
-                        window.open(`http://plugfest.thingweb.io/playground/#${compressedTd}`);
+                        window.open(`https://playground.thingweb.io//#${compressedTd}`);
                         close();
                     }
                 }
