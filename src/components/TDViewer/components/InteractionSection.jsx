@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react';
-import ediTDorContext from '../../context/ediTDorContext';
-import { AddActionDialog } from '../Dialogs/AddActionDialog';
-import { AddEventDialog } from '../Dialogs/AddEventDialog';
-import { AddPropertyDialog } from '../Dialogs/AddPropertyDialog';
-import { InfoIconWrapper } from '../InfoIcon/InfoIcon';
-import { tooltipMapper } from '../InfoIcon/InfoTooltips';
+import ediTDorContext from '../../../context/ediTDorContext';
+import { AddActionDialog } from '../../Dialogs/AddActionDialog';
+import { AddEventDialog } from '../../Dialogs/AddEventDialog';
+import { AddPropertyDialog } from '../../Dialogs/AddPropertyDialog';
+import { InfoIconWrapper } from '../../InfoIcon/InfoIcon';
+import { tooltipMapper } from '../../InfoIcon/InfoTooltips';
 import Action from './Action';
 import Event from './Event';
 import Property from './Property';
@@ -161,6 +161,7 @@ export const InteractionSection = (props) => {
                 {addInteractionDialog}
             </div>
             {buildChildren() && <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{buildChildren()}</div>}
+            {!buildChildren() && <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{}</div>}
         </>
     );
 }

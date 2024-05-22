@@ -12,10 +12,10 @@
  ********************************************************************************/
 import React, { useCallback, useContext, useEffect } from "react";
 import editdorLogo from "../../../assets/editdor.png";
-import "../../../assets/main.css";
 import wotLogo from "../../../assets/WoT.png";
 import ediTDorContext from "../../../context/ediTDorContext";
 import * as fileTdService from "../../../services/fileTdService";
+import { ChatDialog } from "../../Dialogs/ChatDialog";
 import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
 import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
 import { ShareDialog } from "../../Dialogs/ShareDialog";
@@ -157,6 +157,13 @@ export default function AppHeader() {
   const createTdDialog = React.useRef();
   const openCreateTdDialog = () => { createTdDialog.current.openModal(); };
 
+  const chatDialog = React.useRef();
+  const openChatDialog = () => { chatDialog.current.openModal(); };
+
+  const isChatEnabled = useCallback(() => {
+    return process.env.REACT_APP_OPENAI_KEY && process.env.REACT_APP_OPENAI_URI;
+  }, []);
+
   /**
    * @param {Object} td
    * @returns {boolean}
@@ -194,6 +201,7 @@ export default function AppHeader() {
         </div>
         <div className="flex space-x-2 pr-2 items-center">
           {isLoading && <div className="app-header-spinner" />}
+          {isChatEnabled() && <Button onClick={openChatDialog}>GPT</Button>}
           <Button onClick={openShareDialog}>Share</Button>
           <Button onClick={openCreateTdDialog}>New</Button>
           <Button onClick={loadingCall(openFile)}>Open</Button>
@@ -207,6 +215,7 @@ export default function AppHeader() {
       <ConvertTmDialog ref={convertTmDialog} />
       <ShareDialog ref={shareDialog} />
       <CreateTdDialog ref={createTdDialog} />
+      <ChatDialog ref={chatDialog} />
       <input
         className="h-0"
         type="file"

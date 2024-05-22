@@ -7,6 +7,14 @@ Find the ediTDor here to try it out:
 
 https://eclipse.github.io/editdor/
 
+## Using the AI Chat Function
+The AI chat is currently implemented using Azures cognitive services API. To make use of the chat
+the app has to be compiled with two additional environment variables:
+```bash
+REACT_APP_OPENAI_KEY={api_key}
+REACT_APP_OPENAI_URI={azure_resource_address}
+```
+
 ## About this project
 
 The goal of this project is the easy creation of W3C Thing Description instances and Thing Models by providing a platform-independent ediTDor tool. The following features are addressed in this project
@@ -33,6 +41,10 @@ All systems require the following:
 
 * [NodeJS](https://nodejs.org/) version 10+ (e.g., 10.13.0 LTS)
 
+
+## Install dependencies
+`npm install` install all the dependencies listed within package.json
+
 ## Start Locally
 `npm run start` starts a local development server on Port 3000 (http://localhost:3000)
 
@@ -41,7 +53,8 @@ All systems require the following:
 
 `npm build` builds the project for deployment
 
-## Implemented Features: 
-* JSON Editor with JSON Schema support for TD (Autocompletion, JSON Schema Validation)
+## Implemented Features in the ediTDor: 
+* JSON editor with JSON Schema support for TD (autocompletion)
 * Add Property, Action, Event by wizard
 * Render TD to be more human readable
+* Validate JSON Syntax and JSON Schema for TD (JSONLD and Additional Validation for nested TMs will be implemented in the future)
