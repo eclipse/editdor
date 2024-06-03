@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -61,7 +61,7 @@ export const ShareDialog = forwardRef((props, ref) => {
                 cancelText={"Open in Playground"}
                 onCancel={
                     () => {
-                        window.open(`http://plugfest.thingweb.io/playground/#${compressedTd}`);
+                        window.open(`https://playground.thingweb.io//#${compressedTd}`);
                         close();
                     }
                 }
