@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -13,7 +13,6 @@
 import React, { forwardRef, useContext, useEffect, useImperativeHandle } from 'react';
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
-import { prepareTdForSharing } from "../../share";
 import { DialogTemplate } from "./DialogTemplate";
 
 export const ConvertTmDialog = forwardRef((props, ref) => {
@@ -182,9 +181,17 @@ const convertTmToTd = (td, htmlInputs) => {
         mappingObject[y.key] = elem.value
         return elem.value
     });
-    Object.keys(mappingObject).forEach(key => {
-        td = td.split(`{{${key}}}`).join(mappingObject[key])
-    })
+    Object.keys(mappingObject).forEach((key) => {
+        if (!isNaN(Number(mappingObject[key]))) {
+          let tdParts = td.split(`"{{${key}}}"`)
+          if (tdParts.length === 1) {
+            tdParts = td.split(`{{${key}}}`)
+          }
+          td = tdParts.join(mappingObject[key])
+        } else {
+          td = td.split(`{{${key}}}`).join(mappingObject[key])
+        }
+      });
     const parse = JSON.parse(td);
 
     // Create new affordances by leaving only the ticked ones
@@ -228,7 +235,6 @@ const convertTmToTd = (td, htmlInputs) => {
     delete parse["@type"];
     delete parse["tm:required"];
 
-    const compressedTd = prepareTdForSharing(JSON.stringify(parse));
-    let permalink = `${window.location.origin + window.location.pathname}?td=${compressedTd}`;
-    window.open(permalink, "_blank");
+    localStorage.setItem('td', JSON.stringify(parse))
+    window.open(`${window.location.origin + window.location.pathname}?localstorage`, "_blank");
 }

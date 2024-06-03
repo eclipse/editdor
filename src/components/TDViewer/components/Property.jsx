@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -12,12 +12,11 @@
  ********************************************************************************/
 import React, { useContext } from "react";
 import { PlusCircle, Trash2 } from "react-feather";
-import "../../assets/main.css";
-import ediTDorContext from "../../context/ediTDorContext";
-import { buildAttributeListObject, separateForms } from "../../util.js";
-import { AddFormDialog } from "../Dialogs/AddFormDialog";
-import { InfoIconWrapper } from "../InfoIcon/InfoIcon";
-import { getFormsTooltipContent } from "../InfoIcon/InfoTooltips";
+import ediTDorContext from "../../../context/ediTDorContext";
+import { buildAttributeListObject, separateForms } from "../../../util.js";
+import { AddFormDialog } from "../../Dialogs/AddFormDialog";
+import { InfoIconWrapper } from "../../InfoIcon/InfoIcon";
+import { getFormsTooltipContent } from "../../InfoIcon/InfoTooltips";
 import Form from "./Form";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
@@ -46,7 +45,7 @@ export default function Property(props) {
 
     return (
         <details>
-            <summary className="text-xl text-gray-400 flex flex-row w-full justify-start items-center cursor-pointer p-0.5">
+            <summary className="text-xl text-white flex flex-row w-full justify-start items-center cursor-pointer p-0.5">
                 <h3 className="flex-grow">{property.title ?? props.propName}</h3>
                 <button className="text-base w-6 h-6 p-1 m-1 rounded-full bg-gray-400" onClick={onDeletePropertyClicked}>
                     <Trash2 size={16} color="black" />

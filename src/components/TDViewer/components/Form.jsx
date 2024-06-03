@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -11,12 +11,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { useContext } from "react";
-import "../../assets/main.css"
-import ediTDorContext from "../../context/ediTDorContext";
 import { Trash2 } from "react-feather";
+import ediTDorContext from "../../../context/ediTDorContext";
+
 
 export default function Form(props) {
-
     const formChooser = {
         "observeproperty": <ObserveForm type="properties" form={props.form} propName={props.propName} />,
         "unobserveproperty": <UnobserveForm type="properties" form={props.form} propName={props.propName} />,
@@ -50,6 +49,7 @@ export function ObserveForm(props) {
     const deleteForm = (e) => {
         context.removeForm(e)
     }
+
     return (
         <div className="flex flex-row items-center justify-start h-10 w-full bg-formOrange rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formOrange">
             <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
@@ -68,6 +68,7 @@ export function UnobserveForm(props) {
     const deleteForm = (e) => {
         context.removeForm(e)
     }
+
     return (
         <div className="flex flex-row items-center justify-start h-10 w-full bg-formRed rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formRed">
             <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
@@ -86,6 +87,7 @@ export function ObserveAllForm(props) {
     const deleteForm = (e) => {
         context.removeForm(e)
     }
+
     return (
         <div className="flex flex-row items-center justify-start h-10 w-full bg-formOrange rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formOrange">
             <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
@@ -104,6 +106,7 @@ export function UnobserveAllForm(props) {
     const deleteForm = (e) => {
         context.removeForm(e)
     }
+
     return (
         <div className="flex flex-row items-center justify-start h-10 w-full bg-formRed rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formRed">
             <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
@@ -122,6 +125,7 @@ export function ReadForm(props) {
     const deleteForm = (e) => {
         context.removeForm(e)
     }
+
     return (
         <div className="flex flex-row items-center justify-start h-10 w-full bg-formGreen rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formGreen">
             <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
@@ -140,6 +144,7 @@ export function ReadMultipleForm(props) {
     const deleteForm = (e) => {
         context.removeForm(e)
     }
+
     return (
         <div className="flex flex-row items-center justify-start h-10 w-full bg-formGreen rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formGreen">
             <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
@@ -158,6 +163,7 @@ export function ReadAllForm(props) {
     const deleteForm = (e) => {
         context.removeForm(e)
     }
+
     return (
         <div className="flex flex-row items-center justify-start h-10 w-full bg-formGreen rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formGreen">
             <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
@@ -176,6 +182,7 @@ export function WriteForm(props) {
     const deleteForm = (e) => {
         context.removeForm(e)
     }
+
     return (
         <div className="flex flex-row items-center justify-start h-10 w-full bg-formBlue rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formBlue">
             <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
@@ -194,6 +201,7 @@ export function WriteMultipleForm(props) {
     const deleteForm = (e) => {
         context.removeForm(e)
     }
+
     return (
         <div className="flex flex-row items-center justify-start h-10 w-full bg-formBlue rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formBlue">
             <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
@@ -212,6 +220,7 @@ export function WriteAllForm(props) {
     const deleteForm = (e) => {
         context.removeForm(e)
     }
+
     return (
         <div className="flex flex-row items-center justify-start h-10 w-full bg-formBlue rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formBlue">
             <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
@@ -231,6 +240,7 @@ export function InvokeForm(props) {
     const deleteForm = (e) => {
         context.removeForm(e)
     }
+
     return (
         <div className="flex flex-row items-center justify-start h-10 w-full bg-formRed rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formRed">
             <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
@@ -249,6 +259,7 @@ export function UndefinedForm(props) {
     const deleteForm = (e) => {
         context.removeForm(e)
     }
+
     return (
         <div className="flex flex-row items-center justify-start h-10 w-full bg-gray-300 rounded-md px-4 mt-2 bg-opacity-75 border-2 border-gray-300">
             <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -12,47 +12,46 @@
  ********************************************************************************/
 import React, { useContext } from "react";
 import { PlusCircle, Trash2 } from "react-feather";
-import "../../assets/main.css";
-import ediTDorContext from "../../context/ediTDorContext";
-import { buildAttributeListObject, separateForms } from "../../util.js";
-import { AddFormDialog } from "../Dialogs/AddFormDialog";
-import { InfoIconWrapper } from "../InfoIcon/InfoIcon";
-import { getFormsTooltipContent } from "../InfoIcon/InfoTooltips";
+import ediTDorContext from "../../../context/ediTDorContext";
+import { buildAttributeListObject, separateForms } from "../../../util.js";
+import { AddFormDialog } from "../../Dialogs/AddFormDialog";
+import { InfoIconWrapper } from "../../InfoIcon/InfoIcon";
+import { getFormsTooltipContent } from "../../InfoIcon/InfoTooltips";
 import Form from "./Form";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
 
-export default function Event(props) {
+export default function Action(props) {
     const context = useContext(ediTDorContext);
 
     const addFormDialog = React.useRef();
     const openAddFormDialog = () => { addFormDialog.current.openModal() }
 
-    if ((Object.keys(props.event).length === 0 && props.event.constructor !== Object)) {
-        return <div className="text-3xl text-white">Event could not be rendered because mandatory fields are missing.</div>
+    if ((Object.keys(props.action).length === 0 && props.action.constructor !== Object)) {
+        return <div className="text-3xl text-white">Action could not be rendered because mandatory fields are missing.</div>
     }
 
-    const event = props.event;
-    const forms = separateForms(props.event.forms);
-    const attributeListObject = buildAttributeListObject({ name: props.eventName }, props.event, alreadyRenderedKeys);
+    const action = props.action;
+    const forms = separateForms(props.action.forms);
+    const attributeListObject = buildAttributeListObject({ name: props.actionName }, props.action, alreadyRenderedKeys);
     const attributes = Object.keys(attributeListObject).map(x => {
         return <li key={x}>{x} : {JSON.stringify(attributeListObject[x])}</li>
     });
 
-    const onDeleteEventClicked = () => {
-        context.removeOneOfAKindReducer('events', props.eventName)
+    const onDeleteActionClicked = () => {
+        context.removeOneOfAKindReducer('actions', props.actionName)
     }
 
     return (
         <details>
             <summary className="text-xl text-gray-400 flex flex-row justify-start items-center cursor-pointer p-0.5">
-                <div className="flex-grow">{event.title ?? props.eventName}</div>
-                <button className="text-base w-6 h-6 p-1 m-1 rounded-full bg-gray-400" onClick={onDeleteEventClicked}>
+                <div className="flex-grow">{action.title ?? props.actionName}</div>
+                <button className="text-base w-6 h-6 p-1 m-1 rounded-full bg-gray-400" onClick={onDeleteActionClicked}>
                     <Trash2 size={16} color="black" />
                 </button>
             </summary>
             <div className="mb-4">
-                <div className="text-lg text-gray-400 pb-2">{event.description}</div>
+                <div className="text-lg text-gray-400 pb-2">{action.description}</div>
                 <ul className="text-base text-gray-300 list-disc pl-8">{attributes}</ul>
                 <div className="flex flex-row items-center ">
                     <div className="flex flex-grow">
@@ -63,14 +62,14 @@ export default function Event(props) {
                     <button onClick={openAddFormDialog}>
                         <PlusCircle color="#cacaca" size="18" />
                     </button>
-                    <AddFormDialog type="event"
-                        interaction={event}
-                        interactionName={props.eventName}
+                    <AddFormDialog type="action"
+                        interaction={action}
+                        interactionName={props.actionName}
                         ref={addFormDialog}
                     />
                 </div>
                 {forms.map((form, i) => (
-                    <Form key={i} form={form} propName={props.eventName} interactionType={"event"}></Form>
+                    <Form key={i} form={form} propName={props.actionName} interactionType={"action"}></Form>
                 ))}
             </div>
         </details>
