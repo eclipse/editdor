@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -10,7 +10,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-
 import React, { useContext, useEffect, useState } from "react";
 import ediTDorContext from "../../context/ediTDorContext";
 import {

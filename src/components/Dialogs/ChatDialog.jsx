@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -137,17 +137,19 @@ export const ChatDialog = forwardRef((props, ref) => {
     return (
         <div className="flex w-full h-full absolute justify-end items-end z-10 p-4 pointer-events-none">
             <div className="w-full md:w-3/5 lg:w-2/5  max-h-full shadow-xl bg-gray-600 rounded-xl text-white pointer-events-auto">
-                <div className="flex flex-col justify-start items-start p-4 ">
+                <div className="flex flex-col justify-start items-start p-4">
                     <div className="flex w-full justify-between pb-4">
                         <h1 className="text-xl font-bold">Ask Your AI Assistant</h1>
                         <button className='bg-gray-500 rounded-xl p-2' onClick={close}>
                             <FaTimes></FaTimes>
                         </button>
                     </div>
-                    <div className="overflow-y-auto overflow-x-hidden max-h-[32rem]" >
+
+                    <div className="w-full overflow-y-auto overflow-x-hidden max-h-[32rem]" >
                         {buildChildren()}
                         <div ref={lastMessageRef} />
                     </div>
+
                     {isWaitingForResponse &&
                         <div className='chat chat-start'>
                             <div className='chat-bubble bg-gray-500 text-white flex items-center'>
@@ -157,11 +159,13 @@ export const ChatDialog = forwardRef((props, ref) => {
                             </div>
                         </div>
                     }
+
                     {isLastMessageFromGpt() && !isWaitingForResponse &&
                         <button className="link pt-2" onClick={copyLastMessageToEditor}>
                             Copy last message to editor
                         </button>
                     }
+
                     <div className="flex w-full pt-4">
                         <input
                             name="Chat"
