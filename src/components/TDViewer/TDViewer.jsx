@@ -58,7 +58,7 @@ export default function TDViewer() {
         return (
             <div className="flex h-full w-full bg-gray-500 justify-center align-center text-center ">
                 <div className="text-4xl text-white place-self-center">
-                    Start writing a new TD by clicking "New TD"
+                    Start writing a new TD or TM by clicking "New"
                 </div>
             </div>
         );
