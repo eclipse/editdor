@@ -46,11 +46,22 @@ export default function TDViewer() {
     addFormDialog.current.openModal();
   };
 
-  useEffect(() => {
-    try {
-      setTd(JSON.parse(context.offlineTD));
-    } catch (e) {
-      console.debug(e);
+    useEffect(() => {
+        try {
+            setTd(JSON.parse(context.offlineTD));
+        } catch (e) {
+            console.debug(e);
+        }
+    }, [context.offlineTD]);
+
+    if (!td || !Object.keys(td).length) {
+        return (
+            <div className="flex h-full w-full bg-gray-500 justify-center align-center text-center ">
+                <div className="text-4xl text-white place-self-center">
+                    Start writing a new TD or TM by clicking "New"
+                </div>
+            </div>
+        );
     }
   }, [context.offlineTD]);
 
