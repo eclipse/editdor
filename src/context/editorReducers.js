@@ -24,201 +24,205 @@ export const UPDATE_LINKED_TD = "UPDATE_LINKED_TD";
 export const UPDATE_VALIDATION_MESSAGE = "UPDATE_VALIDATION_MESSAGE";
 
 const updateOfflineTDReducer = (offlineTD, state) => {
-  let linkedTd = state.linkedTd;
-  try {
-    //If the user write Thing description without wizard, we save it in linkedTd
-    if (!linkedTd) {
-      let parsedTd = JSON.parse(offlineTD);
-      linkedTd = {};
-      let href = parsedTd["title"] || "ediTDor Thing";
-      linkedTd[href] = parsedTd;
-    } else if (linkedTd && typeof state.fileHandle !== "object") {
-      let parsedTd = JSON.parse(offlineTD);
-      if (document.getElementById("linkedTd")) {
-        let href = document.getElementById("linkedTd").value;
-        if (href === "") {
-          linkedTd[parsedTd["title"] || "ediTDor Thing"] = parsedTd;
-        } else {
-          linkedTd[href] = parsedTd;
-        }
-      }
-    }
-  } catch (e) {
-    let error = e.message;
-    console.debug(error);
-  }
-  return { ...state, offlineTD, isModified: true, linkedTd: linkedTd };
+	let linkedTd = state.linkedTd;
+	try {
+		//If the user write Thing description without wizard, we save it in linkedTd
+		if (!linkedTd) {
+			let parsedTd = JSON.parse(offlineTD);
+			linkedTd = {};
+			let href = parsedTd["title"] || "ediTDor Thing";
+			linkedTd[href] = parsedTd;
+		} else if (linkedTd && typeof state.fileHandle !== "object") {
+			let parsedTd = JSON.parse(offlineTD);
+			if (document.getElementById("linkedTd")) {
+				let href = document.getElementById("linkedTd").value;
+				if (href === "") {
+					linkedTd[parsedTd["title"] || "ediTDor Thing"] = parsedTd;
+				} else {
+					linkedTd[href] = parsedTd;
+				}
+			}
+		}
+	} catch (e) {
+		let error = e.message;
+		console.debug(error);
+	}
+	return { ...state, offlineTD, isModified: true, linkedTd: linkedTd };
 };
 
 const removeFormReducer = (form, state) => {
-  let offlineTD = JSON.parse(state.offlineTD);
-  console.log(form);
-  if (form.type === "forms") {
-    offlineTD.forms.forEach((element, i) => {
-      if (typeof element.op === "string") {
-        offlineTD.forms.splice(i, 1);
-      } else {
-        if (
-          element.href === form.form.href &&
-          element.op.indexOf(form.form.op) !== -1
-        ) {
-          element.op.splice(element.op.indexOf(form.form.op), 1);
-        }
-        if (element.op.length === 0) {
-          offlineTD.forms.splice(i, 1);
-        }
-      }
-    });
-  } else {
-    try {
-      offlineTD[form.type][form.propName].forms.forEach((element, i) => {
-        if (typeof element.op === "string") {
-          if (element.href === form.form.href) {
-            offlineTD[form.type][form.propName].forms.splice(i, 1);
-          }
-        } else {
-          if (
-            element.href === form.form.href &&
-            element.op.indexOf(form.form.op) !== -1
-          ) {
-            element.op.splice(element.op.indexOf(form.form.op), 1);
-          }
-          if (element.op.length === 0) {
-            offlineTD[form.type][form.propName].forms.splice(i, 1);
-          }
-        }
-      });
-    } catch (e) {
-      alert("Sorry we were unable to delete the Form.");
-    }
-  }
-  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+	let offlineTD = JSON.parse(state.offlineTD);
+	console.log(form);
+	if (form.type === "forms") {
+		offlineTD.forms.forEach((element, i) => {
+			if (typeof element.op === "string") {
+				offlineTD.forms.splice(i, 1);
+			} else {
+				if (
+					element.href === form.form.href &&
+					element.op.indexOf(form.form.op) !== -1
+				) {
+					element.op.splice(element.op.indexOf(form.form.op), 1);
+				}
+				if (element.op.length === 0) {
+					offlineTD.forms.splice(i, 1);
+				}
+			}
+		});
+	} else {
+		try {
+			offlineTD[form.type][form.propName].forms.forEach((element, i) => {
+				if (typeof element.op === "string") {
+					if (element.href === form.form.href) {
+						offlineTD[form.type][form.propName].forms.splice(i, 1);
+					}
+				} else {
+					if (
+						element.href === form.form.href &&
+						element.op.indexOf(form.form.op) !== -1
+					) {
+						element.op.splice(element.op.indexOf(form.form.op), 1);
+					}
+					if (element.op.length === 0) {
+						offlineTD[form.type][form.propName].forms.splice(i, 1);
+					}
+				}
+			});
+		} catch (e) {
+			alert("Sorry we were unable to delete the Form.");
+		}
+	}
+	return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
 
 const removeLinkReducer = (index, state) => {
-  let offlineTD = JSON.parse(state.offlineTD);
-  try {
-    offlineTD["links"].splice(index, 1);
-  } catch (e) {
-    alert("Sorry we were unable to delete the Link.");
-  }
-  let linkedTd = state.linkedTd;
-  if (linkedTd && typeof state.fileHandle !== "object") {
-    if (document.getElementById("linkedTd")) {
-      let href = document.getElementById("linkedTd").value;
-      if (href === "") {
-        linkedTd[offlineTD["title"] || "ediTDor Thing"] = offlineTD;
-      } else {
-        linkedTd[href] = offlineTD;
-      }
-    }
-  }
-  return {
-    ...state,
-    offlineTD: JSON.stringify(offlineTD, null, 2),
-    linkedTd: linkedTd,
-  };
+	let offlineTD = JSON.parse(state.offlineTD);
+	try {
+		offlineTD["links"].splice(index, 1);
+	} catch (e) {
+		alert("Sorry we were unable to delete the Link.");
+	}
+	let linkedTd = state.linkedTd;
+	if (linkedTd && typeof state.fileHandle !== "object") {
+		if (document.getElementById("linkedTd")) {
+			let href = document.getElementById("linkedTd").value;
+			if (href === "") {
+				linkedTd[offlineTD["title"] || "ediTDor Thing"] = offlineTD;
+			} else {
+				linkedTd[href] = offlineTD;
+			}
+		}
+	}
+	return {
+		...state,
+		offlineTD: JSON.stringify(offlineTD, null, 2),
+		linkedTd: linkedTd,
+	};
 };
 
 const removeOneOfAKindReducer = (kind, oneOfAKindName, state) => {
-  let offlineTD = JSON.parse(state.offlineTD);
-  try {
-    delete offlineTD[kind][oneOfAKindName];
-  } catch (e) {
-    alert("Sorry we were unable to delete the Form.");
-  }
-  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+	let offlineTD = JSON.parse(state.offlineTD);
+	try {
+		delete offlineTD[kind][oneOfAKindName];
+	} catch (e) {
+		alert("Sorry we were unable to delete the Form.");
+	}
+	return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
 
 const addPropertyFormReducer = (form, state) => {
-  let offlineTD = JSON.parse(state.offlineTD);
-  const property = offlineTD.properties[form.propName];
-  if (property.forms === undefined) {
-    property.forms = [];
-  }
-  property.forms.push(form.form);
-  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+	let offlineTD = JSON.parse(state.offlineTD);
+	const property = offlineTD.properties[form.propName];
+	if (property.forms === undefined) {
+		property.forms = [];
+	}
+	property.forms.push(form.form);
+	return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
 
 const addLinkedTd = (td, state) => {
-  let resultingLinkedTd = {};
-  let linkedTd = state.linkedTd;
+	let resultingLinkedTd = {};
+	let linkedTd = state.linkedTd;
 
-  if (linkedTd === undefined) {
-    resultingLinkedTd = td;
-  } else {
-    resultingLinkedTd = Object.assign(linkedTd, td);
-  }
-  return { ...state, linkedTd: resultingLinkedTd };
+	if (linkedTd === undefined) {
+		resultingLinkedTd = td;
+	} else {
+		resultingLinkedTd = Object.assign(linkedTd, td);
+	}
+	return { ...state, linkedTd: resultingLinkedTd };
 };
 
 const updateLinkedTd = (td, state) => {
-  return { ...state, linkedTd: td };
+	return { ...state, linkedTd: td };
 };
 
 const addActionFormReducer = (params, state) => {
-  let offlineTD = JSON.parse(state.offlineTD);
-  const action = offlineTD.actions[params.actionName];
-  console.log("ActionForms", action.forms);
-  if (action.forms === undefined) {
-    action.forms = [];
-  }
-  action.forms.push(params.form);
-  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+	let offlineTD = JSON.parse(state.offlineTD);
+	const action = offlineTD.actions[params.actionName];
+	console.log("ActionForms", action.forms);
+	if (action.forms === undefined) {
+		action.forms = [];
+	}
+	action.forms.push(params.form);
+	return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
 
 const addEventFormReducer = (params, state) => {
-  let offlineTD = JSON.parse(state.offlineTD);
-  const event = offlineTD.events[params.eventName];
-  if (event.forms === undefined) {
-    event.forms = [];
-  }
-  event.forms.push(params.form);
-  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+	let offlineTD = JSON.parse(state.offlineTD);
+	const event = offlineTD.events[params.eventName];
+	if (event.forms === undefined) {
+		event.forms = [];
+	}
+	event.forms.push(params.form);
+	return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
 
 const updateIsModified = (isModified, state) => {
-  return { ...state, isModified: isModified };
+	return { ...state, isModified: isModified };
 };
 
 const updateFileHandleReducer = (fileHandle, state) => {
-  return { ...state, fileHandle: fileHandle };
+	return { ...state, fileHandle: fileHandle };
 };
 
 const updateValidationMessage = (validationMessage, state) => {
-  return { ...state, validationMessage };
+	return { ...state, validationMessage };
 };
 
 const editdorReducer = (state, action) => {
-  switch (action.type) {
-    case UPDATE_OFFLINE_TD:
-      return updateOfflineTDReducer(action.offlineTD, state);
-    case UPDATE_IS_MODFIED:
-      return updateIsModified(action.isModified, state);
-    case SET_FILE_HANDLE:
-      const newState = updateFileHandleReducer(action.fileHandle, state);
-      return newState;
-    case REMOVE_FORM_FROM_TD:
-      return removeFormReducer(action.form, state);
-    case REMOVE_LINK_FROM_TD:
-      return removeLinkReducer(action.link, state);
-    case REMOVE_ONE_OF_A_KIND_FROM_TD:
-      return removeOneOfAKindReducer(action.kind, action.oneOfAKindName, state);
-    case ADD_PROPERTYFORM_TO_TD:
-      return addPropertyFormReducer(action.form, state);
-    case ADD_ACTIONFORM_TO_TD:
-      return addActionFormReducer(action.params, state);
-    case ADD_EVENTFORM_TO_TD:
-      return addEventFormReducer(action.params, state);
-    case ADD_LINKED_TD:
-      return addLinkedTd(action.linkedTd, state);
-    case UPDATE_LINKED_TD:
-      return updateLinkedTd(action.linkedTd, state);
-    case UPDATE_VALIDATION_MESSAGE:
-      return updateValidationMessage(action.validationMessage, state);
-    default:
-      return state;
-  }
+	switch (action.type) {
+		case UPDATE_OFFLINE_TD:
+			return updateOfflineTDReducer(action.offlineTD, state);
+		case UPDATE_IS_MODFIED:
+			return updateIsModified(action.isModified, state);
+		case SET_FILE_HANDLE:
+			const newState = updateFileHandleReducer(action.fileHandle, state);
+			return newState;
+		case REMOVE_FORM_FROM_TD:
+			return removeFormReducer(action.form, state);
+		case REMOVE_LINK_FROM_TD:
+			return removeLinkReducer(action.link, state);
+		case REMOVE_ONE_OF_A_KIND_FROM_TD:
+			return removeOneOfAKindReducer(
+				action.kind,
+				action.oneOfAKindName,
+				state
+			);
+		case ADD_PROPERTYFORM_TO_TD:
+			return addPropertyFormReducer(action.form, state);
+		case ADD_ACTIONFORM_TO_TD:
+			return addActionFormReducer(action.params, state);
+		case ADD_EVENTFORM_TO_TD:
+			return addEventFormReducer(action.params, state);
+		case ADD_LINKED_TD:
+			return addLinkedTd(action.linkedTd, state);
+		case UPDATE_LINKED_TD:
+			return updateLinkedTd(action.linkedTd, state);
+		case UPDATE_VALIDATION_MESSAGE:
+			return updateValidationMessage(action.validationMessage, state);
+		default:
+			return state;
+	}
 };
 
 export { editdorReducer };

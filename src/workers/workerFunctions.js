@@ -14,48 +14,48 @@
 let schemaCache = new Map();
 
 const modbusSchemaUri =
-  "https://w3c.github.io/wot-binding-templates/bindings/protocols/modbus/modbus.schema.json";
+	"https://w3c.github.io/wot-binding-templates/bindings/protocols/modbus/modbus.schema.json";
 const coapSchemaUri =
-  "https://w3c.github.io/wot-binding-templates/bindings/protocols/coap/coap.schema.json";
+	"https://w3c.github.io/wot-binding-templates/bindings/protocols/coap/coap.schema.json";
 const httpSchemaUri =
-  "https://w3c.github.io/wot-binding-templates/bindings/protocols/http/http.schema.json";
+	"https://w3c.github.io/wot-binding-templates/bindings/protocols/http/http.schema.json";
 const mqttSchemaUri =
-  "https://w3c.github.io/wot-binding-templates/bindings/protocols/mqtt/mqtt.schema.json";
+	"https://w3c.github.io/wot-binding-templates/bindings/protocols/mqtt/mqtt.schema.json";
 
 let schemaUriMap = undefined;
 
 export {
-  extractSchemaUrisFromContext,
-  extractSchemaUriFromBase,
-  fetchSchemas,
-  updateSchemaCache,
+	extractSchemaUrisFromContext,
+	extractSchemaUriFromBase,
+	fetchSchemas,
+	updateSchemaCache,
 };
 
 /**
  * Initializes the map that contains information about all supported schemas.
  */
 function initializeSchemaUriMap() {
-  const tmpSchemaUriMap = new Map();
-  tmpSchemaUriMap.set("modbus", modbusSchemaUri);
-  tmpSchemaUriMap.set("modbus+tcp", modbusSchemaUri);
-  tmpSchemaUriMap.set("modbus+udp", modbusSchemaUri);
+	const tmpSchemaUriMap = new Map();
+	tmpSchemaUriMap.set("modbus", modbusSchemaUri);
+	tmpSchemaUriMap.set("modbus+tcp", modbusSchemaUri);
+	tmpSchemaUriMap.set("modbus+udp", modbusSchemaUri);
 
-  tmpSchemaUriMap.set("coap", coapSchemaUri);
-  tmpSchemaUriMap.set("coap+tcp", coapSchemaUri);
-  tmpSchemaUriMap.set("coap+ws", coapSchemaUri);
-  tmpSchemaUriMap.set("coaps", coapSchemaUri);
-  tmpSchemaUriMap.set("coaps+tcp", coapSchemaUri);
-  tmpSchemaUriMap.set("coaps+ws", coapSchemaUri);
+	tmpSchemaUriMap.set("coap", coapSchemaUri);
+	tmpSchemaUriMap.set("coap+tcp", coapSchemaUri);
+	tmpSchemaUriMap.set("coap+ws", coapSchemaUri);
+	tmpSchemaUriMap.set("coaps", coapSchemaUri);
+	tmpSchemaUriMap.set("coaps+tcp", coapSchemaUri);
+	tmpSchemaUriMap.set("coaps+ws", coapSchemaUri);
 
-  tmpSchemaUriMap.set("http", httpSchemaUri);
-  tmpSchemaUriMap.set("https", httpSchemaUri);
+	tmpSchemaUriMap.set("http", httpSchemaUri);
+	tmpSchemaUriMap.set("https", httpSchemaUri);
 
-  tmpSchemaUriMap.set("mqtt", mqttSchemaUri);
-  tmpSchemaUriMap.set("mqtt+tcp", mqttSchemaUri);
-  tmpSchemaUriMap.set("mqtt+ssl", mqttSchemaUri);
-  tmpSchemaUriMap.set("mqtt+ws", mqttSchemaUri);
+	tmpSchemaUriMap.set("mqtt", mqttSchemaUri);
+	tmpSchemaUriMap.set("mqtt+tcp", mqttSchemaUri);
+	tmpSchemaUriMap.set("mqtt+ssl", mqttSchemaUri);
+	tmpSchemaUriMap.set("mqtt+ws", mqttSchemaUri);
 
-  schemaUriMap = tmpSchemaUriMap;
+	schemaUriMap = tmpSchemaUriMap;
 }
 
 /**
@@ -84,57 +84,57 @@ function initializeSchemaUriMap() {
  * @returns {Array<String>}
  */
 function extractSchemaUrisFromContext(context) {
-  if (!context) {
-    return [];
-  }
+	if (!context) {
+		return [];
+	}
 
-  let contextType = typeof context;
-  if (contextType !== "string" && context.constructor !== Array) {
-    return [];
-  }
+	let contextType = typeof context;
+	if (contextType !== "string" && context.constructor !== Array) {
+		return [];
+	}
 
-  if (contextType === "string") {
-    return [context];
-  }
+	if (contextType === "string") {
+		return [context];
+	}
 
-  // context is an array
-  let schemaUris = [];
-  for (let i = 0; i < context.length; i++) {
-    let schema = context[i];
+	// context is an array
+	let schemaUris = [];
+	for (let i = 0; i < context.length; i++) {
+		let schema = context[i];
 
-    // schema is neither an object nor a string
-    if (
-      !(
-        typeof schema === "object" &&
-        !Array.isArray(schema) &&
-        schema !== null
-      ) &&
-      typeof schema !== "string"
-    ) {
-      continue;
-    }
+		// schema is neither an object nor a string
+		if (
+			!(
+				typeof schema === "object" &&
+				!Array.isArray(schema) &&
+				schema !== null
+			) &&
+			typeof schema !== "string"
+		) {
+			continue;
+		}
 
-    if (typeof schema === "string") {
-      schemaUris.push(schema);
-      continue;
-    }
+		if (typeof schema === "string") {
+			schemaUris.push(schema);
+			continue;
+		}
 
-    // schema is object
-    for (const ontologyName in schema) {
-      if (!schema.hasOwnProperty(ontologyName)) {
-        continue;
-      }
+		// schema is object
+		for (const ontologyName in schema) {
+			if (!schema.hasOwnProperty(ontologyName)) {
+				continue;
+			}
 
-      let schemaUri = schema[ontologyName];
-      if (typeof schemaUri !== "string") {
-        continue;
-      }
+			let schemaUri = schema[ontologyName];
+			if (typeof schemaUri !== "string") {
+				continue;
+			}
 
-      schemaUris.push(schemaUri);
-    }
-  }
+			schemaUris.push(schemaUri);
+		}
+	}
 
-  return schemaUris;
+	return schemaUris;
 }
 
 /**
@@ -144,32 +144,32 @@ function extractSchemaUrisFromContext(context) {
  * @returns {Array<String>}
  */
 function extractSchemaUriFromBase(td) {
-  if (!td.hasOwnProperty("base")) {
-    return [];
-  }
+	if (!td.hasOwnProperty("base")) {
+		return [];
+	}
 
-  let base = td["base"];
-  let parsedBaseUrl;
+	let base = td["base"];
+	let parsedBaseUrl;
 
-  try {
-    parsedBaseUrl = new URL(base);
-  } catch (e) {
-    console.error(`base url is invalid: ${e}`);
-    return [];
-  }
+	try {
+		parsedBaseUrl = new URL(base);
+	} catch (e) {
+		console.error(`base url is invalid: ${e}`);
+		return [];
+	}
 
-  if (schemaUriMap === undefined) {
-    initializeSchemaUriMap();
-  }
+	if (schemaUriMap === undefined) {
+		initializeSchemaUriMap();
+	}
 
-  let schema = parsedBaseUrl.protocol.substring(
-    0,
-    parsedBaseUrl.protocol.length - 1
-  );
-  console.debug(`cheking binding schema map for ${schema}...`);
-  let schemaUri = schemaUriMap.get(schema);
+	let schema = parsedBaseUrl.protocol.substring(
+		0,
+		parsedBaseUrl.protocol.length - 1
+	);
+	console.debug(`cheking binding schema map for ${schema}...`);
+	let schemaUri = schemaUriMap.get(schema);
 
-  return !schemaUri ? [] : [schemaUri];
+	return !schemaUri ? [] : [schemaUri];
 }
 
 /**
@@ -180,33 +180,33 @@ function extractSchemaUriFromBase(td) {
  * if an error occured while fetching.
  */
 async function fetchSchemas(schemaUris) {
-  let schemaMap = new Map();
+	let schemaMap = new Map();
 
-  for (let i = 0; i < schemaUris.length; i++) {
-    let schemaUriStr = schemaUris[i];
+	for (let i = 0; i < schemaUris.length; i++) {
+		let schemaUriStr = schemaUris[i];
 
-    // check if schema is already in cache
-    let cachedSchema = schemaCache.get(schemaUriStr);
-    if (cachedSchema !== undefined) {
-      console.debug(`using cached schema for ${schemaUriStr}`);
-      schemaMap.set(schemaUriStr, cachedSchema);
-      continue;
-    }
+		// check if schema is already in cache
+		let cachedSchema = schemaCache.get(schemaUriStr);
+		if (cachedSchema !== undefined) {
+			console.debug(`using cached schema for ${schemaUriStr}`);
+			schemaMap.set(schemaUriStr, cachedSchema);
+			continue;
+		}
 
-    // fetch schema from external resource
-    try {
-      const schemaUri = new URL(schemaUriStr);
-      const res = await fetch(schemaUri);
-      const schema = await res.json();
+		// fetch schema from external resource
+		try {
+			const schemaUri = new URL(schemaUriStr);
+			const res = await fetch(schemaUri);
+			const schema = await res.json();
 
-      schemaMap.set(schemaUriStr, schema);
-    } catch (e) {
-      console.error(e);
-      schemaMap.set(schemaUriStr, undefined);
-    }
-  }
+			schemaMap.set(schemaUriStr, schema);
+		} catch (e) {
+			console.error(e);
+			schemaMap.set(schemaUriStr, undefined);
+		}
+	}
 
-  return schemaMap;
+	return schemaMap;
 }
 
 /**
@@ -214,9 +214,9 @@ async function fetchSchemas(schemaUris) {
  * @param {Map<String, Object>} schemaMap
  */
 function updateSchemaCache(schemaMap) {
-  schemaMap.forEach(function (schema, schemaUri) {
-    if (schema !== undefined) {
-      schemaCache.set(schemaUri, schema);
-    }
-  });
+	schemaMap.forEach(function (schema, schemaUri) {
+		if (schema !== undefined) {
+			schemaCache.set(schemaUri, schema);
+		}
+	});
 }

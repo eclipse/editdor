@@ -27,21 +27,21 @@ const tmPrefix = "tmjson";
  * return undefined.
  */
 export const prepareTdForSharing = (td) => {
-  let tdJSON;
-  try {
-    tdJSON = JSON.parse(td);
-  } catch (e) {
-    console.debug(e);
-    return undefined;
-  }
+	let tdJSON;
+	try {
+		tdJSON = JSON.parse(td);
+	} catch (e) {
+		console.debug(e);
+		return undefined;
+	}
 
-  let prefix = tdPrefix;
-  if (isThingModel(tdJSON)) {
-    prefix = tmPrefix;
-  }
+	let prefix = tdPrefix;
+	if (isThingModel(tdJSON)) {
+		prefix = tmPrefix;
+	}
 
-  const compressedTD = compress(prefix.concat(td));
-  return compressedTD;
+	const compressedTD = compress(prefix.concat(td));
+	return compressedTD;
 };
 
 /**
@@ -55,17 +55,17 @@ export const prepareTdForSharing = (td) => {
  * If any of these operations fail, this function returns undefined.
  */
 export const decompressSharedTd = (lzString) => {
-  let decompressedTd = decompress(lzString);
-  if (decompressedTd == null || decompressedTd === "") {
-    return undefined;
-  }
+	let decompressedTd = decompress(lzString);
+	if (decompressedTd == null || decompressedTd === "") {
+		return undefined;
+	}
 
-  decompressedTd = decompressedTd.substring(6);
-  try {
-    return JSON.parse(decompressedTd);
-  } catch (e) {
-    console.debug(e);
-  }
+	decompressedTd = decompressedTd.substring(6);
+	try {
+		return JSON.parse(decompressedTd);
+	} catch (e) {
+		console.debug(e);
+	}
 
-  return undefined;
+	return undefined;
 };
