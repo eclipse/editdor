@@ -17,7 +17,7 @@ import React, {
 	useEffect,
 	useCallback,
 } from "react";
-import MonacoEditor from "react-monaco-editor";
+import Editor from "@monaco-editor/react";
 import ediTDorContext from "../../context/ediTDorContext";
 import { changeBetweenTd } from "../../util";
 
@@ -41,7 +41,7 @@ const delay = (fn, ms) => {
 const JSONEditorComponent = (props) => {
 	const context = useContext(ediTDorContext);
 	const [schemas] = useState([]);
-	const [proxy, setProxy] = useState(undefined);
+	const [proxy, setProxy] = useState([]);
 	const editorInstance = useRef(null);
 	const [tabs, setTabs] = useState([]);
 	const [text, setText] = useState("");
@@ -197,7 +197,7 @@ const JSONEditorComponent = (props) => {
 				)}
 			</div>
 			<div className="w-full h-full" id="editor">
-				<MonacoEditor
+				<Editor
 					options={editorOptions}
 					theme={"vs-" + context.theme}
 					language="json"
