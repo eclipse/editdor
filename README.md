@@ -30,7 +30,21 @@ The goal of this project is the easy creation of W3C Thing Description instances
 - TailwindCSS
 
 ## Contribution guide
-Any contribution to this project is welcome. If you want to report a bug or question, please check the [issue list](https://github.com/eclipse/editdor/issues) or create a new issue. If you want to contribute to this project by coding, please follow the general contribution guidelines described [here](https://github.com/firstcontributions/first-contributions/blob/master/README.md). Note that you need to have an Eclipse account to make Pull Requests.
+Any contribution to this project is welcome. If you want to report a bug or question, please check the [issue list](https://github.com/eclipse/editdor/issues) or create a new issue. 
+
+If you want to contribute to this project by coding, please follow the general contribution guidelines described [here](https://github.com/firstcontributions/first-contributions/blob/master/README.md). Code submisons required 
+1) an Eclipse account to make Pull Requests.
+2) Signed commits, on your github account make sure you kave a ssh key or a gpg key  of the type __singin__ on the Settings Page.
+
+In your local repository you can check your signatures by using
+
+    git log --show-signature
+
+Use the -s flag
+    git commit -s -m "commit message"
+
+More documentation about this topic [here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)
+
 
 ## License
 * [Eclipse Public License v. 2.0](http://www.eclipse.org/legal/epl-2.0)
@@ -53,8 +67,10 @@ All systems require the following:
 
 `npm build` builds the project for deployment
 
-## Implemented Features in the ediTDor: 
+## Implemented Features in the ediTDor:
+
 * JSON editor with JSON Schema support for TD (autocompletion)
 * Add Property, Action, Event by wizard
 * Render TD to be more human readable
 * Validate JSON Syntax and JSON Schema for TD (JSONLD and Additional Validation for nested TMs will be implemented in the future)
+    
