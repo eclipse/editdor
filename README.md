@@ -33,8 +33,7 @@ The goal of this project is the easy creation of W3C Thing Description instances
 - TailwindCSS
 
 ## Contribution guide
-
-Any contribution to this project is welcome. If you want to report a bug or question, please check the [issue list](https://github.com/eclipse/editdor/issues) or create a new issue. If you want to contribute to this project by coding, please follow the general contribution guidelines described [here](https://github.com/firstcontributions/first-contributions/blob/master/README.md). Note that you need to have an Eclipse account to make Pull Requests.
+Please follow our [contribution guide](./CONTRIBUTING.md).
 
 ## License
 
