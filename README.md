@@ -53,8 +53,16 @@ All systems require the following:
 
 `npm build` builds the project for deployment
 
-## Implemented Features in the ediTDor: 
+## Implemented Features in the ediTDor:
+
 * JSON editor with JSON Schema support for TD (autocompletion)
 * Add Property, Action, Event by wizard
 * Render TD to be more human readable
 * Validate JSON Syntax and JSON Schema for TD (JSONLD and Additional Validation for nested TMs will be implemented in the future)
+
+# Verified your signature 
+
+    git log --show-signature
+
+    using ssh keys
+    
