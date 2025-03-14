@@ -33,6 +33,7 @@ The goal of this project is the easy creation of W3C Thing Description instances
 - TailwindCSS
 
 ## Contribution guide
+
 Please follow our [contribution guide](./CONTRIBUTING.md).
 
 ## License
