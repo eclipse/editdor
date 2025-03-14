@@ -10,27 +10,27 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React from 'react';
+import React from "react";
 
 export default React.createContext({
-  offlineTD: '',
-  theme: 'dark',
+  offlineTD: "",
+  theme: "dark",
   isModified: false,
-  name: '',
-  fileHandle:'',
+  name: "",
+  fileHandle: "",
   linkedTd: {},
   validationMessage: undefined,
 
-  updateOfflineTD: td => {},
-  updateIsModified: isModified => {},
-  setFileHandle: handle => {},
-  removeForm: form => {},
-  addForm: form => {},
-  removeLink: link => {},
-  addActionForm: params => {},
-  addEventForm: params => {},
+  updateOfflineTD: (td) => {},
+  updateIsModified: (isModified) => {},
+  setFileHandle: (handle) => {},
+  removeForm: (form) => {},
+  addForm: (form) => {},
+  removeLink: (link) => {},
+  addActionForm: (params) => {},
+  addEventForm: (params) => {},
   removeOneOfAKindReducer: (kind, oneOfAKind) => {},
-  addLinkedTd: linkedTd => {},
-  updateLinkedTd: linkedTd => {},
-  updateValidationMessage: validationMessage => {}
+  addLinkedTd: (linkedTd) => {},
+  updateLinkedTd: (linkedTd) => {},
+  updateValidationMessage: (validationMessage) => {},
 });

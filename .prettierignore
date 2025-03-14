@@ -1,0 +1,15 @@
+**/.git
+**/node_modules
+**/.png
+**/.pdf
+**/.eps
+**/.jpeg
+**/.jpg
+.svg
+
+.prettierignore
+
+logo
+build
+src/external
+
