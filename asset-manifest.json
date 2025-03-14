@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/editdor/static/css/main.e83c0763.css",
-    "main.js": "/editdor/static/js/main.8f75e933.js",
+    "main.js": "/editdor/static/js/main.8a26650d.js",
     "static/js/917.c06122d0.chunk.js": "/editdor/static/js/917.c06122d0.chunk.js",
     "static/js/347.b6e869d8.chunk.js": "/editdor/static/js/347.b6e869d8.chunk.js",
     "static/js/852.0b82e3cc.chunk.js": "/editdor/static/js/852.0b82e3cc.chunk.js",
@@ -15,7 +15,7 @@
     "index.html": "/editdor/index.html",
     "static/media/chevron-right.svg": "/editdor/static/media/chevron-right.7b4528b09378cb8ed798.svg",
     "main.e83c0763.css.map": "/editdor/static/css/main.e83c0763.css.map",
-    "main.8f75e933.js.map": "/editdor/static/js/main.8f75e933.js.map",
+    "main.8a26650d.js.map": "/editdor/static/js/main.8a26650d.js.map",
     "917.c06122d0.chunk.js.map": "/editdor/static/js/917.c06122d0.chunk.js.map",
     "347.b6e869d8.chunk.js.map": "/editdor/static/js/347.b6e869d8.chunk.js.map",
     "852.0b82e3cc.chunk.js.map": "/editdor/static/js/852.0b82e3cc.chunk.js.map",
@@ -24,6 +24,6 @@
   },
   "entrypoints": [
     "static/css/main.e83c0763.css",
-    "static/js/main.8f75e933.js"
+    "static/js/main.8a26650d.js"
   ]
 }
