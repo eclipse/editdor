@@ -30,7 +30,8 @@
 		"start": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version react-app-rewired start",
 		"build": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version react-app-rewired build",
 		"test": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version react-app-rewired test",
-		"eject": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version react-app-rewired eject"
+		"eject": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version react-app-rewired eject",
+		"format": "prettier --write . "
 	},
 	"eslintConfig": {
 		"extends": [
@@ -52,6 +53,7 @@
 	},
 	"devDependencies": {
 		"cross-env": "^7.0.3",
+		"prettier": "^3.5.3",
 		"react-app-rewired": "^2.2.1",
 		"react-scripts": "5.0.1",
 		"tailwindcss": "^3.2.7"
