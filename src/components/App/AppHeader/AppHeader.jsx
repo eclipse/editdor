@@ -30,7 +30,8 @@ export default function AppHeader() {
       return true;
     }
 
-    const msg = "Discard changes? All changes you made to your TD will be lost.";
+    const msg =
+      "Discard changes? All changes you made to your TD will be lost.";
     return window.confirm(msg);
   }, [context.isModified]);
 
@@ -41,7 +42,7 @@ export default function AppHeader() {
    * Open File from Filesystem
    */
   const openFile = useCallback(async () => {
-    if (!(verifyDiscard())) {
+    if (!verifyDiscard()) {
       return;
     }
 
@@ -50,7 +51,9 @@ export default function AppHeader() {
 
       const linkedFileName = `./${res.fileName}`;
       let linkedTd = {};
-      linkedTd[linkedFileName] = res.fileHandle ? res.fileHandle : JSON.parse(res.td)
+      linkedTd[linkedFileName] = res.fileHandle
+        ? res.fileHandle
+        : JSON.parse(res.td);
 
       context.updateOfflineTD(res.td);
       context.updateIsModified(false);
@@ -69,28 +72,42 @@ export default function AppHeader() {
     try {
       JSON.parse(context.offlineTD);
     } catch (error) {
-      return alert("Didn't save TD. The given TD can't be parsed into a JSON object.");
+      return alert(
+        "Didn't save TD. The given TD can't be parsed into a JSON object."
+      );
     }
 
     try {
-      const fileHandle = await fileTdService.saveToFile(context.name, context.fileHandle, context.offlineTD);
+      const fileHandle = await fileTdService.saveToFile(
+        context.name,
+        context.fileHandle,
+        context.offlineTD
+      );
       context.setFileHandle(fileHandle ?? context.fileHandle);
 
       context.updateIsModified(false);
     } catch (error) {
       console.debug(error);
-      alert("Didn't save TD. The action was either canceled or ran into an error.");
+      alert(
+        "Didn't save TD. The action was either canceled or ran into an error."
+      );
     }
   }, [context]);
 
   const createNewFile = useCallback(async () => {
     try {
-      const fileHandle = await fileTdService.saveToFile(context.name, undefined, context.offlineTD);
+      const fileHandle = await fileTdService.saveToFile(
+        context.name,
+        undefined,
+        context.offlineTD
+      );
       context.setFileHandle(fileHandle ?? context.fileHandle);
       context.updateIsModified(false);
     } catch (error) {
       console.debug(error);
-      alert("Didn't save TD. The action was either canceled or ran into an error.");
+      alert(
+        "Didn't save TD. The action was either canceled or ran into an error."
+      );
     }
   }, [context]);
 
@@ -99,8 +116,8 @@ export default function AppHeader() {
       setIsLoading(true);
       await func();
       setIsLoading(false);
-    }
-  }
+    };
+  };
 
   useEffect(() => {
     const shortcutHandler = (e) => {
@@ -133,7 +150,8 @@ export default function AppHeader() {
     // Adding Eventlistener for shortcuts
     document.addEventListener("keydown", shortcutHandler, false);
     window.onbeforeunload = function (event) {
-      var message = "Important: Please click on 'Save' button to leave this page.";
+      var message =
+        "Important: Please click on 'Save' button to leave this page.";
       if (typeof event == "undefined") {
         event = window.event;
       }
@@ -149,16 +167,24 @@ export default function AppHeader() {
   }, [openFile, saveFile]);
 
   const convertTmDialog = React.useRef();
-  const openConvertTmDialog = () => { convertTmDialog.current.openModal(); };
+  const openConvertTmDialog = () => {
+    convertTmDialog.current.openModal();
+  };
 
   const shareDialog = React.useRef();
-  const openShareDialog = () => { shareDialog.current.openModal(); };
+  const openShareDialog = () => {
+    shareDialog.current.openModal();
+  };
 
   const createTdDialog = React.useRef();
-  const openCreateTdDialog = () => { createTdDialog.current.openModal(); };
+  const openCreateTdDialog = () => {
+    createTdDialog.current.openModal();
+  };
 
   const chatDialog = React.useRef();
-  const openChatDialog = () => { chatDialog.current.openModal(); };
+  const openChatDialog = () => {
+    chatDialog.current.openModal();
+  };
 
   const isChatEnabled = useCallback(() => {
     return process.env.REACT_APP_OPENAI_KEY && process.env.REACT_APP_OPENAI_URI;
