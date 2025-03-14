@@ -3,13 +3,15 @@
 
 A tool for simply designing W3C Thing Descriptions and Thing Models
 
-Find the ediTDor here to try it out: 
+Find the ediTDor here to try it out:
 
 https://eclipse.github.io/editdor/
 
 ## Using the AI Chat Function
+
 The AI chat is currently implemented using Azures cognitive services API. To make use of the chat
 the app has to be compiled with two additional environment variables:
+
 ```bash
 REACT_APP_OPENAI_KEY={api_key}
 REACT_APP_OPENAI_URI={azure_resource_address}
@@ -26,35 +28,43 @@ The goal of this project is the easy creation of W3C Thing Description instances
 - Exporting the Thing Description / ThingModel from the visual representation into JSON-LD
 
 ## Technologies
+
 - React
 - TailwindCSS
 
 ## Contribution guide
+
 Any contribution to this project is welcome. If you want to report a bug or question, please check the [issue list](https://github.com/eclipse/editdor/issues) or create a new issue. If you want to contribute to this project by coding, please follow the general contribution guidelines described [here](https://github.com/firstcontributions/first-contributions/blob/master/README.md). Note that you need to have an Eclipse account to make Pull Requests.
 
 ## License
-* [Eclipse Public License v. 2.0](http://www.eclipse.org/legal/epl-2.0)
-  
+
+- [Eclipse Public License v. 2.0](http://www.eclipse.org/legal/epl-2.0)
+
 ## Prerequisites
+
 ### To use with Node.js
+
 All systems require the following:
 
-* [NodeJS](https://nodejs.org/) version 10+ (e.g., 10.13.0 LTS)
-
+- [NodeJS](https://nodejs.org/) version 10+ (e.g., 10.13.0 LTS)
 
 ## Install dependencies
+
 `npm install` install all the dependencies listed within package.json
 
 ## Start Locally
+
 `npm run start` starts a local development server on Port 3000 (http://localhost:3000)
 
 ## Build
+
 `npm install` install all the dependencies listed within package.json
 
 `npm build` builds the project for deployment
 
-## Implemented Features in the ediTDor: 
-* JSON editor with JSON Schema support for TD (autocompletion)
-* Add Property, Action, Event by wizard
-* Render TD to be more human readable
-* Validate JSON Syntax and JSON Schema for TD (JSONLD and Additional Validation for nested TMs will be implemented in the future)
+## Implemented Features in the ediTDor:
+
+- JSON editor with JSON Schema support for TD (autocompletion)
+- Add Property, Action, Event by wizard
+- Render TD to be more human readable
+- Validate JSON Syntax and JSON Schema for TD (JSONLD and Additional Validation for nested TMs will be implemented in the future)
