@@ -14,13 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React from "react";
-import React from "react";
 
 export default function Button(props) {
-	return (
-		<button
-			onClick={props.onClick}
-			className="
+  return (
+    <button
+      onClick={props.onClick}
+      className="
                 flex
                 bg-blue-400                 
                 hover:bg-blue-300 
@@ -33,8 +32,8 @@ export default function Button(props) {
                 cursor-pointer
                 justify-center
             "
-		>
-			<div className="place-self-center">{props.children}</div>
-		</button>
-	);
+    >
+      <div className="place-self-center">{props.children}</div>
+    </button>
+  );
 }
