@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "https://eclipse.github.io/editdor/",
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.0.0",
@@ -15,22 +16,19 @@
     "jointjs": "^3.6.5",
     "json-dup-key-validator": "^1.0.3",
     "jsonld": "^8.1.0",
-    "monaco-editor": "^0.39.0",
-    "monaco-editor-webpack-plugin": "^7.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-feather": "^2.0.10",
     "react-icons": "^4.7.1",
-    "react-monaco-editor": "^0.54.0",
     "react-tooltip": "^5.8.1",
     "string-direction": "^0.1.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version react-app-rewired start",
-    "build": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version react-app-rewired build",
-    "test": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version react-app-rewired test",
-    "eject": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version react-app-rewired eject",
+    "start": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version GENERATE_SOURCEMAP=false react-scripts start",
+    "build": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version GENERATE_SOURCEMAP=false react-scripts build",
+    "test": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version react-scripts test",
+    "eject": "cross-env REACT_APP_NPM_PACKAGE_VERSION=$npm_package_version react-scripts eject",
     "format": "prettier --write . "
   },
   "eslintConfig": {
@@ -54,8 +52,8 @@
   "devDependencies": {
     "cross-env": "^7.0.3",
     "prettier": "^3.5.3",
-    "react-app-rewired": "^2.2.1",
-    "react-scripts": "5.0.1",
-    "tailwindcss": "^3.2.7"
+    "react-scripts": "^5.0.1",
+    "tailwindcss": "^3.2.7",
+    "typescript": "^3.8.2"
   }
 }
