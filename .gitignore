@@ -6,7 +6,7 @@
 .pnp.js
 
 */.vscode
-.vscode/launch.json
+.vscode
 
 # testing
 /coverage
@@ -29,4 +29,4 @@ yarn-error.log*
 
 yarn.lock
 
-/doc/tests/exampl1.json
+/doc/tests
