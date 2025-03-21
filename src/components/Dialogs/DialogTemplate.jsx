@@ -38,7 +38,7 @@ export const DialogTemplate = (props) => {
 
   return (
     <div className="flex bg-gray-400 bg-opacity-50 w-full h-full absolute top-0 left-0 justify-center items-center z-10 text-white">
-      <div className="bg-gray-500 w-1/3 flex flex-col justify-start rounded-xl shadow-xl p-4 max-h-screen">
+      <div className="bg-gray-500 w-1/2 flex flex-col justify-start rounded-xl shadow-xl p-4 max-h-screen">
         <div className="flex flex-row justify-start items-center  ">
           <h1 className="text-xl font-bold flex-grow pl-2">{title}</h1>
         </div>

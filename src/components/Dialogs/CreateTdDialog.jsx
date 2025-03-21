@@ -15,6 +15,8 @@ import ReactDOM from "react-dom";
 import { ChevronDown } from "react-feather";
 import ediTDorContext from "../../context/ediTDorContext";
 import { DialogTemplate } from "./DialogTemplate";
+import { readFromFile } from "../../services/fileTdService";
+import { parseCsv, mapCsvToProperties } from "../../utils/parser";
 
 export const CreateTdDialog = forwardRef((props, ref) => {
   const context = useContext(ediTDorContext);
@@ -22,6 +24,27 @@ export const CreateTdDialog = forwardRef((props, ref) => {
     return false;
   });
   const [type, setType] = React.useState("TD"); // either TD or TM
+  const [properties, setProperties] = React.useState({});
+  const [fileName, setFileName] = React.useState("");
+
+  const openCsvFile = async () => {
+    try {
+      const res = await readFromFile();
+
+      if (res.fileName.includes(".csv")) {
+        setFileName(res.fileName);
+        const data = parseCsv(res.td, true, ",");
+        const parsedProperties = mapCsvToProperties(data);
+        setProperties(parsedProperties);
+      } else {
+        throw new Error("Invalid file type. Only CSV files are supported.");
+      }
+    } catch (error) {
+      const msg = "Opening a new TD was canceled or an error occurred.";
+      console.error(msg, error);
+      alert(msg);
+    }
+  };
 
   useImperativeHandle(ref, () => {
     return {
@@ -46,14 +69,20 @@ export const CreateTdDialog = forwardRef((props, ref) => {
     return type;
   };
 
-  const content = buildForm(changeType, getType);
+  const content = buildForm(
+    context,
+    changeType,
+    getType,
+    openCsvFile,
+    fileName
+  );
 
   if (display) {
     return ReactDOM.createPortal(
       <DialogTemplate
         onCancel={close}
         onSubmit={() => {
-          let td = createNewTD(type);
+          let td = createNewTD(type, properties);
           let linkedTd = {};
           linkedTd[td["title"]] = td;
           context.updateLinkedTd(undefined);
@@ -75,7 +104,7 @@ export const CreateTdDialog = forwardRef((props, ref) => {
   return null;
 });
 
-const buildForm = (changeType, getType) => {
+const buildForm = (context, changeType, getType, openCsvFile, fileName) => {
   return (
     <>
       <label htmlFor="type" className="text-sm text-gray-400 font-medium pl-2">
@@ -129,7 +158,7 @@ const buildForm = (changeType, getType) => {
       >
         Security:
       </label>
-      <div className="relative">
+      <div className="relative mb-8">
         <select
           className="block appearance-none w-full bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none"
           id="thing-security"
@@ -144,6 +173,56 @@ const buildForm = (changeType, getType) => {
         </select>
         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
           <ChevronDown color="#cacaca"></ChevronDown>
+        </div>
+      </div>
+      <div>
+        <label
+          htmlFor="submit-csv"
+          className="text-sm text-gray-400 font-medium pl-2"
+        >
+          Add properties in CSV format:
+        </label>
+      </div>
+      <div className="border-gray-600 border-2 rounded">
+        <div className="flex items-center justify-evenly ml-2 mr-2">
+          <button
+            id="submit-csv"
+            className="border-2 border-gray-600 rounded w-1/3
+                p-2
+                text-white
+                leading-tight
+                focus:outline-none
+                focus:border-blue-500
+				        bg-blue-500
+                "
+            onClick={() => openCsvFile()}
+          >
+            Load a CSV File
+          </button>
+          <div className="w-full">
+            <p className="pl-2">{fileName || "No file selected"}</p>
+          </div>
+
+          <div className="flex items-center p-2 w-full">
+            <label
+              htmlFor="protocol-option"
+              className="text-2xl text-gray-400 pl-2 pr-2"
+            >
+              Protocol:
+            </label>
+            <div className="relative w-10">
+              <select
+                className=" block appearance-none bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none"
+                id="protocol-option"
+              >
+                <option>Modbus TPC</option>
+                <option>Modbus RTU</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <ChevronDown color="#cacaca"></ChevronDown>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
@@ -168,7 +247,7 @@ const formField = (label, placeholder, id, type, autoFocus) => {
   );
 };
 
-const createNewTD = (type) => {
+const createNewTD = (type, properties) => {
   let id = document.getElementById("thing-id").value;
   let title = document.getElementById("thing-title").value;
   let base = document.getElementById("thing-base").value;
@@ -203,7 +282,7 @@ const createNewTD = (type) => {
   thing["securityDefinitions"] = securityDefinitions;
   thing["security"] = `${tdSecurity}_sc`;
 
-  thing["properties"] = {};
+  thing["properties"] = properties;
   thing["actions"] = {};
   thing["events"] = {};
 
