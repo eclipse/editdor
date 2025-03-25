@@ -215,7 +215,7 @@ const buildForm = (context, changeType, getType, openCsvFile, fileName) => {
                 className=" block appearance-none bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none"
                 id="protocol-option"
               >
-                <option>Modbus TPC</option>
+                <option>Modbus TCP</option>
                 <option>Modbus RTU</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
