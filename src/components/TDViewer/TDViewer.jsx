@@ -110,7 +110,7 @@ export default function TDViewer() {
             <p>or drag and drop .json file here</p>
             <div className="pt-4">
               <p className="text-gray-600 text-xl">
-                For linux operating systems is necessary to give the necessary
+                For linux operating systems, it is necessary to give the necessary
                 file permissions. Run sudo xdg-open /path/to/the/folder
               </p>
             </div>
