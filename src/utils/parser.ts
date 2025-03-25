@@ -52,7 +52,7 @@ type Properties = {
 };
 
 /**
- * Parses a CSV string into an array of objects o f type CsvData.
+ * Parses a CSV string into an array of objects of type CsvData.
  * @param csvContent - The CSV content as a string.
  * @param hasHeaders - Whether the CSV has headers (default: true).
  * @param character - The character used to separate values (default: ",").
