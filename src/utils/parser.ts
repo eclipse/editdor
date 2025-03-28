@@ -1,6 +1,6 @@
 type CsvData = {
   name: string;
-  title: string;
+  title?: string;
   description?: string;
   type: string;
   minimum?: string;
@@ -26,7 +26,7 @@ type PropertyForm = {
   "modbus:unitID": number;
   "modbus:address": number;
   "modbus:quantity": number;
-  "modbus:type": string;
+  "modbus:type"?: string;
   "modbus:zeroBasedAddressing": boolean;
   "modbus:entity": string;
   "modbus:pollingTime"?: string;
@@ -37,10 +37,10 @@ type PropertyForm = {
 };
 
 type Property = {
-  type: string;
+  type?: string;
   readOnly?: boolean;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   minimum?: number;
   maximum?: number;
   unit?: string;
@@ -88,31 +88,35 @@ export const parseCsv = (
  * @returns
  */
 const mapRowToProperty = (row: CsvData): Property => ({
-  type: row.type ?? "",
+  ...(row.type ? { type: row.type } : {}),
   readOnly: true,
-  title: row.title ?? "",
-  description: row.description ?? "",
-  minimum: row.minimum ? Number(row.minimum) : undefined,
-  maximum: row.maximum ? Number(row.maximum) : undefined,
-  unit: row.unit,
+  ...(row.title ? { title: row.title } : {}),
+  ...(row.description ? { description: row.description } : {}),
+  ...(row.minimum ? { minimum: Number(row.minimum) } : {}),
+  ...(row.maximum ? { maximum: Number(row.maximum) } : {}),
+  ...(row.unit ? { unit: row.unit } : {}),
   forms: [
     {
       op: "readproperty",
-      href: row.href,
+      href: row.href ?? "/",
       "modbus:unitID": Number(row["modbus:unitID"]) ?? 1,
       "modbus:address": Number(row["modbus:address"]),
       "modbus:quantity": Number(row["modbus:quantity"]) ?? 1,
-      "modbus:type": row["modbus:type"] ?? "",
+      ...(row["modbus:type"] ? { "modbus:type": row["modbus:type"] } : {}),
       "modbus:zeroBasedAddressing":
         Boolean(row["modbus:zeroBasedAddressing"]) ?? false,
       "modbus:entity": row["modbus:entity"],
-      "modbus:pollingTime": row["modbus:pollingTime"],
+      ...(row["modbus:pollingTime"]
+        ? { "modbus:pollingTime": row["modbus:pollingTime"] }
+        : {}),
       "modbus:function": row["modbus:function"],
       "modbus:mostSignificantByte":
         Boolean(row["modbus:mostSignificantByte"]) ?? true,
       "modbus:mostSignificantWord":
         Boolean(row["modbus:mostSignificantWord"]) ?? true,
-      "modbus:timeout": row["modbus:timeout"],
+      ...(row["modbus:timeout"]
+        ? { "modbus:timeout": row["modbus:timeout"] }
+        : {}),
     },
   ],
 });
@@ -124,6 +128,19 @@ const mapRowToProperty = (row: CsvData): Property => ({
  */
 export const mapCsvToProperties = (data: CsvData[]): Properties =>
   data.reduce((acc, row) => {
+    if (!row.name || row.name.trim() === "") {
+      throw new Error("Error on CSV file: Row name is required");
+    }
+    if (!row["modbus:address"] || row["modbus:address"].trim() === "") {
+      throw new Error(
+        `Error on CSV file: "modbus:address" value is required for row: "${row.name}"`
+      );
+    }
+    if (!row["modbus:entity"] || row["modbus:entity"].trim() === "") {
+      throw new Error(
+        `Error on CSV file: "modbus:entity" value is required for row: "${row.name}"`
+      );
+    }
     acc[row.name] = mapRowToProperty(row);
     return acc;
   }, {} as Properties);

@@ -40,6 +40,9 @@ export const CreateTdDialog = forwardRef((props, ref) => {
   };
 
   const close = () => {
+    setFileName("");
+    setProtocol("Modbus TCP");
+    setProperties({});
     setDisplay(false);
   };
 
@@ -47,29 +50,9 @@ export const CreateTdDialog = forwardRef((props, ref) => {
     setType(e.target.value);
   };
 
-  const getType = () => {
-    return type;
-  };
-
-  const downloadCsvTemplate = () => {
-    const csvContent = `name,title,description,type,minimum,maximum,unit,href,modbus:unitID,modbus:address,modbus:quantity,modbus:type,modbus:zeroBasedAddressing,modbus:entity,modbus:pollingTime,modbus:function,modbus:mostSignificantByte,modbus:mostSignificantWord,modbus:timeout`;
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "modbus_tcp_properties_template.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   const content = buildForm(
-    context,
     changeType,
-    getType,
-    downloadCsvTemplate,
+    type,
     protocol,
     setProtocol,
     fileName,
@@ -106,10 +89,8 @@ export const CreateTdDialog = forwardRef((props, ref) => {
 });
 
 const buildForm = (
-  context,
   changeType,
-  getType,
-  downloadCsvTemplate,
+  type,
   protocol,
   setProtocol,
   fileName,
@@ -125,7 +106,15 @@ const buildForm = (
       reader.onload = (e) => {
         const csvContent = e.target.result;
         const data = parseCsv(csvContent, true, ",");
-        const parsedProperties = mapCsvToProperties(data);
+        let parsedProperties = {};
+        try {
+          parsedProperties = mapCsvToProperties(data);
+          if (Object.keys(parsedProperties).length === 0) {
+            throw new Error("No valid properties found in the CSV file.");
+          }
+        } catch (error) {
+          alert(error.message);
+        }
         setProperties(parsedProperties);
       };
 
@@ -138,7 +127,24 @@ const buildForm = (
   };
 
   const handleButtonClick = () => {
+    if (!fileInputRef.current) {
+      return;
+    }
     fileInputRef.current.click();
+  };
+
+  const downloadCsvTemplate = () => {
+    const csvContent = `name,title,description,type,minimum,maximum,unit,href,modbus:unitID,modbus:address,modbus:quantity,modbus:type,modbus:zeroBasedAddressing,modbus:entity,modbus:pollingTime,modbus:function,modbus:mostSignificantByte,modbus:mostSignificantWord,modbus:timeout`;
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "modbus_tcp_properties_template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -151,7 +157,7 @@ const buildForm = (
           className="block appearance-none w-full bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none"
           id="type"
           onChange={changeType}
-          value={getType()}
+          value={type}
         >
           <option value="TD">Thing Description</option>
           <option value="TM">Thing Model</option>
@@ -255,20 +261,6 @@ const buildForm = (
           </div>
         </div>
         <div className="flex items-center ml-2 mr-2">
-          <button
-            id="submit-csv"
-            className="border-2 border-gray-600 rounded
-                p-2
-                text-white
-                leading-tight
-                focus:outline-none
-                focus:border-blue-500
-				        bg-blue-500
-                "
-            onClick={handleButtonClick}
-          >
-            Load a CSV File
-          </button>
           <input
             type="file"
             accept=".csv"
@@ -276,6 +268,13 @@ const buildForm = (
             onChange={handleFileChange}
             style={{ display: "none" }}
           />
+          <button
+            id="submit-csv"
+            className="border-2 border-gray-600 rounded p-2 text-white leading-tight focus:outline-none focus:border-blue-500 bg-blue-500"
+            onClick={handleButtonClick}
+          >
+            Load a CSV File
+          </button>
           <div className="">
             <p className="pl-2">{fileName || "No file selected"}</p>
           </div>
