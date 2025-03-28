@@ -30,7 +30,7 @@ type PropertyForm = {
   "modbus:zeroBasedAddressing": boolean;
   "modbus:entity": string;
   "modbus:pollingTime"?: string;
-  "modbus:function": string;
+  "modbus:function"?: string;
   "modbus:mostSignificantByte": boolean;
   "modbus:mostSignificantWord": boolean;
   "modbus:timeout"?: string;
@@ -109,7 +109,9 @@ const mapRowToProperty = (row: CsvData): Property => ({
       ...(row["modbus:pollingTime"]
         ? { "modbus:pollingTime": row["modbus:pollingTime"] }
         : {}),
-      "modbus:function": row["modbus:function"],
+      ...(row["modbus:function"]
+        ? { "modbus:function": row["modbus:function"] }
+        : {}),
       "modbus:mostSignificantByte":
         Boolean(row["modbus:mostSignificantByte"]) ?? true,
       "modbus:mostSignificantWord":
