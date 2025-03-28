@@ -231,7 +231,7 @@ const buildForm = (
           <div className="flex items-center p-2">
             <label
               htmlFor="protocol-option"
-              className="text-2xl text-gray-400 pl-2 pr-2"
+              className="text-lg text-gray-400 pl-2 pr-2"
             >
               Protocol:
             </label>
@@ -243,6 +243,7 @@ const buildForm = (
                 onChange={(e) => setProtocol(e.target.value)}
               >
                 <option>Modbus TCP</option>
+                <option>More protocols will be supported in the future</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <ChevronDown color="#cacaca"></ChevronDown>
