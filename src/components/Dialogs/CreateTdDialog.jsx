@@ -229,13 +229,15 @@ const buildForm = (
       <div className="flex justify-between border-gray-600 border-2 rounded">
         <div className="flex justify-between">
           <div className="flex items-center p-2">
+
             <label
               htmlFor="protocol-option"
               className="text-lg text-gray-400 pl-2 pr-2"
             >
               Protocol:
             </label>
-            <div className="relative w-10">
+
+            <div className="relative">
               <select
                 id="protocol-option"
                 className="block appearance-none bg-gray-600 border-2 border-gray-600 text-white py-2 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none"
@@ -249,18 +251,20 @@ const buildForm = (
                 <ChevronDown color="#cacaca"></ChevronDown>
               </div>
             </div>
+
           </div>
 
           <div className="flex items-center">
             <button
               id="download-template"
-              className="border-2 border-gray-600 rounded px-2 text-white leading-tight focus:outline-none focus:border-blue-500 bg-blue-500 h-10"
+              className="border-2 border-gray-600 rounded p-2 text-white leading-tight focus:outline-none focus:border-blue-500 bg-blue-500"
               onClick={downloadCsvTemplate}
             >
               Download CSV Template
             </button>
           </div>
         </div>
+
         <div className="flex items-center ml-2 mr-2">
           <input
             type="file"
