@@ -1,4 +1,4 @@
-import { encodeBody } from "../util";
+
 
 interface ThingDescription {
   id: string; 
@@ -16,7 +16,7 @@ const createThing = async (td: ThingDescription, targetUrl: string): Promise<num
 	const res = await fetch(`${targetUrl}things/${encodedId}`, {
 		method: "PUT",
 		headers: { "Content-Type": "application/json" },
-		body: encodeBody(td, "application/json") as string,
+		body: JSON.stringify(td),
 	});
 
 	if (res.status === 400 || res.status === 500) {
@@ -37,7 +37,7 @@ const createAnonymousThing = async (td: ThingDescription, targetUrl: string): Pr
 	const res = await fetch(`${targetUrl}things`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: encodeBody(td, "application/json") as string,
+		body: JSON.stringify(td),
 	});
 
 	if (res.status === 400 || res.status === 500) {
