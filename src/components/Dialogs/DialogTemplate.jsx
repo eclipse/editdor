@@ -19,10 +19,10 @@ export const DialogTemplate = (props) => {
   const children = props.children ?? <></>;
 
   const cancelText = props.cancelText ?? "Cancel";
-  const onCancel = props.onCancel ?? (() => {});
+  const onCancel = props.onCancel ?? (() => { });
 
   const submitText = props.submitText ?? "Submit";
-  const onSubmit = props.onSubmit ?? (() => {});
+  const onSubmit = props.onSubmit ?? (() => { });
   const hasSubmit = props.hasSubmit ?? true;
   let keysDown = {};
   window.onkeydown = function (e) {
