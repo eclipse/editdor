@@ -86,6 +86,7 @@ export default function TDViewer() {
     onDrop,
     accept: {
       "application/json": [".json"],
+      "application/ld+json": [".jsonld"],
       "text/csv": [".csv"],
     },
     noClick: true,
