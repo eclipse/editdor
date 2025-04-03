@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -13,10 +13,11 @@
 import React, { useContext } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { Trash2, Info } from "react-feather";
-import { changeBetweenTd } from "../../../util";
+import { changeBetweenTd } from '../../../util';
 
 export default function Link(props) {
-  const context = useContext(ediTDorContext);
+
+  const context = useContext(ediTDorContext)
   const deleteLink = (e) => {
     let currentLinkedTd = context.linkedTd;
     //update the linkedTd after removing the current linked Td
@@ -26,40 +27,38 @@ export default function Link(props) {
     }
     context.removeLink(e.propName);
     context.updateIsModified(true);
-  };
+
+  }
   const infoLink = async (e) => {
     let href = e.link.href;
     changeBetweenTd(context, href);
-  };
+  }
   return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-formBlue rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formBlue">
-      <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
-        {props.link.rel && (
-          <div className="text-formBlue place-self-center text-center text-xs px-4">
-            {props.link.rel}
-          </div>
-        )}
+    <div className="flex items-stretch min-h-12 w-full bg-opacity-75 bg-formBlue mt-2 rounded-md border-2 pl-4 border-formBlue">
+      <div className="flex h-8 min-w-20 bg-white rounded-md place-self-center justify-center">
+        <div className="text-formBlue place-self-center text-center px-4">{props.link.rel ?? "-"}</div>
       </div>
-      <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">
-        {props.link.href}
-      </div>
+
+      <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.link.href}</div>
+
+      {context.linkedTd && context.linkedTd[props.link.href] && ((Object.keys(context.linkedTd[props.link.href]).length) || context.linkedTd[props.link.href]["kind"] === "file") &&
+        <button
+          className="flex w-10 justify-center items-center bg-formBlue border-r-2 border-formBlue"
+          onClick={() => infoLink(props)}
+        >
+          <Info size={16} color="black" />
+        </button>
+
+      }
+
       <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue"
+        className="flex w-10 justify-center items-center bg-formBlue"
         onClick={() => deleteLink(props)}
       >
         <Trash2 size={16} color="black" />
       </button>
-      {context.linkedTd &&
-        context.linkedTd[props.link.href] &&
-        (Object.keys(context.linkedTd[props.link.href]).length ||
-          context.linkedTd[props.link.href]["kind"] === "file") && (
-          <button
-            className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue"
-            onClick={() => infoLink(props)}
-          >
-            <Info size={16} color="black" />
-          </button>
-        )}
+
+
     </div>
   );
 }
