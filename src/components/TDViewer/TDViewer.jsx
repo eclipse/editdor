@@ -68,11 +68,13 @@ export default function TDViewer() {
           fileHandle: file,
         };
         try {
+          let linkedTd = {};
+          linkedTd[fileData.fileName] = fileData.fileHandle
           context.updateOfflineTD(fileData.td);
           context.updateIsModified(false);
           context.setFileHandle(fileData.fileName);
           context.updateLinkedTd(undefined);
-          context.addLinkedTd(fileData.fileHandle);
+          context.addLinkedTd(linkedTd);
         } catch (e) {
           console.error("File processing:", e);
         }
@@ -86,8 +88,7 @@ export default function TDViewer() {
     onDrop,
     accept: {
       "application/json": [".json"],
-      "application/ld+json": [".jsonld"],
-      "text/csv": [".csv"],
+      "application/ld+json": [".jsonld"]
     },
     noClick: true,
     maxFiles: 1,
