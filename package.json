@@ -18,6 +18,7 @@
     "jsonld": "^8.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-dropzone": "^14.3.8",
     "react-feather": "^2.0.10",
     "react-icons": "^4.7.1",
     "react-tooltip": "^5.8.1",
@@ -50,6 +51,8 @@
     ]
   },
   "devDependencies": {
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
     "cross-env": "^7.0.3",
     "prettier": "^3.5.3",
     "react-scripts": "^5.0.1",

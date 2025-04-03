@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import ediTDorContext from "../../context/ediTDorContext";
 import {
   buildAttributeListObject,
@@ -25,6 +25,7 @@ import { InteractionSection } from "./components/InteractionSection";
 import { RenderedObject } from "./components/RenderedObject";
 import ValidationView from "./components/ValidationSection";
 import LinkView from "./components/LinkSection";
+import { useDropzone } from "react-dropzone";
 
 export default function TDViewer() {
   const context = useContext(ediTDorContext);
@@ -46,7 +47,6 @@ export default function TDViewer() {
     addFormDialog.current.openModal();
   };
 
-
   useEffect(() => {
     try {
       setTd(JSON.parse(context.offlineTD));
@@ -55,12 +55,69 @@ export default function TDViewer() {
     }
   }, [context.offlineTD]);
 
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      const file = acceptedFiles[0];
+      const reader = new FileReader();
+      reader.onabort = () => console.error("File reading  - aborted");
+      reader.onerror = () => console.error("File reading - failed");
+      reader.onload = () => {
+        const fileData = {
+          td: reader.result,
+          fileName: file.name,
+          fileHandle: file,
+        };
+        try {
+          let linkedTd = {};
+          linkedTd[fileData.fileName] = fileData.fileHandle
+          context.updateOfflineTD(fileData.td);
+          context.updateIsModified(false);
+          context.setFileHandle(fileData.fileName);
+          context.updateLinkedTd(undefined);
+          context.addLinkedTd(linkedTd);
+        } catch (e) {
+          console.error("File processing:", e);
+        }
+      };
+      reader.readAsText(file);
+    },
+    [context]
+  );
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "application/json": [".json"],
+      "application/ld+json": [".jsonld"]
+    },
+    noClick: true,
+    maxFiles: 1,
+    maxSize: 10 * 1024 * 1024, // 10MB
+  });
+
   if (!td || !Object.keys(td).length) {
     return (
-      <div className="flex h-full w-full bg-gray-500 justify-center align-center text-center ">
-        <div className="text-4xl text-white place-self-center">
-          Start writing a new TD or TM by clicking "New"
-        </div>
+      <div
+        {...getRootProps()}
+        className="flex h-full w-full bg-gray-500 justify-center justify-items-center align-center text-center "
+      >
+        <input {...getInputProps()} />
+        {isDragActive ? (
+          <div className="text-4xl text-white place-self-center">
+            <p>Drop the files here ...</p>
+          </div>
+        ) : (
+          <div className="text-4xl text-white place-self-center">
+            Start writing a new TD by clicking "New"
+            <p>or drag and drop .json file here</p>
+            <div className="pt-4">
+              <p className="text-gray-600 text-xl">
+                For linux operating systems, it is necessary to give the necessary
+                file permissions. Run sudo xdg-open /path/to/the/folder
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
