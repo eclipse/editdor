@@ -10,9 +10,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useReducer } from "react";
+import React, { useReducer } from 'react';
 
-import EdiTDorContext from "./ediTDorContext";
+import EdiTDorContext from './ediTDorContext';
 import {
   editdorReducer,
   REMOVE_FORM_FROM_TD,
@@ -20,23 +20,18 @@ import {
   SET_FILE_HANDLE,
   UPDATE_IS_MODFIED,
   UPDATE_OFFLINE_TD,
-  ADD_PROPERTYFORM_TO_TD,
-  ADD_ACTIONFORM_TO_TD,
-  ADD_EVENTFORM_TO_TD,
   REMOVE_ONE_OF_A_KIND_FROM_TD,
   ADD_LINKED_TD,
   UPDATE_LINKED_TD,
   UPDATE_VALIDATION_MESSAGE,
-} from "./editorReducers";
+  ADD_FORM_TO_TD,
+} from './editorReducers';
 
-const GlobalState = (props) => {
-  const [editdorState, dispatch] = useReducer(editdorReducer, {
-    offlineTD: "",
-    theme: "dark",
-    validationMessage: "",
-  });
 
-  const updateOfflineTD = (offlineTD, props) => {
+const GlobalState = props => {
+  const [editdorState, dispatch] = useReducer(editdorReducer, { offlineTD: "", validationMessage: "", parsedTD: {}, isValidJSON: true, });
+
+  const updateOfflineTD = (offlineTD) => {
     dispatch({ type: UPDATE_OFFLINE_TD, offlineTD: offlineTD });
   };
 
@@ -48,24 +43,18 @@ const GlobalState = (props) => {
     dispatch({ type: SET_FILE_HANDLE, fileHandle: fileHandle });
   };
 
-  const removeForm = (form) => {
-    dispatch({ type: REMOVE_FORM_FROM_TD, form: form });
-  };
-
   const removeLink = (link) => {
     dispatch({ type: REMOVE_LINK_FROM_TD, link: link });
   };
 
-  const addForm = (form) => {
-    dispatch({ type: ADD_PROPERTYFORM_TO_TD, form: form });
+  const addForm = (level, interactionName, form) => {
+    dispatch({ type: ADD_FORM_TO_TD, level: level, interactionName: interactionName, form: form });
   };
 
-  const addActionForm = (params) => {
-    dispatch({ type: ADD_ACTIONFORM_TO_TD, params: params });
+  const removeForm = (level, interactionName, toBeDeletedForm, index) => {
+    dispatch({ type: REMOVE_FORM_FROM_TD, level: level, interactionName: interactionName, toBeDeletedForm: toBeDeletedForm, index: index });
   };
-  const addEventForm = (params) => {
-    dispatch({ type: ADD_EVENTFORM_TO_TD, params: params });
-  };
+
   const removeOneOfAKindReducer = (kind, oneOfAKindName) => {
     dispatch({ type: REMOVE_ONE_OF_A_KIND_FROM_TD, kind, oneOfAKindName });
   };
@@ -79,18 +68,16 @@ const GlobalState = (props) => {
   };
 
   const updateValidationMessage = (validationMessage) => {
-    dispatch({
-      type: UPDATE_VALIDATION_MESSAGE,
-      validationMessage: validationMessage,
-    });
-  };
+    dispatch({ type: UPDATE_VALIDATION_MESSAGE, validationMessage: validationMessage })
+  }
 
   return (
     <EdiTDorContext.Provider
       value={{
         offlineTD: editdorState.offlineTD,
-        theme: editdorState.theme,
         isModified: editdorState.isModified,
+        isValidJSON: editdorState.isValidJSON,
+        parsedTD: editdorState.parsedTD,
         name: editdorState.name,
         fileHandle: editdorState.fileHandle,
         linkedTd: editdorState.linkedTd,
@@ -98,15 +85,13 @@ const GlobalState = (props) => {
         updateOfflineTD,
         updateIsModified,
         setFileHandle,
-        removeForm,
         removeLink,
         addForm,
-        addActionForm,
-        addEventForm,
+        removeForm,
         removeOneOfAKindReducer,
         addLinkedTd,
         updateLinkedTd,
-        updateValidationMessage,
+        updateValidationMessage
       }}
     >
       {props.children}
