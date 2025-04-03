@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/editdor/static/css/main.e5ef10a7.css",
-    "main.js": "/editdor/static/js/main.92b50ed9.js",
+    "main.js": "/editdor/static/js/main.88c949e3.js",
     "static/js/163.4530f286.chunk.js": "/editdor/static/js/163.4530f286.chunk.js",
     "static/js/152.82d69be4.chunk.js": "/editdor/static/js/152.82d69be4.chunk.js",
     "static/js/206.22134bea.chunk.js": "/editdor/static/js/206.22134bea.chunk.js",
@@ -13,6 +13,6 @@
   },
   "entrypoints": [
     "static/css/main.e5ef10a7.css",
-    "static/js/main.92b50ed9.js"
+    "static/js/main.88c949e3.js"
   ]
 }
