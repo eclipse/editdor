@@ -62,7 +62,7 @@ export const decompressSharedTd = (lzString) => {
  * @returns {Object | undefined}
  * @description Contacts the  proxy WoT native API to fetch a Thing Description.
  */
-export const fetchTdFromWot = async (tdId) => {
+export const fetchTdFromProxy = async (tdId) => {
     const targetUrl = getTargetUrl();
 
     try {
