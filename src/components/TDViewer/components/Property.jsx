@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -10,99 +10,83 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext } from "react";
-import { PlusCircle, Trash2 } from "react-feather";
+import React, { useContext, useState } from "react";
+import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../../util.js";
-import { AddFormDialog } from "../../Dialogs/AddFormDialog";
 import { InfoIconWrapper } from "../../InfoIcon/InfoIcon";
 import { getFormsTooltipContent } from "../../InfoIcon/InfoTooltips";
-import Form from "./Form";
+import Form, { AddFormElement } from "./Form";
+import { AddFormDialog } from "../../Dialogs/AddFormDialog";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
 
 export default function Property(props) {
-  const context = useContext(ediTDorContext);
+    const context = useContext(ediTDorContext);
 
-  const addFormDialog = React.useRef();
-  const openAddFormDialog = () => {
-    addFormDialog.current.openModal();
-  };
+    const [isExpanded, setIsExpanded] = useState(false);
 
-  if (
-    Object.keys(props.prop).length === 0 &&
-    props.prop.constructor !== Object
-  ) {
+    const addFormDialog = React.useRef(props)
+    const openAddFormDialog = () => { addFormDialog.current.openModal() }
+
+    if ((Object.keys(props.prop).length === 0 && props.prop.constructor !== Object)) {
+        return <div className="text-3xl text-white">Property could not be rendered because mandatory fields are missing.</div>
+    }
+
+    const property = props.prop;
+    const forms = separateForms(props.prop.forms);
+
+    const attributeListObject = buildAttributeListObject({ name: props.propName }, props.prop, alreadyRenderedKeys);
+    const attributes = Object.keys(attributeListObject).map(x => {
+        return <li key={x}>{x} : {JSON.stringify(attributeListObject[x])}</li>
+    });
+
+    const onDeletePropertyClicked = () => {
+        context.removeOneOfAKindReducer('properties', props.propName)
+    }
+
     return (
-      <div className="text-3xl text-white">
-        Property could not be rendered because mandatory fields are missing.
-      </div>
-    );
-  }
-
-  const property = props.prop;
-  const forms = separateForms(props.prop.forms);
-
-  const attributeListObject = buildAttributeListObject(
-    { name: props.propName },
-    props.prop,
-    alreadyRenderedKeys
-  );
-  const attributes = Object.keys(attributeListObject).map((x) => {
-    return (
-      <li key={x}>
-        {x} : {JSON.stringify(attributeListObject[x])}
-      </li>
-    );
-  });
-
-  const onDeletePropertyClicked = () => {
-    context.removeOneOfAKindReducer("properties", props.propName);
-  };
-
-  return (
-    <details>
-      <summary className="text-xl text-white flex flex-row w-full justify-start items-center cursor-pointer p-0.5">
-        <h3 className="flex-grow">{property.title ?? props.propName}</h3>
-        <button
-          className="text-base w-6 h-6 p-1 m-1 rounded-full bg-gray-400"
-          onClick={onDeletePropertyClicked}
+        <details
+            className="mb-1"
+            open={isExpanded}
+            onToggle={() => setIsExpanded(!isExpanded)}
         >
-          <Trash2 size={16} color="black" />
-        </button>
-      </summary>
-      <div className="mb-4">
-        <div className="text-lg text-gray-400 pb-2">{property.description}</div>
-        <ul className="list-disc text-base text-gray-300 pl-8">{attributes}</ul>
-        <div className="flex justify-start items-center pt-2">
-          <div className="flex flex-grow">
-            <InfoIconWrapper
-              className=" flex-grow"
-              tooltip={getFormsTooltipContent()}
-            >
-              <h4 className="text-lg text-gray-400 pr-1 text-bold">Forms</h4>
-            </InfoIconWrapper>
-          </div>
-          <button onClick={openAddFormDialog}>
-            <PlusCircle color="#cacaca" size="18" />
-          </button>
-          <AddFormDialog
-            type="property"
-            interaction={property}
-            interactionName={props.propName}
-            ref={addFormDialog}
-          />
-        </div>
-        {forms.map((form, i) => (
-          <Form
-            key={i}
-            propName={props.propName}
-            form={form}
-            interactionType={"property"}
-            className="last:pb-4"
-          ></Form>
-        ))}
-      </div>
-    </details>
-  );
+            <summary className={`flex text-xl text-white font-bold pl-2 items-center rounded-t-lg cursor-pointer ${isExpanded ? "bg-gray-500" : ""}`}>
+                <h3 className="flex-grow px-2">{property.title ?? props.propName}</h3>
+                {isExpanded &&
+                    <button className="flex self-stretch justify-center items-center text-base w-10 h-10 rounded-bl-md rounded-tr-md bg-gray-400" onClick={onDeletePropertyClicked}>
+                        <Trash2 size={16} color="white" />
+                    </button>
+                }
+            </summary>
+
+            <div className="mb-4 bg-gray-500 px-2 pb-4 rounded-b-lg ">
+                {property.description && <div className="text-lg text-gray-400 pb-2 px-2">{property.description}</div>}
+                <ul className="list-disc text-base text-gray-300 pl-6">{attributes}</ul>
+
+                <div className="flex justify-start items-center pt-2 pb-2">
+                    <InfoIconWrapper className="flex-grow" tooltip={getFormsTooltipContent()}>
+                        <h4 className="text-lg text-white pr-1 font-bold">Forms</h4>
+                    </InfoIconWrapper>
+                </div>
+
+                <AddFormElement onClick={openAddFormDialog} />
+                <AddFormDialog
+                    type={"property"}
+                    interaction={property}
+                    interactionName={props.propName}
+                    ref={addFormDialog}
+                />
+
+                {forms.map((form, i) => (
+                    <Form
+                        key={`${i}-${form.href}`}
+                        propName={props.propName}
+                        form={form}
+                        interactionType={"property"}
+                    />
+                ))}
+            </div>
+        </details >
+    )
 }

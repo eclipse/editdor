@@ -1,15 +1,3 @@
-/********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
- *
- * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License v. 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
- *
- * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
- ********************************************************************************/
 import { useContext, useEffect, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { ImCheckmark, ImCross } from "react-icons/im";
@@ -17,12 +5,15 @@ import { ImCheckmark, ImCross } from "react-icons/im";
 export default function ValidationView(props) {
   const context = useContext(ediTDorContext);
 
+  /** @type {ReturnType<typeof useState<import("../../../models").ValidationState>>} */
   const [jsonValidation, setJsonValidation] = useState(undefined);
+  /** @type {ReturnType<typeof useState<string | null>} */
   const [jsonValidationError, setJsonValidationError] = useState(undefined);
 
+  /** @type {ReturnType<typeof useState<import("../../../models").ValidationState>>} */
   const [jsonSchemaValidation, setJsonSchemaValidation] = useState(undefined);
-  const [jsonSchemaValidationError, setJsonSchemaValidationError] =
-    useState(undefined);
+  /** @type {ReturnType<typeof useState<string | null>} */
+  const [jsonSchemaValidationError, setJsonSchemaValidationError] = useState(undefined);
 
   useEffect(() => {
     const validationMessage = context.validationMessage;
@@ -45,8 +36,8 @@ export default function ValidationView(props) {
       setJsonValidationError(validationMessage.validationErrors.json);
       setJsonSchemaValidationError(validationMessage.validationErrors.schema);
 
-      console.debug("JSON validation error", jsonValidationError);
-      console.debug("JSON Schema validation error", jsonSchemaValidationError);
+      console.debug("JSON validation error", validationMessage.validationErrors.json);
+      console.debug("JSON Schema validation error", validationMessage.validationErrors.schema);
     }
   }, [context, jsonValidationError, jsonSchemaValidationError]);
 

@@ -10,19 +10,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { forwardRef, useContext, useImperativeHandle } from "react";
+import React, { forwardRef, useContext, useImperativeHandle } from 'react';
 import ReactDOM from "react-dom";
-import { ChevronDown } from "react-feather";
-import ediTDorContext from "../../context/ediTDorContext";
+import { ChevronDown } from 'react-feather';
+import ediTDorContext from '../../context/ediTDorContext';
 import { DialogTemplate } from "./DialogTemplate";
 import { parseCsv, mapCsvToProperties } from "../../utils/parser";
 
 export const CreateTdDialog = forwardRef((props, ref) => {
   const context = useContext(ediTDorContext);
-  const [display, setDisplay] = React.useState(() => {
-    return false;
-  });
-  const [type, setType] = React.useState("TD"); // either TD or TM
+  const [display, setDisplay] = React.useState(() => { return false });
+  const [type, setType] = React.useState("TD");  // either TD or TM
   const [properties, setProperties] = React.useState({});
   const [fileName, setFileName] = React.useState("");
   const [protocol, setProtocol] = React.useState("Modbus TCP");
@@ -31,12 +29,12 @@ export const CreateTdDialog = forwardRef((props, ref) => {
   useImperativeHandle(ref, () => {
     return {
       openModal: () => open(),
-      close: () => close(),
-    };
+      close: () => close()
+    }
   });
 
   const open = () => {
-    setDisplay(true);
+    setDisplay(true)
   };
 
   const close = () => {
@@ -66,23 +64,20 @@ export const CreateTdDialog = forwardRef((props, ref) => {
       <DialogTemplate
         onCancel={close}
         onSubmit={() => {
-          let td = createNewTD(type, properties);
-          let linkedTd = {};
-          linkedTd[td["title"]] = td;
-          context.updateLinkedTd(undefined);
-          context.addLinkedTd(linkedTd);
-          context.updateOfflineTD(JSON.stringify(td, null, "\t"));
+          let td = createNewTD(type, properties)
+          let linkedTd = {}
+          linkedTd[td["title"]] = td
+          context.updateLinkedTd(undefined)
+          context.addLinkedTd(linkedTd)
+          context.updateOfflineTD(JSON.stringify(td, null, 2));
           close();
         }}
         children={content}
         submitText={type === "TD" ? "Create TD" : "Create TM"}
         title={"Create a New TD/TM"}
-        description={
-          "To quickly create a basis for your new Thing Description/Thing Model just fill out this little template and we'll get you going."
-        }
+        description={"To quickly create a basis for your new Thing Description/Thing Model just fill out this little template and we'll get you going."}
       />,
-      document.getElementById("modal-root")
-    );
+      document.getElementById("modal-root"));
   }
 
   return null;
@@ -229,13 +224,15 @@ const buildForm = (
       <div className="flex justify-between border-gray-600 border-2 rounded">
         <div className="flex justify-between">
           <div className="flex items-center p-2">
+
             <label
               htmlFor="protocol-option"
               className="text-lg text-gray-400 pl-2 pr-2"
             >
               Protocol:
             </label>
-            <div className="relative w-10">
+
+            <div className="relative">
               <select
                 id="protocol-option"
                 className="block appearance-none bg-gray-600 border-2 border-gray-600 text-white py-2 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none"
@@ -249,18 +246,20 @@ const buildForm = (
                 <ChevronDown color="#cacaca"></ChevronDown>
               </div>
             </div>
+
           </div>
 
           <div className="flex items-center">
             <button
               id="download-template"
-              className="border-2 border-gray-600 rounded px-2 text-white leading-tight focus:outline-none focus:border-blue-500 bg-blue-500 h-10"
+              className="border-2 border-gray-600 rounded p-2 text-white leading-tight focus:outline-none focus:border-blue-500 bg-blue-500"
               onClick={downloadCsvTemplate}
             >
               Download CSV Template
             </button>
           </div>
         </div>
+
         <div className="flex items-center ml-2 mr-2">
           <input
             type="file"
@@ -286,30 +285,26 @@ const buildForm = (
 };
 
 const formField = (label, placeholder, id, type, autoFocus) => {
-  return (
-    <div key={id} className="py-1">
-      <label htmlFor={id} className="text-sm text-gray-400 font-medium pl-2">
-        {label}:
-      </label>
-      <input
-        name={id}
-        id={id}
-        className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
-        placeholder={placeholder}
-        type={type}
-        autoFocus={autoFocus === "autoFocus"}
-      />
-    </div>
-  );
-};
+  return <div key={id} className="py-1">
+    <label htmlFor={id} className="text-sm text-gray-400 font-medium pl-2">{label}:</label>
+    <input
+      name={id}
+      id={id}
+      className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+      placeholder={placeholder}
+      type={type}
+      autoFocus={autoFocus === 'autoFocus'}
+    />
+  </div>;
+}
 
 const createNewTD = (type, properties) => {
-  let id = document.getElementById("thing-id").value;
-  let title = document.getElementById("thing-title").value;
-  let base = document.getElementById("thing-base").value;
+  let id = document.getElementById('thing-id').value;
+  let title = document.getElementById('thing-title').value;
+  let base = document.getElementById('thing-base').value;
 
-  let tdDescription = document.getElementById("thing-description").value;
-  let tdSecurity = document.getElementById("thing-security").value;
+  let tdDescription = document.getElementById('thing-description').value;
+  let tdSecurity = document.getElementById('thing-security').value;
 
   var thing = {};
 
@@ -343,4 +338,4 @@ const createNewTD = (type, properties) => {
   thing["events"] = {};
 
   return thing;
-};
+}
