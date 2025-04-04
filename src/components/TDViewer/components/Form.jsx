@@ -202,7 +202,7 @@ function formComponent(formType, form, interactionFunction) {
 }
 export function AddFormElement(props) {
     return (
-        <button className="flex items-stretch min-h-10 w-full bg-opacity-75 border-2 border-formBlue rounded-md bg-formBlue bg-opacity-75 pl-4" onClick={props.onClick}>
+        <button className="flex items-stretch min-h-10 w-full border-2 border-formBlue rounded-md bg-formBlue bg-opacity-75 pl-4" onClick={props.onClick}>
             <div className="flex justify-center items-center">
                 <PlusCircle color="white" size="20" />
                 <div className={`text-white pl-2 text-center`}>Click to add Form...</div>
@@ -215,7 +215,7 @@ export function UndefinedForm(props) {
     const context = useContext(ediTDorContext);
 
     return (
-        <div className="flex items-stretch min-h-10 w-full bg-opacity-75 border-2 border-gray-300 rounded-md bg-gray-300 bg-opacity-75 pl-4">
+        <div className="flex items-stretch min-h-10 w-full border-2 border-gray-300 rounded-md bg-gray-300 bg-opacity-75 pl-4">
             <div className="flex h-6 min-w-20 justify-center place-self-center rounded-md bg-white">
                 <div className={`text-black place-self-center px-4 text-center text-xs`}>Undefined</div>
             </div>
