@@ -47,7 +47,7 @@ Please follow our [contribution guide](./CONTRIBUTING.md).
 * [Eclipse Public License v. 2.0](http://www.eclipse.org/legal/epl-2.0)
   
 ## Prerequisites
-* [NodeJS](https://nodejs.org/), version 10+ (e.g., 10.13.0 LTS)
+* [Node.js](https://nodejs.org/), version 10+ (e.g., 10.13.0 LTS)
 
 ## Start Locally
 `yarn dev` starts a local development server on Port 3000 (http://localhost:3000)
