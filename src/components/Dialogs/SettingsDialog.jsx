@@ -50,7 +50,7 @@ export const SettingsDialog = forwardRef((props, ref) => {
         placeholder="http://localhost:8080/"
       />
       <p className="pl-2 text-sm text-gray-400">
-        The target url should point to a server that implements the WoT Things API. If a valid target url is provided,
+        The target url should point to a server that implements the Discovery Specifications's Things API. If a valid target url is provided,
         the ediTDor automatically uses it to save your changes. Empty this field to simply save files to disk.
       </p>
     </>
