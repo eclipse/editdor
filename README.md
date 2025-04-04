@@ -1,5 +1,7 @@
 ![alt text](https://github.com/eclipse/editdor/blob/master/logo/1585_ediTDor_logo.png "ediTDor logo")
 
+[![Discord](https://img.shields.io/badge/Discord-7289DA?logo=discord&logoColor=white&label=WoT CG Discord)](https://discord.gg/RJNYJsEgnb)
+
 A tool for simply designing W3C Thing Descriptions and Thing Models
 
 Find the ediTDor here to try it out: 
@@ -37,14 +39,15 @@ The goal of this project is the easy creation of W3C Thing Description instances
 - TailwindCSS
 
 ## Contribution guide
-Any contribution to this project is welcome. If you want to report a bug or have a question, please check the [issue list](https://github.com/eclipse/editdor/issues) or create a new issue. Many thanks. 
+
+Any contribution to this project is welcome. 
+Please follow our [contribution guide](./CONTRIBUTING.md).
 
 ## License
 * [Eclipse Public License v. 2.0](http://www.eclipse.org/legal/epl-2.0)
   
 ## Prerequisites
-* [NodeJS](https://nodejs.org/), use the LTS release
-
+* [NodeJS](https://nodejs.org/), version 10+ (e.g., 10.13.0 LTS)
 
 ## Start Locally
 `yarn dev` starts a local development server on Port 3000 (http://localhost:3000)
@@ -60,6 +63,3 @@ Any contribution to this project is welcome. If you want to report a bug or have
 * Render TD to be more human readable
 * Validate JSON Syntax and JSON Schema for TD (JSONLD and Additional Validation for nested TM will be implemented in the future)
 
-## Additional implemented Features in the fork of editdor: 
-
-* Read/write the value of your properties using the read/write buttons next to the properties name.
