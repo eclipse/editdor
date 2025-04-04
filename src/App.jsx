@@ -41,7 +41,7 @@ const App = (props) => {
 
     useEffect(() => {
         if (checkedUrl || (window.location.search.indexOf("td") <= -1 &&
-            window.location.search.indexOf("wotid") <= -1 &&
+            window.location.search.indexOf("proxyid") <= -1 &&
             window.location.search.indexOf("localstorage") <= -1)) {
             return;
         }
@@ -59,7 +59,7 @@ const App = (props) => {
             context.updateOfflineTD(JSON.stringify(td, null, 2));
         }
 
-        const nativeTdId = url.searchParams.get("wotid");
+        const nativeTdId = url.searchParams.get("proxyid");
         if (nativeTdId !== null) {
             fetchTdFromWot(nativeTdId).then((td) => {
                 if (td === undefined) {
