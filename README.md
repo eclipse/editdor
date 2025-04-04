@@ -29,7 +29,7 @@ The goal of this project is the easy creation of W3C Thing Description instances
 - Editing the Thing Description / Thing Model
 - Validating the Thing Description / ThingModel
 - Exporting the Thing Description / ThingModel from the visual representation into JSON-LD
-- Reading/writing/observing exposed properties value exposed by a proxy
+- Reading/writing/observing exposed properties' values exposed by a proxy (anything that can translate a protocol to HTTP)
 
 
 ## Technologies
