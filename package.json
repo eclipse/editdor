@@ -3,6 +3,12 @@
   "version": "0.6.6",
   "private": true,
   "homepage": "https://eclipse.github.io/editdor/",
+  "license": "EPL-2.0 OR W3C-20150513", 
+  "author": "Eclipse ediTDor <editdor-dev@eclipse.org>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eclipse/editdor.git"
+  },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "@testing-library/jest-dom": "^6.0.0",
