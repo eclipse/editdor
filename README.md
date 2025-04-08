@@ -14,8 +14,6 @@ other one for using it embedded into a production environment.
 The available environment variables are:
 ``` bash
 REACT_APP_IS_STANDALONE={flag} # true or false
-REACT_APP_HOST={hostname} # default: localhost
-REACT_APP_PORT={port} # default: 8080
 ```
 
 If the REACT_APP_IS_STANDALONE environment variable is set to true, REACT_APP_HOST and REACT_APP_PORT are going to be
@@ -31,7 +29,7 @@ The goal of this project is the easy creation of W3C Thing Description instances
 - Editing the Thing Description / Thing Model
 - Validating the Thing Description / ThingModel
 - Exporting the Thing Description / ThingModel from the visual representation into JSON-LD
-- Reading/writing/observing exposed properties' values exposed by a proxy (anything that can translate a protocol to HTTP)
+- Reading/writing exposed properties' values exposed by a proxy (anything that can translate a protocol to HTTP)
 
 
 ## Technologies
