@@ -10,67 +10,86 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext, useCallback, useState } from 'react';
-import ediTDorContext from '../../../context/ediTDorContext';
-import { ChevronRight, ChevronDown } from 'react-feather';
-import { getDirectedValue } from '../../../util';
+import React, { useContext, useCallback, useState } from "react";
+import ediTDorContext from "../../../context/ediTDorContext";
+import { ChevronRight, ChevronDown } from "react-feather";
+import { getDirectedValue } from "../../../util";
 
 function isObject(val) {
-    if (val === null) { return false; }
-    return ((typeof val === 'function') || (typeof val === 'object'));
+  if (val === null) {
+    return false;
+  }
+  return typeof val === "function" || typeof val === "object";
 }
 
 export const RenderedObject = (map) => {
-    const context = useContext(ediTDorContext);
-    const [showChildren, setShowChildren] = useState(new Array(Object.entries(map).length));
-    const handleClick = useCallback((i) => {
-        let temp = showChildren;
-        let x = showChildren[i];
-        temp[i] = x === null ? true : !x;
-        setShowChildren([...temp]);
-    }, [showChildren, setShowChildren])
+  const context = useContext(ediTDorContext);
+  const [showChildren, setShowChildren] = useState(
+    new Array(Object.entries(map).length)
+  );
+  const handleClick = useCallback(
+    (i) => {
+      let temp = showChildren;
+      let x = showChildren[i];
+      temp[i] = x === null ? true : !x;
+      setShowChildren([...temp]);
+    },
+    [showChildren, setShowChildren]
+  );
 
-    return (
-        <>
-            {Object.entries(map).map(([k, v], i) => {
-                if (isObject(v)) {
-                    let indicator = (<button className="flex align-top" onClick={() => handleClick(i)}>
-                        <div className="flex text-white font-bold bg-gray-600 py-1 px-2 rounded-md align-middle">
-                            <h4>{k}</h4>
-                            {showChildren[i] === true ? <ChevronDown className="pl-1" /> : <ChevronRight className="pl-1" />}
-                        </div>
-                    </button>);
+  return (
+    <>
+      {Object.entries(map).map(([k, v], i) => {
+        if (isObject(v)) {
+          let indicator = (
+            <button className="flex align-top" onClick={() => handleClick(i)}>
+              <div className="flex rounded-md bg-gray-600 px-2 py-1 align-middle font-bold text-white">
+                <h4>{k}</h4>
+                {showChildren[i] === true ? (
+                  <ChevronDown className="pl-1" />
+                ) : (
+                  <ChevronRight className="pl-1" />
+                )}
+              </div>
+            </button>
+          );
 
-                    let children = (<div className="flex">
-                        <div className="flex w-1 rounded-lg bg-gray-400 ml-2 my-1" />
-                        <div className="pl-8 mt-1">
-                            {showChildren[i] === true && (Object.entries(v) ?? []).map(([k1, v1], i1) => {
-                                let m1 = {};
-                                m1[k1] = v1;
-                                return <RenderedObject {...m1} key={i1} />
-                            })}
-                        </div>
-                    </div>);
+          let children = (
+            <div className="flex">
+              <div className="my-1 ml-2 flex w-1 rounded-lg bg-gray-400" />
+              <div className="mt-1 pl-8">
+                {showChildren[i] === true &&
+                  (Object.entries(v) ?? []).map(([k1, v1], i1) => {
+                    let m1 = {};
+                    m1[k1] = v1;
+                    return <RenderedObject {...m1} key={i1} />;
+                  })}
+              </div>
+            </div>
+          );
 
-                    return (
-                        <div className="mb-1" key={i}>
-                            {indicator}
-                            {showChildren[i] === true && children}
-                        </div>
-                    )
-                }
+          return (
+            <div className="mb-1" key={i}>
+              {indicator}
+              {showChildren[i] === true && children}
+            </div>
+          );
+        }
 
-                const value = getDirectedValue(map, k,
-                    context.linkedTd[Object.keys(context.linkedTd)[0]]['@context']
-                );
-                return (
-                    <div className="flex mb-1" key={i}>
-                        <h4 className="text-white font-bold bg-gray-600 py-1 px-2 rounded-md">{k}</h4>
-                        <div className="text-gray-400 px-2 py-1">{value}</div>
-                    </div>
-                )
-            })}
-        </ >
-    );
-}
-
+        const value = getDirectedValue(
+          map,
+          k,
+          context.linkedTd[Object.keys(context.linkedTd)[0]]["@context"]
+        );
+        return (
+          <div className="mb-1 flex" key={i}>
+            <h4 className="rounded-md bg-gray-600 px-2 py-1 font-bold text-white">
+              {k}
+            </h4>
+            <div className="px-2 py-1 text-gray-400">{value}</div>
+          </div>
+        );
+      })}
+    </>
+  );
+};

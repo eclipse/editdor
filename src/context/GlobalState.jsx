@@ -10,9 +10,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useReducer } from 'react';
+import React, { useReducer } from "react";
 
-import EdiTDorContext from './ediTDorContext';
+import EdiTDorContext from "./ediTDorContext";
 import {
   editdorReducer,
   REMOVE_FORM_FROM_TD,
@@ -25,11 +25,15 @@ import {
   UPDATE_LINKED_TD,
   UPDATE_VALIDATION_MESSAGE,
   ADD_FORM_TO_TD,
-} from './editorReducers';
+} from "./editorReducers";
 
-
-const GlobalState = props => {
-  const [editdorState, dispatch] = useReducer(editdorReducer, { offlineTD: "", validationMessage: "", parsedTD: {}, isValidJSON: true, });
+const GlobalState = (props) => {
+  const [editdorState, dispatch] = useReducer(editdorReducer, {
+    offlineTD: "",
+    validationMessage: "",
+    parsedTD: {},
+    isValidJSON: true,
+  });
 
   const updateOfflineTD = (offlineTD) => {
     dispatch({ type: UPDATE_OFFLINE_TD, offlineTD: offlineTD });
@@ -48,11 +52,22 @@ const GlobalState = props => {
   };
 
   const addForm = (level, interactionName, form) => {
-    dispatch({ type: ADD_FORM_TO_TD, level: level, interactionName: interactionName, form: form });
+    dispatch({
+      type: ADD_FORM_TO_TD,
+      level: level,
+      interactionName: interactionName,
+      form: form,
+    });
   };
 
   const removeForm = (level, interactionName, toBeDeletedForm, index) => {
-    dispatch({ type: REMOVE_FORM_FROM_TD, level: level, interactionName: interactionName, toBeDeletedForm: toBeDeletedForm, index: index });
+    dispatch({
+      type: REMOVE_FORM_FROM_TD,
+      level: level,
+      interactionName: interactionName,
+      toBeDeletedForm: toBeDeletedForm,
+      index: index,
+    });
   };
 
   const removeOneOfAKindReducer = (kind, oneOfAKindName) => {
@@ -68,8 +83,11 @@ const GlobalState = props => {
   };
 
   const updateValidationMessage = (validationMessage) => {
-    dispatch({ type: UPDATE_VALIDATION_MESSAGE, validationMessage: validationMessage })
-  }
+    dispatch({
+      type: UPDATE_VALIDATION_MESSAGE,
+      validationMessage: validationMessage,
+    });
+  };
 
   return (
     <EdiTDorContext.Provider
@@ -91,7 +109,7 @@ const GlobalState = props => {
         removeOneOfAKindReducer,
         addLinkedTd,
         updateLinkedTd,
-        updateValidationMessage
+        updateValidationMessage,
       }}
     >
       {props.children}

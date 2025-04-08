@@ -13,11 +13,10 @@
 import React, { useContext } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { Trash2, Info } from "react-feather";
-import { changeBetweenTd } from '../../../util';
+import { changeBetweenTd } from "../../../util";
 
 export default function Link(props) {
-
-  const context = useContext(ediTDorContext)
+  const context = useContext(ediTDorContext);
   const deleteLink = (e) => {
     let currentLinkedTd = context.linkedTd;
     //update the linkedTd after removing the current linked Td
@@ -27,38 +26,41 @@ export default function Link(props) {
     }
     context.removeLink(e.propName);
     context.updateIsModified(true);
-
-  }
+  };
   const infoLink = async (e) => {
     let href = e.link.href;
     changeBetweenTd(context, href);
-  }
+  };
   return (
-    <div className="flex items-stretch min-h-12 w-full bg-opacity-75 bg-formBlue mt-2 rounded-md border-2 pl-4 border-formBlue">
-      <div className="flex h-8 min-w-20 bg-white rounded-md place-self-center justify-center">
-        <div className="text-formBlue place-self-center text-center px-4">{props.link.rel ?? "-"}</div>
+    <div className="bg-formBlue border-formBlue mt-2 flex min-h-12 w-full items-stretch rounded-md border-2 bg-opacity-75 pl-4">
+      <div className="flex h-8 min-w-20 justify-center place-self-center rounded-md bg-white">
+        <div className="text-formBlue place-self-center px-4 text-center">
+          {props.link.rel ?? "-"}
+        </div>
       </div>
 
-      <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">{props.link.href}</div>
+      <div className="flex-grow place-self-center overflow-hidden pl-3 text-base text-white">
+        {props.link.href}
+      </div>
 
-      {context.linkedTd && context.linkedTd[props.link.href] && ((Object.keys(context.linkedTd[props.link.href]).length) || context.linkedTd[props.link.href]["kind"] === "file") &&
-        <button
-          className="flex w-10 justify-center items-center bg-formBlue border-r-2 border-formBlue"
-          onClick={() => infoLink(props)}
-        >
-          <Info size={16} color="black" />
-        </button>
-
-      }
+      {context.linkedTd &&
+        context.linkedTd[props.link.href] &&
+        (Object.keys(context.linkedTd[props.link.href]).length ||
+          context.linkedTd[props.link.href]["kind"] === "file") && (
+          <button
+            className="bg-formBlue border-formBlue flex w-10 items-center justify-center border-r-2"
+            onClick={() => infoLink(props)}
+          >
+            <Info size={16} color="black" />
+          </button>
+        )}
 
       <button
-        className="flex w-10 justify-center items-center bg-formBlue"
+        className="bg-formBlue flex w-10 items-center justify-center"
         onClick={() => deleteLink(props)}
       >
         <Trash2 size={16} color="black" />
       </button>
-
-
     </div>
   );
 }

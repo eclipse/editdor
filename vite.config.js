@@ -1,4 +1,3 @@
-
 import { defineConfig, loadEnv } from "vite";
 import tailwindcss from "tailwindcss";
 import react from "@vitejs/plugin-react";
@@ -10,7 +9,7 @@ export default defineConfig(({ command, mode }) => {
     css: {
       postcss: {
         plugins: [tailwindcss()],
-      }, 
+      },
     },
     base: "",
     define: {

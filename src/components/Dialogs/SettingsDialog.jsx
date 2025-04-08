@@ -19,7 +19,6 @@ export const SettingsDialog = forwardRef((props, ref) => {
   const [display, setDisplay] = React.useState(false);
   const [settingsTargetUrl, setSettingsTargetUrl] = React.useState("");
 
-
   useImperativeHandle(ref, () => {
     return {
       openModal: () => open(),
@@ -39,7 +38,9 @@ export const SettingsDialog = forwardRef((props, ref) => {
 
   let child = (
     <>
-      <label className="pl-2 text-sm font-medium text-gray-400">Target URL:</label>
+      <label className="pl-2 text-sm font-medium text-gray-400">
+        Target URL:
+      </label>
       <input
         type="text"
         name="settings-target-url-field"
@@ -50,8 +51,10 @@ export const SettingsDialog = forwardRef((props, ref) => {
         placeholder="http://localhost:8080/"
       />
       <p className="pl-2 text-sm text-gray-400">
-        The target url should point to a server that implements the Discovery Specifications's Things API. If a valid target url is provided,
-        the ediTDor automatically uses it to save your changes. Empty this field to simply save files to disk.
+        The target url should point to a server that implements the Discovery
+        Specifications's Things API. If a valid target url is provided, the
+        ediTDor automatically uses it to save your changes. Empty this field to
+        simply save files to disk.
       </p>
     </>
   );
@@ -69,7 +72,9 @@ export const SettingsDialog = forwardRef((props, ref) => {
         }}
         children={child}
         title={"Settings"}
-        description={"Change the ediTDors configuration to your needs. More configuration options are yet to come..."}
+        description={
+          "Change the ediTDors configuration to your needs. More configuration options are yet to come..."
+        }
       />,
       document.getElementById("modal-root")
     );

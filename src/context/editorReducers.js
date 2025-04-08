@@ -30,13 +30,24 @@ export const editdorReducer = (state, action) => {
     case SET_FILE_HANDLE:
       return updateFileHandleReducer(action.fileHandle, state);
     case REMOVE_FORM_FROM_TD:
-      return removeFormReducer(action.level, action.interactionName, action.toBeDeletedForm, action.index, state);
+      return removeFormReducer(
+        action.level,
+        action.interactionName,
+        action.toBeDeletedForm,
+        action.index,
+        state
+      );
     case REMOVE_LINK_FROM_TD:
       return removeLinkReducer(action.link, state);
     case REMOVE_ONE_OF_A_KIND_FROM_TD:
       return removeOneOfAKindReducer(action.kind, action.oneOfAKindName, state);
     case ADD_FORM_TO_TD:
-      return addFormReducer(action.level, action.interactionName, action.form, state);
+      return addFormReducer(
+        action.level,
+        action.interactionName,
+        action.form,
+        state
+      );
     case ADD_LINKED_TD:
       return addLinkedTd(action.linkedTd, state);
     case UPDATE_LINKED_TD:
@@ -54,7 +65,13 @@ const updateOfflineTDReducer = (offlineTD, state) => {
   }
 
   if (offlineTD === "") {
-    return { ...state, offlineTD: "", isModified: true, isValidJSON: true, parsedTD: {} };
+    return {
+      ...state,
+      offlineTD: "",
+      isModified: true,
+      isValidJSON: true,
+      parsedTD: {},
+    };
   }
 
   let parsedTD = undefined;
@@ -62,7 +79,13 @@ const updateOfflineTDReducer = (offlineTD, state) => {
     parsedTD = JSON.parse(offlineTD);
   } catch (e) {
     console.error(e.message);
-    return { ...state, offlineTD: offlineTD, isModified: true, isValidJSON: false, parsedTD: state.parsedTD };
+    return {
+      ...state,
+      offlineTD: offlineTD,
+      isModified: true,
+      isValidJSON: false,
+      parsedTD: state.parsedTD,
+    };
   }
 
   let linkedTd = state.linkedTd;
@@ -100,7 +123,13 @@ const updateOfflineTDReducer = (offlineTD, state) => {
  * @param {Object} state
  * @returns
  */
-const removeFormReducer = (level, interactionName, toBeDeletedForm, index, state) => {
+const removeFormReducer = (
+  level,
+  interactionName,
+  toBeDeletedForm,
+  index,
+  state
+) => {
   if (!state.isValidJSON) {
     return state;
   }
@@ -115,7 +144,11 @@ const removeFormReducer = (level, interactionName, toBeDeletedForm, index, state
     forms = td.forms;
   } else {
     // check whether the JSON structure to the to be deleted Form exists
-    if (!td[level] || !td[level][interactionName] || !td[level][interactionName].forms) {
+    if (
+      !td[level] ||
+      !td[level][interactionName] ||
+      !td[level][interactionName].forms
+    ) {
       return state;
     }
 
@@ -174,7 +207,12 @@ const removeLinkReducer = (index, state) => {
     }
   }
 
-  return { ...state, offlineTD: JSON.stringify(td, null, 2), linkedTd: linkedTd, parsedTD: td };
+  return {
+    ...state,
+    offlineTD: JSON.stringify(td, null, 2),
+    linkedTd: linkedTd,
+    parsedTD: td,
+  };
 };
 
 const removeOneOfAKindReducer = (kind, oneOfAKindName, state) => {

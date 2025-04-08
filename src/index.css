@@ -2,152 +2,151 @@
 @tailwind components;
 @tailwind utilities;
 
-
 /* weird that this is needed... */
 * {
-    scrollbar-color: #c1c1c1 #f1f1f1; 
+  scrollbar-color: #c1c1c1 #f1f1f1;
 }
 
 *:hover {
-    scrollbar-color: #a8a8a8 #f1f1f1;
+  scrollbar-color: #a8a8a8 #f1f1f1;
 }
 
-html, body, #root {
-    height: 100%;
-    width: 100%;
-    margin: 0px;
-    padding: 0px;
-    display: flex;
-    flex-direction: column;
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  display: flex;
+  flex-direction: column;
 }
-
 
 @keyframes spinner {
-    0% {
-        transform: rotate(0deg);
-    }
+  0% {
+    transform: rotate(0deg);
+  }
 
-    100% {
-        transform: rotate(360deg);
-    }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .rowC {
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
 }
 
 .loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 10px solid #f3f3f3;
-    border-top: 10px solid #383636;
-    border-radius: 50%;
-    animation: spinner 1.5s linear infinite;
+  width: 50px;
+  height: 50px;
+  border: 10px solid #f3f3f3;
+  border-top: 10px solid #383636;
+  border-radius: 50%;
+  animation: spinner 1.5s linear infinite;
 }
 
 .app-header-spinner {
-    width: 25px;
-    height: 25px;
-    border: 2.5px solid #f3f3f3;
-    border-top: 2.5px solid #005a9c;
-    border-radius: 50%;
-    animation: spinner 1.5s linear infinite;
+  width: 25px;
+  height: 25px;
+  border: 2.5px solid #f3f3f3;
+  border-top: 2.5px solid #005a9c;
+  border-radius: 50%;
+  animation: spinner 1.5s linear infinite;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-        sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .text-formBlue {
-    --tw-text-opacity: 1;
-    color: rgba(10, 132, 255, var(--tw-text-opacity));
+  --tw-text-opacity: 1;
+  color: rgba(10, 132, 255, var(--tw-text-opacity));
 }
 
 .text-formRed {
-    --tw-text-opacity: 1;
-    color: rgba(255, 69, 58, var(--tw-text-opacity));
+  --tw-text-opacity: 1;
+  color: rgba(255, 69, 58, var(--tw-text-opacity));
 }
 
 .text-formGreen {
-    --tw-text-opacity: 1;
-    color: rgba(48, 209, 88, var(--tw-text-opacity));
+  --tw-text-opacity: 1;
+  color: rgba(48, 209, 88, var(--tw-text-opacity));
 }
 
 .text-formOrange {
-    --tw-text-opacity: 1;
-    color: rgba(255, 159, 10, var(--tw-text-opacity));
+  --tw-text-opacity: 1;
+  color: rgba(255, 159, 10, var(--tw-text-opacity));
 }
 
 .bg-formBlue {
-    background-color: rgba(10, 132, 255, var(--tw-bg-opacity));
+  background-color: rgba(10, 132, 255, var(--tw-bg-opacity));
 }
 
 .bg-formRed {
-    background-color: rgba(255, 69, 58, var(--tw-bg-opacity));
+  background-color: rgba(255, 69, 58, var(--tw-bg-opacity));
 }
 
 .bg-formGreen {
-    background-color: rgba(48, 209, 88, var(--tw-bg-opacity));
+  background-color: rgba(48, 209, 88, var(--tw-bg-opacity));
 }
 
 .bg-formOrange {
-    background-color: rgba(255, 159, 10, var(--tw-bg-opacity));
+  background-color: rgba(255, 159, 10, var(--tw-bg-opacity));
 }
 
 .border-formBlue {
-    --tw-border-opacity: 1;
-    border-color: rgba(10, 132, 255, var(--tw-border-opacity));
+  --tw-border-opacity: 1;
+  border-color: rgba(10, 132, 255, var(--tw-border-opacity));
 }
 
 .border-formRed {
-    --tw-border-opacity: 1;
-    border-color: rgba(255, 69, 58, var(--tw-border-opacity));
+  --tw-border-opacity: 1;
+  border-color: rgba(255, 69, 58, var(--tw-border-opacity));
 }
 
 .border-formGreen {
-    --tw-border-opacity: 1;
-    border-color: rgba(48, 209, 88, var(--tw-border-opacity));
+  --tw-border-opacity: 1;
+  border-color: rgba(48, 209, 88, var(--tw-border-opacity));
 }
 
 .border-formOrange {
-    --tw-border-opacity: 1;
-    border-color: rgba(255, 159, 10, var(--tw-border-opacity));
+  --tw-border-opacity: 1;
+  border-color: rgba(255, 159, 10, var(--tw-border-opacity));
 }
 
 .bg-blue-400 {
-    background-color: rgba(0, 119, 204, var(--tw-bg-opacity));
+  background-color: rgba(0, 119, 204, var(--tw-bg-opacity));
 }
 
 .bg-blue-500 {
-    background-color: rgba(0, 90, 156, var(--tw-bg-opacity));
+  background-color: rgba(0, 90, 156, var(--tw-bg-opacity));
 }
 
 .bg-gray-100 {
-    background-color: rgba(142, 142, 147, var(--tw-bg-opacity));
+  background-color: rgba(142, 142, 147, var(--tw-bg-opacity));
 }
 
 .bg-gray-200 {
-    background-color: rgba(99, 99, 102, var(--tw-bg-opacity));
+  background-color: rgba(99, 99, 102, var(--tw-bg-opacity));
 }
 
 .bg-gray-300 {
-    background-color: rgba(72, 72, 74, var(--tw-bg-opacity));
+  background-color: rgba(72, 72, 74, var(--tw-bg-opacity));
 }
 
 .bg-gray-400 {
-    background-color: rgba(58, 58, 60, var(--tw-bg-opacity));
+  background-color: rgba(58, 58, 60, var(--tw-bg-opacity));
 }
 
 .bg-gray-500 {
-    background-color: rgba(40, 40, 42, var(--tw-bg-opacity));
+  background-color: rgba(40, 40, 42, var(--tw-bg-opacity));
 }
 
 .bg-gray-600 {
-    background-color: rgba(28, 28, 30, var(--tw-bg-opacity));
+  background-color: rgba(28, 28, 30, var(--tw-bg-opacity));
 }
-    

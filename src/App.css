@@ -4,30 +4,29 @@
 
 /* clears the ‘X’ from Internet Explorer */
 
-input[type=search]::-ms-clear {
+input[type="search"]::-ms-clear {
   display: none;
   width: 0;
   height: 0;
 }
 
-input[type=search]::-ms-reveal {
+input[type="search"]::-ms-reveal {
   display: none;
   width: 0;
   height: 0;
 }
 
 /* clears the ‘X’ from Chrome in the Search*/
-input[type="search"]::-webkit-search-decoration, 
-input[type="search"]::-webkit-search-cancel-button, 
-input[type="search"]::-webkit-search-results-button, 
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration {
   display: none;
 }
 
-
 /* changes the detail arrow to a animated chevron*/
 /* show Arrow in detail component */
-details>summary::before {
+details > summary::before {
   content: url(./assets/chevron-right.svg);
   width: 1.5rem;
   height: 1.5rem;
@@ -37,28 +36,31 @@ details>summary::before {
   fill: white;
 }
 
-details[open]>summary::before {
+details[open] > summary::before {
   transform: rotate(90deg);
 }
 
-summary {list-style: none}
+summary {
+  list-style: none;
+}
 
-summary::-webkit-details-marker {display: none;}
-
-details>summary::marker {
+summary::-webkit-details-marker {
   display: none;
 }
 
-#link-href{
+details > summary::marker {
+  display: none;
+}
+
+#link-href {
   width: 75%;
 }
 
-
-#error{
-    border-radius: 25px;
-    border: 2px solid red; 
-    background-color: white;
-    padding-left: 2%;
-    padding-right: 2%;
-    opacity: 0.9;
+#error {
+  border-radius: 25px;
+  border: 2px solid red;
+  background-color: white;
+  padding-left: 2%;
+  padding-right: 2%;
+  opacity: 0.9;
 }
