@@ -227,15 +227,15 @@ export default function LinkView(props) {
 
   return (
     <details className="pt-8">
-      <summary className="flex justify-start items-center cursor-pointer">
+      <summary className="flex cursor-pointer items-center justify-start">
         <div className="flex flex-grow">
           <InfoIconWrapper tooltip={getLinksTooltipContent()}>
-            <h2 className="text-2xl text-white p-1 flex-grow">Links</h2>
+            <h2 className="flex-grow p-1 text-2xl text-white">Links</h2>
           </InfoIconWrapper>
 
           {isLinksOpen && (
             <button
-              className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9"
+              className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
               disabled={representationFormat === "list"}
               onClick={() => setRepresentationFormat("list")}
             >
@@ -244,7 +244,7 @@ export default function LinkView(props) {
           )}
           {isLinksOpen && (
             <button
-              className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9"
+              className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
               style={{ marginLeft: "10px" }}
               disabled={representationFormat === "graph"}
               onClick={() => setRepresentationFormat("graph")}
@@ -254,7 +254,7 @@ export default function LinkView(props) {
           )}
         </div>
         <button
-          className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2"
+          className="cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
           onClick={openAddLinkDialog}
         >
           Add Top Level Link
@@ -264,14 +264,14 @@ export default function LinkView(props) {
       {links && representationFormat === "graph" && (
         <div className="pt-4">
           <div
-            className="rounded-lg bg-gray-600 px-6 pt-4 pb-4"
+            className="rounded-lg bg-gray-600 px-6 pb-4 pt-4"
             id="tdGraph"
           ></div>
         </div>
       )}
       {links && representationFormat === "list" && (
         <div className="pt-4">
-          <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{links}</div>
+          <div className="rounded-lg bg-gray-600 px-6 pb-4 pt-4">{links}</div>
         </div>
       )}
     </details>

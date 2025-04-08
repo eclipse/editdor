@@ -1,4 +1,3 @@
-
 const TARGET_URL_KEY: string = "target-url";
 
 /**
@@ -8,12 +7,12 @@ const TARGET_URL_KEY: string = "target-url";
  * @returns string
  */
 const getTargetUrl = (): string => {
-	const targetUrl = localStorage.getItem(TARGET_URL_KEY);
-	if (targetUrl === null) {
-		return "";
-	}
+  const targetUrl = localStorage.getItem(TARGET_URL_KEY);
+  if (targetUrl === null) {
+    return "";
+  }
 
-	return targetUrl;
+  return targetUrl;
 };
 
 /**
@@ -22,10 +21,10 @@ const getTargetUrl = (): string => {
  * @returns
  */
 const setTargetUrl = (targetUrl: string): void => {
-	if (targetUrl != "" && !targetUrl.endsWith("/")) {
-		targetUrl = targetUrl + "/";
-	}
-	localStorage.setItem(TARGET_URL_KEY, targetUrl);
+  if (targetUrl != "" && !targetUrl.endsWith("/")) {
+    targetUrl = targetUrl + "/";
+  }
+  localStorage.setItem(TARGET_URL_KEY, targetUrl);
 };
 
 /**
@@ -44,32 +43,41 @@ const setTargetUrl = (targetUrl: string): void => {
  *
  * @returns void
  */
-const initializeTargetUrl = ():void => {
+const initializeTargetUrl = (): void => {
+  let targetUrl: string | null = localStorage.getItem(TARGET_URL_KEY);
+  if (targetUrl !== null) {
+    console.debug(
+      `didn't initialize target url - already initialized as '${targetUrl}'`
+    );
+    return;
+  }
 
-	let targetUrl: string | null  = localStorage.getItem(TARGET_URL_KEY);
-	if (targetUrl !== null) {
-		console.debug(`didn't initialize target url - already initialized as '${targetUrl}'`);
-		return;
-	}
+  if (
+    process.env.REACT_APP_TARGET_URL !== undefined ||
+    process.env.REACT_APP_TARGET_URL !== null
+  ) {
+    targetUrl = process.env.REACT_APP_TARGET_URL ?? null;
+    if (!targetUrl?.endsWith("/")) {
+      targetUrl = targetUrl + "/";
+    }
 
-	if (process.env.REACT_APP_TARGET_URL !== undefined || process.env.REACT_APP_TARGET_URL !== null) {
-		targetUrl = process.env.REACT_APP_TARGET_URL ?? null;
-		if (!targetUrl?.endsWith("/")) {
-			targetUrl = targetUrl + "/";
-		}
+    localStorage.setItem(TARGET_URL_KEY, targetUrl);
+    console.debug(
+      `initialized target url from environment variable as '${targetUrl}'`
+    );
+    return;
+  }
+  const windowURL = new URL(window.location.href);
+  const path = windowURL.pathname;
+  windowURL.pathname = path.slice(0, path.indexOf("/."));
+  windowURL.pathname =
+    windowURL.pathname === "/" ? windowURL.pathname : windowURL.pathname + "/";
+  targetUrl = `${windowURL.protocol}//${windowURL.host}${windowURL.pathname}`;
 
-		localStorage.setItem(TARGET_URL_KEY, targetUrl);
-		console.debug(`initialized target url from environment variable as '${targetUrl}'`);
-		return;
-	}
-	const windowURL = new URL(window.location.href);
-	const path = windowURL.pathname;
-	windowURL.pathname = path.slice(0, path.indexOf("/."));
-	windowURL.pathname = windowURL.pathname === "/" ? windowURL.pathname : windowURL.pathname + "/";
-	targetUrl = `${windowURL.protocol}//${windowURL.host}${windowURL.pathname}`;
-
-	localStorage.setItem(TARGET_URL_KEY, targetUrl);
-	console.debug(`initialized target url from production host as '${targetUrl}'`);
+  localStorage.setItem(TARGET_URL_KEY, targetUrl);
+  console.debug(
+    `initialized target url from production host as '${targetUrl}'`
+  );
 };
 
 export { getTargetUrl, setTargetUrl, initializeTargetUrl };

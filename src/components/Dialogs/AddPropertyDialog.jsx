@@ -10,136 +10,155 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { forwardRef, useContext, useEffect, useImperativeHandle } from 'react';
+import React, {
+  forwardRef,
+  useContext,
+  useEffect,
+  useImperativeHandle,
+} from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
-import { DialogCheckbox, DialogDropdown, DialogTextArea, DialogTextField } from './DialogComponents';
+import {
+  DialogCheckbox,
+  DialogDropdown,
+  DialogTextArea,
+  DialogTextField,
+} from "./DialogComponents";
 import { DialogTemplate } from "./DialogTemplate";
 
 const NO_TYPE = "undefined";
 
 export const AddPropertyDialog = forwardRef((_, ref) => {
-    const context = useContext(ediTDorContext);
-    const [display, setDisplay] = React.useState(() => { return false });
+  const context = useContext(ediTDorContext);
+  const [display, setDisplay] = React.useState(() => {
+    return false;
+  });
 
-    const type = "property";
-    const key = "properties";
-    const name = type && type[0].toUpperCase() + type.slice(1);
+  const type = "property";
+  const key = "properties";
+  const name = type && type[0].toUpperCase() + type.slice(1);
 
-    useEffect(() => {
-    }, [display, context]);
+  useEffect(() => {}, [display, context]);
 
-    useImperativeHandle(ref, () => {
-        return {
-            openModal: () => open(),
-            close: () => close()
-        }
-    });
-
-    const open = () => {
-        setDisplay(true)
+  useImperativeHandle(ref, () => {
+    return {
+      openModal: () => open(),
+      close: () => close(),
     };
+  });
 
-    const close = () => {
-        setDisplay(false);
-    };
+  const open = () => {
+    setDisplay(true);
+  };
 
-    const children = <>
-        <DialogTextField
-            id={`${type}-title`}
-            label="Title"
-            placeholder={`${name} Title`}
-            autoFocus={true}
-            onChange={() => clearErrorMessage()}
-        />
-        <DialogTextArea
-            id={`${type}-description`}
-            label="Description"
-            placeholder={`A short description about the new ${name}...`}
-        />
-        <DialogDropdown
-            id={`${type}-type`}
-            label="Type"
-            options={[NO_TYPE, "number", "integer", "boolean", "string", "object", "array",]}
-        />
-        <div className="h-2"></div>
-        <label className="text-sm text-gray-400 font-medium pl-3">Additional:</label>
-        <div id="additional" className="bg-gray-600 p-1 rounded-md">
-            <DialogCheckbox
-                id={`${type}-readOnly`}
-                label="Read Only"
-            />
-            <DialogCheckbox
-                id={`${type}-observable`}
-                label="Observable"
-            />
-        </div>
-    </>;
+  const close = () => {
+    setDisplay(false);
+  };
 
-    const onAddProperty = () => {
-        if (!context.isValidJSON) {
-            showErrorMessage(`Can't add Action. TD is malformed.`);
-            return;
-        }
+  const children = (
+    <>
+      <DialogTextField
+        id={`${type}-title`}
+        label="Title"
+        placeholder={`${name} Title`}
+        autoFocus={true}
+        onChange={() => clearErrorMessage()}
+      />
+      <DialogTextArea
+        id={`${type}-description`}
+        label="Description"
+        placeholder={`A short description about the new ${name}...`}
+      />
+      <DialogDropdown
+        id={`${type}-type`}
+        label="Type"
+        options={[
+          NO_TYPE,
+          "number",
+          "integer",
+          "boolean",
+          "string",
+          "object",
+          "array",
+        ]}
+      />
+      <div className="h-2"></div>
+      <label className="pl-3 text-sm font-medium text-gray-400">
+        Additional:
+      </label>
+      <div id="additional" className="rounded-md bg-gray-600 p-1">
+        <DialogCheckbox id={`${type}-readOnly`} label="Read Only" />
+        <DialogCheckbox id={`${type}-observable`} label="Observable" />
+      </div>
+    </>
+  );
 
-        let property = {};
-        property.title = document.getElementById(`${type}-title`).value;
-        property.observable = document.getElementById(`${type}-observable`).checked;
-        property.readOnly = document.getElementById(`${type}-readOnly`).checked;
-
-        const description = document.getElementById(`${type}-description`).value;
-        if (description !== "") {
-            property.description = description;
-        }
-
-        const dataType = document.getElementById(`${type}-type`).value;
-        if (dataType !== NO_TYPE) {
-            property.type = dataType;
-        }
-        if (dataType === "array") {
-            property.items = {};
-        } else if (dataType === "object") {
-            property.properties = {};
-        }
-        property.forms = [];
-
-        const td = context.parsedTD;
-        if (td[key] && td[key][property.title]) {
-            showErrorMessage(`A ${name} with this title already exists...`);
-        } else {
-            td[key] = { ...td[key], [property.title]: property };
-            context.updateOfflineTD(JSON.stringify(td, null, 2));
-            close();
-        }
+  const onAddProperty = () => {
+    if (!context.isValidJSON) {
+      showErrorMessage(`Can't add Action. TD is malformed.`);
+      return;
     }
 
-    const showErrorMessage = (msg) => {
-        document.getElementById(`${type}-title-helper-text`).textContent = msg;
-        document.getElementById(`${type}-title`).classList.remove("border-gray-600");
-        document.getElementById(`${type}-title`).classList.add("border-red-400");
+    let property = {};
+    property.title = document.getElementById(`${type}-title`).value;
+    property.observable = document.getElementById(`${type}-observable`).checked;
+    property.readOnly = document.getElementById(`${type}-readOnly`).checked;
+
+    const description = document.getElementById(`${type}-description`).value;
+    if (description !== "") {
+      property.description = description;
     }
 
-    const clearErrorMessage = () => {
-        document.getElementById(`${type}-title-helper-text`).textContent = "";
-        document.getElementById(`${type}-title`).classList.add("border-gray-600");
-        document.getElementById(`${type}-title`).classList.remove("border-red-400");
+    const dataType = document.getElementById(`${type}-type`).value;
+    if (dataType !== NO_TYPE) {
+      property.type = dataType;
     }
-
-    if (display) {
-        return ReactDOM.createPortal(
-            <DialogTemplate
-                onCancel={close}
-                onSubmit={() => {
-                    onAddProperty();
-                }}
-                submitText={`Add ${name}`}
-                children={children}
-                title={`Add New ${name}`}
-                description={`Tell us a little something about the ${name} you want to add.`}
-            />,
-            document.getElementById("modal-root"));
+    if (dataType === "array") {
+      property.items = {};
+    } else if (dataType === "object") {
+      property.properties = {};
     }
+    property.forms = [];
 
-    return null;
+    const td = context.parsedTD;
+    if (td[key] && td[key][property.title]) {
+      showErrorMessage(`A ${name} with this title already exists...`);
+    } else {
+      td[key] = { ...td[key], [property.title]: property };
+      context.updateOfflineTD(JSON.stringify(td, null, 2));
+      close();
+    }
+  };
+
+  const showErrorMessage = (msg) => {
+    document.getElementById(`${type}-title-helper-text`).textContent = msg;
+    document
+      .getElementById(`${type}-title`)
+      .classList.remove("border-gray-600");
+    document.getElementById(`${type}-title`).classList.add("border-red-400");
+  };
+
+  const clearErrorMessage = () => {
+    document.getElementById(`${type}-title-helper-text`).textContent = "";
+    document.getElementById(`${type}-title`).classList.add("border-gray-600");
+    document.getElementById(`${type}-title`).classList.remove("border-red-400");
+  };
+
+  if (display) {
+    return ReactDOM.createPortal(
+      <DialogTemplate
+        onCancel={close}
+        onSubmit={() => {
+          onAddProperty();
+        }}
+        submitText={`Add ${name}`}
+        children={children}
+        title={`Add New ${name}`}
+        description={`Tell us a little something about the ${name} you want to add.`}
+      />,
+      document.getElementById("modal-root")
+    );
+  }
+
+  return null;
 });
-

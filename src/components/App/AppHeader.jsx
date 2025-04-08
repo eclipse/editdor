@@ -11,7 +11,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { useCallback, useContext, useEffect } from "react";
-import { Download, File, FilePlus, FileText, Save, Settings, Share } from "react-feather";
+import {
+  Download,
+  File,
+  FilePlus,
+  FileText,
+  Save,
+  Settings,
+  Share,
+} from "react-feather";
 import editdorLogo from "../../assets/editdor.png";
 import ediTDorContext from "../../context/ediTDorContext";
 import * as fileTdService from "../../services/fileTdService";
@@ -32,7 +40,8 @@ export default function AppHeader() {
       return true;
     }
 
-    const msg = "Discard changes? All changes you made to your TD will be lost.";
+    const msg =
+      "Discard changes? All changes you made to your TD will be lost.";
     return window.confirm(msg);
   }, [context.isModified]);
 
@@ -52,7 +61,9 @@ export default function AppHeader() {
 
       const linkedFileName = `./${res.fileName}`;
       let linkedTd = {};
-      linkedTd[linkedFileName] = res.fileHandle ? res.fileHandle : JSON.parse(res.td);
+      linkedTd[linkedFileName] = res.fileHandle
+        ? res.fileHandle
+        : JSON.parse(res.td);
 
       context.updateOfflineTD(res.td);
       context.updateIsModified(false);
@@ -79,15 +90,21 @@ export default function AppHeader() {
     const td = context.parsedTD;
 
     if (!context.isValidJSON) {
-      return alert("Didn't save TD. The given TD can't even be parsed into a JSON object.");
+      return alert(
+        "Didn't save TD. The given TD can't even be parsed into a JSON object."
+      );
     }
 
-	setIsLoading(true);
+    setIsLoading(true);
     const targetUrl = getTargetUrl();
     if (targetUrl === "") {
       // no target url provided, save to file
-      const fileHandle = await fileTdService.saveToFile(context.name, context.fileHandle, context.offlineTD);
-	  context.setFileHandle(fileHandle ?? context.fileHandle);
+      const fileHandle = await fileTdService.saveToFile(
+        context.name,
+        context.fileHandle,
+        context.offlineTD
+      );
+      context.setFileHandle(fileHandle ?? context.fileHandle);
     } else {
       // target url provided, try to save it through the Things API
       try {
@@ -106,17 +123,23 @@ export default function AppHeader() {
     }
 
     context.updateIsModified(false);
-	setIsLoading(false);
+    setIsLoading(false);
   }, [context]);
 
   const createNewFile = useCallback(async () => {
     try {
-      const fileHandle = await fileTdService.saveToFile(context.name, undefined, context.offlineTD);
+      const fileHandle = await fileTdService.saveToFile(
+        context.name,
+        undefined,
+        context.offlineTD
+      );
       context.setFileHandle(fileHandle ?? context.fileHandle);
       context.updateIsModified(false);
     } catch (error) {
       console.debug(error);
-      alert("Didn't save TD. The action was either canceled or ran into an error.");
+      alert(
+        "Didn't save TD. The action was either canceled or ran into an error."
+      );
     }
   }, [context]);
 
@@ -126,24 +149,33 @@ export default function AppHeader() {
       const res = await func();
       setIsLoading(false);
 
-	  console.log(res);
+      console.log(res);
       return res;
     };
   };
 
   useEffect(() => {
     const shortcutHandler = (e) => {
-      if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) && e.key === "s") {
+      if (
+        (window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) &&
+        e.key === "s"
+      ) {
         e.preventDefault();
         e.stopPropagation();
         loadingCall(save)();
       }
-      if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) && e.key === "o") {
+      if (
+        (window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) &&
+        e.key === "o"
+      ) {
         e.preventDefault();
         e.stopPropagation();
         loadingCall(openFile)();
       }
-      if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) && e.key === "n") {
+      if (
+        (window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) &&
+        e.key === "n"
+      ) {
         e.preventDefault();
         e.stopPropagation();
         openCreateTdDialog();
@@ -153,7 +185,8 @@ export default function AppHeader() {
     // Adding Eventlistener for shortcuts
     document.addEventListener("keydown", shortcutHandler, false);
     window.onbeforeunload = function (event) {
-      var message = "Important: Please click on 'Save' button to leave this page.";
+      var message =
+        "Important: Please click on 'Save' button to leave this page.";
       if (typeof event == "undefined") {
         event = window.event;
       }
@@ -192,7 +225,12 @@ export default function AppHeader() {
     <>
       <header className="flex h-14 items-center justify-between bg-blue-500">
         <div className="flex items-center">
-          <button className="ml-4" onClick={() => window.open("https://eclipse.github.io/editdor/", "_blank")}>
+          <button
+            className="ml-4"
+            onClick={() =>
+              window.open("https://eclipse.github.io/editdor/", "_blank")
+            }
+          >
             <img className="min-w-36 max-w-36" src={editdorLogo} alt="LOGO" />
           </button>
         </div>
@@ -247,7 +285,12 @@ export default function AppHeader() {
       <ShareDialog ref={shareDialog} />
       <CreateTdDialog ref={createTdDialog} />
       <SettingsDialog ref={settingsDialog} />
-      <input className="h-0" type="file" id="fileInput" style={{ display: "none" }} />
+      <input
+        className="h-0"
+        type="file"
+        id="fileInput"
+        style={{ display: "none" }}
+      />
       <a className="h-0" id="aDownload" href="/" style={{ display: "none" }} />
     </>
   );
@@ -255,8 +298,13 @@ export default function AppHeader() {
 
 function AppHeaderButton(props) {
   return (
-    <button className="min-w-8 text-white hover:opacity-50" onClick={props.onClick}>
-      <div className="flex flex-col items-center justify-center gap-0.5">{props.children}</div>
+    <button
+      className="min-w-8 text-white hover:opacity-50"
+      onClick={props.onClick}
+    >
+      <div className="flex flex-col items-center justify-center gap-0.5">
+        {props.children}
+      </div>
     </button>
   );
 }

@@ -4,15 +4,17 @@
 
 A tool for simply designing W3C Thing Descriptions and Thing Models
 
-Find the ediTDor here to try it out: 
+Find the ediTDor here to try it out:
 
 https://eclipse.github.io/editdor/
 
 ## Building the App
-There are two ways this app can be built. One way would be for using it as a standalone application, the 
+
+There are two ways this app can be built. One way would be for using it as a standalone application, the
 other one for using it embedded into a production environment.
 The available environment variables are:
-``` bash
+
+```bash
 REACT_APP_IS_STANDALONE={flag} # true or false
 ```
 
@@ -31,33 +33,37 @@ The goal of this project is the easy creation of W3C Thing Description instances
 - Exporting the Thing Description / ThingModel from the visual representation into JSON-LD
 - Reading/writing exposed properties' values exposed by a proxy (anything that can translate a protocol to HTTP)
 
-
 ## Technologies
+
 - React
 - TailwindCSS
 
 ## Contribution guide
 
-Any contribution to this project is welcome. 
+Any contribution to this project is welcome.
 Please follow our [contribution guide](./CONTRIBUTING.md).
 
 ## License
-* [Eclipse Public License v. 2.0](http://www.eclipse.org/legal/epl-2.0)
-  
+
+- [Eclipse Public License v. 2.0](http://www.eclipse.org/legal/epl-2.0)
+
 ## Prerequisites
-* [Node.js](https://nodejs.org/), version 10+ (e.g., 10.13.0 LTS)
+
+- [Node.js](https://nodejs.org/), version 10+ (e.g., 10.13.0 LTS)
 
 ## Start Locally
+
 `yarn dev` starts a local development server on Port 3000 (http://localhost:3000)
 
 ## Build
+
 `yarn install` install all the dependencies listed within package.json
 
 `yarn build` builds the project for deployment
 
-## Implemented Features: 
-* JSON Editor with JSON Schema support for TD (Autocompletion, JSON Schema Validation)
-* Add Property, Action, Event by wizard
-* Render TD to be more human readable
-* Validate JSON Syntax and JSON Schema for TD (JSONLD and Additional Validation for nested TM will be implemented in the future)
+## Implemented Features:
 
+- JSON Editor with JSON Schema support for TD (Autocompletion, JSON Schema Validation)
+- Add Property, Action, Event by wizard
+- Render TD to be more human readable
+- Validate JSON Syntax and JSON Schema for TD (JSONLD and Additional Validation for nested TM will be implemented in the future)
