@@ -121,7 +121,7 @@ const App = (props) => {
         {!doShowJSON && <TDViewer />}
 
         <button
-          className="absolute bottom-12 right-2 rounded-full bg-blue-500 p-4"
+          className="absolute bottom-12 right-2 z-10 rounded-full bg-blue-500 p-4"
           onClick={() => setDoShowJSON(!doShowJSON)}
         >
           <RefreshCw color="white" />
