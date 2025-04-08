@@ -21,7 +21,7 @@ import AppHeader from './components/App/AppHeader';
 import { Container, Section, Bar } from '@column-resizer/react';
 import { RefreshCw } from 'react-feather';
 
-import { decompressSharedTd, fetchNbTd, fetchTdFromProxy } from './share';
+import { decompressSharedTd, fetchTdFromProxy } from './share';
 
 const GlobalStateWrapper = (props) => {
     return (
@@ -71,18 +71,7 @@ const App = (props) => {
             });
         }
 
-        const nbTdId = url.searchParams.get("nbtdid");
-        if (nbTdId !== null) {
-            fetchNbTd(nbTdId).then((td) => {
-                if (td === undefined) {
-                    alert(`No Thing Description with id '${nbTdId} couldn't be fetched from the adapter.`);
-                    return;
-                }
-
-                context.updateOfflineTD(JSON.stringify(td, null, 2));
-            });
-        }
-
+        
         if (url.searchParams.has("localstorage")) {
             let td = localStorage.getItem("td")
             if (td === undefined) {

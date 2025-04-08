@@ -75,31 +75,3 @@ export const fetchTdFromProxy = async (tdId) => {
 
     return undefined;
 }
-
-/**
- * 
- * @param {string} tdId 
- * @returns {Object | undefined}
- * @description Contacts the proxy WoT native API to fetch a Thing Description.
- */
-export const fetchNbTd = async (tdId) => {
-    const targetUrl = getTargetUrl();
-
-    try {
-        const res = await fetch(`${targetUrl}.things/${tdId}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json", },
-        });
-
-        const payload = await res.json();
-        if (res.status === 400) {
-            throw Error(payload.error);
-        }
-
-        return payload;
-    } catch (error) {
-        console.debug(error);
-    }
-
-    return undefined;
-}
