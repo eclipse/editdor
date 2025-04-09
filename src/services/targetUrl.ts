@@ -52,11 +52,8 @@ const initializeTargetUrl = (): void => {
     return;
   }
 
-  if (
-    process.env.REACT_APP_TARGET_URL !== undefined ||
-    process.env.REACT_APP_TARGET_URL !== null
-  ) {
-    targetUrl = process.env.REACT_APP_TARGET_URL ?? null;
+  if (process.env.REACT_APP_TARGET_URL) {
+    targetUrl = process.env.REACT_APP_TARGET_URL;
     if (!targetUrl?.endsWith("/")) {
       targetUrl = targetUrl + "/";
     }
@@ -67,12 +64,10 @@ const initializeTargetUrl = (): void => {
     );
     return;
   }
-  const windowURL = new URL(window.location.href);
-  const path = windowURL.pathname;
-  windowURL.pathname = path.slice(0, path.indexOf("/."));
-  windowURL.pathname =
-    windowURL.pathname === "/" ? windowURL.pathname : windowURL.pathname + "/";
-  targetUrl = `${windowURL.protocol}//${windowURL.host}${windowURL.pathname}`;
+
+  const windowUrl = new URL(window.location.href);
+
+  targetUrl = `${windowUrl.protocol}//${windowUrl.host}`;
 
   localStorage.setItem(TARGET_URL_KEY, targetUrl);
   console.debug(
