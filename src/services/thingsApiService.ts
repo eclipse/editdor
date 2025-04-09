@@ -4,9 +4,10 @@ interface ThingDescription {
 }
 
 /**
- *
+ * @description An id could be a complete url, like "http://host:1234/some/path",
+ * which is not viable as a path element, so the id has to be encoded
  * @param {Object} td
- * @returns
+ * @returns Status code 201 or 204
  */
 const createThing = async (
   td: ThingDescription,
@@ -29,10 +30,10 @@ const createThing = async (
 };
 
 /**
- *
+ * @description
  * @param {Object} td
  * @param {string} targetUrl
- * @returns
+ * @returns Status code 201
  */
 const createAnonymousThing = async (
   td: ThingDescription,
@@ -53,7 +54,8 @@ const createAnonymousThing = async (
 };
 
 /**
- *
+ * @description An id could be a complete url, like "http://host:1234/some/path",
+ *  which is not viable as a path element, so the id has to be encoded
  * @param {string} id
  * @param {string} targetUrl
  * @returns
