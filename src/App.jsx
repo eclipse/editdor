@@ -70,7 +70,7 @@ const App = (props) => {
       retrieveThing(southboundTdId, proxyEndpointUrl).then((td) => {
         if (td === undefined) {
           alert(
-            `No Thing Description with id '${southboundTdId} couldn't be fetched from WoT!.`
+            `No Thing Description with id '${southboundTdId} could be fetched from the proxy.`
           );
           return;
         }
