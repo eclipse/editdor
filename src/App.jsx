@@ -20,7 +20,7 @@ import AppFooter from "./components/App/AppFooter";
 import AppHeader from "./components/App/AppHeader";
 import { Container, Section, Bar } from "@column-resizer/react";
 import { RefreshCw } from "react-feather";
-
+import { retrieveThing } from "services/thingsApiService";
 import { decompressSharedTd } from "./share";
 
 const GlobalStateWrapper = (props) => {
@@ -67,16 +67,20 @@ const App = (props) => {
     const proxyEndpointUrl = url.searchParams.get("proxyEndpoint");
     const southboundTdId = url.searchParams.get("southboundTdId");
     if (southboundTdId !== null) {
-      retrieveThing(southboundTdId, proxyEndpointUrl).then((td) => {
-        if (td === undefined) {
-          alert(
-            `No Thing Description with id '${southboundTdId} could be fetched from the proxy.`
-          );
-          return;
-        }
+      retrieveThing(southboundTdId, proxyEndpointUrl)
+        .then((td) => {
+          if (td === undefined) {
+            alert(
+              `No Thing Description with id '${southboundTdId} could be fetched from the proxy.`
+            );
+            return;
+          }
 
-        context.updateOfflineTD(JSON.stringify(td, null, 2));
-      });
+          context.updateOfflineTD(JSON.stringify(td, null, 2));
+        })
+        .catch(() => {
+          alert(`Error unable to fetch TD from proxy: ${proxyEndpointUrl}`);
+        });
     }
 
     if (url.searchParams.has("localstorage")) {
