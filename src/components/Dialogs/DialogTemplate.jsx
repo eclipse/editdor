@@ -29,6 +29,8 @@ export const DialogTemplate = (props) => {
     keysDown[e.key] = true;
     if (keysDown["Control"] && keysDown["Enter"]) {
       document.getElementById("submitButton").click();
+    } else if (keysDown["Escape"]) {
+      document.getElementById("cancelButton").click();
     }
   };
 
@@ -37,33 +39,36 @@ export const DialogTemplate = (props) => {
   };
 
   return (
-    <div className="flex bg-gray-400 bg-opacity-50 w-full h-full absolute top-0 left-0 justify-center items-center z-10 text-white">
-      <div className="bg-gray-500 w-1/2 flex flex-col justify-start rounded-xl shadow-xl p-4 max-h-screen">
-        <div className="flex flex-row justify-start items-center  ">
-          <h1 className="text-xl font-bold flex-grow pl-2">{title}</h1>
-        </div>
-        <h2 className="text-gray-400 py-2 pl-2">{description}</h2>
-        <div className="overflow-auto p-2">{children}</div>
-        <div className="flex justify-end pt-4 p-2">
-          <button
-            className="text-white bg-gray-500 p-2 mr-1 rounded-md"
-            onClick={() => {
-              onCancel();
-            }}
-          >
-            {cancelText}
-          </button>
-          {hasSubmit && (
+    <>
+      <div className="absolute left-0 top-0 z-10 flex h-full w-full items-center justify-center bg-black bg-opacity-80 text-white">
+        <div className="flex max-h-[95%] w-[80%] flex-col justify-start rounded-xl bg-gray-500 p-4 shadow-xl lg:w-[40%]">
+          <div className="flex flex-row items-center justify-start">
+            <h1 className="flex-grow pl-2 text-xl font-bold">{title}</h1>
+          </div>
+          <h2 className="py-2 pl-2 text-gray-400">{description}</h2>
+          <div className="overflow-auto p-2">{children}</div>
+          <div className="flex justify-end p-2 pt-4">
             <button
-              id="submitButton"
-              className="flex text-white bg-blue-500 p-2 rounded-md"
-              onClick={() => onSubmit()}
+              id="cancelButton"
+              className="mr-1 rounded-md bg-gray-500 p-2 text-white"
+              onClick={() => {
+                onCancel();
+              }}
             >
-              {submitText}
+              {cancelText}
             </button>
-          )}
+            {hasSubmit && (
+              <button
+                id="submitButton"
+                className="flex rounded-md bg-blue-500 p-2 text-white"
+                onClick={() => onSubmit()}
+              >
+                {submitText}
+              </button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };

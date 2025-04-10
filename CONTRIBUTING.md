@@ -25,6 +25,5 @@ Thus, before your contribution can be accepted by the project team, contributors
   - Add the `-s` flag when you make the commit(s), e.g. `git commit -s -m "feat: add support for magic"`
 - Open a [Pull Request](https://github.com/eclipse/editdor/pulls)
 
-
 For more information, please see the Eclipse Committer Handbook:
 https://www.eclipse.org/projects/handbook/#resources-commit

@@ -75,25 +75,19 @@ export const AddEventDialog = forwardRef((_, ref) => {
     }
     event.forms = [];
 
-    let td = JSON.parse(context.offlineTD);
+    if (!context.isValidJSON) {
+      showErrorMessage(`Can't add Event. TD is malformed.`);
+      return;
+    }
+
+    const td = context.parsedTD;
     if (td[key] && td[key][event.title]) {
       showErrorMessage(`An ${name} with this title already exists...`);
     } else {
-      addEventToTd(event);
+      td[key] = { ...td[key], [event.title]: event };
+      context.updateOfflineTD(JSON.stringify(td, null, 2));
       close();
     }
-  };
-
-  const addEventToTd = (event) => {
-    let td = JSON.parse(context.offlineTD);
-
-    if (!td[key]) {
-      td[key] = {};
-    }
-
-    td[key][event.title] = event;
-    context.updateOfflineTD(JSON.stringify(td, null, 2));
-    return;
   };
 
   const showErrorMessage = (msg) => {

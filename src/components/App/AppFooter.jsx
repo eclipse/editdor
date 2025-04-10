@@ -12,46 +12,56 @@
  ********************************************************************************/
 import React, { useContext } from "react";
 import ediTDorContext from "../../context/ediTDorContext";
+import { GitHub } from "react-feather";
 
 const AppFooter = (props) => {
   const context = useContext(ediTDorContext);
-  let megaBytes = 0;
+
+  const megaBytes = formatByteSize(context.offlineTD.length);
   let propertiesCount = 0;
   let actionsCount = 0;
   let eventsCount = 0;
-  try {
-    const parse = JSON.parse(context.offlineTD);
-    const size = new TextEncoder().encode(JSON.stringify(parse)).length;
-    megaBytes = formatByteSize(size);
-    propertiesCount = parse.properties
-      ? Object.keys(parse.properties).length
-      : 0;
-    actionsCount = parse.properties ? Object.keys(parse.actions).length : 0;
-    eventsCount = parse.properties ? Object.keys(parse.events).length : 0;
-  } catch (e) {
-    // console.log(e)
+
+  if (Object.keys(context.parsedTD).length !== 0) {
+    const td = context.parsedTD;
+    propertiesCount = td.properties ? Object.keys(td.properties).length : 0;
+    actionsCount = td.actions ? Object.keys(td.actions).length : 0;
+    eventsCount = td.events ? Object.keys(td.events).length : 0;
   }
+
   return (
     <>
-      <footer className="bg-blue-500 h-8 flex flex-col items-center justify-center text-white">
-        <div className="flex flex-row items-center justify-start w-full">
-          <div className="mx-2">Properties: {propertiesCount}</div>
-          <div className="mx-2">Actions: {actionsCount}</div>
-          <div className="mx-2">Events: {eventsCount}</div>
-          <div className="mx-2 flex-grow">Size: {megaBytes}</div>
-          {context.isModified && <div>You have unsaved changes. - </div>}
-          {!context.isModified && <div>Your changes are synchronized. - </div>}
-          <div className="mx-2 justify-self-end">
-            Version: {process.env.REACT_APP_NPM_PACKAGE_VERSION} |{" "}
-            <u>
-              <a
-                href="https://github.com/eclipse/editdor"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                We are on GitHub
-              </a>
-            </u>
+      <footer className="flex h-10 flex-col justify-center bg-blue-500 text-white">
+        <div className="flex items-center px-2">
+          <div className="hidden grow items-center gap-2 md:flex">
+            <div>Properties: {propertiesCount}</div>
+            <div>| Actions: {actionsCount}</div>
+            <div>| Events: {eventsCount}</div>
+            <div>| Size: {megaBytes}</div>
+          </div>
+          <div className="flex grow gap-2 md:hidden">
+            <div>P: {propertiesCount}</div>
+            <div>| A: {actionsCount}</div>
+            <div>| E: {eventsCount}</div>
+            <div className="flex">
+              <div>| {megaBytes}</div>
+              {context.isModified && <div className="md:hidden">*</div>}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {context.isModified && (
+              <div className="hidden md:block">You have unsaved changes - </div>
+            )}
+            <div>v{APP_VERSION}</div>
+            <a
+              className="rounded-full bg-black p-2"
+              href="https://github.com/eclipse/editdor"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <GitHub size={16} />
+            </a>
           </div>
         </div>
       </footer>

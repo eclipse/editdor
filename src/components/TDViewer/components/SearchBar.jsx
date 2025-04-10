@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -19,7 +19,7 @@ export const SearchBar = (props) => {
       <input
         type="search"
         autoComplete="on"
-        className="caret-gray bg-gray-600 text-white px-5 pr-10 place-self-center rounded-lg text-sm focus:outline-none h-9"
+        className="caret-gray h-9 place-self-center rounded-lg bg-gray-600 px-5 pr-10 text-sm text-white focus:outline-none"
         onKeyUp={props.onKeyUp}
         placeholder={props.placeholder}
         aria-label={props.ariaLabel}
@@ -27,7 +27,7 @@ export const SearchBar = (props) => {
       <div
         disabled
         type="submit"
-        className="cursor-default absolute right-0 top-0 mt-1 mr-4"
+        className="absolute right-0 top-0 mr-4 mt-1 cursor-default"
       >
         <Search color="#2c2c2e"></Search>
       </div>

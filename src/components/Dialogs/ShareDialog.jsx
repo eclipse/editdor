@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -51,7 +51,7 @@ export const ShareDialog = forwardRef((props, ref) => {
       type="text"
       name="share-td-field"
       id="share-td-field"
-      className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+      className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
       defaultValue={compressedTdLink}
     />
   );
@@ -60,10 +60,10 @@ export const ShareDialog = forwardRef((props, ref) => {
     return ReactDOM.createPortal(
       <DialogTemplate
         hasSubmit={true}
-        onSubmit={close}
-        submitText={"Okay"}
-        cancelText={"Open in Playground"}
-        onCancel={() => {
+        onCancel={close}
+        cancelText={"Okay"}
+        submitText={"Open in Playground"}
+        onSubmit={() => {
           window.open(`https://playground.thingweb.io//#${compressedTd}`);
           close();
         }}

@@ -1,16 +1,3 @@
-/********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
- *
- * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License v. 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
- *
- * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
- ********************************************************************************/
-
 /**
  * Check if the Browser Supports the new Native File System Api (Chromium 86.0)
  */
@@ -91,7 +78,15 @@ const saveToFile = async (fileName, fileHandle, tdStr) => {
     return fileName;
   }
 
-  fileHandle = fileHandle ?? (await getWriteFileHandle());
+  if (!fileHandle) {
+    try {
+      fileHandle = await getWriteFileHandle();
+    } catch (e) {
+      console.error(e);
+      return undefined;
+    }
+  }
+
   await writeToFile(fileHandle, tdStr);
   return fileHandle;
 };

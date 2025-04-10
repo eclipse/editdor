@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2020 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -10,18 +10,22 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, {
-  useContext,
-  useState,
-  useRef,
-  useEffect,
-  useCallback,
-} from "react";
 import Editor from "@monaco-editor/react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import ediTDorContext from "../../context/ediTDorContext";
 import { changeBetweenTd } from "../../util";
 
-//List of all Options can be found here: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.ieditorconstructionoptions.html
+/**
+ * @typedef { import("../../models").ValidationResults } ValidationResults
+ */
+
+// List of all Options can be found here: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.ieditorconstructionoptions.html
 const editorOptions = {
   selectOnLineNumbers: true,
   automaticLayout: true,
@@ -30,18 +34,16 @@ const editorOptions = {
 
 // delay function that executes the callback once it hasn't been called for
 // at least x ms.
-const delay = (fn, ms) => {
-  let timer = 0;
-  return function (...args) {
-    clearTimeout(timer);
-    timer = setTimeout(fn.bind(this, ...args), ms || 0);
-  };
+let timeoutId = 0;
+const delay = (fn, text, ms) => {
+  clearTimeout(timeoutId);
+  timeoutId = setTimeout(() => fn(text), ms);
 };
 
 const JSONEditorComponent = (props) => {
   const context = useContext(ediTDorContext);
   const [schemas] = useState([]);
-  const [proxy, setProxy] = useState([]);
+  const [proxy, setProxy] = useState(undefined);
   const editorInstance = useRef(null);
   const [tabs, setTabs] = useState([]);
   const [text, setText] = useState("");
@@ -49,11 +51,17 @@ const JSONEditorComponent = (props) => {
 
   const validationWorker = React.useMemo(
     () =>
-      new Worker(new URL("../../workers/validationWorker.js", import.meta.url)),
+      new Worker(
+        new URL("../../workers/validationWorker.js", import.meta.url),
+        { type: "module" }
+      ),
     []
   );
   const schemaWorker = React.useMemo(
-    () => new Worker(new URL("../../workers/schemaWorker.js", import.meta.url)),
+    () =>
+      new Worker(new URL("../../workers/schemaWorker.js", import.meta.url), {
+        type: "module",
+      }),
     []
   );
 
@@ -64,8 +72,6 @@ const JSONEditorComponent = (props) => {
     },
     [schemaWorker, validationWorker]
   );
-
-  const messageWorkersAfterDelay = delay(messageWorkers, 500);
 
   useEffect(() => {
     const updateMonacoSchemas = (schemaMap) => {
@@ -84,7 +90,10 @@ const JSONEditorComponent = (props) => {
 
     validationWorker.onmessage = (ev) => {
       console.debug("received message from validation worker");
-      context.updateValidationMessage(ev.data);
+
+      /** @type {ValidationResults} */
+      const validationResults = ev.data;
+      context.updateValidationMessage(validationResults);
     };
   }, [schemaWorker, validationWorker, proxy, context]);
 
@@ -99,7 +108,7 @@ const JSONEditorComponent = (props) => {
 
   const editorWillMount = (_) => {};
 
-  const editorDidMount = (_, monaco) => {
+  const editorDidMount = (editor, monaco) => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
       validate: true,
       enableSchemaRequest: true,
@@ -135,14 +144,15 @@ const JSONEditorComponent = (props) => {
         return true;
       },
     });
-
+    editorInstance.current = editor;
     setProxy(proxy);
   };
 
   const onChange = async (editorText, _) => {
     context.updateOfflineTD(editorText);
+    context.updateValidationMessage(undefined);
     setLocalTextState(editorText);
-    messageWorkersAfterDelay(editorText);
+    delay(messageWorkers, editorText, 500);
   };
 
   useEffect(() => {
@@ -179,27 +189,26 @@ const JSONEditorComponent = (props) => {
 
   return (
     <>
-      <div id="tabsBackground">
+      <div className="h-[5%] bg-[#1e1e1e]">
         {context.offlineTD && context.linkedTd && (
           <select
             name="linkedTd"
             id="linkedTd"
-            className="text-white"
+            className="w-[50%] bg-[#1e1e1e] text-white"
             onChange={() => changeLinkedTd()}
           >
             {tabs}
           </select>
         )}
       </div>
-      <div className="w-full h-full" id="editor">
+      <div className="h-[95%] w-full">
         <Editor
           options={editorOptions}
-          theme={"vs-" + context.theme}
+          theme={"vs-" + "dark"}
           language="json"
-          ref={editorInstance}
           value={text}
-          editorWillMount={editorWillMount}
-          editorDidMount={editorDidMount}
+          beforeMount={editorWillMount}
+          onMount={editorDidMount}
           onChange={async (editorText) => {
             await onChange(editorText);
           }}

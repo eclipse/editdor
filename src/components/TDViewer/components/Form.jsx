@@ -10,404 +10,332 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext } from "react";
-import { Trash2 } from "react-feather";
+import { Core, Http } from "@node-wot/browser-bundle";
+import React, { useContext, useState } from "react";
+import { ChevronUp, PlusCircle, Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 
+const servient = new Core.Servient();
+servient.addClientFactory(new Http.HttpClientFactory());
+console.log("init servient");
+
+const formConfigurations = {
+  readproperty: {
+    color: "Green",
+    title: "Read",
+    level: "properties",
+    callback: readProperty,
+  },
+  writeproperty: {
+    color: "Blue",
+    title: "Write",
+    level: "properties",
+    callback: writeProperty,
+  },
+  observeproperty: {
+    color: "Orange",
+    title: "Observe",
+    level: "properties",
+    callback: null,
+  },
+  unobserveproperty: {
+    color: "Red",
+    title: "Unobserve",
+    level: "properties",
+    callback: null,
+  },
+  invokeaction: {
+    color: "Orange",
+    title: "Invoke",
+    level: "actions",
+    callback: null,
+  },
+  subscribeevent: {
+    color: "Orange",
+    title: "Subscribe",
+    level: "events",
+    callback: null,
+  },
+  unsubscribeevent: {
+    color: "Red",
+    title: "Unsubscribe",
+    level: "events",
+    callback: null,
+  },
+  readmultipleproperties: {
+    color: "Green",
+    title: "Read Multiple",
+    level: "thing",
+    callback: null,
+  },
+  readallproperties: {
+    color: "Green",
+    title: "Read All",
+    level: "thing",
+    callback: null,
+  },
+  writemultipleproperties: {
+    color: "Blue",
+    title: "Write Multiple",
+    level: "thing",
+    callback: null,
+  },
+  writeallproperties: {
+    color: "Blue",
+    title: "Write All",
+    level: "thing",
+    callback: null,
+  },
+  observeallproperties: {
+    color: "Orange",
+    title: "Observe All",
+    level: "thing",
+    callback: null,
+  },
+  unobserveallproperties: {
+    color: "Red",
+    title: "Unobserve All",
+    level: "thing",
+    callback: null,
+  },
+};
+
+/**
+ * Description of the function
+ * @name InteractionFunction
+ * @function
+ * @param {Object} td The actual Thing Description
+ * @param {String} propertyName The name of the Property
+ * @param {any} content What should be written in case of e.g. a writeproperty call
+ */
+
+/** @type {InteractionFunction} */
+async function readProperty(td, propertyName, _) {
+  try {
+    const thingFactory = await servient.start();
+    const thing = await thingFactory.consume(td);
+
+    const res = await thing.readProperty(propertyName);
+    // always return the result even if the data schema doesn't fit
+    res.ignoreValidation = true;
+    const val = await res.value();
+
+    return { result: JSON.stringify(val, null, 2), err: null };
+  } catch (e) {
+    console.debug(e);
+    return { result: "", err: e };
+  }
+}
+
+async function writeProperty(td, propertyName, content) {
+  try {
+    const thingFactory = await servient.start();
+    const thing = await thingFactory.consume(td);
+
+    // no return value - only exception on error
+    await thing.writeProperty(propertyName, content);
+
+    return {
+      result: `Successfully wrote ${content} to '${propertyName}'.`,
+      err: null,
+    };
+  } catch (e) {
+    console.debug(e);
+    return { result: "", err: e };
+  }
+}
+
 export default function Form(props) {
-  const formChooser = {
-    observeproperty: (
-      <ObserveForm
-        type="properties"
-        form={props.form}
-        propName={props.propName}
-      />
-    ),
-    unobserveproperty: (
-      <UnobserveForm
-        type="properties"
-        form={props.form}
-        propName={props.propName}
-      />
-    ),
-    observeallproperties: (
-      <ObserveAllForm
-        type="forms"
-        form={props.form}
-        propName={props.propName}
-      />
-    ),
-    unobserveallproperties: (
-      <UnobserveAllForm
-        type="forms"
-        form={props.form}
-        propName={props.propName}
-      />
-    ),
-    readproperty: (
-      <ReadForm type="properties" form={props.form} propName={props.propName} />
-    ),
-    readmultipleproperties: (
-      <ReadMultipleForm
-        type="forms"
-        form={props.form}
-        formIndex={props.propName}
-      />
-    ),
-    readallproperties: (
-      <ReadAllForm type="forms" form={props.form} formIndex={props.propName} />
-    ),
-    writeproperty: (
-      <WriteForm
-        type="properties"
-        form={props.form}
-        propName={props.propName}
-      />
-    ),
-    writemultipleproperties: (
-      <WriteMultipleForm
-        type="forms"
-        form={props.form}
-        formIndex={props.propName}
-      />
-    ),
-    writeallproperties: (
-      <WriteAllForm type="forms" form={props.form} formIndex={props.propName} />
-    ),
-    invokeaction: (
-      <InvokeForm type="actions" form={props.form} propName={props.propName} />
-    ),
-    unsubscribeevent: (
-      <UnobserveForm
-        type="events"
-        form={props.form}
-        propName={props.propName}
-      />
-    ),
-  };
+  props.form.propName = props.propName;
 
-  if (formChooser[props.form.op]) {
-    return formChooser[props.form.op];
-  }
-
-  if (props.interactionType === "action") {
+  const fc = formConfigurations[props.form.op];
+  if (!fc) {
     return (
-      <InvokeForm type="actions" form={props.form} propName={props.propName} />
-    );
-  } else if (props.interactionType === "event") {
-    return (
-      <ObserveForm type="events" form={props.form} propName={props.propName} />
+      <UndefinedForm
+        level={typeToJSONKey(props.interactionType)}
+        form={props.form}
+      />
     );
   }
 
-  return <UndefinedForm form={props.form} propName={props.propName} />;
+  return formComponent(props.form.op, props.form, fc.callback);
 }
 
-export function ObserveForm(props) {
-  const context = useContext(ediTDorContext);
-  const deleteForm = (e) => {
-    context.removeForm(e);
+const typeToJSONKey = (type) => {
+  const typeToJSONKey = {
+    action: "actions",
+    property: "properties",
+    event: "events",
+    thing: "thing",
   };
 
-  return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-formOrange rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formOrange">
-      <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
-        <div className="text-formOrange place-self-center text-center text-xs px-4">
-          Observe
-        </div>
-      </div>
-      <div className="place-self-center pl-3 text-base text-white overflow-hidden flex-grow">
-        {props.form.href}
-      </div>
-      <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formOrange"
-        onClick={() => deleteForm(props)}
+  return typeToJSONKey[type];
+};
+
+/**
+ *
+ * @param {"thing" | "properties" | "actions" | "events"} formType
+ * @param {{href:string; op:string|[]string; propName:string; actualIndex:number;}} form
+ * @param {InteractionFunction} interactionFunction
+ * @returns
+ */
+function formComponent(formType, form, interactionFunction) {
+  const context = useContext(ediTDorContext);
+  const [writeContent, setWriteContent] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [val, setVal] = useState(null);
+  const [err, setErr] = useState(null);
+
+  const fc = formConfigurations[formType];
+  if (!fc) {
+    return <></>;
+  }
+
+  const label = (
+    <div className="flex h-8 min-w-20 justify-center place-self-center rounded-md bg-white">
+      <div
+        className={`text-form${fc.color} place-self-center px-4 text-center`}
       >
-        <Trash2 size={16} color="black" />
-      </button>
+        {fc.title}
+      </div>
     </div>
   );
-}
 
-export function UnobserveForm(props) {
-  const context = useContext(ediTDorContext);
-  const deleteForm = (e) => {
-    context.removeForm(e);
+  const callInteractionFunction = async () => {
+    if (!interactionFunction) {
+      return;
+    }
+
+    setIsLoading(true);
+    const res = await interactionFunction(
+      context.parsedTD,
+      form.propName,
+      writeContent
+    );
+    if (res.err !== null) {
+      setErr(res.err.message);
+      setVal(null);
+    } else {
+      setErr(null);
+      setVal(res.result);
+    }
+
+    setIsLoading(false);
+    setWriteContent("");
   };
 
   return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-formRed rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formRed">
-      <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
-        <div className="text-formRed place-self-center text-center text-xs px-4">
-          Unobserve
-        </div>
-      </div>
-      <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">
-        {props.form.href}
-      </div>
-      <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formRed"
-        onClick={() => deleteForm(props)}
+    <>
+      <div
+        className={`flex min-h-12 w-full items-stretch bg-opacity-75 bg-form${fc.color} mt-2 ${isLoading || val !== null || err != null || form.op === "writeproperty" ? "rounded-t-md" : "rounded-md"} border-2 pl-4 border-form${fc.color}`}
       >
-        <Trash2 size={16} color="black" />
-      </button>
-    </div>
+        {interactionFunction && (
+          <button onClick={callInteractionFunction}>{label}</button>
+        )}
+        {!interactionFunction && <div className="flex">{label}</div>}
+
+        <div className="flex-grow place-self-center overflow-hidden pl-3 text-base text-white">
+          {form.href}
+        </div>
+
+        {(err !== null || val !== null) && (
+          <button
+            className={`flex min-w-10 items-center justify-center border-r-2 border-form${fc.color} bg-form${fc.color}`}
+            onClick={() => {
+              setErr(null);
+              setVal(null);
+            }}
+          >
+            <ChevronUp size={16} color="white" />
+          </button>
+        )}
+        <button
+          className={`flex min-w-10 items-center justify-center bg-form${fc.color}`}
+          onClick={() =>
+            context.removeForm(fc.level, form.propName, form, form.actualIndex)
+          }
+        >
+          <Trash2 size={16} color="white" />
+        </button>
+      </div>
+
+      {form.op === "writeproperty" && (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            callInteractionFunction();
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Input a value and hit write..."
+            value={writeContent}
+            onChange={(e) => setWriteContent(e.target.value)}
+            className={`flex w-full overflow-auto bg-white px-4 py-2 ${val !== null || err != null ? "border-b-2 border-gray-300" : "rounded-b-md"}`}
+          />
+        </form>
+      )}
+
+      {/* error or value that the interaction function returned */}
+      {isLoading !== false && (
+        <pre className="flex overflow-auto rounded-b-md bg-white">
+          <div className={`p-4 text-black`}>Waiting for a response...</div>
+        </pre>
+      )}
+      {err !== null && (
+        <pre className="flex overflow-auto rounded-b-md bg-white">
+          <div className={`text-formRed p-4`}>Error: {err}</div>
+        </pre>
+      )}
+      {val !== null && (
+        <pre className="flex overflow-auto rounded-b-md bg-white">
+          <div className={`p-4 text-black`}>{val}</div>
+        </pre>
+      )}
+    </>
   );
 }
-
-export function ObserveAllForm(props) {
-  const context = useContext(ediTDorContext);
-  const deleteForm = (e) => {
-    context.removeForm(e);
-  };
-
+export function AddFormElement(props) {
   return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-formOrange rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formOrange">
-      <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
-        <div className="text-formOrange place-self-center text-center text-xs px-4">
-          ObserveAll
+    <button
+      className="border-formBlue bg-formBlue flex min-h-10 w-full items-stretch rounded-md border-2 bg-opacity-75 pl-4"
+      onClick={props.onClick}
+    >
+      <div className="flex items-center justify-center">
+        <PlusCircle color="white" size="20" />
+        <div className={`pl-2 text-center text-white`}>
+          Click to add Form...
         </div>
       </div>
-      <div className="place-self-center pl-3 text-base text-white overflow-hidden flex-grow">
-        {props.form.href}
-      </div>
-      <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formOrange"
-        onClick={() => deleteForm(props)}
-      >
-        <Trash2 size={16} color="black" />
-      </button>
-    </div>
-  );
-}
-
-export function UnobserveAllForm(props) {
-  const context = useContext(ediTDorContext);
-  const deleteForm = (e) => {
-    context.removeForm(e);
-  };
-
-  return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-formRed rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formRed">
-      <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
-        <div className="text-formRed place-self-center text-center text-xs px-4">
-          UnobserveAll
-        </div>
-      </div>
-      <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">
-        {props.form.href}
-      </div>
-      <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formRed"
-        onClick={() => deleteForm(props)}
-      >
-        <Trash2 size={16} color="black" />
-      </button>
-    </div>
-  );
-}
-
-export function ReadForm(props) {
-  const context = useContext(ediTDorContext);
-  const deleteForm = (e) => {
-    context.removeForm(e);
-  };
-
-  return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-formGreen rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formGreen">
-      <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
-        <div className="text-formGreen place-self-center text-center text-xs px-4">
-          Read
-        </div>
-      </div>
-      <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">
-        {props.form.href}
-      </div>
-      <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formGreen"
-        onClick={() => deleteForm(props)}
-      >
-        <Trash2 size={16} color="black" />
-      </button>
-    </div>
-  );
-}
-
-export function ReadMultipleForm(props) {
-  const context = useContext(ediTDorContext);
-  const deleteForm = (e) => {
-    context.removeForm(e);
-  };
-
-  return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-formGreen rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formGreen">
-      <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
-        <div className="text-formGreen place-self-center text-center text-xs px-4">
-          ReadMultiple
-        </div>
-      </div>
-      <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">
-        {props.form.href}
-      </div>
-      <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formGreen"
-        onClick={() => deleteForm(props)}
-      >
-        <Trash2 size={16} color="black" />
-      </button>
-    </div>
-  );
-}
-
-export function ReadAllForm(props) {
-  const context = useContext(ediTDorContext);
-  const deleteForm = (e) => {
-    context.removeForm(e);
-  };
-
-  return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-formGreen rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formGreen">
-      <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
-        <div className="text-formGreen place-self-center text-center text-xs px-4">
-          ReadAll
-        </div>
-      </div>
-      <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">
-        {props.form.href}
-      </div>
-      <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formGreen"
-        onClick={() => deleteForm(props)}
-      >
-        <Trash2 size={16} color="black" />
-      </button>
-    </div>
-  );
-}
-
-export function WriteForm(props) {
-  const context = useContext(ediTDorContext);
-  const deleteForm = (e) => {
-    context.removeForm(e);
-  };
-
-  return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-formBlue rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formBlue">
-      <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
-        <div className="text-formBlue place-self-center text-center text-xs px-4">
-          Write
-        </div>
-      </div>
-      <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">
-        {props.form.href}
-      </div>
-      <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue"
-        onClick={() => deleteForm(props)}
-      >
-        <Trash2 size={16} color="black" />
-      </button>
-    </div>
-  );
-}
-
-export function WriteMultipleForm(props) {
-  const context = useContext(ediTDorContext);
-  const deleteForm = (e) => {
-    context.removeForm(e);
-  };
-
-  return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-formBlue rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formBlue">
-      <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
-        <div className="text-formBlue place-self-center text-center text-xs px-4">
-          WriteMultiple
-        </div>
-      </div>
-      <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">
-        {props.form.href}
-      </div>
-      <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue"
-        onClick={() => deleteForm(props)}
-      >
-        <Trash2 size={16} color="black" />
-      </button>
-    </div>
-  );
-}
-
-export function WriteAllForm(props) {
-  const context = useContext(ediTDorContext);
-  const deleteForm = (e) => {
-    context.removeForm(e);
-  };
-
-  return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-formBlue rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formBlue">
-      <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
-        <div className="text-formBlue place-self-center text-center text-xs px-4">
-          WriteAll
-        </div>
-      </div>
-      <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">
-        {props.form.href}
-      </div>
-      <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue"
-        onClick={() => deleteForm(props)}
-      >
-        <Trash2 size={16} color="black" />
-      </button>
-    </div>
-  );
-}
-
-export function InvokeForm(props) {
-  const context = useContext(ediTDorContext);
-  const deleteForm = (e) => {
-    context.removeForm(e);
-  };
-
-  return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-formRed rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formRed">
-      <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
-        <div className="text-formRed place-self-center text-center text-xs px-4">
-          Invoke
-        </div>
-      </div>
-      <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">
-        {props.form.href}
-      </div>
-      <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formRed"
-        onClick={() => deleteForm(props)}
-      >
-        <Trash2 size={16} color="black" />
-      </button>
-    </div>
+    </button>
   );
 }
 
 export function UndefinedForm(props) {
   const context = useContext(ediTDorContext);
-  const deleteForm = (e) => {
-    context.removeForm(e);
-  };
 
   return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-gray-300 rounded-md px-4 mt-2 bg-opacity-75 border-2 border-gray-300">
-      <div className="flex h-6 w-16 bg-white rounded-md place-self-center justify-center">
-        <div className="place-self-center text-center text-xs px-4">
+    <div className="flex min-h-10 w-full items-stretch rounded-md border-2 border-gray-300 bg-gray-300 bg-opacity-75 pl-4">
+      <div className="flex h-6 min-w-20 justify-center place-self-center rounded-md bg-white">
+        <div
+          className={`place-self-center px-4 text-center text-xs text-black`}
+        >
           Undefined
         </div>
       </div>
-      <div className=" place-self-center pl-3 text-base overflow-hidden flex-grow">
+      <div className="flex-grow place-self-center overflow-hidden pl-3 text-white">
         {props.form.href}
       </div>
       <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-white"
-        onClick={() => deleteForm(props)}
+        className="flex w-10 items-center justify-center bg-gray-300"
+        onClick={() =>
+          context.removeForm(
+            props.level,
+            props.form.propName,
+            props.form,
+            props.form.actualIndex
+          )
+        }
       >
         <Trash2 size={16} color="black" />
       </button>

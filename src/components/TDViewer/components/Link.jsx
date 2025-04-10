@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -32,34 +32,35 @@ export default function Link(props) {
     changeBetweenTd(context, href);
   };
   return (
-    <div className="flex flex-row items-center justify-start h-10 w-full bg-formBlue rounded-md px-4 mt-2 bg-opacity-75 border-2 border-formBlue">
-      <div className="flex h-6 w-18 bg-white rounded-md place-self-center justify-center">
-        {props.link.rel && (
-          <div className="text-formBlue place-self-center text-center text-xs px-4">
-            {props.link.rel}
-          </div>
-        )}
+    <div className="bg-formBlue border-formBlue mt-2 flex min-h-12 w-full items-stretch rounded-md border-2 bg-opacity-75 pl-4">
+      <div className="flex h-8 min-w-20 justify-center place-self-center rounded-md bg-white">
+        <div className="text-formBlue place-self-center px-4 text-center">
+          {props.link.rel ?? "-"}
+        </div>
       </div>
-      <div className=" place-self-center pl-3 text-base text-white overflow-hidden flex-grow">
+
+      <div className="flex-grow place-self-center overflow-hidden pl-3 text-base text-white">
         {props.link.href}
       </div>
-      <button
-        className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue"
-        onClick={() => deleteLink(props)}
-      >
-        <Trash2 size={16} color="black" />
-      </button>
+
       {context.linkedTd &&
         context.linkedTd[props.link.href] &&
         (Object.keys(context.linkedTd[props.link.href]).length ||
           context.linkedTd[props.link.href]["kind"] === "file") && (
           <button
-            className="text-base w-6 h-6 p-1 m-1 shadow-md rounded-full bg-formBlue"
+            className="bg-formBlue border-formBlue flex w-10 items-center justify-center border-r-2"
             onClick={() => infoLink(props)}
           >
             <Info size={16} color="black" />
           </button>
         )}
+
+      <button
+        className="bg-formBlue flex w-10 items-center justify-center"
+        onClick={() => deleteLink(props)}
+      >
+        <Trash2 size={16} color="black" />
+      </button>
     </div>
   );
 }

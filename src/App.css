@@ -1,27 +1,5 @@
-main {
-  flex-grow: 1;
-}
-
-.splitter {
-}
-
 .height-adjust {
-  height: calc(100vh - 6rem);
-}
-
-#separator {
-  cursor: col-resize;
-  background-color: #aaa;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='30'><path d='M2 0 v30 M5 0 v30 M8 0 v30' fill='none' stroke='black'/></svg>");
-  background-repeat: no-repeat;
-  background-position: center;
-  width: 10px;
-  height: 100%;
-
-  /* Prevent the browser's built-in drag from interfering */
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+  height: calc(100vh - 5.9rem);
 }
 
 /* clears the ‘X’ from Internet Explorer */
@@ -49,7 +27,7 @@ input[type="search"]::-webkit-search-results-decoration {
 /* changes the detail arrow to a animated chevron*/
 /* show Arrow in detail component */
 details > summary::before {
-  content: url(../../assets/chevron-right.svg);
+  content: url(./assets/chevron-right.svg);
   width: 1.5rem;
   height: 1.5rem;
   display: inline-flex;
@@ -73,17 +51,16 @@ summary::-webkit-details-marker {
 details > summary::marker {
   display: none;
 }
-#tabsBackground {
-  background-color: #1e1e1e;
-  height: 5%;
-}
-#linkedTd {
-  background-color: #1e1e1e;
-  width: 50%;
-}
+
 #link-href {
   width: 75%;
 }
-#editor {
-  height: 95.1%;
+
+#error {
+  border-radius: 25px;
+  border: 2px solid red;
+  background-color: white;
+  padding-left: 2%;
+  padding-right: 2%;
+  opacity: 0.9;
 }

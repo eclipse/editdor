@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* weird that this is needed... */
+* {
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+*:hover {
+  scrollbar-color: #a8a8a8 #f1f1f1;
+}
+
 html,
 body,
 #root {
@@ -21,6 +30,11 @@ body,
   100% {
     transform: rotate(360deg);
   }
+}
+
+.rowC {
+  display: flex;
+  flex-direction: row;
 }
 
 .loading-spinner {
@@ -70,22 +84,18 @@ body {
 }
 
 .bg-formBlue {
-  --tw-bg-opacity: 1;
   background-color: rgba(10, 132, 255, var(--tw-bg-opacity));
 }
 
 .bg-formRed {
-  --tw-bg-opacity: 1;
   background-color: rgba(255, 69, 58, var(--tw-bg-opacity));
 }
 
 .bg-formGreen {
-  --tw-bg-opacity: 1;
   background-color: rgba(48, 209, 88, var(--tw-bg-opacity));
 }
 
 .bg-formOrange {
-  --tw-bg-opacity: 1;
   background-color: rgba(255, 159, 10, var(--tw-bg-opacity));
 }
 
@@ -110,26 +120,33 @@ body {
 }
 
 .bg-blue-400 {
-  --tw-bg-opacity: 1;
   background-color: rgba(0, 119, 204, var(--tw-bg-opacity));
 }
 
 .bg-blue-500 {
-  --tw-bg-opacity: 1;
   background-color: rgba(0, 90, 156, var(--tw-bg-opacity));
 }
 
+.bg-gray-100 {
+  background-color: rgba(142, 142, 147, var(--tw-bg-opacity));
+}
+
+.bg-gray-200 {
+  background-color: rgba(99, 99, 102, var(--tw-bg-opacity));
+}
+
+.bg-gray-300 {
+  background-color: rgba(72, 72, 74, var(--tw-bg-opacity));
+}
+
+.bg-gray-400 {
+  background-color: rgba(58, 58, 60, var(--tw-bg-opacity));
+}
+
 .bg-gray-500 {
-  --tw-bg-opacity: 1;
-  background-color: rgba(34, 34, 36, var(--tw-bg-opacity));
+  background-color: rgba(40, 40, 42, var(--tw-bg-opacity));
 }
 
 .bg-gray-600 {
-  --tw-bg-opacity: 1;
   background-color: rgba(28, 28, 30, var(--tw-bg-opacity));
-}
-
-.hover\:bg-blue-300:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgba(0, 143, 245, var(--tw-bg-opacity));
 }

@@ -18,14 +18,14 @@ export const DialogTextField = (props) => {
     <div key={props.id} className="py-1">
       <label
         htmlFor={props.id}
-        className="text-sm text-gray-400 font-medium pl-2"
+        className="pl-2 text-sm font-medium text-gray-400"
       >
         {props.label}:
       </label>
       <input
         name={props.id}
         id={props.id}
-        className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+        className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
         placeholder={props.placeholder}
         type={props.type ?? "text"}
         autoFocus={props.autoFocus ?? false}
@@ -33,7 +33,7 @@ export const DialogTextField = (props) => {
       />
       <span
         id={`${props.id}-helper-text`}
-        className="text-xs text-red-400 pl-2"
+        className="pl-2 text-xs text-red-400"
       ></span>
     </div>
   );
@@ -44,22 +44,14 @@ export const DialogTextArea = (props) => {
     <>
       <label
         htmlFor={props.id}
-        className="text-sm text-gray-400 font-medium pl-2"
+        className="pl-2 text-sm font-medium text-gray-400"
       >
         {props.label}:
       </label>
       <textarea
         id={props.id}
         rows="5"
-        className="bg-gray-600
-                sm:text-sm
-                appearance-none
-                border-2 border-gray-600 rounded w-full
-                p-2
-                text-white
-                leading-tight
-                focus:outline-none
-                focus:border-blue-500"
+        className="w-full appearance-none rounded border-2 border-gray-600 bg-gray-600 p-2 leading-tight text-white focus:border-blue-500 focus:outline-none sm:text-sm"
         placeholder={props.placeholder}
       />
     </>
@@ -71,13 +63,13 @@ export const DialogDropdown = (props) => {
     <>
       <label
         htmlFor={props.id}
-        className="text-sm text-gray-400 font-medium pl-2"
+        className="pl-2 text-sm font-medium text-gray-400"
       >
         {props.label}:
       </label>
       <div className="relative">
         <select
-          className="block appearance-none w-full bg-gray-600 border-2 border-gray-600 text-white py-3 px-4 pr-8 rounded leading-tight focus:border-blue-500 focus:outline-none"
+          className="block w-full appearance-none rounded border-2 border-gray-600 bg-gray-600 px-4 py-3 pr-8 leading-tight text-white focus:border-blue-500 focus:outline-none"
           id={props.id}
         >
           {props.options.map((e) => {
