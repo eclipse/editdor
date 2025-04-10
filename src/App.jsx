@@ -21,7 +21,7 @@ import AppHeader from "./components/App/AppHeader";
 import { Container, Section, Bar } from "@column-resizer/react";
 import { RefreshCw } from "react-feather";
 
-import { decompressSharedTd, fetchTdFromProxy } from "./share";
+import { decompressSharedTd } from "./share";
 
 const GlobalStateWrapper = (props) => {
   return (
@@ -64,12 +64,13 @@ const App = (props) => {
       context.updateOfflineTD(JSON.stringify(td, null, 2));
     }
 
-    const nativeTdId = url.searchParams.get("proxyid");
-    if (nativeTdId !== null) {
-      fetchTdFromProxy(nativeTdId).then((td) => {
+    const proxyEndpointUrl = url.searchParams.get("proxyEndpoint");
+    const southboundTdId = url.searchParams.get("southboundTdId");
+    if (southboundTdId !== null) {
+      retrieveThing(southboundTdId, proxyEndpointUrl).then((td) => {
         if (td === undefined) {
           alert(
-            `No Thing Description with id '${nativeTdId} couldn't be fetched from WoT!.`
+            `No Thing Description with id '${southboundTdId} couldn't be fetched from WoT!.`
           );
           return;
         }

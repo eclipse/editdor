@@ -1,6 +1,4 @@
 import { compress, decompress } from "./external/TdPlayground";
-import * as wotTdService from "./services/thingsApiService";
-import { getTargetUrl } from "./services/targetUrl";
 import { isThingModel } from "./util";
 
 const tdPrefix = "tdjson";
@@ -51,26 +49,6 @@ export const decompressSharedTd = (lzString) => {
     return JSON.parse(decompressedTd);
   } catch (e) {
     console.debug(e);
-  }
-
-  return undefined;
-};
-
-/**
- *
- * @param {string} tdId
- * @returns {Object | undefined}
- * @description Contacts the  proxy WoT native API to fetch a Thing Description.
- */
-export const fetchTdFromProxy = async (tdId) => {
-  const targetUrl = getTargetUrl();
-
-  try {
-    let td = await wotTdService.getTD(tdId, targetUrl);
-
-    return td;
-  } catch (error) {
-    console.debug(error);
   }
 
   return undefined;
