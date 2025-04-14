@@ -104,20 +104,20 @@ function stripDoubleQuotes(str) {
   return str.replace(/^"|"$/g, "");
 }
 
-const parseContent = (propName, content) => {
+const parseContent = (propertyType, content) => {
   try {
-    switch (propName) {
-      case "bool":
+    switch (propertyType) {
+      case "boolean":
         return stripDoubleQuotes(content).toLowerCase() === "true";
 
-      case "int":
+      case "integer":
         const intVal = parseInt(stripDoubleQuotes(content), 10);
         if (isNaN(intVal)) {
           throw new Error(`Error on convert "${content}" to an integer.`);
         }
         return intVal;
 
-      case "num":
+      case "number":
         const numVal = parseFloat(stripDoubleQuotes(content));
         if (isNaN(numVal)) {
           throw new Error(`Error on convert "${content}" to a number.`);
@@ -150,10 +150,10 @@ const parseContent = (propName, content) => {
         }
 
       default:
-        throw new Error(`Unsupported type: "${propName}".`);
+        throw new Error(`Unsupported type: "${propertyType}".`);
     }
   } catch (e) {
-    console.error(`Failed to parse content for ${propName}:`, e);
+    console.error(`Failed to parse content for ${propertyType}:`, e);
   }
 };
 
@@ -186,7 +186,8 @@ async function readProperty(td, propertyName, _) {
 
 async function writeProperty(td, propertyName, content) {
   try {
-    const contentConverted = parseContent(propertyName, content);
+    const propertyType = td.properties[propertyName].type;
+    const contentConverted = parseContent(propertyType, content);
 
     const thingFactory = await servient.start();
     const thing = await thingFactory.consume(td);
