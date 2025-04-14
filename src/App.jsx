@@ -20,7 +20,7 @@ import AppFooter from "./components/App/AppFooter";
 import AppHeader from "./components/App/AppHeader";
 import { Container, Section, Bar } from "@column-resizer/react";
 import { RefreshCw } from "react-feather";
-import { retrieveThing } from "services/thingsApiService";
+import { retrieveThing } from "./services/thingsApiService";
 import { decompressSharedTd } from "./share";
 
 const GlobalStateWrapper = (props) => {

@@ -100,6 +100,63 @@ const formConfigurations = {
   },
 };
 
+function stripDoubleQuotes(str) {
+  return str.replace(/^"|"$/g, "");
+}
+
+const parseContent = (propName, content) => {
+  try {
+    switch (propName) {
+      case "bool":
+        return stripDoubleQuotes(content).toLowerCase() === "true";
+
+      case "int":
+        const intVal = parseInt(stripDoubleQuotes(content), 10);
+        if (isNaN(intVal)) {
+          throw new Error(`Error on convert "${content}" to an integer.`);
+        }
+        return intVal;
+
+      case "num":
+        const numVal = parseFloat(stripDoubleQuotes(content));
+        if (isNaN(numVal)) {
+          throw new Error(`Error on convert "${content}" to a number.`);
+        }
+        return numVal;
+
+      case "string":
+        return stripDoubleQuotes(content);
+
+      case "array":
+        let temp = stripDoubleQuotes(content);
+        if (Array.isArray(temp)) {
+          return temp;
+        }
+
+        try {
+          const parsedArray = JSON.parse(temp);
+          if (Array.isArray(parsedArray)) {
+            return parsedArray;
+          }
+        } catch {
+          throw new Error(`Error on convert "${content}" to an array.`);
+        }
+
+      case "object":
+        try {
+          return JSON.parse(stripDoubleQuotes(content));
+        } catch {
+          throw new Error(`Error on convert "${content}" to an object.`);
+        }
+
+      default:
+        throw new Error(`Unsupported type: "${propName}".`);
+    }
+  } catch (e) {
+    console.error(`Failed to parse content for ${propName}:`, e);
+  }
+};
+
 /**
  * Description of the function
  * @name InteractionFunction
@@ -129,14 +186,16 @@ async function readProperty(td, propertyName, _) {
 
 async function writeProperty(td, propertyName, content) {
   try {
+    const contentConverted = parseContent(propertyName, content);
+
     const thingFactory = await servient.start();
     const thing = await thingFactory.consume(td);
 
     // no return value - only exception on error
-    await thing.writeProperty(propertyName, content);
+    await thing.writeProperty(propertyName, contentConverted);
 
     return {
-      result: `Successfully wrote ${content} to '${propertyName}'.`,
+      result: `Successfully wrote ${contentConverted} to '${propertyName}'.`,
       err: null,
     };
   } catch (e) {
@@ -295,6 +354,7 @@ function formComponent(formType, form, interactionFunction) {
     </>
   );
 }
+
 export function AddFormElement(props) {
   return (
     <button
