@@ -196,7 +196,11 @@ async function writeProperty(td, propertyName, content) {
     await thing.writeProperty(propertyName, contentConverted);
 
     return {
-      result: `Successfully wrote ${contentConverted} to '${propertyName}'.`,
+      result: `Successfully wrote ${
+         JSON.stringify(contentConverted).length > 50
+          ? JSON.stringify(contentConverted).slice(0, 50) + "..."
+          : JSON.stringify(contentConverted)
+      } to '${propertyName}'.`,
       err: null,
     };
   } catch (e) {
