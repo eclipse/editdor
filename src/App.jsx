@@ -43,8 +43,9 @@ const App = (props) => {
     if (
       checkedUrl ||
       (window.location.search.indexOf("td") <= -1 &&
-        window.location.search.indexOf("proxyid") <= -1 &&
-        window.location.search.indexOf("localstorage") <= -1)
+        window.location.search.indexOf("proxyEndpoint") <= -1 &&
+        window.location.search.indexOf("localstorage") <= -1 &&
+        window.location.search.indexOf("southboundTdId") <= -1)
     ) {
       return;
     }
