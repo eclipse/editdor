@@ -2,14 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* weird that this is needed... */
-* {
-  scrollbar-color: #c1c1c1 #f1f1f1;
-}
-
-*:hover {
-  scrollbar-color: #a8a8a8 #f1f1f1;
-}
 
 html,
 body,
