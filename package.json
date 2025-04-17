@@ -13,7 +13,6 @@
   "scripts": {
     "dev": "cross-env REACT_APP_TARGET_URL=http://localhost:8080 vite",
     "build": "vite build",
-    "build-standalone": "cross-env REACT_APP_TARGET_URL=https://eclipse.github.io/editdor/ vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "format": "prettier --write ."

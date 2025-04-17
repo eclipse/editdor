@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: "20"
       - run: yarn install
-      - run: yarn build-standalone
+      - run: yarn build
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
