@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 
-import React, { useContext, useEffect, useState, useCallback } from "react";
+import React, { useContext, useEffect, useCallback } from "react";
 import ediTDorContext from "../../context/ediTDorContext";
 import {
   buildAttributeListObject,
@@ -100,7 +100,7 @@ export default function TDViewer() {
           </div>
         ) : (
           <div className="place-self-center text-4xl text-white">
-            Start writing a new TD by clicking "Create"
+            Start writing a new TD by clicking &quot;Create&quot;
             <p>or drag and drop .json file here</p>
             <div className="pt-4">
               <p className="text-xl text-gray-600">
