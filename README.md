@@ -7,20 +7,6 @@ Find the ediTDor here to try it out:
 
 https://eclipse.github.io/editdor/
 
-## Building the App
-
-There are two ways this app can be built. One way would be for using it as a standalone application, the
-other one for using it embedded into a production environment.
-The available environment variables are:
-
-```bash
-REACT_APP_IS_STANDALONE={flag} # true or false
-```
-
-If the REACT_APP_IS_STANDALONE environment variable is set to true, REACT_APP_HOST and REACT_APP_PORT are going to be
-used for building the UIs target. Otherwise "/" is used.
-The package.json already contains build options for this (build, build-standalone).
-
 ## About this project
 
 The goal of this project is the easy creation of W3C Thing Description instances and Thing Models by providing a platform-independent ediTDor tool. The following features are addressed in this project
@@ -50,15 +36,13 @@ Please follow our [contribution guide](./CONTRIBUTING.md).
 
 - [Node.js](https://nodejs.org/), version 10+ (e.g., 10.13.0 LTS)
 
-## Start Locally
-
-`yarn dev` starts a local development server on Port 3000 (http://localhost:3000)
-
 ## Build
 
 `yarn install` install all the dependencies listed within package.json
 
 `yarn build` builds the project for deployment
+
+`yarn dev` starts a local development server on Port 3000 (http://localhost:3000)
 
 ## Implemented Features:
 

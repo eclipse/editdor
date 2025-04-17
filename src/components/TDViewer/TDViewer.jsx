@@ -47,14 +47,6 @@ export default function TDViewer() {
     addFormDialog.current.openModal();
   };
 
-  useEffect(() => {
-    try {
-      setTd(JSON.parse(context.offlineTD));
-    } catch (e) {
-      console.debug(e);
-    }
-  }, [context.offlineTD]);
-
   const onDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
