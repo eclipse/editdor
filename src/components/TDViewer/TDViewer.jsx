@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 
-import React, { useContext, useEffect, useState, useCallback } from "react";
+import React, { useContext, useEffect, useCallback } from "react";
 import ediTDorContext from "../../context/ediTDorContext";
 import {
   buildAttributeListObject,
@@ -22,7 +22,7 @@ import { AddFormDialog } from "../Dialogs/AddFormDialog";
 import { InfoIconWrapper } from "../InfoIcon/InfoIcon";
 import { getFormsTooltipContent } from "../InfoIcon/InfoTooltips";
 import Form from "./components/Form";
-import { InteractionSection } from "./components/InteractionSection";
+import InteractionSection from "./components/InteractionSection";
 import { RenderedObject } from "./components/RenderedObject";
 import ValidationView from "./components/ValidationSection";
 import LinkView from "./components/LinkSection";
@@ -100,7 +100,7 @@ export default function TDViewer() {
           </div>
         ) : (
           <div className="place-self-center text-4xl text-white">
-            Start writing a new TD by clicking "Create"
+            Start writing a new TD by clicking &quot;Create&quot;
             <p>or drag and drop .json file here</p>
             <div className="pt-4">
               <p className="text-xl text-gray-600">
