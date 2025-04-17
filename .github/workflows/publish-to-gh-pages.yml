@@ -11,11 +11,11 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "20"
-      - run: npm install
-      - run: npm run build
+      - run: yarn install
+      - run: yarn build
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
-          FOLDER: build
+          FOLDER: dist

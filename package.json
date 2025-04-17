@@ -4,10 +4,15 @@
   "version": "0.7.0",
   "type": "module",
   "homepage": "https://eclipse.github.io/editdor/",
+  "license": "EPL-2.0 OR W3C-20150513",
+  "author": "Eclipse ediTDor <editdor-dev@eclipse.org>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eclipse/editdor.git"
+  },
   "scripts": {
     "dev": "cross-env REACT_APP_TARGET_URL=http://localhost:8080 vite",
     "build": "vite build",
-    "build-standalone": "cross-env REACT_APP_TARGET_URL= vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "format": "prettier --write ."
