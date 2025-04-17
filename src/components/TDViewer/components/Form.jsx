@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2025 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -197,7 +197,7 @@ async function writeProperty(td, propertyName, content) {
 
     return {
       result: `Successfully wrote ${
-         JSON.stringify(contentConverted).length > 50
+        JSON.stringify(contentConverted).length > 50
           ? JSON.stringify(contentConverted).slice(0, 50) + "..."
           : JSON.stringify(contentConverted)
       } to '${propertyName}'.`,
