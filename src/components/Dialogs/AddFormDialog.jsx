@@ -18,7 +18,7 @@ import React, {
 } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
-import { checkIfFormIsInItem, hasForms } from "../../util.js";
+import { checkIfFormIsInItem } from "../../util.js";
 import { DialogTemplate } from "./DialogTemplate";
 
 export const AddFormDialog = forwardRef((props, ref) => {
@@ -50,56 +50,34 @@ export const AddFormDialog = forwardRef((props, ref) => {
   };
 
   const checkIfFormExists = (form) => {
-    if (hasForms(interaction)) {
+    if (interaction.forms) {
       return checkIfFormIsInItem(form, interaction);
     }
     return false;
   };
 
-  const addFormToInteraction = (form) => {
-    switch (type) {
-      case "property":
-        context.addForm({ propName: interactionName, form: form });
-        break;
-      case "action":
-        context.addActionForm({
-          actionName: interactionName,
-          form: form,
-        });
-        break;
-      case "event":
-        context.addEventForm({
-          eventName: interactionName,
-          form: form,
-        });
-        break;
-      case "thing":
-        let td = {};
-        try {
-          td = JSON.parse(context.offlineTD);
-        } catch (_) {}
-        if (!hasForms(td)) {
-          td.forms = [];
-        }
-        td.forms.push(form);
-        context.updateOfflineTD(JSON.stringify(td, null, 2));
-        break;
-      default: {
-      }
-    }
+  const typeToJSONKey = (type) => {
+    const typeToJSONKey = {
+      action: "actions",
+      property: "properties",
+      event: "events",
+      thing: "thing",
+    };
+
+    return typeToJSONKey[type];
   };
 
   const formSelection = operationsSelections(type);
   const children = (
     <>
-      <label className="text-sm text-gray-400 font-medium pl-3">
+      <label className="pl-3 text-sm font-medium text-gray-400">
         Operations:
       </label>
       <div className="p-1">{formSelection}</div>
       <div className="p-1 pt-2">
         <label
           htmlFor="form-href"
-          className="text-sm text-gray-400 font-medium pl-2"
+          className="pl-2 text-sm font-medium text-gray-400"
         >
           Href:
         </label>
@@ -107,13 +85,13 @@ export const AddFormDialog = forwardRef((props, ref) => {
           type="text"
           name="form-href"
           id="form-href"
-          className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+          className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
           placeholder="http://example.com/href"
           onChange={() => {
             clearErrorMessage();
           }}
         />
-        <span id="form-href-info" className="text-xs text-red-400 pl-2"></span>
+        <span id="form-href-info" className="pl-2 text-xs text-red-400"></span>
       </div>
     </>
   );
@@ -142,7 +120,7 @@ export const AddFormDialog = forwardRef((props, ref) => {
               "A Form for one of the selected operations already exists ..."
             );
           } else {
-            addFormToInteraction(form);
+            context.addForm(typeToJSONKey(type), interactionName, form);
             close();
           }
         }}
@@ -198,7 +176,7 @@ const operations = (type) => {
 
 const operationsSelections = (type) => {
   return (
-    <div className="bg-gray-600 p-1 rounded-md">
+    <div className="rounded-md bg-gray-600 p-1">
       {operations(type).map((e) => formCheckbox(e))}
     </div>
   );

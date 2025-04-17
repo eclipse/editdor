@@ -1,15 +1,3 @@
-/********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
- *
- * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License v. 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
- *
- * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
- ********************************************************************************/
 import * as joint from "jointjs";
 import { useContext, useEffect, useRef, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
@@ -27,18 +15,10 @@ export default function LinkView(props) {
     addLinkDialog.current.openModal();
   };
 
-  const [td, setTd] = useState(undefined);
+  const td = context.parsedTD;
   const [graphHeight, setGraphHeight] = useState(0);
   const [representationFormat, setRepresentationFormat] = useState("list");
   const [isLinksOpen, setIsLinksOpen] = useState(false);
-
-  useEffect(() => {
-    try {
-      setTd(JSON.parse(context.offlineTD));
-    } catch (e) {
-      console.debug(e);
-    }
-  }, [context.offlineTD]);
 
   useEffect(() => {
     if (document.getElementsByTagName("details")[1]) {
@@ -54,11 +34,15 @@ export default function LinkView(props) {
         false
       );
     }
-
+    if (td === undefined || !td.links || !Array.isArray(td.links)) {
+      return;
+    }
     let posx = 100;
     let posy = 30;
+
     // This graph is used to draw the thing description elements
     let graphTd = new joint.dia.Graph();
+
     let paperTd = new joint.dia.Paper({
       el: document.getElementById("tdGraph"),
       model: graphTd,
@@ -71,7 +55,7 @@ export default function LinkView(props) {
 
     // Check if the links section exists to start drawing
     //Update/refresh the content of the context.linkedTd whenever the the useEffect is triggered
-    if (td === undefined || !td.links) {
+    if (td === undefined || !td.links || !Array.isArray(td.links)) {
       return;
     }
 
@@ -94,11 +78,17 @@ export default function LinkView(props) {
       40
     );
     graphTd.addCell(currentTdModel);
-    for (let i = 0; i < td["links"].length; i++) {
+    for (const [_, link] of td.links.entries()) {
+      if (Object.prototype.toString.call(link) !== "[object Object]") {
+        continue;
+      }
+
       posx = posx + 70;
       posy = posy + 60;
-      let href = td["links"][i]["href"];
-      let targetTdModel = new joint.shapes.standard.Rectangle();
+      const href = link.href ?? "no href provided";
+      const rel = link.rel ?? "";
+
+      const targetTdModel = new joint.shapes.standard.Rectangle();
       //Draw as many rectangles as there are links in the links section
       targetTdModel.position(posx, posy);
       targetTdModel.attr({
@@ -130,7 +120,7 @@ export default function LinkView(props) {
             }
           }
           for (let i = 0; i < td["links"].length; i++) {
-            if (td["links"][i]["href"] === elementView.model.get("href")) {
+            if (href === elementView.model.get("href")) {
               context.removeLink(i);
               context.updateIsModified(true);
               break;
@@ -186,7 +176,7 @@ export default function LinkView(props) {
         });
         elementView.addTools(toolsView);
       }
-      let link = new joint.shapes.standard.Link({
+      let linkShape = new joint.shapes.standard.Link({
         attrs: {
           line: {
             stroke: "#005A9C",
@@ -197,19 +187,16 @@ export default function LinkView(props) {
             position: 0.6,
             attrs: {
               text: {
-                text:
-                  td["links"][i]["rel"] === undefined
-                    ? ""
-                    : td["links"][i]["rel"],
+                text: rel,
                 fill: "grey",
               },
             },
           },
         ],
       });
-      link.source(currentTdModel);
-      link.target(targetTdModel);
-      link.addTo(graphTd);
+      linkShape.source(currentTdModel);
+      linkShape.target(targetTdModel);
+      linkShape.addTo(graphTd);
     }
     setGraphHeight(posy + 30);
   }, [
@@ -227,24 +214,28 @@ export default function LinkView(props) {
     return <></>;
   }
 
-  let links;
-  if (td.links) {
-    links = td.links.map((key, index) => {
-      return <Link link={key} propName={index} key={index} />;
-    });
+  let links = [];
+  if (td.links && Array.isArray(td.links)) {
+    for (const [index, link] of td.links.entries()) {
+      if (Object.prototype.toString.call(link) !== "[object Object]") {
+        continue;
+      }
+
+      links.push(<Link link={link} key={index} />);
+    }
   }
 
   return (
     <details className="pt-8">
-      <summary className="flex justify-start items-center cursor-pointer">
+      <summary className="flex cursor-pointer items-center justify-start">
         <div className="flex flex-grow">
           <InfoIconWrapper tooltip={getLinksTooltipContent()}>
-            <h2 className="text-2xl text-white p-1 flex-grow">Links</h2>
+            <h2 className="flex-grow p-1 text-2xl text-white">Links</h2>
           </InfoIconWrapper>
 
           {isLinksOpen && (
             <button
-              className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9"
+              className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
               disabled={representationFormat === "list"}
               onClick={() => setRepresentationFormat("list")}
             >
@@ -253,7 +244,7 @@ export default function LinkView(props) {
           )}
           {isLinksOpen && (
             <button
-              className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9"
+              className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
               style={{ marginLeft: "10px" }}
               disabled={representationFormat === "graph"}
               onClick={() => setRepresentationFormat("graph")}
@@ -263,7 +254,7 @@ export default function LinkView(props) {
           )}
         </div>
         <button
-          className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2"
+          className="cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
           onClick={openAddLinkDialog}
         >
           Add Top Level Link
@@ -273,14 +264,14 @@ export default function LinkView(props) {
       {links && representationFormat === "graph" && (
         <div className="pt-4">
           <div
-            className="rounded-lg bg-gray-600 px-6 pt-4 pb-4"
+            className="rounded-lg bg-gray-600 px-6 pb-4 pt-4"
             id="tdGraph"
           ></div>
         </div>
       )}
       {links && representationFormat === "list" && (
         <div className="pt-4">
-          <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{links}</div>
+          <div className="rounded-lg bg-gray-600 px-6 pb-4 pt-4">{links}</div>
         </div>
       )}
     </details>

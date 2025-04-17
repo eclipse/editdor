@@ -1,15 +1,3 @@
-/********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
- *
- * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License v. 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
- *
- * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
- ********************************************************************************/
 import React, { useContext, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { AddActionDialog } from "../../Dialogs/AddActionDialog";
@@ -25,9 +13,6 @@ import { SearchBar } from "./SearchBar";
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
 
-let td = {};
-let oldTd = {};
-
 /**
  * Renders a section for an interaction (Property, Action, Event) with a
  * search bar, a sorting icon and a button to add a new interaction.
@@ -36,19 +21,13 @@ let oldTd = {};
  * @param {String} interaction
  */
 export const InteractionSection = (props) => {
+  const context = useContext(ediTDorContext);
+  const td = context.parsedTD;
+
   const [filter, setFilter] = useState("");
   const [sortOrder, setSortOrder] = useState(SORT_ASC);
 
   const interaction = props.interaction.toLowerCase();
-  const context = useContext(ediTDorContext);
-
-  try {
-    oldTd = td;
-    const parsedTd = JSON.parse(context.offlineTD);
-    td = parsedTd;
-  } catch (e) {
-    td = oldTd;
-  }
 
   const updateFilter = (event) => setFilter(event.target.value);
 
@@ -62,6 +41,7 @@ export const InteractionSection = (props) => {
     }
 
     const filtered = {};
+    // TODO: enable search also by title not only by interaction name
     Object.keys(td[interaction])
       .filter((e) => {
         if (e.toLowerCase().indexOf(filter.toLowerCase()) > -1) {
@@ -209,10 +189,10 @@ export const InteractionSection = (props) => {
 
   return (
     <>
-      <div className="flex justify-start items-end pt-8 pb-4">
+      <div className="flex items-end justify-start pb-4 pt-8">
         <div className="flex flex-grow">
           <InfoIconWrapper tooltip={tooltipMapper[interaction]}>
-            <h2 className="text-2xl text-white pr-1 flex-grow">
+            <h2 className="flex-grow pr-1 text-2xl text-white">
               {props.interaction}
             </h2>
           </InfoIconWrapper>
@@ -224,14 +204,14 @@ export const InteractionSection = (props) => {
         />
         <div className="w-2"></div>
         <button
-          className="text-white bg-blue-500 cursor-pointer rounded-md p-2 h-9"
+          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-white"
           onClick={() => sortKeysInObject(interaction)}
         >
           {sortedIcon()}
         </button>
         <div className="w-2"></div>
         <button
-          className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9"
+          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
           onClick={openCreatePropertyDialog}
         >
           Add
@@ -239,12 +219,12 @@ export const InteractionSection = (props) => {
         {addInteractionDialog}
       </div>
       {buildChildren() && (
-        <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">
+        <div className="rounded-lg bg-gray-600 px-4 pb-4 pt-4">
           {buildChildren()}
         </div>
       )}
       {!buildChildren() && (
-        <div className="rounded-lg bg-gray-600 px-6 pt-4 pb-4">{}</div>
+        <div className="rounded-lg bg-gray-600 px-6 pb-4 pt-4">{}</div>
       )}
     </>
   );

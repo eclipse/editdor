@@ -19,12 +19,8 @@ import React, {
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import * as fileTdService from "../../services/fileTdService";
-import { checkIfLinkIsInItem, hasLinks } from "../../util.js";
+import { checkIfLinkIsInItem } from "../../util.js";
 import { DialogTemplate } from "./DialogTemplate";
-
-let error = "";
-let tdJSON = {};
-let oldtdJSON = {};
 
 export const AddLinkTdDialog = forwardRef((props, ref) => {
   const context = useContext(ediTDorContext);
@@ -39,15 +35,7 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
   });
 
   const interaction = props.interaction ?? {};
-  try {
-    oldtdJSON = tdJSON;
-    tdJSON = JSON.parse(context.offlineTD);
-    error = "";
-  } catch (e) {
-    error = e.message;
-    console.debug(error);
-    tdJSON = oldtdJSON;
-  }
+  const tdJSON = context.parsedTD;
 
   useImperativeHandle(ref, () => {
     return {
@@ -65,22 +53,16 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
   };
 
   const checkIfLinkExists = (link) => {
-    if (hasLinks(interaction)) {
-      return checkIfLinkIsInItem(link, interaction);
+    if (!interaction.links) {
+      return false;
     }
-    return false;
+
+    return checkIfLinkIsInItem(link, interaction);
   };
 
   const addLinksToTd = (link) => {
-    let td = {};
-    try {
-      td = JSON.parse(context.offlineTD);
-    } catch (_) {}
-    if (!hasLinks(td)) {
-      td.links = [];
-    }
-    td.links.push(link);
-    context.updateOfflineTD(JSON.stringify(td, null, 2));
+    tdJSON["links"] = [...(tdJSON["links"] ? tdJSON["links"] : []), link];
+    context.updateOfflineTD(JSON.stringify(tdJSON, null, 2));
   };
 
   const linkingMethodChange = (linkingOption) => {
@@ -126,12 +108,12 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
 
   const children = (
     <>
-      <label className="text-sm text-gray-400 font-medium pl-3">
+      <label className="pl-3 text-sm font-medium text-gray-400">
         Thing Description:
       </label>
       <div className="p-1">{tdJSON["title"]}</div>
       <div className="p-1 pt-2">
-        <label htmlFor="rel" className="text-sm text-gray-400 font-medium pl-2">
+        <label htmlFor="rel" className="pl-2 text-sm font-medium text-gray-400">
           Relation:(select one of the proposed relations or type your custom
           relation)
         </label>
@@ -140,24 +122,24 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
           type="text"
           name="rel"
           id="rel"
-          className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+          className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
           placeholder="relation name"
         />
         <datalist id="relationType">
           <RelationType></RelationType>
         </datalist>
 
-        <span id="link-rel-info" className="text-xs text-red-400 pl-2"></span>
+        <span id="link-rel-info" className="pl-2 text-xs text-red-400"></span>
       </div>
       <div className="p-1 pt-2">
         <label
           htmlFor="link-href"
-          className="text-sm text-gray-400 font-medium pl-2 pr-2"
+          className="pl-2 pr-2 text-sm font-medium text-gray-400"
         >
           Target ressource:
         </label>
         <button
-          className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9"
+          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
           disabled={linkingMethod === "upload"}
           onClick={() => {
             linkingMethodChange("upload");
@@ -166,7 +148,7 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
           From local machine
         </button>
         <button
-          className="text-white font-bold text-sm bg-blue-500 cursor-pointer rounded-md p-2 h-9"
+          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
           style={{ marginLeft: "2%" }}
           disabled={linkingMethod === "url"}
           onClick={() => {
@@ -180,7 +162,7 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
             type="text"
             name="link-href"
             id="link-href"
-            className="border-gray-600 bg-gray-600 p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+            className="rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
             placeholder="The target ressource"
             onChange={() => {
               clearHrefErrorMessage();
@@ -189,7 +171,7 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
           />
           {linkingMethod === "upload" && (
             <button
-              className="text-white bg-blue-500 cursor-pointer rounded-md p-2 h-9"
+              className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-white"
               onClick={openFile}
               disabled={linkingMethod !== "upload"}
             >
@@ -197,11 +179,11 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
             </button>
           )}
         </div>
-        <span id="link-href-info" className="text-xs text-red-400 pl-2"></span>
+        <span id="link-href-info" className="pl-2 text-xs text-red-400"></span>
         <div>
           <label
             htmlFor="type"
-            className="text-sm text-gray-400 font-medium pl-2"
+            className="pl-2 text-sm font-medium text-gray-400"
           >
             Type:(select one of the proposed types or tape your custom type)
           </label>
@@ -210,7 +192,7 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
             type="text"
             name="type"
             id="type"
-            className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+            className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
             placeholder="media type"
           />
           <datalist id="mediaType">
@@ -223,11 +205,17 @@ export const AddLinkTdDialog = forwardRef((props, ref) => {
       </div>
     </>
   );
+
   if (display) {
     return ReactDOM.createPortal(
       <DialogTemplate
         onCancel={close}
         onSubmit={() => {
+          if (!context.isValidJSON) {
+            showHrefErrorMessage("Can't add link. TD is malformed");
+            return;
+          }
+
           let link = {};
           let linkedTd = {};
           const rel = document.getElementById("rel").value;

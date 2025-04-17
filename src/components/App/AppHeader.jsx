@@ -11,15 +11,25 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { useCallback, useContext, useEffect } from "react";
-import editdorLogo from "../../../assets/editdor.png";
-import wotLogo from "../../../assets/WoT.png";
-import ediTDorContext from "../../../context/ediTDorContext";
-import * as fileTdService from "../../../services/fileTdService";
-import { ChatDialog } from "../../Dialogs/ChatDialog";
-import { ConvertTmDialog } from "../../Dialogs/ConvertTmDialog";
-import { CreateTdDialog } from "../../Dialogs/CreateTdDialog";
-import { ShareDialog } from "../../Dialogs/ShareDialog";
-import Button from "./Button";
+import {
+  Download,
+  File,
+  FilePlus,
+  FileText,
+  Save,
+  Settings,
+  Share,
+} from "react-feather";
+import editdorLogo from "../../assets/editdor.png";
+import ediTDorContext from "../../context/ediTDorContext";
+import * as fileTdService from "../../services/fileTdService";
+import { getTargetUrl } from "../../services/targetUrl";
+import * as thingsApiService from "../../services/thingsApiService";
+import { isThingModel } from "../../util";
+import { ConvertTmDialog } from "../Dialogs/ConvertTmDialog";
+import { CreateTdDialog } from "../Dialogs/CreateTdDialog";
+import { SettingsDialog } from "../Dialogs/SettingsDialog";
+import { ShareDialog } from "../Dialogs/ShareDialog";
 
 export default function AppHeader() {
   const context = useContext(ediTDorContext);
@@ -68,30 +78,52 @@ export default function AppHeader() {
     }
   }, [context, verifyDiscard]);
 
-  const saveFile = useCallback(async () => {
-    try {
-      JSON.parse(context.offlineTD);
-    } catch (error) {
+  /**
+   * @description
+   * *save* tries to save the TD/TM via some intermediary or thing directory,
+   * which supports the Things API (https://www.w3.org/TR/wot-discovery/#exploration-directory-api-things).
+   *
+   * If there is no endpoint to such a Things API defined, it falls back to
+   * simply downloading it.
+   */
+  const save = useCallback(async () => {
+    const td = context.parsedTD;
+
+    if (!context.isValidJSON) {
       return alert(
-        "Didn't save TD. The given TD can't be parsed into a JSON object."
+        "Didn't save TD. The given TD can't even be parsed into a JSON object."
       );
     }
 
-    try {
+    setIsLoading(true);
+    const targetUrl = getTargetUrl();
+    if (targetUrl === "") {
+      // no target url provided, save to file
       const fileHandle = await fileTdService.saveToFile(
         context.name,
         context.fileHandle,
         context.offlineTD
       );
       context.setFileHandle(fileHandle ?? context.fileHandle);
-
-      context.updateIsModified(false);
-    } catch (error) {
-      console.debug(error);
-      alert(
-        "Didn't save TD. The action was either canceled or ran into an error."
-      );
+    } else {
+      // target url provided, try to save it through the Things API
+      try {
+        if (td.id) {
+          thingsApiService.createThing(td, targetUrl);
+        } else {
+          thingsApiService.createAnonymousThing(td, targetUrl);
+        }
+      } catch (error) {
+        console.debug(error);
+        alert(
+          "Didn't save TD. Please check if the provided target URL is correct and the intermediary / thing directory is working as intended."
+        );
+        return;
+      }
     }
+
+    context.updateIsModified(false);
+    setIsLoading(false);
   }, [context]);
 
   const createNewFile = useCallback(async () => {
@@ -114,8 +146,11 @@ export default function AppHeader() {
   const loadingCall = (func) => {
     return async () => {
       setIsLoading(true);
-      await func();
+      const res = await func();
       setIsLoading(false);
+
+      console.log(res);
+      return res;
     };
   };
 
@@ -127,7 +162,7 @@ export default function AppHeader() {
       ) {
         e.preventDefault();
         e.stopPropagation();
-        loadingCall(saveFile)();
+        loadingCall(save)();
       }
       if (
         (window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) &&
@@ -164,7 +199,7 @@ export default function AppHeader() {
       //Remove Eventlistener for shortcuts before unmounting component
       document.removeEventListener("keydown", shortcutHandler, false);
     };
-  }, [openFile, saveFile]);
+  }, [openFile, save]);
 
   const convertTmDialog = React.useRef();
   const openConvertTmDialog = () => {
@@ -181,76 +216,95 @@ export default function AppHeader() {
     createTdDialog.current.openModal();
   };
 
-  const chatDialog = React.useRef();
-  const openChatDialog = () => {
-    chatDialog.current.openModal();
+  const settingsDialog = React.useRef();
+  const openSettingsDialog = () => {
+    settingsDialog.current.openModal();
   };
-
-  const isChatEnabled = useCallback(() => {
-    return process.env.REACT_APP_OPENAI_KEY && process.env.REACT_APP_OPENAI_URI;
-  }, []);
-
-  /**
-   * @param {Object} td
-   * @returns {boolean}
-   */
-  function isThingModel(td) {
-    try {
-      td = JSON.parse(td);
-    } catch {
-      return false;
-    }
-
-    if (!td.hasOwnProperty("@type")) {
-      return false;
-    }
-
-    return td["@type"].indexOf("tm:ThingModel") > -1;
-  }
 
   return (
     <>
-      <header className="flex justify-between items-center h-16 bg-blue-500">
+      <header className="flex h-14 items-center justify-between bg-blue-500">
         <div className="flex items-center">
-          <img className="pl-2 h-12" src={wotLogo} alt="WOT" />
-          <div className="w-2"></div>
-          <button>
-            <img
-              className="pl-2 h-8"
-              src={editdorLogo}
-              alt="LOGO"
-              onClick={() =>
-                window.open("https://eclipse.github.io/editdor/", "_blank")
-              }
-            />
+          <button
+            className="ml-4"
+            onClick={() =>
+              window.open("https://eclipse.github.io/editdor/", "_blank")
+            }
+          >
+            <img className="min-w-36 max-w-36" src={editdorLogo} alt="LOGO" />
           </button>
         </div>
-        <div className="flex space-x-2 pr-2 items-center">
-          {isLoading && <div className="app-header-spinner" />}
-          {isChatEnabled() && <Button onClick={openChatDialog}>GPT</Button>}
-          <Button onClick={openShareDialog}>Share</Button>
-          <Button onClick={openCreateTdDialog}>New</Button>
-          <Button onClick={loadingCall(openFile)}>Open</Button>
-          <Button onClick={loadingCall(saveFile)}>Save</Button>
-          <Button onClick={loadingCall(createNewFile)}>Persist As File</Button>
-          {isThingModel(context.offlineTD) && (
-            <Button onClick={openConvertTmDialog}>Convert To TD</Button>
+
+        <div className="flex items-center gap-4 pr-2">
+          {isLoading && <div className="app-header-spinner hidden md:block" />}
+
+          <AppHeaderButton onClick={openShareDialog}>
+            <Share />
+            <div className="text-xs">Share</div>
+          </AppHeaderButton>
+
+          <div className="hidden md:block">
+            <AppHeaderButton onClick={loadingCall(save)}>
+              <Save />
+              <div className="text-xs">Save</div>
+            </AppHeaderButton>
+          </div>
+
+          <div className="hidden md:block">
+            <AppHeaderButton onClick={loadingCall(openFile)}>
+              <File />
+              <div className="text-xs">Open</div>
+            </AppHeaderButton>
+          </div>
+
+          <AppHeaderButton onClick={openCreateTdDialog}>
+            <FilePlus />
+            <div className="text-xs">Create</div>
+          </AppHeaderButton>
+
+          {isThingModel(context.parsedTD) && (
+            <AppHeaderButton onClick={openConvertTmDialog}>
+              <FileText />
+              <div className="text-xs">To TD</div>
+            </AppHeaderButton>
           )}
+
+          <AppHeaderButton onClick={loadingCall(createNewFile)}>
+            <Download />
+            <div className="text-xs">Download</div>
+          </AppHeaderButton>
+
+          <AppHeaderButton onClick={openSettingsDialog}>
+            <Settings />
+            <div className="text-xs">Settings</div>
+          </AppHeaderButton>
         </div>
       </header>
+
       <ConvertTmDialog ref={convertTmDialog} />
       <ShareDialog ref={shareDialog} />
       <CreateTdDialog ref={createTdDialog} />
-      <ChatDialog ref={chatDialog} />
+      <SettingsDialog ref={settingsDialog} />
       <input
         className="h-0"
         type="file"
         id="fileInput"
         style={{ display: "none" }}
-      ></input>
-      <a className="h-0" id="aDownload" href="/" style={{ display: "none" }}>
-        download
-      </a>
+      />
+      <a className="h-0" id="aDownload" href="/" style={{ display: "none" }} />
     </>
+  );
+}
+
+function AppHeaderButton(props) {
+  return (
+    <button
+      className="min-w-8 text-white hover:opacity-50"
+      onClick={props.onClick}
+    >
+      <div className="flex flex-col items-center justify-center gap-0.5">
+        {props.children}
+      </div>
+    </button>
   );
 }

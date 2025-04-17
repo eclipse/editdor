@@ -12,23 +12,29 @@
  ********************************************************************************/
 import React from "react";
 
+/**
+ * @typedef { import("../models").ValidationResults } ValidationResults
+ */
+
 export default React.createContext({
   offlineTD: "",
-  theme: "dark",
+  isValidJSON: true,
+  /** @type {Object} */
+  parsedTD: {},
+
   isModified: false,
   name: "",
   fileHandle: "",
   linkedTd: {},
+  /** @type {ValidationResults | undefined} */
   validationMessage: undefined,
 
   updateOfflineTD: (td) => {},
   updateIsModified: (isModified) => {},
   setFileHandle: (handle) => {},
-  removeForm: (form) => {},
-  addForm: (form) => {},
+  removeForm: (level, interactionName, index) => {},
+  addForm: (level, interactionName, form) => {},
   removeLink: (link) => {},
-  addActionForm: (params) => {},
-  addEventForm: (params) => {},
   removeOneOfAKindReducer: (kind, oneOfAKind) => {},
   addLinkedTd: (linkedTd) => {},
   updateLinkedTd: (linkedTd) => {},

@@ -83,10 +83,10 @@ export const AddPropertyDialog = forwardRef((_, ref) => {
         ]}
       />
       <div className="h-2"></div>
-      <label className="text-sm text-gray-400 font-medium pl-3">
+      <label className="pl-3 text-sm font-medium text-gray-400">
         Additional:
       </label>
-      <div id="additional" className="bg-gray-600 p-1 rounded-md">
+      <div id="additional" className="rounded-md bg-gray-600 p-1">
         <DialogCheckbox id={`${type}-readOnly`} label="Read Only" />
         <DialogCheckbox id={`${type}-observable`} label="Observable" />
       </div>
@@ -94,6 +94,11 @@ export const AddPropertyDialog = forwardRef((_, ref) => {
   );
 
   const onAddProperty = () => {
+    if (!context.isValidJSON) {
+      showErrorMessage(`Can't add Action. TD is malformed.`);
+      return;
+    }
+
     let property = {};
     property.title = document.getElementById(`${type}-title`).value;
     property.observable = document.getElementById(`${type}-observable`).checked;
@@ -113,27 +118,16 @@ export const AddPropertyDialog = forwardRef((_, ref) => {
     } else if (dataType === "object") {
       property.properties = {};
     }
-
     property.forms = [];
 
-    let td = JSON.parse(context.offlineTD);
+    const td = context.parsedTD;
     if (td[key] && td[key][property.title]) {
       showErrorMessage(`A ${name} with this title already exists...`);
     } else {
-      addPropertyToTd(property);
+      td[key] = { ...td[key], [property.title]: property };
+      context.updateOfflineTD(JSON.stringify(td, null, 2));
       close();
     }
-  };
-
-  const addPropertyToTd = (property) => {
-    let td = JSON.parse(context.offlineTD);
-
-    if (!td[key]) {
-      td[key] = {};
-    }
-    td[key][property.title] = property;
-    context.updateOfflineTD(JSON.stringify(td, null, 2));
-    return;
   };
 
   const showErrorMessage = (msg) => {
