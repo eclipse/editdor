@@ -22,7 +22,7 @@ import { AddFormDialog } from "../Dialogs/AddFormDialog";
 import { InfoIconWrapper } from "../InfoIcon/InfoIcon";
 import { getFormsTooltipContent } from "../InfoIcon/InfoTooltips";
 import Form from "./components/Form";
-import { InteractionSection } from "./components/InteractionSection";
+import InteractionSection from "./components/InteractionSection";
 import { RenderedObject } from "./components/RenderedObject";
 import ValidationView from "./components/ValidationSection";
 import LinkView from "./components/LinkSection";
