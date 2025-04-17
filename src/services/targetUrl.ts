@@ -27,4 +27,4 @@ const setTargetUrl = (targetUrl: string): void => {
   localStorage.setItem(TARGET_URL_KEY, targetUrl);
 };
 
-export { getTargetUrl, setTargetUrl, initializeTargetUrl };
+export { getTargetUrl, setTargetUrl };
