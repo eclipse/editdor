@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -25,7 +25,7 @@ import { Tooltip } from "react-tooltip";
  */
 export const InfoIconWrapper = (props) => {
   return (
-    <div className="flex flex-row items-center">
+    <div className="flex justify-center">
       <div className="pr-0.5">{props.children}</div>
       <button onClick={() => window.open(props.tooltip.href, "_blank")}>
         <InfoIcon html={props.tooltip.html} />
@@ -46,7 +46,7 @@ export const InfoIcon = (props) => {
     <>
       <Info
         color="grey"
-        size="16"
+        size="14"
         data-html={true}
         data-type="info"
         data-tip={props.html}

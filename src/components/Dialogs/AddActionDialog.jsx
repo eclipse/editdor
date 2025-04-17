@@ -66,6 +66,11 @@ export const AddActionDialog = forwardRef((_, ref) => {
   );
 
   const onAddAction = () => {
+    if (!context.isValidJSON) {
+      showErrorMessage(`Can't add Action. TD is malformed.`);
+      return;
+    }
+
     let action = {};
     action.title = document.getElementById(`${type}-title`).value;
 
@@ -75,26 +80,14 @@ export const AddActionDialog = forwardRef((_, ref) => {
     }
     action.forms = [];
 
-    let td = JSON.parse(context.offlineTD);
+    const td = context.parsedTD;
     if (td[key] && td[key][action.title]) {
       showErrorMessage(`An ${name} with this title already exists...`);
     } else {
-      addActionToTd(action);
+      td[key] = { ...td[key], [action.title]: action };
+      context.updateOfflineTD(JSON.stringify(td, null, 2));
       close();
     }
-  };
-
-  const addActionToTd = (action) => {
-    let td = JSON.parse(context.offlineTD);
-
-    if (!td[key]) {
-      td[key] = {};
-    }
-
-    td[key][action.title] = action;
-
-    context.updateOfflineTD(JSON.stringify(td, null, 2));
-    return;
   };
 
   const showErrorMessage = (msg) => {

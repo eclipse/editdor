@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -43,7 +43,7 @@ export const RenderedObject = (map) => {
         if (isObject(v)) {
           let indicator = (
             <button className="flex align-top" onClick={() => handleClick(i)}>
-              <div className="flex text-white font-bold bg-gray-600 py-1 px-2 rounded-md align-middle">
+              <div className="flex rounded-md bg-gray-600 px-2 py-1 align-middle font-bold text-white">
                 <h4>{k}</h4>
                 {showChildren[i] === true ? (
                   <ChevronDown className="pl-1" />
@@ -56,8 +56,8 @@ export const RenderedObject = (map) => {
 
           let children = (
             <div className="flex">
-              <div className="flex w-1 rounded-lg bg-gray-400 ml-2 my-1" />
-              <div className="pl-8 mt-1">
+              <div className="my-1 ml-2 flex w-1 rounded-lg bg-gray-400" />
+              <div className="mt-1 pl-8">
                 {showChildren[i] === true &&
                   (Object.entries(v) ?? []).map(([k1, v1], i1) => {
                     let m1 = {};
@@ -82,11 +82,11 @@ export const RenderedObject = (map) => {
           context.linkedTd[Object.keys(context.linkedTd)[0]]["@context"]
         );
         return (
-          <div className="flex mb-1" key={i}>
-            <h4 className="text-white font-bold bg-gray-600 py-1 px-2 rounded-md">
+          <div className="mb-1 flex" key={i}>
+            <h4 className="rounded-md bg-gray-600 px-2 py-1 font-bold text-white">
               {k}
             </h4>
-            <div className="text-gray-400 px-2 py-1">{value}</div>
+            <div className="px-2 py-1 text-gray-400">{value}</div>
           </div>
         );
       })}

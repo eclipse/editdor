@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -86,7 +86,7 @@ const createHtmlInputs = (td) => {
         <div key={holder} className="py-1">
           <label
             htmlFor={holder}
-            className="text-sm text-gray-400 font-medium pl-2"
+            className="pl-2 text-sm font-medium text-gray-400"
           >
             {holder}:
           </label>
@@ -94,7 +94,7 @@ const createHtmlInputs = (td) => {
             type="text"
             name={holder}
             id={holder}
-            className="border-gray-600 bg-gray-600 w-full p-2 sm:text-sm border-2 text-white rounded-md focus:outline-none focus:border-blue-500"
+            className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
             placeholder="Enter a value..."
           />
         </div>
@@ -158,7 +158,7 @@ const createHtmlInputs = (td) => {
     } catch (ignored) {}
 
     const divider = (
-      <h2 key="modalDividerText" className="text-gray-400 pb-2 pt-4">
+      <h2 key="modalDividerText" className="pb-2 pt-4 text-gray-400">
         {
           "Also, select/unselect the interaction affordances you would like to see in the new TD."
         }
@@ -265,7 +265,7 @@ const convertTmToTd = (td, htmlInputs) => {
   delete parse["@type"];
   delete parse["tm:required"];
 
-  localStorage.setItem("td", JSON.stringify(parse));
+  localStorage.setItem("td", JSON.stringify(parse, null, 2));
   window.open(
     `${window.location.origin + window.location.pathname}?localstorage`,
     "_blank"

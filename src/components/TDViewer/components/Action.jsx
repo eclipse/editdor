@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 - 2022 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -10,19 +10,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext } from "react";
-import { PlusCircle, Trash2 } from "react-feather";
+import React, { useContext, useState } from "react";
+import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../../util.js";
 import { AddFormDialog } from "../../Dialogs/AddFormDialog";
 import { InfoIconWrapper } from "../../InfoIcon/InfoIcon";
 import { getFormsTooltipContent } from "../../InfoIcon/InfoTooltips";
-import Form from "./Form";
+import Form, { AddFormElement } from "./Form";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
 
 export default function Action(props) {
   const context = useContext(ediTDorContext);
+
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const addFormDialog = React.useRef();
   const openAddFormDialog = () => {
@@ -42,6 +44,7 @@ export default function Action(props) {
 
   const action = props.action;
   const forms = separateForms(props.action.forms);
+
   const attributeListObject = buildAttributeListObject(
     { name: props.actionName },
     props.action,
@@ -60,41 +63,52 @@ export default function Action(props) {
   };
 
   return (
-    <details>
-      <summary className="text-xl text-gray-400 flex flex-row justify-start items-center cursor-pointer p-0.5">
-        <div className="flex-grow">{action.title ?? props.actionName}</div>
-        <button
-          className="text-base w-6 h-6 p-1 m-1 rounded-full bg-gray-400"
-          onClick={onDeleteActionClicked}
-        >
-          <Trash2 size={16} color="black" />
-        </button>
-      </summary>
-      <div className="mb-4">
-        <div className="text-lg text-gray-400 pb-2">{action.description}</div>
-        <ul className="text-base text-gray-300 list-disc pl-8">{attributes}</ul>
-        <div className="flex flex-row items-center ">
-          <div className="flex flex-grow">
-            <InfoIconWrapper
-              className=" flex-grow"
-              tooltip={getFormsTooltipContent()}
-            >
-              <h4 className="text-lg text-gray-400 pr-1 text-bold">Forms</h4>
-            </InfoIconWrapper>
-          </div>
-          <button onClick={openAddFormDialog}>
-            <PlusCircle color="#cacaca" size="18" />
+    <details
+      className="mb-1"
+      open={isExpanded}
+      onToggle={() => setIsExpanded(!isExpanded)}
+    >
+      <summary
+        className={`flex cursor-pointer items-center rounded-t-lg pl-2 text-xl font-bold text-white ${isExpanded ? "bg-gray-500" : ""}`}
+      >
+        <h3 className="flex-grow px-2">{action.title ?? props.actionName}</h3>
+        {isExpanded && (
+          <button
+            className="flex h-10 w-10 items-center justify-center self-stretch rounded-bl-md rounded-tr-md bg-gray-400 text-base"
+            onClick={onDeleteActionClicked}
+          >
+            <Trash2 size={16} color="white" />
           </button>
-          <AddFormDialog
-            type="action"
-            interaction={action}
-            interactionName={props.actionName}
-            ref={addFormDialog}
-          />
+        )}
+      </summary>
+
+      <div className="mb-4 rounded-b-lg bg-gray-500 px-2 pb-4">
+        {action.description && (
+          <div className="px-2 pb-2 text-lg text-gray-400">
+            {action.description}
+          </div>
+        )}
+        <ul className="list-disc pl-6 text-base text-gray-300">{attributes}</ul>
+
+        <div className="flex items-center justify-start pb-2 pt-2">
+          <InfoIconWrapper
+            className="flex-grow"
+            tooltip={getFormsTooltipContent()}
+          >
+            <h4 className="pr-1 text-lg font-bold text-white">Forms</h4>
+          </InfoIconWrapper>
         </div>
+
+        <AddFormElement onClick={openAddFormDialog} />
+        <AddFormDialog
+          type={"action"}
+          interaction={action}
+          interactionName={props.actionName}
+          ref={addFormDialog}
+        />
         {forms.map((form, i) => (
           <Form
-            key={i}
+            key={`${i}-${form.href}`}
             form={form}
             propName={props.actionName}
             interactionType={"action"}

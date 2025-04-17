@@ -15,166 +15,278 @@ export const UPDATE_IS_MODFIED = "UPDATE_IS_MODFIED";
 export const SET_FILE_HANDLE = "SET_FILE_HANDLE";
 export const REMOVE_FORM_FROM_TD = "REMOVE_FORM_FROM_TD";
 export const REMOVE_LINK_FROM_TD = "REMOVE_LINK_FROM_TD";
-export const ADD_PROPERTYFORM_TO_TD = "ADD_PROPERTYFORM_TO_TD";
-export const ADD_ACTIONFORM_TO_TD = "ADD_ACTIONFORM_TO_TD";
-export const ADD_EVENTFORM_TO_TD = "ADD_EVENTFORM_TO_TD";
+export const ADD_FORM_TO_TD = "ADD_FORM_TO_TD";
 export const REMOVE_ONE_OF_A_KIND_FROM_TD = "REMOVE_ONE_OF_A_KIND_FROM_TD";
 export const ADD_LINKED_TD = "ADD_LINKED_TD";
 export const UPDATE_LINKED_TD = "UPDATE_LINKED_TD";
 export const UPDATE_VALIDATION_MESSAGE = "UPDATE_VALIDATION_MESSAGE";
 
-const updateOfflineTDReducer = (offlineTD, state) => {
-  let linkedTd = state.linkedTd;
-  try {
-    //If the user write Thing description without wizard, we save it in linkedTd
-    if (!linkedTd) {
-      let parsedTd = JSON.parse(offlineTD);
-      linkedTd = {};
-      let href = parsedTd["title"] || "ediTDor Thing";
-      linkedTd[href] = parsedTd;
-    } else if (linkedTd && typeof state.fileHandle !== "object") {
-      let parsedTd = JSON.parse(offlineTD);
-      if (document.getElementById("linkedTd")) {
-        let href = document.getElementById("linkedTd").value;
-        if (href === "") {
-          linkedTd[parsedTd["title"] || "ediTDor Thing"] = parsedTd;
-        } else {
-          linkedTd[href] = parsedTd;
-        }
-      }
-    }
-  } catch (e) {
-    let error = e.message;
-    console.debug(error);
+export const editdorReducer = (state, action) => {
+  switch (action.type) {
+    case UPDATE_OFFLINE_TD:
+      return updateOfflineTDReducer(action.offlineTD, state);
+    case UPDATE_IS_MODFIED:
+      return updateIsModified(action.isModified, state);
+    case SET_FILE_HANDLE:
+      return updateFileHandleReducer(action.fileHandle, state);
+    case REMOVE_FORM_FROM_TD:
+      return removeFormReducer(
+        action.level,
+        action.interactionName,
+        action.toBeDeletedForm,
+        action.index,
+        state
+      );
+    case REMOVE_LINK_FROM_TD:
+      return removeLinkReducer(action.link, state);
+    case REMOVE_ONE_OF_A_KIND_FROM_TD:
+      return removeOneOfAKindReducer(action.kind, action.oneOfAKindName, state);
+    case ADD_FORM_TO_TD:
+      return addFormReducer(
+        action.level,
+        action.interactionName,
+        action.form,
+        state
+      );
+    case ADD_LINKED_TD:
+      return addLinkedTd(action.linkedTd, state);
+    case UPDATE_LINKED_TD:
+      return updateLinkedTd(action.linkedTd, state);
+    case UPDATE_VALIDATION_MESSAGE:
+      return updateValidationMessage(action.validationMessage, state);
+    default:
+      return state;
   }
-  return { ...state, offlineTD, isModified: true, linkedTd: linkedTd };
 };
 
-const removeFormReducer = (form, state) => {
-  let offlineTD = JSON.parse(state.offlineTD);
-  console.log(form);
-  if (form.type === "forms") {
-    offlineTD.forms.forEach((element, i) => {
-      if (typeof element.op === "string") {
-        offlineTD.forms.splice(i, 1);
+const updateOfflineTDReducer = (offlineTD, state) => {
+  if (offlineTD == state.offlineTD) {
+    return state;
+  }
+
+  if (offlineTD === "") {
+    return {
+      ...state,
+      offlineTD: "",
+      isModified: true,
+      isValidJSON: true,
+      parsedTD: {},
+    };
+  }
+
+  let parsedTD = undefined;
+  try {
+    parsedTD = JSON.parse(offlineTD);
+  } catch (e) {
+    console.error(e.message);
+    return {
+      ...state,
+      offlineTD: offlineTD,
+      isModified: true,
+      isValidJSON: false,
+      parsedTD: state.parsedTD,
+    };
+  }
+
+  let linkedTd = state.linkedTd;
+  if (!linkedTd) {
+    // If the user writes a Thing description without the wizard, we save it in linkedTd
+    const href = parsedTD["title"] || "ediTDor Thing";
+    linkedTd = { [href]: parsedTD };
+  } else if (linkedTd && typeof state.fileHandle !== "object") {
+    if (document.getElementById("linkedTd")) {
+      const href = document.getElementById("linkedTd").value;
+      if (href === "") {
+        linkedTd[parsedTD["title"] || "ediTDor Thing"] = parsedTD;
       } else {
-        if (
-          element.href === form.form.href &&
-          element.op.indexOf(form.form.op) !== -1
-        ) {
-          element.op.splice(element.op.indexOf(form.form.op), 1);
-        }
-        if (element.op.length === 0) {
-          offlineTD.forms.splice(i, 1);
-        }
+        linkedTd[href] = parsedTD;
       }
-    });
-  } else {
-    try {
-      offlineTD[form.type][form.propName].forms.forEach((element, i) => {
-        if (typeof element.op === "string") {
-          if (element.href === form.form.href) {
-            offlineTD[form.type][form.propName].forms.splice(i, 1);
-          }
-        } else {
-          if (
-            element.href === form.form.href &&
-            element.op.indexOf(form.form.op) !== -1
-          ) {
-            element.op.splice(element.op.indexOf(form.form.op), 1);
-          }
-          if (element.op.length === 0) {
-            offlineTD[form.type][form.propName].forms.splice(i, 1);
-          }
-        }
-      });
-    } catch (e) {
-      alert("Sorry we were unable to delete the Form.");
     }
   }
-  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+
+  return {
+    ...state,
+    offlineTD: offlineTD,
+    isModified: true,
+    isValidJSON: true,
+    linkedTd: linkedTd,
+    parsedTD: parsedTD,
+  };
+};
+
+/**
+ *
+ * @param {"thing" | "properties" | "actions" | "events"} level
+ * @param {string} interactionName
+ * @param {{href: string; op: string;}} toBeDeletedForm
+ * @param {number} index
+ * @param {Object} state
+ * @returns
+ */
+const removeFormReducer = (
+  level,
+  interactionName,
+  toBeDeletedForm,
+  index,
+  state
+) => {
+  if (!state.isValidJSON) {
+    return state;
+  }
+
+  let td = structuredClone(state.parsedTD);
+  let forms = undefined;
+  if (level === "thing") {
+    if (!td.forms || !Array.isArray(td.forms)) {
+      return state;
+    }
+
+    forms = td.forms;
+  } else {
+    // check whether the JSON structure to the to be deleted Form exists
+    if (
+      !td[level] ||
+      !td[level][interactionName] ||
+      !td[level][interactionName].forms
+    ) {
+      return state;
+    }
+
+    if (!Array.isArray(td[level][interactionName].forms)) {
+      return state;
+    }
+
+    forms = td[level][interactionName].forms;
+  }
+
+  // at this point we know that the wanted Forms attribute exists and that its an array
+  if (!forms || index > forms.length - 1) {
+    return state;
+  }
+
+  if (forms[index]?.op && Array.isArray(forms[index].op)) {
+    const opIndex = forms[index].op.indexOf(toBeDeletedForm.op);
+    if (opIndex === -1) {
+      return state;
+    }
+
+    forms[index].op.splice(opIndex, 1);
+    if (forms[index].op.length == 0) {
+      forms.splice(index, 1);
+    }
+  } else if (forms[index]?.op === toBeDeletedForm.op) {
+    forms.splice(index, 1);
+  }
+
+  return { ...state, offlineTD: JSON.stringify(td, null, 2), parsedTD: td };
 };
 
 const removeLinkReducer = (index, state) => {
-  let offlineTD = JSON.parse(state.offlineTD);
+  if (!state.isValidJSON) {
+    return state;
+  }
+
+  let td = structuredClone(state.parsedTD);
+
   try {
-    offlineTD["links"].splice(index, 1);
+    td.links.splice(index, 1);
   } catch (e) {
     alert("Sorry we were unable to delete the Link.");
   }
+
   let linkedTd = state.linkedTd;
   if (linkedTd && typeof state.fileHandle !== "object") {
+    // TODO: get rid of document.getElement check here
     if (document.getElementById("linkedTd")) {
       let href = document.getElementById("linkedTd").value;
       if (href === "") {
-        linkedTd[offlineTD["title"] || "ediTDor Thing"] = offlineTD;
+        linkedTd[td["title"] || "ediTDor Thing"] = td;
       } else {
-        linkedTd[href] = offlineTD;
+        linkedTd[href] = td;
       }
     }
   }
+
   return {
     ...state,
-    offlineTD: JSON.stringify(offlineTD, null, 2),
+    offlineTD: JSON.stringify(td, null, 2),
     linkedTd: linkedTd,
+    parsedTD: td,
   };
 };
 
 const removeOneOfAKindReducer = (kind, oneOfAKindName, state) => {
-  let offlineTD = JSON.parse(state.offlineTD);
+  if (!state.isValidJSON) {
+    return state;
+  }
+
+  let td = structuredClone(state.parsedTD);
+
   try {
-    delete offlineTD[kind][oneOfAKindName];
+    delete td[kind][oneOfAKindName];
   } catch (e) {
     alert("Sorry we were unable to delete the Form.");
   }
-  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+
+  return { ...state, offlineTD: JSON.stringify(td, null, 2), parsedTD: td };
 };
 
-const addPropertyFormReducer = (form, state) => {
-  let offlineTD = JSON.parse(state.offlineTD);
-  const property = offlineTD.properties[form.propName];
-  if (property.forms === undefined) {
-    property.forms = [];
+/**
+ *
+ * @param {"thing" | "properties" | "actions" | "events"} level
+ * @param {string} interactionName
+ * @param {Object} form
+ * @param {Object} state
+ * @returns
+ */
+const addFormReducer = (level, interactionName, form, state) => {
+  if (!state.isValidJSON) {
+    return state;
   }
-  property.forms.push(form.form);
-  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
+
+  let td = structuredClone(state.parsedTD);
+  if (level == "thing") {
+    if (td.forms && !Array.isArray(td.forms)) {
+      return state;
+    }
+
+    if (!td.forms) {
+      td.forms = [];
+    }
+
+    td.forms.push(form);
+    return { ...state, offlineTD: JSON.stringify(td, null, 2), parsedTD: td };
+  }
+
+  // interaction type or interaction itself doesn't exist
+  if (!td[level] || !td[level][interactionName]) {
+    return state;
+  }
+
+  const interaction = td[level][interactionName];
+  if (!interaction.forms) {
+    interaction.forms = [];
+  }
+  interaction.forms.push(form);
+
+  return { ...state, offlineTD: JSON.stringify(td, null, 2), parsedTD: td };
 };
 
 const addLinkedTd = (td, state) => {
+  let linkedTd = structuredClone(state.linkedTd);
   let resultingLinkedTd = {};
-  let linkedTd = state.linkedTd;
 
   if (linkedTd === undefined) {
     resultingLinkedTd = td;
   } else {
     resultingLinkedTd = Object.assign(linkedTd, td);
   }
+
   return { ...state, linkedTd: resultingLinkedTd };
 };
 
 const updateLinkedTd = (td, state) => {
   return { ...state, linkedTd: td };
-};
-
-const addActionFormReducer = (params, state) => {
-  let offlineTD = JSON.parse(state.offlineTD);
-  const action = offlineTD.actions[params.actionName];
-  console.log("ActionForms", action.forms);
-  if (action.forms === undefined) {
-    action.forms = [];
-  }
-  action.forms.push(params.form);
-  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
-};
-
-const addEventFormReducer = (params, state) => {
-  let offlineTD = JSON.parse(state.offlineTD);
-  const event = offlineTD.events[params.eventName];
-  if (event.forms === undefined) {
-    event.forms = [];
-  }
-  event.forms.push(params.form);
-  return { ...state, offlineTD: JSON.stringify(offlineTD, null, 2) };
 };
 
 const updateIsModified = (isModified, state) => {
@@ -188,37 +300,3 @@ const updateFileHandleReducer = (fileHandle, state) => {
 const updateValidationMessage = (validationMessage, state) => {
   return { ...state, validationMessage };
 };
-
-const editdorReducer = (state, action) => {
-  switch (action.type) {
-    case UPDATE_OFFLINE_TD:
-      return updateOfflineTDReducer(action.offlineTD, state);
-    case UPDATE_IS_MODFIED:
-      return updateIsModified(action.isModified, state);
-    case SET_FILE_HANDLE:
-      const newState = updateFileHandleReducer(action.fileHandle, state);
-      return newState;
-    case REMOVE_FORM_FROM_TD:
-      return removeFormReducer(action.form, state);
-    case REMOVE_LINK_FROM_TD:
-      return removeLinkReducer(action.link, state);
-    case REMOVE_ONE_OF_A_KIND_FROM_TD:
-      return removeOneOfAKindReducer(action.kind, action.oneOfAKindName, state);
-    case ADD_PROPERTYFORM_TO_TD:
-      return addPropertyFormReducer(action.form, state);
-    case ADD_ACTIONFORM_TO_TD:
-      return addActionFormReducer(action.params, state);
-    case ADD_EVENTFORM_TO_TD:
-      return addEventFormReducer(action.params, state);
-    case ADD_LINKED_TD:
-      return addLinkedTd(action.linkedTd, state);
-    case UPDATE_LINKED_TD:
-      return updateLinkedTd(action.linkedTd, state);
-    case UPDATE_VALIDATION_MESSAGE:
-      return updateValidationMessage(action.validationMessage, state);
-    default:
-      return state;
-  }
-};
-
-export { editdorReducer };

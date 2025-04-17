@@ -11,6 +11,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 
+import { direction } from "direction";
+
 /**
  * @param {Object} td
  * @returns {boolean}
@@ -77,36 +79,20 @@ export const separateForms = (forms) => {
     const form = forms[i];
 
     if (!Array.isArray(form.op)) {
+      form.actualIndex = i;
       newForms.push(form);
       continue;
     }
 
-    for (let i = 0; i < form.op.length; i++) {
+    for (let j = 0; j < form.op.length; j++) {
       const temp = { ...form };
-      temp.op = form.op[i];
+      temp.op = form.op[j];
+      temp.actualIndex = i;
       newForms.push(temp);
     }
   }
 
   return newForms;
-};
-
-/**
- *
- * @param {itemToCheck} itemToCheck
- *
- * Checks if item contains Forms
- *
- */
-export const hasForms = (itemToCheck) => {
-  return itemToCheck.forms ? true : false;
-};
-
-/**
- *Check if link exists in the links section of iteamToCheck
- */
-export const hasLinks = (itemToCheck) => {
-  return itemToCheck.links ? true : false;
 };
 
 /**
@@ -120,6 +106,7 @@ export const checkIfLinkIsInItem = (link, itemToCheck) => {
   }
   return false;
 };
+
 export const checkIfFormIsInItem = (form, itemToCheck) => {
   for (const element of itemToCheck.forms) {
     if (typeof form.op === "string") {
@@ -374,9 +361,7 @@ export const getDirectedValue = (source, key, atContext) => {
     !["title", "description"].includes(key) &&
     !/^[A-Za-z]{2}(-[A-Za-z]{2})?$/.test(key)
   ) {
-    return (
-      getDirectionSymbol(source[key].toString().getDirection()) + source[key]
-    );
+    return getDirectionSymbol(direction(source[key].toString())) + source[key];
   }
 
   if (/^[A-Za-z]{2}(-[A-Za-z]{2})?$/.test(key)) {
@@ -388,7 +373,7 @@ export const getDirectedValue = (source, key, atContext) => {
     return getDirectionSymbol("ltr") + source[key];
   }
 
-  let direction;
+  let textDirection;
   let lang;
 
   if (!Array.isArray(atContext)) {
@@ -397,13 +382,13 @@ export const getDirectedValue = (source, key, atContext) => {
 
   atContext.forEach((e) => {
     if (typeof e === "object") {
-      if (e["@direction"]) direction = e["@direction"];
+      if (e["@direction"]) textDirection = e["@direction"];
       if (e["@language"]) lang = e["@language"];
     }
   });
 
   if (key === "title" || key === "description") {
-    if (direction) return getDirectionSymbol(direction) + source[key];
+    if (textDirection) return getDirectionSymbol(textDirection) + source[key];
     if (lang) {
       const lookupKey = lang.includes("-")
         ? lang.split("-")[0]
@@ -414,7 +399,24 @@ export const getDirectedValue = (source, key, atContext) => {
     }
   }
 
-  return (
-    getDirectionSymbol(source[key].toString().getDirection()) + source[key]
-  );
+  return getDirectionSymbol(direction(source[key].toString())) + source[key];
+};
+
+export const encodeBody = function encodeBody(
+  data,
+  encoding = "application/json"
+) {
+  if (encoding === "application/x-www-form-urlencoded") {
+    let formBody = [];
+    for (const property in data) {
+      const encodedKey = encodeURIComponent(property);
+      const encodedValue = encodeURIComponent(data[property]);
+      formBody.push(encodedKey + "=" + encodedValue);
+    }
+    formBody = formBody.join("&");
+    return formBody;
+  } else {
+    console.log("No contentType found in Form so default will be used.");
+    return JSON.stringify(data);
+  }
 };
