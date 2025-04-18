@@ -50,7 +50,8 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
 
   const updateFilter = (event) => setFilter(event.target.value);
 
-  const isBaseModbus: boolean = !!td.base?.includes("modbus") || !!td.base?.includes("modbus+tcp");
+  const isBaseModbus: boolean =
+    !!td.base?.includes("modbus://") || !!td.base?.includes("modbus+tcp");
 
   const hasModbusProperties = (obj: IThingDescription): boolean => {
     if (!obj.properties || Object.keys(obj.properties).length === 0) {
@@ -62,7 +63,9 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
 
     return (
       isBaseModbus ||
-      Object.values(obj.properties).some((property) => property.forms?.some((form) => isHrefModbus(form)))
+      Object.values(obj.properties).some((property) =>
+        property.forms?.some((form) => isHrefModbus(form))
+      )
     );
   };
 
@@ -170,22 +173,42 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
 
     if (td.properties && interaction === "properties") {
       return Object.keys(filteredInteractions).map((key, index) => {
-        return <Property prop={filteredInteractions[key]} propName={key} key={index} />;
+        return (
+          <Property
+            prop={filteredInteractions[key]}
+            propName={key}
+            key={index}
+          />
+        );
       });
     }
     if (td.actions && interaction === "actions") {
       return Object.keys(filteredInteractions).map((key, index) => {
-        return <Action action={filteredInteractions[key]} actionName={key} key={index} />;
+        return (
+          <Action
+            action={filteredInteractions[key]}
+            actionName={key}
+            key={index}
+          />
+        );
       });
     }
     if (td.events && interaction === "events") {
       return Object.keys(filteredInteractions).map((key, index) => {
-        return <Event event={filteredInteractions[key]} eventName={key} key={index} />;
+        return (
+          <Event
+            event={filteredInteractions[key]}
+            eventName={key}
+            key={index}
+          />
+        );
       });
     }
   };
 
-  const createPropertyDialog = React.useRef<{ openModal: () => void } | null>(null);
+  const createPropertyDialog = React.useRef<{ openModal: () => void } | null>(
+    null
+  );
   const openCreatePropertyDialog = () => {
     if (createPropertyDialog.current) {
       createPropertyDialog.current.openModal();
@@ -211,7 +234,9 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       <div className="flex items-end justify-start pb-4 pt-8">
         <div className="flex flex-grow">
           <InfoIconWrapper tooltip={tooltipMapper[interaction]}>
-            <h2 className="flex-grow pr-1 text-2xl text-white">{props.interaction}</h2>
+            <h2 className="flex-grow pr-1 text-2xl text-white">
+              {props.interaction}
+            </h2>
           </InfoIconWrapper>
         </div>
         <SearchBar
@@ -236,15 +261,24 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         {addInteractionDialog}
       </div>
 
-      {interaction === "properties" && hasModbusProperties(td) && <EditProperties isBaseModbus={isBaseModbus} />}
-      {buildChildren() && <div className="rounded-lg bg-gray-600 px-4 pb-4 pt-4">{buildChildren()}</div>}
-      {!buildChildren() && <div className="rounded-lg bg-gray-600 px-6 pb-4 pt-4">{}</div>}
+      {interaction === "properties" && hasModbusProperties(td) && (
+        <EditProperties isBaseModbus={isBaseModbus} />
+      )}
+      {buildChildren() && (
+        <div className="rounded-lg bg-gray-600 px-4 pb-4 pt-4">
+          {buildChildren()}
+        </div>
+      )}
+      {!buildChildren() && (
+        <div className="rounded-lg bg-gray-600 px-6 pb-4 pt-4">{}</div>
+      )}
     </>
   );
 };
 
 InteractionSection.propTypes = {
-  interaction: PropTypes.oneOf(["Properties", "Actions", "Events"] as const).isRequired,
+  interaction: PropTypes.oneOf(["Properties", "Actions", "Events"] as const)
+    .isRequired,
 };
 
 export default InteractionSection;

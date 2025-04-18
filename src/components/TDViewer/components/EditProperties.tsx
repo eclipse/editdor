@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2025 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -15,7 +15,7 @@ import PropTypes from "prop-types";
 import ediTDorContext from "../../../context/ediTDorContext";
 import ButtonSwap from "../base/ButtonSwap";
 import IncrementButton from "../base/IncrementButton";
-import { IForm, IModbusForm, IThingDescription } from "types/td";
+import { IThingDescription } from "types/td";
 
 interface IEndianness {
   wordSwap: boolean;
@@ -31,91 +31,64 @@ const EditProperties: React.FC<IEditPropertiesProps> = (isBaseModbus) => {
   const td: IThingDescription = context.parsedTD;
   const [unitId, setUnitId] = useState<number>(255);
   const [addressOffset, setAddressOffset] = useState<boolean>(true);
-  const [endianness, setEndianness] = useState<IEndianness>({ wordSwap: true, byteSwap: false });
+  const [endianness, setEndianness] = useState<IEndianness>({
+    wordSwap: true,
+    byteSwap: false,
+  });
 
-  const handleUnitIdUpdate = (newValue: number) => {
-    setUnitId(newValue);
-
-    if (!td.properties) {
-      return;
-    }
-
-    const updateModbusUnitId = (forms: IModbusForm[]) => {
-      forms.forEach((form) => {
-        if (form.href.startsWith("modbus://") || form.href.startsWith("modbus+tcp://") || isBaseModbus) {
-          form["modbus:unitID"] = newValue;
-        }
-      });
-    };
+  const updateModbusProperty = (
+    propertyKey: string,
+    newValue: any,
+    type?: string
+  ) => {
+    if (!td.properties) return;
 
     Object.values(td.properties).forEach((property) => {
       if (property.forms) {
-        updateModbusUnitId(property.forms);
+        property.forms.forEach((form) => {
+          if (!form.href) return;
+          if (
+            isBaseModbus ||
+            form.href.startsWith("modbus://") ||
+            form.href.startsWith("modbus+tcp://")
+          ) {
+            if (type === "endianness") {
+              if (propertyKey === "wordSwap") {
+                form["modbus:mostSignificantWord"] = newValue;
+              } else if (propertyKey === "byteSwap") {
+                form["modbus:mostSignificantByte"] = newValue;
+              }
+            } else {
+              form[propertyKey] = newValue;
+            }
+          }
+        });
       }
     });
 
     context.updateOfflineTD(JSON.stringify(td, null, 2));
+  };
+
+  const handleUnitIdUpdate = (newValue: number) => {
+    setUnitId(newValue);
+    updateModbusProperty("modbus:unitID", newValue);
   };
 
   const handleAddressOffsetUpdate = (newValue: boolean) => {
     setAddressOffset(newValue);
-    if (!td.properties) {
-      return;
-    }
-    const updateModbusAddressOffset = (forms: IModbusForm[]) => {
-      forms.forEach((form) => {
-        if (form.href.startsWith("modbus://") || form.href.startsWith("modbus+tcp://") || isBaseModbus) {
-          form["modbus:zeroBasedAddressing"] = newValue;
-        }
-      });
-    };
-    Object.values(td.properties).forEach((property) => {
-      if (property.forms) {
-        updateModbusAddressOffset(property.forms);
-      }
-    });
-    context.updateOfflineTD(JSON.stringify(td, null, 2));
+    updateModbusProperty("modbus:zeroBasedAddressing", newValue);
   };
 
   const handleEndiannessUpdate = (newValue: boolean, type: string) => {
-    if (type === "wordSwap") {
-      setEndianness((prev) => ({ ...prev, wordSwap: newValue }));
-    }
-    if (type === "byteSwap") {
-      setEndianness((prev) => ({ ...prev, byteSwap: newValue }));
-    }
-    if (!td.properties) {
-      return;
-    }
-    const updateModbusEndianness = (forms: IModbusForm[]) => {
-      forms.forEach((form) => {
-        if (form.href.startsWith("modbus://") || form.href.startsWith("modbus+tcp://") || isBaseModbus) {
-          if (type === "wordSwap") {
-            form["modbus:mostSignificantWord"] = newValue;
-          } else if (type === "byteSwap") {
-            form["modbus:mostSignificantByte"] = newValue;
-          }
-        }
-      });
-    };
-    Object.values(td.properties).forEach((property) => {
-      if (property.forms) {
-        updateModbusEndianness(property.forms);
-      }
-    });
-    context.updateOfflineTD(JSON.stringify(td, null, 2));
+    setEndianness((prev) => ({ ...prev, [type]: newValue }));
+    updateModbusProperty(type, newValue, "endianness");
   };
 
   const AddressOffset = (
     <>
       <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-lg bg-white">
-        <div className="col-span-6 rounded-l-lg bg-blue-500">
-          <div className="grid h-full w-full grid-cols-12 p-2">
-            <div className="col-span-12 text-center font-bold text-white">Address Offset</div>
-            <div className="col-span-12 text-center text-white">
-              Should all addresses shift by one (false) or not (true){" "}
-            </div>
-          </div>
+        <div className="col-span-6 flex items-center justify-center rounded-l-lg bg-blue-500">
+          <h1 className="font-bold text-white">Address Offset</h1>
         </div>
         <div className="col-span-6 rounded-r-lg bg-blue-500">
           <div className="grid h-full w-full grid-cols-12">
@@ -141,26 +114,27 @@ const EditProperties: React.FC<IEditPropertiesProps> = (isBaseModbus) => {
   const Endianess = (
     <>
       <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-lg bg-white">
-        <div className="col-span-6 rounded-l-lg bg-blue-500">
-          <div className="grid h-full w-full grid-cols-12 p-2">
-            <div className="col-span-12 text-center font-bold text-white">Endianess</div>
-            <div className="col-span-12 text-center text-white">Should the words or bytes be swapped</div>
-          </div>
+        <div className="col-span-4 flex items-center justify-center rounded-l-lg bg-blue-500">
+          <h1 className="font-bold text-white">Endianess</h1>
         </div>
-        <div className="col-span-6 rounded-r-lg">
+        <div className="col-span-8 rounded-r-lg">
           <div className="grid h-full w-full grid-cols-12">
             <div id="firstRow" className="col-span-12 bg-blue-500">
               <ButtonSwap
                 description="wordswap"
                 value={endianness.wordSwap}
-                onClick={() => handleEndiannessUpdate(!endianness.wordSwap, "wordSwap")}
+                onClick={() =>
+                  handleEndiannessUpdate(!endianness.wordSwap, "wordSwap")
+                }
               />
             </div>
             <div id="secondRow" className="col-span-12 bg-blue-500">
               <ButtonSwap
                 description="byteswap"
                 value={endianness.byteSwap}
-                onClick={() => handleEndiannessUpdate(!endianness.byteSwap, "byteSwap")}
+                onClick={() =>
+                  handleEndiannessUpdate(!endianness.byteSwap, "byteSwap")
+                }
               />
             </div>
           </div>
@@ -171,16 +145,24 @@ const EditProperties: React.FC<IEditPropertiesProps> = (isBaseModbus) => {
 
   const UnidId = (
     <>
-      <div className="col-span-4 grid w-full grid-cols-12 gap-1 rounded-lg bg-white">
-        <div className="col-span-6 rounded-l-lg bg-blue-500">
-          <div className="grid w-full grid-cols-12 p-2">
-            <div className="col-span-12 text-center font-bold text-white">Unit Id</div>
-            <div className="col-span-12 text-center text-white">Slave Address of the modbus device</div>
-          </div>
+      <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-lg bg-white">
+        <div className="col-span-6 flex items-center justify-center rounded-l-lg bg-blue-500">
+          <h1 className="font-bold text-white">Unit ID</h1>
         </div>
         <div className="col-span-6 rounded-r-lg bg-blue-500">
           <div className="grid h-full w-full grid-cols-12">
-            <IncrementButton value={unitId} onUpdate={handleUnitIdUpdate}></IncrementButton>
+            <div className="col-span-12"></div>
+            <div className="col-span-12">
+              <div className="grid h-full w-full grid-cols-12">
+                <div id="firstRow" className="col-span-12 bg-blue-500">
+                  <IncrementButton
+                    value={unitId}
+                    onUpdate={handleUnitIdUpdate}
+                  ></IncrementButton>
+                </div>
+              </div>
+            </div>
+            <div className="col-span-12"></div>
           </div>
         </div>
       </div>
@@ -188,15 +170,24 @@ const EditProperties: React.FC<IEditPropertiesProps> = (isBaseModbus) => {
   );
   return (
     <>
-      <div className="mb-5 grid grid-cols-12 gap-2">
-        <div id="unitId" className="qh-1/3 col-span-4 rounded-lg bg-gray-600 px-2">
+      <div className="grid grid-cols-12 gap-1">
+        <div
+          id="unitId"
+          className="col-span-4 h-full rounded-lg bg-gray-600 px-2"
+        >
           {UnidId}
         </div>
 
-        <div id="addressOffset" className="col-span-4 rounded-lg bg-gray-600 px-2">
+        <div
+          id="addressOffset"
+          className="col-span-4 h-full rounded-lg bg-gray-600 px-2"
+        >
           {AddressOffset}
         </div>
-        <div id="endianess" className="col-span-4 rounded-lg bg-gray-600 px-2">
+        <div
+          id="endianess"
+          className="col-span-4 h-full rounded-lg bg-gray-600 px-2"
+        >
           {Endianess}
         </div>
       </div>

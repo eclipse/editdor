@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 - 2025 Contributors to the Eclipse Foundation
+ * Copyright (c) 2018 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -20,7 +20,11 @@ interface IButtonSwapProps {
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-const ButtonSwap: React.FC<IButtonSwapProps> = ({ value, description, onClick }) => {
+const ButtonSwap: React.FC<IButtonSwapProps> = ({
+  value,
+  description,
+  onClick,
+}) => {
   return (
     <div className="grid h-full w-full grid-cols-12 pb-1 pt-1">
       {description ? (
