@@ -16,6 +16,12 @@ import ediTDorContext from "../../../context/ediTDorContext";
 import ButtonSwap from "../base/ButtonSwap";
 import IncrementButton from "../base/IncrementButton";
 import { IThingDescription } from "types/td";
+import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
+import {
+  getAddressOffsetTooltipContent,
+  getEndiannessTooltipContent,
+  getUniIdTooltipContent,
+} from "../../InfoIcon/InfoTooltips";
 
 interface IEndianness {
   wordSwap: boolean;
@@ -88,7 +94,12 @@ const EditProperties: React.FC<IEditPropertiesProps> = (isBaseModbus) => {
     <>
       <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-lg bg-white">
         <div className="col-span-6 flex items-center justify-center rounded-l-lg bg-blue-500">
-          <h1 className="font-bold text-white">Address Offset</h1>
+          <InfoIconWrapper
+            tooltip={getAddressOffsetTooltipContent()}
+            id="addressOffset"
+          >
+            <h1 className="p-2 font-bold text-white">Address Offset</h1>
+          </InfoIconWrapper>
         </div>
         <div className="col-span-6 rounded-r-lg bg-blue-500">
           <div className="grid h-full w-full grid-cols-12">
@@ -115,7 +126,12 @@ const EditProperties: React.FC<IEditPropertiesProps> = (isBaseModbus) => {
     <>
       <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-lg bg-white">
         <div className="col-span-4 flex items-center justify-center rounded-l-lg bg-blue-500">
-          <h1 className="font-bold text-white">Endianess</h1>
+          <InfoIconWrapper
+            tooltip={getEndiannessTooltipContent()}
+            id="endianess"
+          >
+            <h1 className="p-2 font-bold text-white">Endianess</h1>
+          </InfoIconWrapper>
         </div>
         <div className="col-span-8 rounded-r-lg">
           <div className="grid h-full w-full grid-cols-12">
@@ -147,7 +163,9 @@ const EditProperties: React.FC<IEditPropertiesProps> = (isBaseModbus) => {
     <>
       <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-lg bg-white">
         <div className="col-span-6 flex items-center justify-center rounded-l-lg bg-blue-500">
-          <h1 className="font-bold text-white">Unit ID</h1>
+          <InfoIconWrapper tooltip={getUniIdTooltipContent()} id="unitId">
+            <h1 className="p-2 font-bold text-white">Unit ID</h1>
+          </InfoIconWrapper>
         </div>
         <div className="col-span-6 rounded-r-lg bg-blue-500">
           <div className="grid h-full w-full grid-cols-12">
