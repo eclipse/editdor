@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 
-import React, { useContext, useEffect, useCallback } from "react";
+import React, { useContext, useCallback } from "react";
 import ediTDorContext from "../../context/ediTDorContext";
 import {
   buildAttributeListObject,
@@ -19,7 +19,7 @@ import {
   separateForms,
 } from "../../util";
 import { AddFormDialog } from "../Dialogs/AddFormDialog";
-import { InfoIconWrapper } from "../InfoIcon/InfoIcon";
+import InfoIconWrapper from "../InfoIcon/InfoIconWrapper";
 import { getFormsTooltipContent } from "../InfoIcon/InfoTooltips";
 import Form from "./components/Form";
 import InteractionSection from "./components/InteractionSection";
@@ -153,7 +153,7 @@ export default function TDViewer() {
       <details className="pt-8">
         <summary className="flex cursor-pointer items-center justify-start">
           <div className="flex flex-grow">
-            <InfoIconWrapper tooltip={getFormsTooltipContent()}>
+            <InfoIconWrapper tooltip={getFormsTooltipContent()} id="forms">
               <h2 className="flex-grow p-1 text-2xl text-white">Forms</h2>
             </InfoIconWrapper>
           </div>

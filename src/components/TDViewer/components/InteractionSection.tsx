@@ -17,7 +17,7 @@ import ediTDorContext from "../../../context/ediTDorContext";
 import { AddActionDialog } from "../../Dialogs/AddActionDialog";
 import { AddEventDialog } from "../../Dialogs/AddEventDialog";
 import { AddPropertyDialog } from "../../Dialogs/AddPropertyDialog";
-import { InfoIconWrapper } from "../../InfoIcon/InfoIcon";
+import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import { tooltipMapper } from "../../InfoIcon/InfoTooltips";
 import Action from "./Action";
 import Event from "./Event";
@@ -233,7 +233,10 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     <>
       <div className="flex items-end justify-start pb-4 pt-8">
         <div className="flex flex-grow">
-          <InfoIconWrapper tooltip={tooltipMapper[interaction]}>
+          <InfoIconWrapper
+            tooltip={tooltipMapper[interaction]}
+            id={interaction}
+          >
             <h2 className="flex-grow pr-1 text-2xl text-white">
               {props.interaction}
             </h2>
