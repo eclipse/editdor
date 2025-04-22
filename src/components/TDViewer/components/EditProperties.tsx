@@ -34,7 +34,7 @@ interface IEditPropertiesProps {
 
 const EditProperties: React.FC<IEditPropertiesProps> = (isBaseModbus) => {
   const context = useContext(ediTDorContext);
-  const td: IThingDescription = context.parsedTD;
+  const td: IThingDescription = JSON.parse(context.offlineTD);
   const [unitId, setUnitId] = useState<number>(255);
   const [addressOffset, setAddressOffset] = useState<boolean>(true);
   const [endianness, setEndianness] = useState<IEndianness>({
@@ -49,10 +49,14 @@ const EditProperties: React.FC<IEditPropertiesProps> = (isBaseModbus) => {
   ) => {
     if (!td.properties) return;
 
-    Object.values(td.properties).forEach((property) => {
+    Object.entries(td.properties).forEach(([key, property]) => {
       if (property.forms) {
         property.forms.forEach((form) => {
-          if (!form.href) return;
+          if (!form.href) {
+            alert(`Form href is empty on property: ${key}`);
+            return;
+          }
+
           if (
             isBaseModbus ||
             form.href.startsWith("modbus://") ||
