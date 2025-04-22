@@ -88,7 +88,8 @@ export const getUniIdTooltipContent: TooltipFunction = () => {
                     <br />
                     <p></p>
                 `;
-  const href = "";
+  const href =
+    "https://w3c.github.io/wot-binding-templates/bindings/protocols/modbus/#url-terms";
 
   return new TooltipContent(html, href);
 };
@@ -99,7 +100,8 @@ export const getAddressOffsetTooltipContent: TooltipFunction = () => {
                     <br />
                     <p></p>
                 `;
-  const href = "";
+  const href =
+    "https://w3c.github.io/wot-binding-templates/bindings/protocols/modbus/#form-terms";
 
   return new TooltipContent(html, href);
 };
@@ -110,7 +112,8 @@ export const getEndiannessTooltipContent: TooltipFunction = () => {
                     <br />
                     <p></p>
                 `;
-  const href = "";
+  const href =
+    "https://w3c.github.io/wot-binding-templates/bindings/protocols/modbus/#form-terms";
 
   return new TooltipContent(html, href);
 };
