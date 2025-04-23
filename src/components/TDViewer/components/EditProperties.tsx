@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import ediTDorContext from "../../../context/ediTDorContext";
 import ButtonSwap from "../base/ButtonSwap";
@@ -28,6 +28,13 @@ interface IEndianness {
   byteSwap: boolean;
 }
 
+interface IValidationResults {
+  unitID: boolean;
+  zeroBasedAddressing: boolean;
+  mostSignificantWord: boolean;
+  mostSignificantByte: boolean;
+}
+
 interface IEditPropertiesProps {
   isBaseModbus: boolean;
 }
@@ -35,10 +42,10 @@ interface IEditPropertiesProps {
 const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
   const context = useContext(ediTDorContext);
   const td: IThingDescription = JSON.parse(context.offlineTD);
-  const [unitId, setUnitId] = useState<number>(255);
+  const [unitId, setUnitId] = useState<number>(0);
   const [addressOffset, setAddressOffset] = useState<boolean>(true);
   const [endianness, setEndianness] = useState<IEndianness>({
-    wordSwap: true,
+    wordSwap: false,
     byteSwap: false,
   });
 
@@ -93,6 +100,120 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
     updateModbusProperty(type, newValue, "endianness");
   };
 
+  const validateModbusProperties: IValidationResults = React.useMemo(() => {
+    const results: IValidationResults = {
+      unitID: true,
+      zeroBasedAddressing: true,
+      mostSignificantWord: true,
+      mostSignificantByte: true,
+    };
+
+    if (!td.properties) return results;
+
+    const firstValues: {
+      unitID?: number;
+      zeroBasedAddressing?: boolean;
+      mostSignificantWord?: boolean;
+      mostSignificantByte?: boolean;
+    } = {};
+
+    const foundAny: {
+      unitID: boolean;
+      zeroBasedAddressing: boolean;
+      mostSignificantWord: boolean;
+      mostSignificantByte: boolean;
+    } = {
+      unitID: false,
+      zeroBasedAddressing: false,
+      mostSignificantWord: false,
+      mostSignificantByte: false,
+    };
+
+    for (const [key, property] of Object.entries(td.properties)) {
+      if (!property.forms) continue;
+
+      for (const form of property.forms) {
+        if (!form.href) continue;
+
+        if (
+          props.isBaseModbus ||
+          form.href.startsWith("modbus://") ||
+          form.href.startsWith("modbus+tcp://")
+        ) {
+          const currentUnitId = form["modbus:unitID"];
+          if (currentUnitId !== undefined) {
+            if (!foundAny.unitID) {
+              firstValues.unitID = currentUnitId;
+              foundAny.unitID = true;
+
+              if (unitId !== currentUnitId) {
+                setUnitId(currentUnitId);
+              }
+            } else if (currentUnitId !== firstValues.unitID) {
+              results.unitID = false;
+            }
+          }
+
+          const currentZeroBasedAddressing = form["modbus:zeroBasedAddressing"];
+          if (currentZeroBasedAddressing !== undefined) {
+            if (!foundAny.zeroBasedAddressing) {
+              firstValues.zeroBasedAddressing = currentZeroBasedAddressing;
+              foundAny.zeroBasedAddressing = true;
+
+              if (addressOffset !== currentZeroBasedAddressing) {
+                setAddressOffset(currentZeroBasedAddressing);
+              }
+            } else if (
+              currentZeroBasedAddressing !== firstValues.zeroBasedAddressing
+            ) {
+              results.zeroBasedAddressing = false;
+            }
+          }
+
+          const currentMostSignificantWord = form["modbus:mostSignificantWord"];
+          if (currentMostSignificantWord !== undefined) {
+            if (!foundAny.mostSignificantWord) {
+              firstValues.mostSignificantWord = currentMostSignificantWord;
+              foundAny.mostSignificantWord = true;
+
+              if (endianness.wordSwap !== currentMostSignificantWord) {
+                setEndianness((prev) => ({
+                  ...prev,
+                  wordSwap: currentMostSignificantWord,
+                }));
+              }
+            } else if (
+              currentMostSignificantWord !== firstValues.mostSignificantWord
+            ) {
+              results.mostSignificantWord = false;
+            }
+          }
+
+          const currentMostSignificantByte = form["modbus:mostSignificantByte"];
+          if (currentMostSignificantByte !== undefined) {
+            if (!foundAny.mostSignificantByte) {
+              firstValues.mostSignificantByte = currentMostSignificantByte;
+              foundAny.mostSignificantByte = true;
+
+              if (endianness.byteSwap !== currentMostSignificantByte) {
+                setEndianness((prev) => ({
+                  ...prev,
+                  byteSwap: currentMostSignificantByte,
+                }));
+              }
+            } else if (
+              currentMostSignificantByte !== firstValues.mostSignificantByte
+            ) {
+              results.mostSignificantByte = false;
+            }
+          }
+        }
+      }
+    }
+
+    return results;
+  }, [td.properties, props.isBaseModbus, unitId, addressOffset, endianness]);
+
   const AddressOffset = (
     <>
       <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-lg bg-white">
@@ -125,15 +246,15 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
     </>
   );
 
-  const Endianess = (
+  const Endianness = (
     <>
       <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-lg bg-white">
         <div className="col-span-4 flex items-center justify-center rounded-l-lg bg-blue-500">
           <InfoIconWrapper
             tooltip={getEndiannessTooltipContent()}
-            id="endianess"
+            id="endianness"
           >
-            <h1 className="p-2 font-bold text-white">Endianess</h1>
+            <h1 className="p-2 font-bold text-white">Endianness</h1>
           </InfoIconWrapper>
         </div>
         <div className="col-span-8 rounded-r-lg">
@@ -196,20 +317,73 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
           id="unitId"
           className="col-span-4 h-full rounded-lg bg-gray-600 px-2"
         >
-          {UnidId}
+          {validateModbusProperties.unitID ? (
+            UnidId
+          ) : (
+            <>
+              <div className="flex h-full flex-col">
+                <div className="flex-grow">{UnidId}</div>
+                <div className="rounded-lg p-1 text-center">
+                  <h1 className="rounded-lg border-2 border-red-500 p-1 font-bold text-red-600">
+                    Different unit id is detected on different affordances.
+                    Clicking + or - will set all to the same value
+                  </h1>
+                </div>
+              </div>
+            </>
+          )}
         </div>
-
         <div
           id="addressOffset"
           className="col-span-4 h-full rounded-lg bg-gray-600 px-2"
         >
-          {AddressOffset}
+          {validateModbusProperties.zeroBasedAddressing ? (
+            AddressOffset
+          ) : (
+            <>
+              <div className="flex h-full flex-col">
+                <div className="flex-grow">{AddressOffset}</div>
+
+                <div className="rounded-lg p-1 text-center">
+                  <h1 className="rounded-lg border-2 border-red-500 p-1 font-bold text-red-600">
+                    Different address offset is detected on different
+                    affordances. Clicking to swap and set all to the same value
+                  </h1>
+                </div>
+              </div>
+            </>
+          )}
         </div>
+
         <div
-          id="endianess"
+          id="endianness"
           className="col-span-4 h-full rounded-lg bg-gray-600 px-2"
         >
-          {Endianess}
+          {validateModbusProperties.mostSignificantByte &&
+          validateModbusProperties.mostSignificantWord ? (
+            Endianness
+          ) : (
+            <>
+              <div className="col-span-12">{Endianness}</div>
+              <div className="col-span-12 p-1">
+                <div className="rounded-lg text-center">
+                  <h1 className="rounded-lg border-2 border-red-500 p-1 font-bold text-red-600">
+                    Different endianness (
+                    {[
+                      !validateModbusProperties.mostSignificantWord &&
+                        "wordSwap",
+                      !validateModbusProperties.mostSignificantByte &&
+                        "byteSwap",
+                    ]
+                      .filter(Boolean)
+                      .join(" and ")}
+                    ) is detected on different affordances. Clicking to swap and
+                    set all to the same value
+                  </h1>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </>
