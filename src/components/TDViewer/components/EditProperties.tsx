@@ -32,7 +32,7 @@ interface IEditPropertiesProps {
   isBaseModbus: boolean;
 }
 
-const EditProperties: React.FC<IEditPropertiesProps> = (isBaseModbus) => {
+const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
   const context = useContext(ediTDorContext);
   const td: IThingDescription = JSON.parse(context.offlineTD);
   const [unitId, setUnitId] = useState<number>(255);
@@ -56,9 +56,8 @@ const EditProperties: React.FC<IEditPropertiesProps> = (isBaseModbus) => {
             alert(`Form href is empty on property: ${key}`);
             return;
           }
-
           if (
-            isBaseModbus ||
+            props.isBaseModbus ||
             form.href.startsWith("modbus://") ||
             form.href.startsWith("modbus+tcp://")
           ) {
