@@ -9,7 +9,7 @@ https://eclipse.github.io/editdor/
 
 ## About this project
 
-This project aims to make it easy to create W3C Thing Description instances and Thing Models by providing a platform-independent ediTDor tool. The following features are addressed in this project
+This project aims to make creating W3C Thing Description instances and Thing Models easy by providing a platform-independent ediTDor tool. The following features are addressed in this project
 
 - Creating a new Thing Description / ThingModel from scratch
 - Rendering a Thing Description / Thing Model
