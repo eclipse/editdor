@@ -24,11 +24,20 @@ import { getFormsTooltipContent } from "../InfoIcon/InfoTooltips";
 import Form from "./components/Form";
 import InteractionSection from "./components/InteractionSection";
 import { RenderedObject } from "./components/RenderedObject";
-import ValidationView from "./components/ValidationSection";
+import ValidationView from "./components/ValidationView";
 import LinkView from "./components/LinkSection";
 import { useDropzone } from "react-dropzone";
 
-export default function TDViewer() {
+interface ITDViewerProps {
+  onUndo: () => void;
+  onRedo: () => void;
+}
+
+interface IAddFormDialogRef {
+  openModal: () => void;
+}
+
+const TDViewer: React.FC<ITDViewerProps> = ({ onUndo, onRedo }) => {
   const context = useContext(ediTDorContext);
   const td = context.parsedTD;
   const alreadyRenderedKeys = [
@@ -42,25 +51,25 @@ export default function TDViewer() {
     "links",
   ];
 
-  const addFormDialog = React.useRef();
+  const addFormDialog = React.useRef<IAddFormDialogRef>();
   const openAddFormDialog = () => {
-    addFormDialog.current.openModal();
+    addFormDialog.current?.openModal();
   };
 
   const onDrop = useCallback(
-    (acceptedFiles) => {
+    (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
       const reader = new FileReader();
-      reader.onabort = () => console.error("File reading  - aborted");
-      reader.onerror = () => console.error("File reading - failed");
-      reader.onload = () => {
+      reader.onabort = (): void => console.error("File reading  - aborted");
+      reader.onerror = (): void => console.error("File reading - failed");
+      reader.onload = (): void => {
         const fileData = {
           td: reader.result,
           fileName: file.name,
           fileHandle: file,
         };
         try {
-          let linkedTd = {};
+          let linkedTd: Record<string, File> = {};
           linkedTd[fileData.fileName] = fileData.fileHandle;
           context.updateOfflineTD(fileData.td);
           context.updateIsModified(false);
@@ -115,7 +124,7 @@ export default function TDViewer() {
     );
   }
 
-  let forms;
+  let forms: JSX.Element[] | undefined;
   if (td.forms) {
     const formsSeparated = separateForms(td.forms);
     forms = formsSeparated.map((key, index) => {
@@ -131,7 +140,7 @@ export default function TDViewer() {
 
   return (
     <div className="h-full w-full overflow-auto bg-gray-500 p-6">
-      <ValidationView />
+      <ValidationView onUndo={onUndo} onRedo={onRedo} />
       {td !== undefined && Object.keys(td).length > 0 && (
         <div>
           <div className="text-3xl text-white">
@@ -181,4 +190,6 @@ export default function TDViewer() {
       <div className="h-10"></div>
     </div>
   );
-}
+};
+
+export default TDViewer;
