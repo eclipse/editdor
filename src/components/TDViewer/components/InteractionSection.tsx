@@ -12,7 +12,6 @@
  ********************************************************************************/
 
 import React, { useContext, useState } from "react";
-import PropTypes from "prop-types";
 import ediTDorContext from "../../../context/ediTDorContext";
 import AddActionDialog from "../../Dialogs/AddActionDialog";
 import AddEventDialog from "../../Dialogs/AddEventDialog";
