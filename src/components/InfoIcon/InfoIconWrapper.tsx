@@ -11,7 +11,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React from "react";
-import PropTypes from "prop-types";
 import { Info } from "react-feather";
 import { Tooltip } from "react-tooltip";
 
