@@ -167,7 +167,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
     context.updateOfflineTD(editorText);
     context.updateValidationMessage(undefined);
     setLocalTextState(editorText);
-    delay(messageWorkers, editorText, 500);
+    delay(messageWorkers, editorText ?? "", 500);
   };
 
   useEffect(() => {

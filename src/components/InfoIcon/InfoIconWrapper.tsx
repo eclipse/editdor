@@ -11,7 +11,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React from "react";
-import PropTypes from "prop-types";
 import { Info } from "react-feather";
 import { Tooltip } from "react-tooltip";
 
@@ -45,15 +44,6 @@ const InfoIconWrapper: React.FC<IInfoIconWrapperProps> = (props) => {
   );
 };
 
-InfoIconWrapper.propTypes = {
-  tooltip: PropTypes.shape({
-    html: PropTypes.string.isRequired,
-    href: PropTypes.string.isRequired,
-  }).isRequired,
-  children: PropTypes.any,
-  id: PropTypes.string.isRequired,
-};
-
 interface IInfoIconProps {
   html: string;
   id: string;
@@ -73,11 +63,6 @@ export const InfoIcon: React.FC<IInfoIconProps> = (props) => {
       <Tooltip id={props.id} place="top" className="z-10" />
     </>
   );
-};
-
-InfoIcon.propTypes = {
-  html: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
 };
 
 export default InfoIconWrapper;

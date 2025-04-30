@@ -10,8 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext, useState, useMemo } from "react";
-import PropTypes from "prop-types";
+import React, { useContext, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
 import ButtonSwap from "../base/ButtonSwap";
 import IncrementButton from "../base/IncrementButton";
@@ -388,10 +387,6 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
       </div>
     </>
   );
-};
-
-EditProperties.propTypes = {
-  isBaseModbus: PropTypes.bool.isRequired,
 };
 
 export default EditProperties;

@@ -12,7 +12,6 @@
  ********************************************************************************/
 import React from "react";
 import { Plus, Minus } from "react-feather";
-import { useState } from "react";
 
 interface IIncrementButtonProps {
   value: number;

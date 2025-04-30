@@ -11,7 +11,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React from "react";
-import PropTypes from "prop-types";
 import { RefreshCcw } from "react-feather";
 
 interface IButtonSwapProps {
@@ -52,12 +51,6 @@ const ButtonSwap: React.FC<IButtonSwapProps> = ({
       </div>
     </div>
   );
-};
-
-ButtonSwap.propTypes = {
-  description: PropTypes.string.isRequired,
-  value: PropTypes.bool.isRequired,
-  onClick: PropTypes.func.isRequired,
 };
 
 export default ButtonSwap;
