@@ -15,7 +15,7 @@ import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../../util.js";
 import { AddFormDialog } from "../../Dialogs/AddFormDialog";
-import { InfoIconWrapper } from "../../InfoIcon/InfoIcon";
+import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import { getFormsTooltipContent } from "../../InfoIcon/InfoTooltips";
 import Form, { AddFormElement } from "./Form";
 
@@ -94,6 +94,7 @@ export default function Action(props) {
           <InfoIconWrapper
             className="flex-grow"
             tooltip={getFormsTooltipContent()}
+            id="actions"
           >
             <h4 className="pr-1 text-lg font-bold text-white">Forms</h4>
           </InfoIconWrapper>

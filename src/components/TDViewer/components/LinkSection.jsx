@@ -16,7 +16,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { changeBetweenTd } from "../../../util";
 import { AddLinkTdDialog } from "../../Dialogs/AddLinkTdDialog";
-import { InfoIconWrapper } from "../../InfoIcon/InfoIcon";
+import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import { getLinksTooltipContent } from "../../InfoIcon/InfoTooltips";
 import Link from "./Link";
 
@@ -242,7 +242,7 @@ export default function LinkView(props) {
     <details className="pt-8">
       <summary className="flex cursor-pointer items-center justify-start">
         <div className="flex flex-grow">
-          <InfoIconWrapper tooltip={getLinksTooltipContent()}>
+          <InfoIconWrapper tooltip={getLinksTooltipContent()} id="links">
             <h2 className="flex-grow p-1 text-2xl text-white">Links</h2>
           </InfoIconWrapper>
 
