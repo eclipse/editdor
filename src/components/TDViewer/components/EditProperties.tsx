@@ -317,6 +317,7 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
       </div>
     </>
   );
+
   return (
     <>
       <div className="grid grid-cols-12 gap-1 rounded-t-md bg-gray-600 px-2">

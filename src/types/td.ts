@@ -50,13 +50,17 @@ export interface IForm {
 }
 
 export interface IModbusForm extends IForm {
-  "modbus:unitID"?: number;
-  "modbus:address"?: number;
-  "modbus:quantity"?: number;
-  "modbus:zeroBasedAddressing"?: boolean;
-  "modbus:entity"?: string;
-  "modbus:mostSignificantByte"?: boolean;
-  "modbus:mostSignificantWord"?: boolean;
+  "modbus:unitID": number;
+  "modbus:address": number;
+  "modbus:quantity": number;
+  "modbus:type"?: string;
+  "modbus:zeroBasedAddressing": boolean;
+  "modbus:entity": string;
+  "modbus:pollingTime"?: string;
+  "modbus:function"?: string;
+  "modbus:mostSignificantByte": boolean;
+  "modbus:mostSignificantWord": boolean;
+  "modbus:timeout"?: string;
 }
 
 export interface IProperty {

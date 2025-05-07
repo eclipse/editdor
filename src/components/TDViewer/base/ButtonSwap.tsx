@@ -16,6 +16,7 @@ import { RefreshCcw } from "react-feather";
 interface IButtonSwapProps {
   description: string;
   value: boolean;
+  className?: string;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 

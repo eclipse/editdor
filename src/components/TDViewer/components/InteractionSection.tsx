@@ -24,6 +24,7 @@ import Property from "./Property";
 import { SearchBar } from "./SearchBar";
 import { IForm, IThingDescription } from "types/td";
 import EditProperties from "./EditProperties";
+import BaseTable from "../base/BaseTable";
 
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
@@ -45,6 +46,10 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     : {};
   const [filter, setFilter] = useState("");
   const [sortOrder, setSortOrder] = useState(SORT_ASC);
+  const createPropertyDialog = React.useRef<{ openModal: () => void } | null>(
+    null
+  );
+  const [modeView, setModeView] = useState<"table" | "list">("list");
 
   const interaction = props.interaction.toLowerCase();
 
@@ -168,19 +173,93 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     );
   };
 
+  const formatText = (text: string) => {
+    if (text.startsWith("modbus:")) {
+      text = text.replace("modbus:", "");
+    }
+    text = text.replace(/([a-z])([A-Z])/g, "$1 $2");
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
+  const extractIndexFromId = (id: string): number => {
+    const parts = id.split(" - ");
+    return parseInt(parts[1], 10);
+  };
+
+  const handleCellClick = (
+    item: { [key: string]: any },
+    headerKey: string,
+    value: any
+  ) => {
+    const index = extractIndexFromId(item.id);
+    console.log(value);
+    try {
+      td[interaction][item.propName].forms[index][headerKey] = value;
+    } catch (e) {
+      console.error(e);
+    }
+    console.log("Cell clicked:", item, headerKey, value);
+
+    context.updateOfflineTD(JSON.stringify(td, null, 2));
+    context.updateIsModified(true);
+  };
+
   const buildChildren = () => {
     const filteredInteractions = applyFilter();
 
     if (td.properties && interaction === "properties") {
-      return Object.keys(filteredInteractions).map((key, index) => {
-        return (
-          <Property
-            prop={filteredInteractions[key]}
-            propName={key}
-            key={index}
-          />
-        );
+      if (modeView === "list") {
+        return Object.keys(filteredInteractions).map((key, index) => {
+          return (
+            <Property
+              prop={filteredInteractions[key]}
+              propName={key}
+              key={index}
+            />
+          );
+        });
+      }
+
+      const headers: { key: string; text: string }[] = Object.keys(
+        filteredInteractions
+      ).length
+        ? [
+            ...["id", "propName"],
+            ...[
+              ...new Set(
+                Object.keys(filteredInteractions).flatMap((key) => {
+                  const forms = filteredInteractions[key].forms || [];
+                  return forms.flatMap((form: IForm) => Object.keys(form));
+                })
+              ),
+            ].filter((key) => key !== "op" && key !== "href"),
+          ].map((key) => ({
+            key,
+            text: formatText(key),
+          }))
+        : [];
+
+      const items = Object.keys(filteredInteractions).flatMap((key) => {
+        const forms = filteredInteractions[key].forms || [];
+        return forms
+          .filter((form: IForm) => form.op === "readproperty")
+          .map((form: IForm, index: number) => ({
+            id: `${key} - ${index}`,
+            propName: key,
+            ...form,
+          }));
       });
+
+      return (
+        <BaseTable
+          headers={headers}
+          items={items}
+          itemsPerPage={10} // Optional: Set items per page
+          orderBy="" // Optional: Set default sorting column
+          order="asc" // Optional: Set default sorting order
+          onCellClick={handleCellClick} // Optional: Handle row click
+        />
+      );
     }
     if (td.actions && interaction === "actions") {
       return Object.keys(filteredInteractions).map((key, index) => {
@@ -206,9 +285,6 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     }
   };
 
-  const createPropertyDialog = React.useRef<{ openModal: () => void } | null>(
-    null
-  );
   const openCreatePropertyDialog = () => {
     if (createPropertyDialog.current) {
       createPropertyDialog.current.openModal();
@@ -229,6 +305,8 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     default:
   }
 
+  const childrenContent = buildChildren();
+
   return (
     <>
       <div className="flex items-end justify-start pb-4 pt-8">
@@ -241,6 +319,25 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
               {props.interaction}
             </h2>
           </InfoIconWrapper>
+          <div>
+            {interaction === "properties" && hasModbusProperties(td) && (
+              <button
+                className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
+                onClick={() => setModeView("list")}
+              >
+                List
+              </button>
+            )}
+            {interaction === "properties" && hasModbusProperties(td) && (
+              <button
+                className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
+                style={{ marginLeft: "10px" }}
+                onClick={() => setModeView("table")}
+              >
+                Table
+              </button>
+            )}
+          </div>
         </div>
         <SearchBar
           onKeyUp={(e) => updateFilter(e)}
@@ -267,13 +364,11 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       {interaction === "properties" && hasModbusProperties(td) && (
         <EditProperties isBaseModbus={hasModbusProperties(td)} />
       )}
-      {buildChildren() && (
+
+      {childrenContent && (
         <div className="rounded-lg bg-gray-600 px-4 pb-4 pt-4">
-          {buildChildren()}
+          {childrenContent ? childrenContent : <div className="px-6">{}</div>}
         </div>
-      )}
-      {!buildChildren() && (
-        <div className="rounded-lg bg-gray-600 px-6 pb-4 pt-4">{}</div>
       )}
     </>
   );
