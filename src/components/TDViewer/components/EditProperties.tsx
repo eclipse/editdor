@@ -258,7 +258,10 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
         </div>
         <div className="col-span-8 rounded-r-lg">
           <div className="grid h-full w-full grid-cols-12">
-            <div id="firstRow" className="col-span-12 bg-blue-500">
+            <div
+              id="firstRow"
+              className="col-span-12 rounded-tr-lg bg-blue-500"
+            >
               <ButtonSwap
                 description="wordswap"
                 value={endianness.wordSwap}
@@ -267,7 +270,10 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
                 }
               />
             </div>
-            <div id="secondRow" className="col-span-12 bg-blue-500">
+            <div
+              id="secondRow"
+              className="col-span-12 rounded-br-lg bg-blue-500"
+            >
               <ButtonSwap
                 description="byteswap"
                 value={endianness.byteSwap}
@@ -309,13 +315,18 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
       </div>
     </>
   );
+
   return (
     <>
-      <div className="grid grid-cols-12 gap-1">
-        <div
-          id="unitId"
-          className="col-span-4 h-full rounded-lg bg-gray-600 px-2"
-        >
+      <div className="grid grid-cols-12 gap-1 rounded-t-lg bg-gray-600 px-2">
+        <div className="col-span-12 rounded-lg bg-gray-600 px-2">
+          {props.isBaseModbus ? (
+            <h1 className="py-1 text-xl text-white">Edit in bulk</h1>
+          ) : (
+            <div></div>
+          )}
+        </div>
+        <div id="unitId" className="col-span-4 h-full px-2">
           {validateModbusProperties.unitID ? (
             UnidId
           ) : (
@@ -332,10 +343,7 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
             </>
           )}
         </div>
-        <div
-          id="addressOffset"
-          className="col-span-4 h-full rounded-lg bg-gray-600 px-2"
-        >
+        <div id="addressOffset" className="col-span-4 h-full px-2">
           {validateModbusProperties.zeroBasedAddressing ? (
             AddressOffset
           ) : (
@@ -354,10 +362,7 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
           )}
         </div>
 
-        <div
-          id="endianness"
-          className="col-span-4 h-full rounded-lg bg-gray-600 px-2"
-        >
+        <div id="endianness" className="col-span-4 h-full px-2">
           {validateModbusProperties.mostSignificantByte &&
           validateModbusProperties.mostSignificantWord ? (
             Endianness
