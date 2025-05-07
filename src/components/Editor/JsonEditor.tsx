@@ -164,8 +164,21 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
   };
 
   const onChange: OnChange = async (editorText, _) => {
-    context.updateOfflineTD(editorText);
-    context.updateValidationMessage(undefined);
+    if (!editorText) {
+      return;
+    }
+    try {
+      JSON.parse(editorText);
+      context.updateOfflineTD(editorText);
+      context.updateValidationMessage(undefined);
+    } catch (error) {
+      context.updateValidationMessage({
+        valid: false,
+        message:
+          "Invalid JSON: " +
+          (error instanceof Error ? error.message : String(error)),
+      });
+    }
     setLocalTextState(editorText);
     delay(messageWorkers, editorText ?? "", 500);
   };
