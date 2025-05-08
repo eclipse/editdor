@@ -5,7 +5,7 @@ export interface IEdiTDorContext {
   offlineTD: string;
   isValidJSON: boolean;
   // ParsedTD: Accessing and modifying TD properties 	For programmatic manipulation JavaScript object Derived from offlineTD
-  parsedTD: IThingDescription;
+  parsedTD: IThingDescription | {};
   isModified: boolean;
   name: string;
   fileHandle: string | null;
