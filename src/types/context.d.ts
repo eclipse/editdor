@@ -1,6 +1,4 @@
-import { IThingDescription } from "./td";
-
-export interface IEdiTDorContext {
+interface IEdiTDorContext {
   // offlineTD: Saving or displaying the TD as JSON For storage, sharing, or exporting Primary source of truth for the TD
   offlineTD: string;
   isValidJSON: boolean;
@@ -30,7 +28,7 @@ export interface IEdiTDorContext {
   updateValidationMessage: (validationMessage?: any) => void;
 }
 
-export type EditorState = Omit<
+type EditorState = Omit<
   IEdiTDorContext,
   | "updateOfflineTD"
   | "updateIsModified"
@@ -44,18 +42,7 @@ export type EditorState = Omit<
   | "updateValidationMessage"
 >;
 
-export const UPDATE_OFFLINE_TD = "UPDATE_OFFLINE_TD";
-export const UPDATE_IS_MODFIED = "UPDATE_IS_MODFIED";
-export const SET_FILE_HANDLE = "SET_FILE_HANDLE";
-export const REMOVE_FORM_FROM_TD = "REMOVE_FORM_FROM_TD";
-export const REMOVE_LINK_FROM_TD = "REMOVE_LINK_FROM_TD";
-export const ADD_FORM_TO_TD = "ADD_FORM_TO_TD";
-export const REMOVE_ONE_OF_A_KIND_FROM_TD = "REMOVE_ONE_OF_A_KIND_FROM_TD";
-export const ADD_LINKED_TD = "ADD_LINKED_TD";
-export const UPDATE_LINKED_TD = "UPDATE_LINKED_TD";
-export const UPDATE_VALIDATION_MESSAGE = "UPDATE_VALIDATION_MESSAGE";
-
-export type Action =
+type Action =
   | { type: typeof UPDATE_OFFLINE_TD; offlineTD: string }
   | { type: typeof UPDATE_IS_MODFIED; isModified: boolean } //TODO NEED FIX on Speelig
   | { type: typeof SET_FILE_HANDLE; fileHandle: any }

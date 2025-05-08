@@ -13,19 +13,18 @@
 import React, { ReactNode, useReducer } from "react";
 
 import EdiTDorContext from "./ediTDorContext";
-import {
-  REMOVE_FORM_FROM_TD,
-  REMOVE_LINK_FROM_TD,
-  SET_FILE_HANDLE,
-  UPDATE_IS_MODFIED,
-  UPDATE_OFFLINE_TD,
-  REMOVE_ONE_OF_A_KIND_FROM_TD,
-  ADD_LINKED_TD,
-  UPDATE_LINKED_TD,
-  UPDATE_VALIDATION_MESSAGE,
-  ADD_FORM_TO_TD,
-} from "types/context";
 import { editdorReducer } from "./editorReducers";
+
+export const UPDATE_OFFLINE_TD = "UPDATE_OFFLINE_TD";
+export const UPDATE_IS_MODFIED = "UPDATE_IS_MODFIED";
+export const SET_FILE_HANDLE = "SET_FILE_HANDLE";
+export const REMOVE_FORM_FROM_TD = "REMOVE_FORM_FROM_TD";
+export const REMOVE_LINK_FROM_TD = "REMOVE_LINK_FROM_TD";
+export const ADD_FORM_TO_TD = "ADD_FORM_TO_TD";
+export const REMOVE_ONE_OF_A_KIND_FROM_TD = "REMOVE_ONE_OF_A_KIND_FROM_TD";
+export const ADD_LINKED_TD = "ADD_LINKED_TD";
+export const UPDATE_LINKED_TD = "UPDATE_LINKED_TD";
+export const UPDATE_VALIDATION_MESSAGE = "UPDATE_VALIDATION_MESSAGE";
 
 interface IGlobalStateProps {
   children: ReactNode;
