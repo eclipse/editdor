@@ -15,8 +15,8 @@ import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../../util.js";
 import { AddFormDialog } from "../../Dialogs/AddFormDialog";
-import { InfoIconWrapper } from "../../InfoIcon/InfoIcon";
-import { getFormsTooltipContent } from "../../InfoIcon/InfoTooltips";
+import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
+import { getFormsTooltipContent } from "../../InfoIcon/TooltipMapper";
 import Form, { AddFormElement } from "./Form";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
@@ -93,6 +93,7 @@ export default function Event(props) {
           <InfoIconWrapper
             className="flex-grow"
             tooltip={getFormsTooltipContent()}
+            id="events"
           >
             <h4 className="pr-1 text-lg font-bold text-white">Forms</h4>
           </InfoIconWrapper>

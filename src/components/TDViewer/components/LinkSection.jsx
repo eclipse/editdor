@@ -12,12 +12,12 @@
  ********************************************************************************/
 
 import * as joint from "jointjs";
-import { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { changeBetweenTd } from "../../../util";
 import { AddLinkTdDialog } from "../../Dialogs/AddLinkTdDialog";
-import { InfoIconWrapper } from "../../InfoIcon/InfoIcon";
-import { getLinksTooltipContent } from "../../InfoIcon/InfoTooltips";
+import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
+import { getLinksTooltipContent } from "../../InfoIcon/TooltipMapper";
 import Link from "./Link";
 
 export default function LinkView(props) {
