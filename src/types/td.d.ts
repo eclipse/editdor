@@ -30,7 +30,7 @@ export interface ISecurityScheme {
 }
 
 export interface IForm {
-  href: string;
+  href?: string;
   contentType?: string;
   op?: string | string[];
   security?: string[];
@@ -43,7 +43,7 @@ export interface IModbusForm extends IForm {
   "modbus:quantity": number;
   "modbus:type"?: string;
   "modbus:zeroBasedAddressing": boolean;
-  "modbus:entity": string;
+  "modbus:entity"?: string;
   "modbus:pollingTime"?: string;
   "modbus:function"?: string;
   "modbus:mostSignificantByte": boolean;
