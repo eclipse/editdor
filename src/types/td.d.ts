@@ -1,4 +1,4 @@
-export interface IThingDescription {
+interface IThingDescription {
   "@context": string | string[];
   "@type"?: string;
   id?: string;
@@ -23,13 +23,13 @@ export interface IThingDescription {
   uriVairables?: any;
 }
 
-export interface ISecurityScheme {
+interface ISecurityScheme {
   scheme: string;
   description?: string;
   [key: string]: any;
 }
 
-export interface IForm {
+interface IForm {
   href?: string;
   contentType?: string;
   op?: string | string[];
@@ -37,7 +37,7 @@ export interface IForm {
   [key: string]: any;
 }
 
-export interface IModbusForm extends IForm {
+interface IModbusForm extends IForm {
   "modbus:unitID": number;
   "modbus:address": number;
   "modbus:quantity": number;
@@ -51,7 +51,7 @@ export interface IModbusForm extends IForm {
   "modbus:timeout"?: string;
 }
 
-export interface IProperty {
+interface IProperty {
   type?: string;
   description?: string;
   observable?: boolean;
@@ -61,7 +61,7 @@ export interface IProperty {
   [key: string]: any;
 }
 
-export interface IAction {
+interface IAction {
   description?: string;
   input?: IDataSchema;
   output?: IDataSchema;
@@ -69,14 +69,14 @@ export interface IAction {
   [key: string]: any;
 }
 
-export interface IEvent {
+interface IEvent {
   description?: string;
   data?: IDataSchema;
   forms: IForm[];
   [key: string]: any;
 }
 
-export interface IDataSchema {
+interface IDataSchema {
   type?: string;
   description?: string;
   enum?: any[];

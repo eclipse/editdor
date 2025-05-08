@@ -10,9 +10,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import { EditorState } from "types/context";
-import { IThingDescription } from "types/td";
-import { Action } from "types/context";
 import {
   ADD_FORM_TO_TD,
   ADD_LINKED_TD,
@@ -24,8 +21,7 @@ import {
   UPDATE_LINKED_TD,
   UPDATE_OFFLINE_TD,
   UPDATE_VALIDATION_MESSAGE,
-} from "types/context";
-import { IForm } from "types/td";
+} from "./GlobalState";
 
 export const editdorReducer = (
   state: EditorState,

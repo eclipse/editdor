@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React from "react";
-import { IEdiTDorContext } from "types/context";
+
 //  Default
 const defaultContext: IEdiTDorContext = {
   offlineTD: "",
