@@ -11,32 +11,30 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React from "react";
-
-/**
- * @typedef { import("../models").ValidationResults } ValidationResults
- */
-
-export default React.createContext({
+import { IEdiTDorContext } from "types/context";
+//  Default
+const defaultContext: IEdiTDorContext = {
   offlineTD: "",
   isValidJSON: true,
-  /** @type {Object} */
   parsedTD: {},
-
   isModified: false,
   name: "",
-  fileHandle: "",
+  fileHandle: null,
   linkedTd: {},
-  /** @type {ValidationResults | undefined} */
   validationMessage: undefined,
 
-  updateOfflineTD: (td) => {},
-  updateIsModified: (isModified) => {},
-  setFileHandle: (handle) => {},
-  removeForm: (level, interactionName, index) => {},
-  addForm: (level, interactionName, form) => {},
-  removeLink: (link) => {},
-  removeOneOfAKindReducer: (kind, oneOfAKind) => {},
-  addLinkedTd: (linkedTd) => {},
-  updateLinkedTd: (linkedTd) => {},
-  updateValidationMessage: (validationMessage) => {},
-});
+  updateOfflineTD: () => {},
+  updateIsModified: () => {},
+  setFileHandle: () => {},
+  removeForm: () => {},
+  addForm: () => {},
+  removeLink: () => {},
+  removeOneOfAKindReducer: () => {},
+  addLinkedTd: () => {},
+  updateLinkedTd: () => {},
+  updateValidationMessage: () => {},
+};
+
+const ediTDorContext = React.createContext<IEdiTDorContext>(defaultContext);
+
+export default ediTDorContext;
