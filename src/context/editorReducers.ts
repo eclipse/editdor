@@ -149,7 +149,9 @@ const removeFormReducer = (
     return state;
   }
 
-  let td = structuredClone(state.parsedTD);
+  let td: IThingDescription = structuredClone(
+    state.parsedTD
+  ) as IThingDescription;
   let forms: IForm;
   if (level === "thing") {
     if (!td.forms || !Array.isArray(td.forms)) {
@@ -201,10 +203,10 @@ const removeLinkReducer = (index: number, state: EditorState): EditorState => {
     return state;
   }
 
-  let td = structuredClone(state.parsedTD);
+  let td = structuredClone(state.parsedTD) as IThingDescription;
 
   try {
-    td.links.splice(index, 1);
+    td.links?.splice(index, 1);
   } catch (e) {
     alert("Sorry we were unable to delete the Link.");
   }
@@ -271,7 +273,7 @@ const addFormReducer = (
     return state;
   }
 
-  let td = structuredClone(state.parsedTD);
+  let td = structuredClone(state.parsedTD) as IThingDescription;
   if (level == "thing") {
     if (td.forms && !Array.isArray(td.forms)) {
       return state;
