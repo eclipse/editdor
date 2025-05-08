@@ -192,7 +192,6 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     value: any
   ) => {
     const index = extractIndexFromId(item.id);
-    console.log(value);
     try {
       td[interaction][item.propName].forms[index][headerKey] = value;
     } catch (e) {
@@ -201,7 +200,6 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     console.log("Cell clicked:", item, headerKey, value);
 
     context.updateOfflineTD(JSON.stringify(td, null, 2));
-    context.updateIsModified(true);
   };
 
   const buildChildren = () => {
@@ -254,10 +252,10 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         <BaseTable
           headers={headers}
           items={items}
-          itemsPerPage={10} // Optional: Set items per page
-          orderBy="" // Optional: Set default sorting column
-          order="asc" // Optional: Set default sorting order
-          onCellClick={handleCellClick} // Optional: Handle row click
+          itemsPerPage={10}
+          orderBy=""
+          order="asc"
+          onCellClick={handleCellClick}
         />
       );
     }
@@ -322,7 +320,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
           <div>
             {interaction === "properties" && hasModbusProperties(td) && (
               <button
-                className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
+                className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white hover:bg-blue-600"
                 onClick={() => setModeView("list")}
               >
                 List
@@ -330,7 +328,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
             )}
             {interaction === "properties" && hasModbusProperties(td) && (
               <button
-                className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
+                className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white hover:bg-blue-600"
                 style={{ marginLeft: "10px" }}
                 onClick={() => setModeView("table")}
               >
@@ -346,14 +344,14 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         />
         <div className="w-2"></div>
         <button
-          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-white"
+          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-white hover:bg-blue-600"
           onClick={() => sortKeysInObject(interaction)}
         >
           {sortedIcon()}
         </button>
         <div className="w-2"></div>
         <button
-          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
+          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white hover:bg-blue-600"
           onClick={openCreatePropertyDialog}
         >
           Add
