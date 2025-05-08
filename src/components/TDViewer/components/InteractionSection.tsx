@@ -17,12 +17,11 @@ import { AddActionDialog } from "../../Dialogs/AddActionDialog";
 import { AddEventDialog } from "../../Dialogs/AddEventDialog";
 import { AddPropertyDialog } from "../../Dialogs/AddPropertyDialog";
 import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
-import { tooltipMapper } from "../../InfoIcon/InfoTooltips";
+import { tooltipMapper } from "../../InfoIcon/TooltipMapper";
 import Action from "./Action";
 import Event from "./Event";
 import Property from "./Property";
 import { SearchBar } from "./SearchBar";
-import { IForm, IThingDescription } from "types/td";
 import EditProperties from "./EditProperties";
 import BaseTable from "../base/BaseTable";
 
@@ -197,11 +196,11 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     } catch (e) {
       console.error(e);
     }
-    console.log("Cell clicked:", item, headerKey, value);
-
     context.updateOfflineTD(JSON.stringify(td, null, 2));
   };
-
+  const handleOnRowClick = () => {
+    console.log("Rowclick");
+  };
   const buildChildren = () => {
     const filteredInteractions = applyFilter();
 
@@ -222,7 +221,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         filteredInteractions
       ).length
         ? [
-            ...["id", "propName"],
+            ...["id", "propName", "previewProperty"],
             ...[
               ...new Set(
                 Object.keys(filteredInteractions).flatMap((key) => {
@@ -256,6 +255,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
           orderBy=""
           order="asc"
           onCellClick={handleCellClick}
+          onRowClick={handleOnRowClick}
         />
       );
     }

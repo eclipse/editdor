@@ -20,7 +20,7 @@ import {
 } from "../../util";
 import { AddFormDialog } from "../Dialogs/AddFormDialog";
 import InfoIconWrapper from "../InfoIcon/InfoIconWrapper";
-import { getFormsTooltipContent } from "../InfoIcon/InfoTooltips";
+import { getFormsTooltipContent } from "../InfoIcon/TooltipMapper";
 import Form from "./components/Form";
 import InteractionSection from "./components/InteractionSection";
 import { RenderedObject } from "./components/RenderedObject";
