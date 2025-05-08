@@ -16,7 +16,7 @@ import ediTDorContext from "../../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../../util.js";
 import { AddFormDialog } from "../../Dialogs/AddFormDialog";
 import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
-import { getFormsTooltipContent } from "../../InfoIcon/InfoTooltips";
+import { getFormsTooltipContent } from "../../InfoIcon/TooltipMapper";
 import Form, { AddFormElement } from "./Form";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];

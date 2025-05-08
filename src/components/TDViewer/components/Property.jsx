@@ -15,7 +15,7 @@ import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../../util.js";
 import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
-import { getFormsTooltipContent } from "../../InfoIcon/InfoTooltips";
+import { getFormsTooltipContent } from "../../InfoIcon/TooltipMapper";
 import Form, { AddFormElement } from "./Form";
 import { AddFormDialog } from "../../Dialogs/AddFormDialog";
 
@@ -43,7 +43,7 @@ export default function Property(props) {
   }
 
   const property = props.prop;
-  const forms = separateForms(props.prop.forms);
+  const forms = separateForms(structuredClone(props.prop.forms));
 
   const attributeListObject = buildAttributeListObject(
     { name: props.propName },

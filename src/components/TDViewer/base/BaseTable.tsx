@@ -13,7 +13,8 @@
 import React, { useMemo } from "react";
 import BasePagination from "./BasePagination";
 import ButtonSwap from "./ButtonSwap";
-//import { BaseCheckbox } from "./BaseCheckbox";
+import Icon from "../../InfoIcon/Icon";
+import { Eye } from "react-feather";
 
 // Type definitions
 export interface TableHeader {
@@ -109,7 +110,16 @@ const BaseTable = <T extends TableItem>({
     }
 
     const value = item[headerKey as keyof T];
-
+    if (headerKey == "previewProperty") {
+      return (
+        <div
+          className="flex h-full w-full items-center justify-center px-2 py-1"
+          onClick={() => onRowClick}
+        >
+          <Icon id="eye" html="Click to preview property" IconComponent={Eye} />
+        </div>
+      );
+    }
     if (value === null || value === undefined) {
       return "-";
     } else if (typeof value === "boolean") {
@@ -287,7 +297,9 @@ const BaseTable = <T extends TableItem>({
                       item.status === "error" && colIndex === 0
                         ? "border-l-definitive"
                         : ""
-                    } "bg-elevation-1-hover" hover:border-white`}
+                    } ${
+                      colIndex > 1 ? "hover:border-white" : ""
+                    } "bg-elevation-1-hover"`}
                     style={{ width: `${100 / headers.length}%` }}
                   >
                     {renderCell(item, header.key)}
