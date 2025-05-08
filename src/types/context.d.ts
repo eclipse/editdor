@@ -43,28 +43,28 @@ type EditorState = Omit<
 >;
 
 type Action =
-  | { type: typeof UPDATE_OFFLINE_TD; offlineTD: string }
-  | { type: typeof UPDATE_IS_MODFIED; isModified: boolean } //TODO NEED FIX on Speelig
-  | { type: typeof SET_FILE_HANDLE; fileHandle: any }
-  | { type: typeof REMOVE_LINK_FROM_TD; link: any }
+  | { type: "UPDATE_OFFLINE_TD"; offlineTD: string }
+  | { type: "UPDATE_IS_MODFIED"; isModified: boolean } //TODO NEED FIX on Speelig
+  | { type: "SET_FILE_HANDLE"; fileHandle: any }
+  | { type: "REMOVE_LINK_FROM_TD"; link: any }
   | {
-      type: typeof ADD_FORM_TO_TD;
+      type: "ADD_FORM_TO_TD";
       level: "thing" | "properties" | "actions" | "events" | string;
       interactionName: string;
       form: any;
     }
   | {
-      type: typeof REMOVE_FORM_FROM_TD;
+      type: "REMOVE_FORM_FROM_TD";
       level: "thing" | "properties" | "actions" | "events" | string;
       interactionName: string;
       toBeDeletedForm: any;
       index: number;
     }
   | {
-      type: typeof REMOVE_ONE_OF_A_KIND_FROM_TD;
+      type: "REMOVE_ONE_OF_A_KIND_FROM_TD";
       kind: "thing" | "properties" | "actions" | "events" | string;
       oneOfAKindName: string;
     }
-  | { type: typeof ADD_LINKED_TD; linkedTd: any }
-  | { type: typeof UPDATE_LINKED_TD; linkedTd: any }
-  | { type: typeof UPDATE_VALIDATION_MESSAGE; validationMessage: any };
+  | { type: "ADD_LINKED_TD"; linkedTd: any }
+  | { type: "UPDATE_LINKED_TD"; linkedTd: any }
+  | { type: "UPDATE_VALIDATION_MESSAGE"; validationMessage: any };
