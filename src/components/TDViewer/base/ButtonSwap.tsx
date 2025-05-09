@@ -23,6 +23,7 @@ interface IButtonSwapProps {
 const ButtonSwap: React.FC<IButtonSwapProps> = ({
   value,
   description,
+  className,
   onClick,
 }) => {
   return (

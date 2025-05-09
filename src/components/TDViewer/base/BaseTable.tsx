@@ -114,7 +114,7 @@ const BaseTable = <T extends TableItem>({
       return (
         <div
           className="flex h-full w-full items-center justify-center px-2 py-1"
-          onClick={() => onRowClick}
+          onClick={() => onRowClick?.(item)}
         >
           <Icon id="eye" html="Click to preview property" IconComponent={Eye} />
         </div>
