@@ -24,6 +24,8 @@ import Property from "./Property";
 import { SearchBar } from "./SearchBar";
 import EditProperties from "./EditProperties";
 import BaseTable from "../base/BaseTable";
+import DialogTemplate from "./../../Dialogs/DialogTemplate";
+import Editor, { OnChange } from "@monaco-editor/react";
 
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
@@ -49,6 +51,8 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     null
   );
   const [modeView, setModeView] = useState<"table" | "list">("list");
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control dialog visibility
+  const [editorContent, setEditorContent] = useState<string>(""); // State to manage editor content
 
   const interaction = props.interaction.toLowerCase();
 
@@ -198,9 +202,29 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     }
     context.updateOfflineTD(JSON.stringify(td, null, 2));
   };
-  const handleOnRowClick = () => {
+  const handleOnRowClick = (item: { [key: string]: any }) => {
     console.log("Rowclick");
+    const index = extractIndexFromId(item.id);
+    let value;
+    try {
+      value = { [item.propName]: td[interaction][item.propName] };
+      //value = td[interaction][item.propName].forms[index];
+    } catch (e) {
+      console.error(e);
+    }
+    setEditorContent(JSON.stringify(value, null, 2));
+    setIsDialogOpen(true);
   };
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+  };
+
+  const handleDialogSubmit = () => {
+    console.log("Updated Content:", editorContent);
+    setIsDialogOpen(false);
+  };
+
   const buildChildren = () => {
     const filteredInteractions = applyFilter();
 
@@ -367,6 +391,28 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         <div className="rounded-lg bg-gray-600 px-4 pb-4 pt-4">
           {childrenContent ? childrenContent : <div className="px-6">{}</div>}
         </div>
+      )}
+
+      {/* Dialog Template */}
+      {isDialogOpen && (
+        <DialogTemplate
+          title="Edit Property"
+          description="Modify the content using this editor"
+          onCancel={handleDialogClose}
+          onSubmit={handleDialogSubmit}
+        >
+          <Editor
+            height="400px"
+            defaultLanguage="json"
+            value={editorContent}
+            onChange={(value) => setEditorContent(value || "")} // Update editor content
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+            }}
+            theme="vs-dark"
+          />
+        </DialogTemplate>
       )}
     </>
   );

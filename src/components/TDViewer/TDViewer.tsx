@@ -27,7 +27,6 @@ import { RenderedObject } from "./components/RenderedObject";
 import ValidationView from "./components/ValidationView";
 import LinkView from "./components/LinkSection";
 import { useDropzone } from "react-dropzone";
-import { IThingDescription } from "types/td";
 
 interface ITDViewerProps {
   onUndo: () => void;
