@@ -24,13 +24,29 @@ import {
   DialogTextArea,
   DialogTextField,
 } from "./DialogComponents";
-import { DialogTemplate } from "./DialogTemplate";
+import DialogTemplate from "./DialogTemplate";
 
 const NO_TYPE = "undefined";
 
-export const AddPropertyDialog = forwardRef((_, ref) => {
+export interface AddPropertyDialogRef {
+  openModal: () => void;
+  close: () => void;
+}
+
+interface Property {
+  title: string;
+  description?: string;
+  type?: string;
+  observable?: boolean;
+  readOnly?: boolean;
+  forms: any[];
+  items?: Record<string, any>;
+  properties?: Record<string, any>;
+}
+
+export const AddPropertyDialog = forwardRef<AddPropertyDialogRef>((_, ref) => {
   const context = useContext(ediTDorContext);
-  const [display, setDisplay] = React.useState(() => {
+  const [display, setDisplay] = React.useState<boolean>(() => {
     return false;
   });
 
@@ -99,17 +115,27 @@ export const AddPropertyDialog = forwardRef((_, ref) => {
       return;
     }
 
-    let property = {};
-    property.title = document.getElementById(`${type}-title`).value;
-    property.observable = document.getElementById(`${type}-observable`).checked;
-    property.readOnly = document.getElementById(`${type}-readOnly`).checked;
-
-    const description = document.getElementById(`${type}-description`).value;
+    const property: Property = {
+      title: (document.getElementById(`${type}-title`) as HTMLInputElement)
+        .value,
+      observable: (
+        document.getElementById(`${type}-observable`) as HTMLInputElement
+      ).checked,
+      readOnly: (
+        document.getElementById(`${type}-readOnly`) as HTMLInputElement
+      ).checked,
+      forms: [],
+    };
+    const description = (
+      document.getElementById(`${type}-description`) as HTMLTextAreaElement
+    ).value;
     if (description !== "") {
       property.description = description;
     }
 
-    const dataType = document.getElementById(`${type}-type`).value;
+    const dataType = (
+      document.getElementById(`${type}-type`) as HTMLSelectElement
+    ).value;
     if (dataType !== NO_TYPE) {
       property.type = dataType;
     }
@@ -130,18 +156,28 @@ export const AddPropertyDialog = forwardRef((_, ref) => {
     }
   };
 
-  const showErrorMessage = (msg) => {
-    document.getElementById(`${type}-title-helper-text`).textContent = msg;
-    document
-      .getElementById(`${type}-title`)
-      .classList.remove("border-gray-600");
-    document.getElementById(`${type}-title`).classList.add("border-red-400");
+  const showErrorMessage = (msg: string): void => {
+    (
+      document.getElementById(`${type}-title-helper-text`) as HTMLElement
+    ).textContent = msg;
+    (
+      document.getElementById(`${type}-title`) as HTMLInputElement
+    ).classList.remove("border-gray-600");
+    (
+      document.getElementById(`${type}-title`) as HTMLInputElement
+    ).classList.add("border-red-400");
   };
 
-  const clearErrorMessage = () => {
-    document.getElementById(`${type}-title-helper-text`).textContent = "";
-    document.getElementById(`${type}-title`).classList.add("border-gray-600");
-    document.getElementById(`${type}-title`).classList.remove("border-red-400");
+  const clearErrorMessage = (): void => {
+    (
+      document.getElementById(`${type}-title-helper-text`) as HTMLElement
+    ).textContent = "";
+    (
+      document.getElementById(`${type}-title`) as HTMLInputElement
+    ).classList.add("border-gray-600");
+    (
+      document.getElementById(`${type}-title`) as HTMLInputElement
+    ).classList.remove("border-red-400");
   };
 
   if (display) {
@@ -156,7 +192,7 @@ export const AddPropertyDialog = forwardRef((_, ref) => {
         title={`Add New ${name}`}
         description={`Tell us a little something about the ${name} you want to add.`}
       />,
-      document.getElementById("modal-root")
+      document.getElementById("modal-root") as HTMLElement
     );
   }
 
