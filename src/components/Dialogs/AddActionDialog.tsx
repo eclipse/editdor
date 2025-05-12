@@ -19,16 +19,27 @@ import React, {
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import { DialogTextArea, DialogTextField } from "./DialogComponents";
-import { DialogTemplate } from "./DialogTemplate";
+import DialogTemplate from "./DialogTemplate";
 
-export const AddEventDialog = forwardRef((_, ref) => {
+export interface AddActionDialogRef {
+  openModal: () => void;
+  close: () => void;
+}
+
+interface Action {
+  title: string;
+  description?: string;
+  forms: any[];
+}
+
+const AddActionDialog = forwardRef<AddActionDialogRef>((_, ref) => {
   const context = useContext(ediTDorContext);
   const [display, setDisplay] = React.useState(() => {
     return false;
   });
 
-  const type = "event";
-  const key = "events";
+  const type = "action";
+  const key = "actions";
   const name = type && type[0].toUpperCase() + type.slice(1);
 
   useEffect(() => {}, [display, context]);
@@ -65,43 +76,57 @@ export const AddEventDialog = forwardRef((_, ref) => {
     </>
   );
 
-  const onAddEvent = () => {
-    let event = {};
-    event.title = document.getElementById(`${type}-title`).value;
-
-    const description = document.getElementById(`${type}-description`).value;
-    if (description !== "") {
-      event.description = description;
-    }
-    event.forms = [];
-
+  const onAddAction = () => {
     if (!context.isValidJSON) {
-      showErrorMessage(`Can't add Event. TD is malformed.`);
+      showErrorMessage(`Can't add Action. TD is malformed.`);
       return;
     }
 
+    const titleElement = document.getElementById(
+      `${type}-title`
+    ) as HTMLInputElement;
+    const descriptionElement = document.getElementById(
+      `${type}-description`
+    ) as HTMLTextAreaElement;
+
+    const action: Action = {
+      title: titleElement.value,
+      description: descriptionElement.value || undefined,
+      forms: [],
+    };
+
     const td = context.parsedTD;
-    if (td[key] && td[key][event.title]) {
+    if (td[key] && td[key][action.title]) {
       showErrorMessage(`An ${name} with this title already exists...`);
     } else {
-      td[key] = { ...td[key], [event.title]: event };
+      td[key] = { ...td[key], [action.title]: action };
       context.updateOfflineTD(JSON.stringify(td, null, 2));
       close();
     }
   };
 
-  const showErrorMessage = (msg) => {
-    document.getElementById(`${type}-title-helper-text`).textContent = msg;
-    document
-      .getElementById(`${type}-title`)
-      .classList.remove("border-gray-600");
-    document.getElementById(`${type}-title`).classList.add("border-red-400");
+  const showErrorMessage = (msg: string) => {
+    (
+      document.getElementById(`${type}-title-helper-text`) as HTMLElement
+    ).textContent = msg;
+    (
+      document.getElementById(`${type}-title`) as HTMLInputElement
+    ).classList.remove("border-gray-600");
+    (
+      document.getElementById(`${type}-title`) as HTMLInputElement
+    ).classList.add("border-red-400");
   };
 
   const clearErrorMessage = () => {
-    document.getElementById(`${type}-title-helper-text`).textContent = "";
-    document.getElementById(`${type}-title`).classList.add("border-gray-600");
-    document.getElementById(`${type}-title`).classList.remove("border-red-400");
+    (
+      document.getElementById(`${type}-title-helper-text`) as HTMLInputElement
+    ).textContent = "";
+    (
+      document.getElementById(`${type}-title`) as HTMLInputElement
+    ).classList.add("border-gray-600");
+    (
+      document.getElementById(`${type}-title`) as HTMLInputElement
+    ).classList.remove("border-red-400");
   };
 
   if (display) {
@@ -109,16 +134,18 @@ export const AddEventDialog = forwardRef((_, ref) => {
       <DialogTemplate
         onCancel={close}
         onSubmit={() => {
-          onAddEvent();
+          onAddAction();
         }}
         submitText={`Add ${name}`}
         children={children}
         title={`Add New ${name}`}
         description={`Tell us a little something about the ${name} you want to add.`}
       />,
-      document.getElementById("modal-root")
+      document.getElementById("modal-root") as HTMLElement
     );
   }
 
   return null;
 });
+
+export default AddActionDialog;
