@@ -14,7 +14,7 @@ import React, { useContext } from "react";
 import ediTDorContext from "../../context/ediTDorContext";
 import { GitHub } from "react-feather";
 
-const AppFooter = (props) => {
+const AppFooter: React.FC = (props) => {
   const context = useContext(ediTDorContext);
 
   const megaBytes = formatByteSize(context.offlineTD.length);
@@ -23,7 +23,7 @@ const AppFooter = (props) => {
   let eventsCount = 0;
 
   if (Object.keys(context.parsedTD).length !== 0) {
-    const td = context.parsedTD;
+    const td: IThingDescription = context.parsedTD;
     propertiesCount = td.properties ? Object.keys(td.properties).length : 0;
     actionsCount = td.actions ? Object.keys(td.actions).length : 0;
     eventsCount = td.events ? Object.keys(td.events).length : 0;
@@ -69,7 +69,7 @@ const AppFooter = (props) => {
   );
 };
 
-function formatByteSize(bytes) {
+function formatByteSize(bytes: number): string {
   if (bytes < 1024) return bytes + " bytes";
   else if (bytes < 1048576) return (bytes / 1024).toFixed(3) + " KiB";
   else if (bytes < 1073741824) return (bytes / 1048576).toFixed(3) + " MiB";
