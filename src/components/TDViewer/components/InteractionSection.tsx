@@ -13,8 +13,8 @@
 
 import React, { useContext, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
-import { AddActionDialog } from "../../Dialogs/AddActionDialog";
-import { AddEventDialog } from "../../Dialogs/AddEventDialog";
+import AddActionDialog from "../../Dialogs/AddActionDialog";
+import AddEventDialog from "../../Dialogs/AddEventDialog";
 import { AddPropertyDialog } from "../../Dialogs/AddPropertyDialog";
 import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import { tooltipMapper } from "../../InfoIcon/TooltipMapper";

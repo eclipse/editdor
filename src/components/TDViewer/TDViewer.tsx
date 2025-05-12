@@ -18,7 +18,7 @@ import {
   getDirectedValue,
   separateForms,
 } from "../../util";
-import { AddFormDialog } from "../Dialogs/AddFormDialog";
+import AddFormDialog from "../Dialogs/AddFormDialog";
 import InfoIconWrapper from "../InfoIcon/InfoIconWrapper";
 import { getFormsTooltipContent } from "../InfoIcon/TooltipMapper";
 import Form from "./components/Form";
