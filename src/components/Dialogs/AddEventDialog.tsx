@@ -18,7 +18,8 @@ import React, {
 } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
-import { DialogTextArea, DialogTextField } from "./DialogComponents";
+import DialogTextArea from "./base/DialogTextArea";
+import DialogTextField from "./base/DialogTextField";
 import DialogTemplate from "./DialogTemplate";
 
 export interface AddEventDialogRef {

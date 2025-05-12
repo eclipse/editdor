@@ -18,12 +18,11 @@ import React, {
 } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
-import {
-  DialogCheckbox,
-  DialogDropdown,
-  DialogTextArea,
-  DialogTextField,
-} from "./DialogComponents";
+import DialogCheckbox from "./base/DialogCheckbox";
+import DialogTextArea from "./base/DialogTextArea";
+import DialogTextField from "./base/DialogTextField";
+import DialogDropdown from "./base/DialogDropdown";
+
 import DialogTemplate from "./DialogTemplate";
 
 const NO_TYPE = "undefined";
