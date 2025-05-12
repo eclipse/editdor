@@ -26,10 +26,10 @@ import * as fileTdService from "../../services/fileTdService";
 import { getTargetUrl } from "../../services/targetUrl";
 import * as thingsApiService from "../../services/thingsApiService";
 import { isThingModel } from "../../util";
-import { ConvertTmDialog } from "../Dialogs/ConvertTmDialog";
+import ConvertTmDialog from "../Dialogs/ConvertTmDialog";
 import CreateTdDialog from "../Dialogs/CreateTdDialog";
-import { SettingsDialog } from "../Dialogs/SettingsDialog";
-import { ShareDialog } from "../Dialogs/ShareDialog";
+import SettingsDialog from "../Dialogs/SettingsDialog";
+import ShareDialog from "../Dialogs/ShareDialog";
 import Button from "./Button";
 
 const AppHeader: React.FC = () => {
