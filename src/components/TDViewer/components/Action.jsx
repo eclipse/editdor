@@ -17,7 +17,8 @@ import { buildAttributeListObject, separateForms } from "../../../util.js";
 import AddFormDialog from "../../Dialogs/AddFormDialog";
 import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import { getFormsTooltipContent } from "../../InfoIcon/TooltipMapper";
-import Form, { AddFormElement } from "./Form";
+import Form from "./Form";
+import AddFormElement from "../base/AddFormElement";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
 
