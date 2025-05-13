@@ -49,6 +49,21 @@ interface IForm {
   [key: string]: any;
 }
 
+type FormOpKeys =
+  | "readproperty"
+  | "writeproperty"
+  | "observeproperty"
+  | "unobserveproperty"
+  | "invokeaction"
+  | "subscribeevent"
+  | "unsubscribeevent"
+  | "readmultipleproperties"
+  | "readallproperties"
+  | "writemultipleproperties"
+  | "writeallproperties"
+  | "observeallproperties"
+  | "unobserveallproperties";
+
 interface IModbusForm extends IForm {
   "modbus:unitID": number;
   "modbus:address": number;
