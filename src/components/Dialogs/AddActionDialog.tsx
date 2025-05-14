@@ -24,7 +24,7 @@ import DialogTemplate from "./DialogTemplate";
 
 export interface AddActionDialogRef {
   openModal: () => void;
-  close: () => void;
+  close?: () => void;
 }
 
 interface Action {
