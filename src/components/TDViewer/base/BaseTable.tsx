@@ -14,7 +14,7 @@ import React, { useMemo } from "react";
 import BasePagination from "./BasePagination";
 import ButtonSwap from "./ButtonSwap";
 import Icon from "../../InfoIcon/Icon";
-import { Eye } from "react-feather";
+import { Eye, Check } from "react-feather";
 
 // Type definitions
 export interface TableHeader {
@@ -39,8 +39,13 @@ interface BaseTableProps<T extends TableItem> {
   itemsPerPage?: number;
   orderBy?: keyof T | "";
   order?: "desc" | "asc";
-  onRowClick?: (item: T) => void;
+  onRowClick?: (
+    item: T,
+    state: "viewProperty" | "viewPropertyElementForm"
+  ) => void;
   onCellClick?: (item: T, headerKey: string, value: any) => void;
+  onSendRequestClick?: (item: T) => void;
+
   className?: string;
   renderItem?: (item: T, headerKey: string) => React.ReactNode;
   placeholder?: React.ReactNode;
@@ -56,6 +61,8 @@ const BaseTable = <T extends TableItem>({
   order = "asc",
   onRowClick,
   onCellClick,
+  onSendRequestClick,
+
   className = "",
   renderItem,
   placeholder,
@@ -104,129 +111,148 @@ const BaseTable = <T extends TableItem>({
     });
   }, [filteredItems, orderBy, order]);
 
+  const renderSelect = (
+    value: string,
+    options: string[],
+    headerKey: string,
+    item: T
+  ): React.ReactNode => {
+    return (
+      <select
+        value={value}
+        onChange={(e) => onCellClick?.(item, headerKey, e.target.value)}
+        className="h-full w-full rounded bg-gray-600 px-2 py-1"
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    );
+  };
+
   const renderCell = (item: T, headerKey: string): React.ReactNode => {
     if (renderItem) {
       return renderItem(item, headerKey);
     }
 
     const value = item[headerKey as keyof T];
-    if (headerKey == "previewProperty") {
-      return (
-        <div
-          className="flex h-full w-full items-center justify-center px-2 py-1"
-          onClick={() => onRowClick?.(item)}
-        >
-          <Icon id="eye" html="Click to preview property" IconComponent={Eye} />
-        </div>
-      );
+
+    switch (headerKey) {
+      case "previewProperty":
+        return (
+          <div className="flex h-full w-full items-center justify-center px-2 py-1">
+            <div
+              className="flex h-full w-full pl-6"
+              onClick={() => onSendRequestClick?.(item)}
+            >
+              <Icon
+                id="check"
+                html="Click to send request"
+                IconComponent={Check}
+              />
+            </div>
+            <div
+              className="h-full w-full pl-2"
+              onClick={() => onRowClick?.(item, "viewPropertyElementForm")}
+            >
+              <Icon
+                id="eye"
+                html="Click to preview property"
+                IconComponent={Eye}
+              />
+            </div>
+          </div>
+        );
+
+      case "propName":
+        return (
+          <div
+            className="flex h-full w-full items-center justify-center px-2 py-1"
+            onClick={() => onRowClick?.(item, "viewProperty")}
+          >
+            {value}
+          </div>
+        );
+
+      case "modbus:entity":
+        return renderSelect(
+          value,
+          ["coil", "discreteinput", "holdingregister", "inputregister"],
+          headerKey,
+          item
+        );
+
+      case "modbus:function":
+        return renderSelect(
+          value,
+          [
+            "readCoil",
+            "readDeviceIdentification",
+            "readDiscreteInput",
+            "readHoldingRegisters",
+            "readInputRegisters",
+            "writeMultipleCoils",
+            "writeMultipleHoldingRegisters",
+            "writeSingleCoil",
+            "writeSingleHoldingRegister",
+          ],
+          headerKey,
+          item
+        );
+
+      case "modbus:type":
+        return renderSelect(
+          value,
+          [
+            "integer",
+            "boolean",
+            "string",
+            "float",
+            "decimal",
+            "byte",
+            "short",
+            "int",
+            "long",
+            "unsignedByte",
+            "unsignedShort",
+            "unsignedInt",
+            "unsignedLong",
+            "double",
+            "hexBinary",
+          ],
+          headerKey,
+          item
+        );
+
+      default:
+        break;
     }
+
     if (value === null || value === undefined) {
       return "-";
-    } else if (typeof value === "boolean") {
+    }
+
+    if (typeof value === "boolean") {
       return (
         <ButtonSwap
           onClick={(e) => {
-            e.stopPropagation;
+            e.stopPropagation();
             onCellClick?.(item, headerKey, !value);
           }}
           value={value}
           description=""
           className=""
-        ></ButtonSwap>
+        />
       );
-    } else if (typeof value === "string") {
-      if (headerKey === "modbus:entity") {
-        return (
-          <select
-            value={value}
-            onChange={(e) => onCellClick?.(item, headerKey, e.target.value)}
-            className="h-full w-full rounded bg-gray-600 px-2 py-1"
-          >
-            <option value="coil">coil</option>
-            <option value="discreteinput">discreteinput</option>
-            <option value="holdingregister">holdingregister</option>
-            <option value="inputregister">inputregister</option>
-          </select>
-        );
-      }
-      if (headerKey === "modbus:function") {
-        return (
-          <select
-            value={value}
-            onChange={(e) => onCellClick?.(item, headerKey, e.target.value)}
-            className="h-full w-full rounded bg-gray-600 px-2 py-1"
-          >
-            <option value="readCoil">readCoil</option>
-            <option value="readDeviceIdentification">
-              readDeviceIdentification
-            </option>
-            <option value="readDiscreteInput">readDiscreteInput</option>
-            <option value="readHoldingRegisters">readHoldingRegisters</option>
-            <option value="readInputRegisters">readInputRegisters</option>
-            <option value="writeMultipleCoils">writeMultipleCoils</option>
-            <option value="writeMultipleHoldingRegisters">
-              writeMultipleHoldingRegisters
-            </option>
-            <option value="writeSingleCoil">writeSingleCoil</option>
-            <option value="writeSingleHoldingRegister">
-              writeSingleHoldingRegister
-            </option>
-          </select>
-        );
-      }
-      if (headerKey === "modbus:function") {
-        return (
-          <select
-            value={value}
-            onChange={(e) => onCellClick?.(item, headerKey, e.target.value)}
-            className="h-full w-full rounded bg-gray-600 px-2 py-1"
-          >
-            <option value="readCoil">readCoil</option>
-            <option value="readDeviceIdentification">
-              readDeviceIdentification
-            </option>
-            <option value="readDiscreteInput">readDiscreteInput</option>
-            <option value="readHoldingRegisters">readHoldingRegisters</option>
-            <option value="readInputRegisters">readInputRegisters</option>
-            <option value="writeMultipleCoils">writeMultipleCoils</option>
-            <option value="writeMultipleHoldingRegisters">
-              writeMultipleHoldingRegisters
-            </option>
-            <option value="writeSingleCoil">writeSingleCoil</option>
-            <option value="writeSingleHoldingRegister">
-              writeSingleHoldingRegister
-            </option>
-          </select>
-        );
-      }
+    }
 
-      if (headerKey === "modbus:type") {
-        return (
-          <select
-            value={value}
-            onChange={(e) => onCellClick?.(item, headerKey, e.target.value)}
-            className="h-full w-full rounded bg-gray-600 px-2 py-1"
-          >
-            <option value="integer">integer</option>
-            <option value="boolean">boolean </option>
-            <option value="string">string</option>
-            <option value="float">float</option>
-            <option value="decimal">decimal</option>
-            <option value="byte">byte</option>
-            <option value="short">short</option>
-            <option value="int">int</option>
-            <option value="long">long</option>
-            <option value="unsignedByte">unsignedByte</option>
-            <option value="unsignedShort">unsignedShort</option>
-            <option value="unsignedInt">unsignedInt</option>
-            <option value="unsignedLong">unsignedLong</option>
-            <option value="double">double</option>
-            <option value="hexBinary">hexBinary</option>
-          </select>
-        );
-      }
+    if (typeof value === "string") {
       return value;
-    } else if (typeof value === "number") {
+    }
+
+    if (typeof value === "number") {
       return (
         <input
           type="number"
@@ -237,9 +263,9 @@ const BaseTable = <T extends TableItem>({
           className="w-full rounded bg-gray-600 px-2 py-1 text-center text-sm font-bold"
         />
       );
-    } else {
-      return value;
     }
+
+    return value;
   };
 
   return (
@@ -276,7 +302,6 @@ const BaseTable = <T extends TableItem>({
               <div
                 key={`row-${item.id || rowIndex}`}
                 className={`hover:bg-elevation-1-hover my-2 flex rounded border border-transparent text-white transition-all`}
-                onClick={() => onRowClick?.(item)}
               >
                 {headers.map((header, colIndex) => (
                   <div

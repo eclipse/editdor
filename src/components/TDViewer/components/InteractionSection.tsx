@@ -26,6 +26,7 @@ import EditProperties from "./EditProperties";
 import BaseTable from "../base/BaseTable";
 import DialogTemplate from "./../../Dialogs/DialogTemplate";
 import Editor, { OnChange } from "@monaco-editor/react";
+import { readProperty } from "../../../services/form";
 
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
@@ -52,7 +53,17 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
   );
   const [modeView, setModeView] = useState<"table" | "list">("list");
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control dialog visibility
-  const [editorContent, setEditorContent] = useState<string>(""); // State to manage editor content
+  const [editorContent, setEditorContent] = useState<{
+    editorState: string;
+    propName: string;
+    formsIndex: number;
+    state: "viewProperty" | "viewPropertyElementForm" | "sendRequest";
+  }>({
+    editorState: "",
+    propName: "",
+    formsIndex: 0,
+    state: "viewProperty",
+  }); // State to manage editor content
 
   const interaction = props.interaction.toLowerCase();
 
@@ -66,8 +77,15 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       return false;
     }
 
-    const isHrefModbus = (form: IForm): boolean =>
-      form.href.includes("modbus://") || form.href.includes("modbus+tcp://");
+    const isHrefModbus = (form: IForm): boolean => {
+      if (!form.href) {
+        return false;
+      } else {
+        return (
+          form.href.includes("modbus://") || form.href.includes("modbus+tcp://")
+        );
+      }
+    };
 
     return (
       isBaseModbus ||
@@ -189,6 +207,21 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     return parseInt(parts[1], 10);
   };
 
+  const handleOnClickSendRequest = (item: { [key: string]: any }) => {
+    const index = extractIndexFromId(item.id);
+    let value: any;
+    readProperty(td, item.propName, undefined).then((res) => {
+      console.log(res);
+      // Need to add the recevied value to my table
+      if (res.err) {
+        console.error(res.err);
+        return;
+      }
+      console.log("sendRequest");
+      return;
+    });
+  };
+
   const handleCellClick = (
     item: { [key: string]: any },
     headerKey: string,
@@ -202,27 +235,63 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     }
     context.updateOfflineTD(JSON.stringify(td, null, 2));
   };
-  const handleOnRowClick = (item: { [key: string]: any }) => {
-    console.log("Rowclick");
+
+  const handleOnRowClick = (
+    item: { [key: string]: any },
+    state: "viewProperty" | "viewPropertyElementForm"
+  ) => {
     const index = extractIndexFromId(item.id);
-    let value;
-    try {
-      value = { [item.propName]: td[interaction][item.propName] };
-      //value = td[interaction][item.propName].forms[index];
-    } catch (e) {
-      console.error(e);
+    let value: any;
+
+    if (state === "viewPropertyElementForm") {
+      value = td[interaction][item.propName].forms[index];
+    } else {
+      try {
+        value = { [item.propName]: td[interaction][item.propName] };
+        //value = td[interaction][item.propName].forms[index];
+      } catch (e) {
+        console.error(e);
+      }
     }
-    setEditorContent(JSON.stringify(value, null, 2));
+
+    setEditorContent({
+      editorState: JSON.stringify(value, null, 2),
+      propName: item.propName,
+      formsIndex: index,
+      state: state,
+    });
     setIsDialogOpen(true);
   };
 
   const handleDialogClose = () => {
+    setEditorContent({
+      editorState: "",
+      propName: "",
+      formsIndex: 0,
+      state: "viewProperty",
+    });
     setIsDialogOpen(false);
   };
 
   const handleDialogSubmit = () => {
-    console.log("Updated Content:", editorContent);
+    let value = JSON.parse(editorContent.editorState);
+    if (editorContent.state === "viewProperty") {
+      td[interaction][editorContent.propName] = value[editorContent.propName];
+    } else {
+      td[interaction][editorContent.propName].forms[editorContent.formsIndex] =
+        value;
+    }
+
+    context.updateOfflineTD(JSON.stringify(td, null, 2));
+
     setIsDialogOpen(false);
+
+    setEditorContent({
+      editorState: "",
+      propName: "",
+      formsIndex: 0,
+      state: "viewProperty",
+    });
   };
 
   const buildChildren = () => {
@@ -263,7 +332,12 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       const items = Object.keys(filteredInteractions).flatMap((key) => {
         const forms = filteredInteractions[key].forms || [];
         return forms
-          .filter((form: IForm) => form.op === "readproperty")
+          .filter((form: IForm) => {
+            if (Array.isArray(form.op)) {
+              return form.op.includes("readproperty");
+            }
+            return form.op === "readproperty";
+          })
           .map((form: IForm, index: number) => ({
             id: `${key} - ${index}`,
             propName: key,
@@ -280,6 +354,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
           order="asc"
           onCellClick={handleCellClick}
           onRowClick={handleOnRowClick}
+          onSendRequestClick={handleOnClickSendRequest}
         />
       );
     }
@@ -404,8 +479,13 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
           <Editor
             height="400px"
             defaultLanguage="json"
-            value={editorContent}
-            onChange={(value) => setEditorContent(value || "")} // Update editor content
+            value={editorContent.editorState}
+            onChange={(value) =>
+              setEditorContent({
+                ...editorContent,
+                editorState: value || "",
+              })
+            } // Update editor content
             options={{
               minimap: { enabled: false },
               fontSize: 14,
