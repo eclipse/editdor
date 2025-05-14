@@ -9,7 +9,7 @@ https://eclipse.github.io/editdor/
 
 ## About this project
 
-The goal of this project is the easy creation of W3C Thing Description instances and Thing Models by providing a platform-independent ediTDor tool. The following features are addressed in this project
+This project aims to make creating W3C Thing Description instances and Thing Models easy by providing a platform-independent ediTDor tool. The following features are addressed in this project
 
 - Creating a new Thing Description / ThingModel from scratch
 - Rendering a Thing Description / Thing Model
@@ -38,7 +38,7 @@ Please follow our [contribution guide](./CONTRIBUTING.md).
 
 ## Build
 
-`yarn install` install all the dependencies listed within package.json
+`yarn install` installs all the dependencies listed within package.json
 
 `yarn build` builds the project for deployment
 
@@ -48,5 +48,6 @@ Please follow our [contribution guide](./CONTRIBUTING.md).
 
 - JSON Editor with JSON Schema support for TD (Autocompletion, JSON Schema Validation)
 - Add Property, Action, Event by wizard
-- Render TD to be more human readable
+- Render TD to be more human-readable
 - Validate JSON Syntax and JSON Schema for TD (JSONLD and Additional Validation for nested TM will be implemented in the future)
+- Add a TM or TD via a CSV file (For now, Modbus only)
