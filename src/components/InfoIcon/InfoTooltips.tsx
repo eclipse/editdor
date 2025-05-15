@@ -83,7 +83,7 @@ export const getLinksTooltipContent: TooltipFunction = () => {
 };
 
 export const getUniIdTooltipContent: TooltipFunction = () => {
-  const html = `<h2 class='text-lg'>Web of Things Unit ID</h2>
+  const html = `<h2 class='text-lg'>Unit ID</h2>
                     <p>Slave address of the Modbus device.</p>
                     <br />
                     <p></p>
@@ -95,7 +95,7 @@ export const getUniIdTooltipContent: TooltipFunction = () => {
 };
 
 export const getAddressOffsetTooltipContent: TooltipFunction = () => {
-  const html = `<h2 class='text-lg'>Web of Things Address Offset</h2>
+  const html = `<h2 class='text-lg'>Address Offset</h2>
                     <p>Should all addresses shift by one (false) or not (true)</p>
                     <br />
                     <p></p>
@@ -107,7 +107,7 @@ export const getAddressOffsetTooltipContent: TooltipFunction = () => {
 };
 
 export const getEndiannessTooltipContent: TooltipFunction = () => {
-  const html = `<h2 class='text-lg'>Web of Things Endianness</h2>
+  const html = `<h2 class='text-lg'>Endianness</h2>
                     <p>Should the words or the bytes be swapped?</p>
                     <br />
                     <p></p>
