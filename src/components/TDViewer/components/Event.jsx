@@ -14,10 +14,11 @@ import React, { useContext, useState } from "react";
 import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../../util.js";
-import { AddFormDialog } from "../../Dialogs/AddFormDialog";
-import { InfoIconWrapper } from "../../InfoIcon/InfoIcon";
-import { getFormsTooltipContent } from "../../InfoIcon/InfoTooltips";
-import Form, { AddFormElement } from "./Form";
+import AddFormDialog from "../../Dialogs/AddFormDialog";
+import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
+import { getFormsTooltipContent } from "../../InfoIcon/TooltipMapper";
+import Form from "./Form";
+import AddFormElement from "../base/AddFormElement";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
 
@@ -93,6 +94,7 @@ export default function Event(props) {
           <InfoIconWrapper
             className="flex-grow"
             tooltip={getFormsTooltipContent()}
+            id="events"
           >
             <h4 className="pr-1 text-lg font-bold text-white">Forms</h4>
           </InfoIconWrapper>
