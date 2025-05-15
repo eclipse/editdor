@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -164,21 +164,9 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
   };
 
   const onChange: OnChange = async (editorText, _) => {
-    if (!editorText) {
-      return;
-    }
-    try {
-      JSON.parse(editorText);
-      context.updateOfflineTD(editorText);
-      context.updateValidationMessage(undefined);
-    } catch (error) {
-      context.updateValidationMessage({
-        valid: false,
-        message:
-          "Invalid JSON: " +
-          (error instanceof Error ? error.message : String(error)),
-      });
-    }
+    context.updateOfflineTD(editorText);
+    context.updateValidationMessage(undefined);
+
     setLocalTextState(editorText);
     delay(messageWorkers, editorText ?? "", 500);
   };

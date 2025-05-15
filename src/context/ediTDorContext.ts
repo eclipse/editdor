@@ -19,7 +19,7 @@ const defaultContext: IEdiTDorContext = {
   parsedTD: {},
   isModified: false,
   name: "",
-  fileHandle: null,
+  fileHandle: "",
   linkedTd: {},
   validationMessage: undefined,
 

@@ -4,10 +4,10 @@ interface IEdiTDorContext {
   isValidJSON: boolean;
   // ParsedTD: Accessing and modifying TD properties 	For programmatic manipulation JavaScript object Derived from offlineTD
   parsedTD: IThingDescription;
-  isModified: boolean;
-  name: string;
-  fileHandle: string | null;
-  linkedTd: Record<string, any>;
+  isModified?: boolean;
+  name?: string;
+  fileHandle?: string | null;
+  linkedTd?: Record<string, any>;
   validationMessage?: any;
 
   // Callback functions
@@ -44,7 +44,7 @@ type EditorState = Omit<
 
 type Action =
   | { type: "UPDATE_OFFLINE_TD"; offlineTD: string }
-  | { type: "UPDATE_IS_MODFIED"; isModified: boolean } //TODO NEED FIX on Speelig
+  | { type: "UPDATE_IS_MODIFIED"; isModified: boolean }
   | { type: "SET_FILE_HANDLE"; fileHandle: any }
   | { type: "REMOVE_LINK_FROM_TD"; link: any }
   | {
