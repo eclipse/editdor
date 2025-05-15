@@ -71,65 +71,64 @@ const ValidationView: React.FC<ValidationViewProps> = ({ onUndo, onRedo }) => {
   }, [context, jsonValidationError, jsonSchemaValidationError]);
 
   return (
-    <div className="mb-4 w-full rounded-md bg-gray-600 p-4 text-white">
-      <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-8">
-          <div className="flex items-center">
-            <h2 className="mr-2">JSON Validation</h2>
-            {jsonValidation === "passed" && <ImCheckmark />}
-            {jsonValidation === "failed" && <ImCross />}
-          </div>
-
-          {jsonValidationError && (
-            <div className="bg-formRed border-formRed mb-4 mt-2 flex min-h-[2.5rem] w-full rounded-md border-2 bg-opacity-75 px-4">
-              <div className="flex h-6 w-16 justify-center self-center rounded-md bg-white">
-                <div className="text-formRed place-self-center px-4 text-center text-xs">
-                  Error
-                </div>
-              </div>
-              <div className="place-self-center overflow-hidden pl-3 text-base">
-                {jsonValidationError}
-              </div>
-            </div>
-          )}
-
-          <div className="flex items-center">
-            <h2 className="mr-2">JSON Schema Validation </h2>
-            {jsonSchemaValidation === "passed" && <ImCheckmark />}
-            {jsonSchemaValidation === "failed" && <ImCross />}
-          </div>
-
-          {jsonSchemaValidationError && (
-            <div className="bg-formRed border-formRed mt-2 flex min-h-[2.5rem] w-full rounded-md border-2 bg-opacity-75 px-4">
-              <div className="flex h-6 w-16 justify-center self-center rounded-md bg-white">
-                <div className="text-formRed place-self-center px-4 text-center text-xs">
-                  Error
-                </div>
-              </div>
-              <div className="place-self-center overflow-hidden pl-3 text-base">
-                {jsonSchemaValidationError}
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="col-span-4 flex justify-end gap-2">
-          <button
-            className="flex h-8 w-40 items-center justify-center rounded-md bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
-            onClick={onUndo}
-          >
-            <RotateCcw size={16} strokeWidth={3} className="mr-2"></RotateCcw>
-            <span className="font-bold">Undo</span>
-          </button>
-          <button
-            className="flex h-8 w-40 items-center justify-center rounded-md bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
-            onClick={onRedo}
-          >
-            <span className="mr-2 font-bold">Redo</span>
-            <RotateCw size={16} strokeWidth={3}></RotateCw>
-          </button>
-        </div>
+    <>
+      <div className="col-span-4 mb-4 flex justify-end gap-2">
+        <button
+          className="flex h-8 w-40 items-center justify-center rounded-md bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
+          onClick={onUndo}
+        >
+          <RotateCcw size={16} strokeWidth={3} className="mr-2"></RotateCcw>
+          <span className="font-bold">Undo</span>
+        </button>
+        <button
+          className="flex h-8 w-40 items-center justify-center rounded-md bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
+          onClick={onRedo}
+        >
+          <span className="mr-2 font-bold">Redo</span>
+          <RotateCw size={16} strokeWidth={3}></RotateCw>
+        </button>
       </div>
-    </div>
+
+      <div className="mb-4 w-full rounded-md bg-gray-600 p-4 text-white">
+        <div className="flex items-center">
+          <h2 className="mr-2">JSON Validation</h2>
+          {jsonValidation === "passed" && <ImCheckmark />}
+          {jsonValidation === "failed" && <ImCross />}
+        </div>
+
+        {jsonValidationError && (
+          <div className="bg-formRed border-formRed mb-4 mt-2 flex min-h-[2.5rem] w-full rounded-md border-2 bg-opacity-75 px-4">
+            <div className="flex h-6 w-16 justify-center self-center rounded-md bg-white">
+              <div className="text-formRed place-self-center px-4 text-center text-xs">
+                Error
+              </div>
+            </div>
+            <div className="place-self-center overflow-hidden pl-3 text-base">
+              {jsonValidationError}
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center">
+          <h2 className="mr-2">JSON Schema Validation </h2>
+          {jsonSchemaValidation === "passed" && <ImCheckmark />}
+          {jsonSchemaValidation === "failed" && <ImCross />}
+        </div>
+
+        {jsonSchemaValidationError && (
+          <div className="bg-formRed border-formRed mt-2 flex min-h-[2.5rem] w-full rounded-md border-2 bg-opacity-75 px-4">
+            <div className="flex h-6 w-16 justify-center self-center rounded-md bg-white">
+              <div className="text-formRed place-self-center px-4 text-center text-xs">
+                Error
+              </div>
+            </div>
+            <div className="place-self-center overflow-hidden pl-3 text-base">
+              {jsonSchemaValidationError}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
