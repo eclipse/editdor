@@ -264,7 +264,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       </div>
 
       {interaction === "properties" && hasModbusProperties(td) && (
-        <EditProperties isBaseModbus={isBaseModbus} />
+        <EditProperties isBaseModbus={hasModbusProperties(td)} />
       )}
       {buildChildren() && (
         <div className="rounded-lg bg-gray-600 px-4 pb-4 pt-4">
