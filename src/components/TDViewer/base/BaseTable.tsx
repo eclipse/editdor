@@ -249,7 +249,24 @@ const BaseTable = <T extends TableItem>({
     }
 
     if (typeof value === "string") {
-      return value;
+      return (
+        <div className="group relative">
+          <div
+            className="w-full truncate px-2 py-1 text-center text-sm font-bold text-white"
+            style={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+            title={value.length > 10 ? value : undefined}
+          >
+            {value.length > 10 ? `${value.slice(0, 10)}...` : value}
+          </div>
+          <div className="absolute left-0 top-full mt-1 hidden w-max max-w-xs rounded bg-gray-700 px-2 py-1 text-sm text-white shadow-lg group-hover:block">
+            {value}
+          </div>
+        </div>
+      );
     }
 
     if (typeof value === "number") {
