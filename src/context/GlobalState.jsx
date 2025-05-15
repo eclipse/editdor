@@ -32,7 +32,7 @@ const GlobalState = (props) => {
     offlineTD: "",
     validationMessage: "",
     parsedTD: {},
-    isValidJSON: true,
+    isValidJSON: false,
   });
 
   const updateOfflineTD = (offlineTD) => {

@@ -40,7 +40,9 @@ interface IEditPropertiesProps {
 
 const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
   const context = useContext(ediTDorContext);
-  const td: IThingDescription = JSON.parse(context.offlineTD);
+
+  const td: IThingDescription = context.parsedTD;
+
   const [unitId, setUnitId] = useState<number>(0);
   const [addressOffset, setAddressOffset] = useState<boolean>(true);
   const [endianness, setEndianness] = useState<IEndianness>({
@@ -215,8 +217,8 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
 
   const AddressOffset = (
     <>
-      <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-lg bg-white">
-        <div className="col-span-6 flex items-center justify-center rounded-l-lg bg-blue-500">
+      <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-md">
+        <div className="col-span-6 flex items-center justify-center rounded-l-md bg-blue-500">
           <InfoIconWrapper
             tooltip={getAddressOffsetTooltipContent()}
             id="addressOffset"
@@ -224,7 +226,7 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
             <h1 className="p-2 font-bold text-white">Address Offset</h1>
           </InfoIconWrapper>
         </div>
-        <div className="col-span-6 rounded-r-lg bg-blue-500">
+        <div className="col-span-6 rounded-r-md bg-blue-500">
           <div className="grid h-full w-full grid-cols-12">
             <div className="col-span-12"></div>
             <div className="col-span-12">
@@ -247,8 +249,8 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
 
   const Endianness = (
     <>
-      <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-lg bg-white">
-        <div className="col-span-4 flex items-center justify-center rounded-l-lg bg-blue-500">
+      <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-md">
+        <div className="col-span-4 flex items-center justify-center rounded-l-md bg-blue-500">
           <InfoIconWrapper
             tooltip={getEndiannessTooltipContent()}
             id="endianness"
@@ -256,9 +258,12 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
             <h1 className="p-2 font-bold text-white">Endianness</h1>
           </InfoIconWrapper>
         </div>
-        <div className="col-span-8 rounded-r-lg">
+        <div className="col-span-8 rounded-r-md">
           <div className="grid h-full w-full grid-cols-12">
-            <div id="firstRow" className="col-span-12 bg-blue-500">
+            <div
+              id="firstRow"
+              className="col-span-12 rounded-tr-md bg-blue-500"
+            >
               <ButtonSwap
                 description="wordswap"
                 value={endianness.wordSwap}
@@ -267,7 +272,10 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
                 }
               />
             </div>
-            <div id="secondRow" className="col-span-12 bg-blue-500">
+            <div
+              id="secondRow"
+              className="col-span-12 rounded-br-md bg-blue-500"
+            >
               <ButtonSwap
                 description="byteswap"
                 value={endianness.byteSwap}
@@ -284,13 +292,13 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
 
   const UnidId = (
     <>
-      <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-lg bg-white">
-        <div className="col-span-6 flex items-center justify-center rounded-l-lg bg-blue-500">
+      <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-md">
+        <div className="col-span-6 flex items-center justify-center rounded-l-md bg-blue-500">
           <InfoIconWrapper tooltip={getUniIdTooltipContent()} id="unitId">
             <h1 className="p-2 font-bold text-white">Unit ID</h1>
           </InfoIconWrapper>
         </div>
-        <div className="col-span-6 rounded-r-lg bg-blue-500">
+        <div className="col-span-6 rounded-r-md bg-blue-500">
           <div className="grid h-full w-full grid-cols-12">
             <div className="col-span-12"></div>
             <div className="col-span-12">
@@ -311,10 +319,19 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
   );
   return (
     <>
-      <div className="grid grid-cols-12 gap-1">
+      <div className="grid grid-cols-12 gap-1 rounded-t-md bg-gray-600 px-2">
+        <div className="col-span-12 rounded-md bg-gray-600 px-2">
+          {props.isBaseModbus ? (
+            <h1 className="py-1 text-xl text-white">Edit in bulk</h1>
+          ) : (
+            <div></div>
+          )}
+        </div>
         <div
           id="unitId"
-          className="col-span-4 h-full rounded-lg bg-gray-600 px-2"
+          className={`col-span-4 px-2 ${
+            validateModbusProperties.unitID ? "h-16" : "h-full"
+          }`}
         >
           {validateModbusProperties.unitID ? (
             UnidId
@@ -322,8 +339,8 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
             <>
               <div className="flex h-full flex-col">
                 <div className="flex-grow">{UnidId}</div>
-                <div className="rounded-lg p-1 text-center">
-                  <h1 className="rounded-lg border-2 border-red-500 p-1 font-bold text-red-600">
+                <div className="rounded-md p-1 text-center">
+                  <h1 className="rounded-md border-2 border-red-500 p-1 font-bold text-red-600">
                     Different unit id is detected on different affordances.
                     Clicking + or - will set all to the same value
                   </h1>
@@ -334,7 +351,9 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
         </div>
         <div
           id="addressOffset"
-          className="col-span-4 h-full rounded-lg bg-gray-600 px-2"
+          className={`col-span-4 px-2 ${
+            validateModbusProperties.zeroBasedAddressing ? "h-16" : "h-full"
+          }`}
         >
           {validateModbusProperties.zeroBasedAddressing ? (
             AddressOffset
@@ -343,8 +362,8 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
               <div className="flex h-full flex-col">
                 <div className="flex-grow">{AddressOffset}</div>
 
-                <div className="rounded-lg p-1 text-center">
-                  <h1 className="rounded-lg border-2 border-red-500 p-1 font-bold text-red-600">
+                <div className="rounded-md p-1 text-center">
+                  <h1 className="rounded-md border-2 border-red-500 p-1 font-bold text-red-600">
                     Different address offset is detected on different
                     affordances. Clicking to swap and set all to the same value
                   </h1>
@@ -356,7 +375,12 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
 
         <div
           id="endianness"
-          className="col-span-4 h-full rounded-lg bg-gray-600 px-2"
+          className={`col-span-4 px-2 ${
+            validateModbusProperties.mostSignificantByte &&
+            validateModbusProperties.mostSignificantWord
+              ? "h-16"
+              : "h-full"
+          }`}
         >
           {validateModbusProperties.mostSignificantByte &&
           validateModbusProperties.mostSignificantWord ? (
@@ -365,8 +389,8 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
             <>
               <div className="col-span-12">{Endianness}</div>
               <div className="col-span-12 p-1">
-                <div className="rounded-lg text-center">
-                  <h1 className="rounded-lg border-2 border-red-500 p-1 font-bold text-red-600">
+                <div className="rounded-md text-center">
+                  <h1 className="rounded-md border-2 border-red-500 p-1 font-bold text-red-600">
                     Different endianness (
                     {[
                       !validateModbusProperties.mostSignificantWord &&
