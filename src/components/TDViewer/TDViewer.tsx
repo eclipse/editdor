@@ -97,7 +97,7 @@ const TDViewer: React.FC<ITDViewerProps> = ({ onUndo, onRedo }) => {
     maxSize: 10 * 1024 * 1024, // 10MB
   });
 
-  if (!td || !Object.keys(td).length) {
+  if (!context.offlineTD) {
     return (
       <div
         {...getRootProps()}

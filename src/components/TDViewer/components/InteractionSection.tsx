@@ -40,8 +40,9 @@ interface IInteractionSectionProps {
  */
 const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
   const context = useContext(ediTDorContext);
-  const td: IThingDescription = JSON.parse(context.offlineTD);
-
+  const td: IThingDescription = context.isValidJSON
+    ? JSON.parse(context.offlineTD)
+    : {};
   const [filter, setFilter] = useState("");
   const [sortOrder, setSortOrder] = useState(SORT_ASC);
 
