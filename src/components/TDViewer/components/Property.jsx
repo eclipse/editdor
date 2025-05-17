@@ -14,7 +14,7 @@ import React, { useContext, useState } from "react";
 import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../../util.js";
-import { InfoIconWrapper } from "../../InfoIcon/InfoIcon";
+import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import { getFormsTooltipContent } from "../../InfoIcon/InfoTooltips";
 import Form, { AddFormElement } from "./Form";
 import { AddFormDialog } from "../../Dialogs/AddFormDialog";
@@ -94,6 +94,7 @@ export default function Property(props) {
           <InfoIconWrapper
             className="flex-grow"
             tooltip={getFormsTooltipContent()}
+            id="properties"
           >
             <h4 className="pr-1 text-lg font-bold text-white">Forms</h4>
           </InfoIconWrapper>

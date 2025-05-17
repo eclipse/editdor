@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import Editor from "@monaco-editor/react";
+import Editor, { OnChange } from "@monaco-editor/react";
 import React, {
   useCallback,
   useContext,
@@ -20,13 +20,10 @@ import React, {
 } from "react";
 import ediTDorContext from "../../context/ediTDorContext";
 import { changeBetweenTd } from "../../util";
+import { editor } from "monaco-editor";
 
-/**
- * @typedef { import("../../models").ValidationResults } ValidationResults
- */
-
-// List of all Options can be found here: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.ieditorconstructionoptions.html
-const editorOptions = {
+// List of all Options can be found here: https://microsoft.github.io/monaco-editor/docs.html#interfaces/editor.IStandaloneEditorConstructionOptions.html
+const editorOptions: editor.IStandaloneEditorConstructionOptions = {
   selectOnLineNumbers: true,
   automaticLayout: true,
   lineDecorationsWidth: 20,
@@ -34,20 +31,25 @@ const editorOptions = {
 
 // delay function that executes the callback once it hasn't been called for
 // at least x ms.
-let timeoutId = 0;
-const delay = (fn, text, ms) => {
+let timeoutId: NodeJS.Timeout;
+const delay = (fn: (text: string) => void, text: string, ms: number) => {
   clearTimeout(timeoutId);
   timeoutId = setTimeout(() => fn(text), ms);
 };
 
-const JSONEditorComponent = (props) => {
+type JsonEditorProps = {
+  editorRef?: React.MutableRefObject<editor.IStandaloneCodeEditor | null>;
+};
+
+const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
   const context = useContext(ediTDorContext);
-  const [schemas] = useState([]);
-  const [proxy, setProxy] = useState(undefined);
-  const editorInstance = useRef(null);
-  const [tabs, setTabs] = useState([]);
-  const [text, setText] = useState("");
-  const [localTextState, setLocalTextState] = useState("");
+
+  const [schemas] = useState<{ schemaUri: string; schema: object }[]>([]);
+  const [proxy, setProxy] = useState<any>(undefined);
+  const editorInstance = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const [tabs, setTabs] = useState<JSX.Element[]>([]);
+  const [text, setText] = useState<string>("");
+  const [localTextState, setLocalTextState] = useState<string | undefined>("");
 
   const validationWorker = React.useMemo(
     () =>
@@ -123,10 +125,19 @@ const JSONEditorComponent = (props) => {
     }
 
     let proxy = new Proxy(schemas, {
-      set: function (target, property, value, _) {
+      set: function (
+        target: { schemaUri: string; schema: object }[],
+        property: string | symbol,
+        value: any,
+        _
+      ) {
         target[property] = value;
 
-        let jsonSchemaObjects = [];
+        let jsonSchemaObjects: {
+          fileMatch: string[];
+          uri: any;
+          schema: any;
+        }[] = [];
         for (let i = 0; i < target.length; i++) {
           jsonSchemaObjects.push({
             fileMatch: ["*/*"],
@@ -144,15 +155,19 @@ const JSONEditorComponent = (props) => {
         return true;
       },
     });
+
     editorInstance.current = editor;
+    if (editorRef) {
+      editorRef.current = editor;
+    }
     setProxy(proxy);
   };
 
-  const onChange = async (editorText, _) => {
+  const onChange: OnChange = async (editorText, _) => {
     context.updateOfflineTD(editorText);
     context.updateValidationMessage(undefined);
     setLocalTextState(editorText);
-    delay(messageWorkers, editorText, 500);
+    delay(messageWorkers, editorText ?? "", 500);
   };
 
   useEffect(() => {
@@ -161,7 +176,7 @@ const JSONEditorComponent = (props) => {
     }
 
     try {
-      let tabs = [];
+      let tabs: JSX.Element[] = [];
       let index = 0;
       for (let key in context.linkedTd) {
         if (
@@ -183,7 +198,7 @@ const JSONEditorComponent = (props) => {
   }, [context.linkedTd, context.offlineTD]);
 
   const changeLinkedTd = async () => {
-    let href = document.getElementById("linkedTd").value;
+    let href = (document.getElementById("linkedTd") as HTMLSelectElement).value;
     changeBetweenTd(context, href);
   };
 
@@ -209,13 +224,11 @@ const JSONEditorComponent = (props) => {
           value={text}
           beforeMount={editorWillMount}
           onMount={editorDidMount}
-          onChange={async (editorText) => {
-            await onChange(editorText);
-          }}
+          onChange={onChange}
         />
       </div>
     </>
   );
 };
 
-export default JSONEditorComponent;
+export default JsonEditor;

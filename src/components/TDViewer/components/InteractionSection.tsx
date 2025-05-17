@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -16,16 +16,21 @@ import ediTDorContext from "../../../context/ediTDorContext";
 import { AddActionDialog } from "../../Dialogs/AddActionDialog";
 import { AddEventDialog } from "../../Dialogs/AddEventDialog";
 import { AddPropertyDialog } from "../../Dialogs/AddPropertyDialog";
-import { InfoIconWrapper } from "../../InfoIcon/InfoIcon";
+import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import { tooltipMapper } from "../../InfoIcon/InfoTooltips";
 import Action from "./Action";
 import Event from "./Event";
 import Property from "./Property";
 import { SearchBar } from "./SearchBar";
+import { IForm, IThingDescription } from "types/td";
+import EditProperties from "./EditProperties";
 
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
 
+interface IInteractionSectionProps {
+  interaction: "Properties" | "Actions" | "Events";
+}
 /**
  * Renders a section for an interaction (Property, Action, Event) with a
  * search bar, a sorting icon and a button to add a new interaction.
@@ -33,10 +38,11 @@ const SORT_DESC = "desc";
  * The parameter interaction can be one of "Properties", "Actions" or "Events".
  * @param {String} interaction
  */
-export const InteractionSection = (props) => {
+const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
   const context = useContext(ediTDorContext);
-  const td = context.parsedTD;
-
+  const td: IThingDescription = context.isValidJSON
+    ? JSON.parse(context.offlineTD)
+    : {};
   const [filter, setFilter] = useState("");
   const [sortOrder, setSortOrder] = useState(SORT_ASC);
 
@@ -44,13 +50,32 @@ export const InteractionSection = (props) => {
 
   const updateFilter = (event) => setFilter(event.target.value);
 
+  const isBaseModbus: boolean =
+    !!td.base?.includes("modbus://") || !!td.base?.includes("modbus+tcp");
+
+  const hasModbusProperties = (obj: IThingDescription): boolean => {
+    if (!obj.properties || Object.keys(obj.properties).length === 0) {
+      return false;
+    }
+
+    const isHrefModbus = (form: IForm): boolean =>
+      form.href.includes("modbus://") || form.href.includes("modbus+tcp://");
+
+    return (
+      isBaseModbus ||
+      Object.values(obj.properties).some((property) =>
+        property.forms?.some((form) => isHrefModbus(form))
+      )
+    );
+  };
+
   /**
    * Returns an Object containing all interactions with keys
    * matching to the filter.
    */
   const applyFilter = () => {
     if (!td[interaction]) {
-      return;
+      return {};
     }
 
     const filtered = {};
@@ -181,9 +206,13 @@ export const InteractionSection = (props) => {
     }
   };
 
-  const createPropertyDialog = React.useRef();
+  const createPropertyDialog = React.useRef<{ openModal: () => void } | null>(
+    null
+  );
   const openCreatePropertyDialog = () => {
-    createPropertyDialog.current.openModal();
+    if (createPropertyDialog.current) {
+      createPropertyDialog.current.openModal();
+    }
   };
 
   let addInteractionDialog;
@@ -204,7 +233,10 @@ export const InteractionSection = (props) => {
     <>
       <div className="flex items-end justify-start pb-4 pt-8">
         <div className="flex flex-grow">
-          <InfoIconWrapper tooltip={tooltipMapper[interaction]}>
+          <InfoIconWrapper
+            tooltip={tooltipMapper[interaction]}
+            id={interaction}
+          >
             <h2 className="flex-grow pr-1 text-2xl text-white">
               {props.interaction}
             </h2>
@@ -231,6 +263,10 @@ export const InteractionSection = (props) => {
         </button>
         {addInteractionDialog}
       </div>
+
+      {interaction === "properties" && hasModbusProperties(td) && (
+        <EditProperties isBaseModbus={hasModbusProperties(td)} />
+      )}
       {buildChildren() && (
         <div className="rounded-lg bg-gray-600 px-4 pb-4 pt-4">
           {buildChildren()}
@@ -242,3 +278,5 @@ export const InteractionSection = (props) => {
     </>
   );
 };
+
+export default InteractionSection;

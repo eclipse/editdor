@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -12,13 +12,18 @@
  ********************************************************************************/
 
 class TooltipContent {
-  constructor(html, href) {
+  html: string;
+  href: string;
+
+  constructor(html: string, href: string) {
     this.html = html;
     this.href = href;
   }
 }
 
-export const getPropertiesTooltipContent = () => {
+type TooltipFunction = () => TooltipContent;
+
+export const getPropertiesTooltipContent: TooltipFunction = () => {
   const html = `<h2 class='text-lg'>Web of Things Properties</h2>
                     <p>A Property is a simple attribute of a device. The value of a Property can be readable.</p>
                     <p>writable or observable. E.g. a Property for a lamp could indicate if it is on or off.</p>
@@ -30,7 +35,7 @@ export const getPropertiesTooltipContent = () => {
   return new TooltipContent(html, href);
 };
 
-export const getActionsTooltipContent = () => {
+export const getActionsTooltipContent: TooltipFunction = () => {
   const html = `<h2 class='text-lg'>Web of Things Actions</h2>
                     <p>An Action is some kind of procedure that can be triggered on a device. An Action can</p>
                     <p>be started or cancelled. E.g. an Action for a lamp could be turning it on or off.</p>
@@ -41,7 +46,7 @@ export const getActionsTooltipContent = () => {
   return new TooltipContent(html, href);
 };
 
-export const getEventsTooltipContent = () => {
+export const getEventsTooltipContent: TooltipFunction = () => {
   const html = `<h2 class='text-lg'>Web of Things Events</h2>
                 <p>An Event is an asynchronously happening information flow. An Event is observable.</p>
                 <p>E.g. an Event for a lamp could fire if it gets turned on or off.</p>
@@ -53,7 +58,7 @@ export const getEventsTooltipContent = () => {
   return new TooltipContent(html, href);
 };
 
-export const getFormsTooltipContent = () => {
+export const getFormsTooltipContent: TooltipFunction = () => {
   const html = `<h2 class='text-lg'>Web of Things Forms</h2>
                     <p>A Form contains all information needed to make a request to a device.</p>
                     <p>It can accompany a Property, Action, Event or a Thing itself.</p>
@@ -65,7 +70,7 @@ export const getFormsTooltipContent = () => {
   return new TooltipContent(html, href);
 };
 
-export const getLinksTooltipContent = () => {
+export const getLinksTooltipContent: TooltipFunction = () => {
   const html = `<h2 class='text-lg'>Web of Things Link</h2>
                     <p>A link can be viewed as a statement of the form link context has a relation type resource at link target</p>
                     <p>Used to link Thing Description with other ressources.</p>
@@ -77,10 +82,60 @@ export const getLinksTooltipContent = () => {
   return new TooltipContent(html, href);
 };
 
-export const tooltipMapper = {
+export const getUniIdTooltipContent: TooltipFunction = () => {
+  const html = `<h2 class='text-lg'>Unit ID</h2>
+                    <p>Slave address of the Modbus device.</p>
+                    <br />
+                    <p></p>
+                `;
+  const href =
+    "https://w3c.github.io/wot-binding-templates/bindings/protocols/modbus/#url-terms";
+
+  return new TooltipContent(html, href);
+};
+
+export const getAddressOffsetTooltipContent: TooltipFunction = () => {
+  const html = `<h2 class='text-lg'>Address Offset</h2>
+                    <p>Should all addresses shift by one (false) or not (true)</p>
+                    <br />
+                    <p></p>
+                `;
+  const href =
+    "https://w3c.github.io/wot-binding-templates/bindings/protocols/modbus/#form-terms";
+
+  return new TooltipContent(html, href);
+};
+
+export const getEndiannessTooltipContent: TooltipFunction = () => {
+  const html = `<h2 class='text-lg'>Endianness</h2>
+                    <p>Should the words or the bytes be swapped?</p>
+                    <br />
+                    <p></p>
+                `;
+  const href =
+    "https://w3c.github.io/wot-binding-templates/bindings/protocols/modbus/#form-terms";
+
+  return new TooltipContent(html, href);
+};
+
+interface ITooltipMapper {
+  properties: TooltipContent;
+  actions: TooltipContent;
+  events: TooltipContent;
+  forms: TooltipContent;
+  links: TooltipContent;
+  unitId: TooltipContent;
+  addressOffset: TooltipContent;
+  endianness: TooltipContent;
+}
+
+export const tooltipMapper: ITooltipMapper = {
   properties: getPropertiesTooltipContent(),
   actions: getActionsTooltipContent(),
   events: getEventsTooltipContent(),
   forms: getFormsTooltipContent(),
   links: getLinksTooltipContent(),
+  unitId: getUniIdTooltipContent(),
+  addressOffset: getAddressOffsetTooltipContent(),
+  endianness: getEndiannessTooltipContent(),
 };

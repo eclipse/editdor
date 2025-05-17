@@ -10,10 +10,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import ediTDorContext from "./context/ediTDorContext";
 import GlobalState from "./context/GlobalState";
-import JSONEditorComponent from "./components/Editor/Editor";
+import JsonEditor from "./components/Editor/JsonEditor";
 import TDViewer from "./components/TDViewer/TDViewer";
 import "./App.css";
 import AppFooter from "./components/App/AppFooter";
@@ -22,8 +22,9 @@ import { Container, Section, Bar } from "@column-resizer/react";
 import { RefreshCw } from "react-feather";
 import { retrieveThing } from "./services/thingsApiService";
 import { decompressSharedTd } from "./share";
+import { editor } from "monaco-editor";
 
-const GlobalStateWrapper = (props) => {
+const GlobalStateWrapper = () => {
   return (
     <GlobalState>
       <App />
@@ -34,10 +35,24 @@ const GlobalStateWrapper = (props) => {
 // The useEffect hook for checking the URI was called twice somehow.
 // This variable prevents the callback from being executed twice.
 let checkedUrl = false;
-const App = (props) => {
+
+const App: React.FC = () => {
   const context = useContext(ediTDorContext);
 
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [doShowJSON, setDoShowJSON] = useState(false);
+
+  const handleOnClickUndo = () => {
+    if (editorRef.current) {
+      editorRef.current.trigger("keyboard", "undo", null);
+    }
+  };
+
+  const handleOnClickRedo = () => {
+    if (editorRef.current) {
+      editorRef.current.trigger("keyboard", "redo", null);
+    }
+  };
 
   useEffect(() => {
     if (
@@ -70,7 +85,7 @@ const App = (props) => {
     if (southboundTdId !== null) {
       retrieveThing(southboundTdId, proxyEndpointUrl)
         .then((td) => {
-          if (td === undefined) {
+          if (!td === undefined) {
             alert(
               `No Thing Description with id '${southboundTdId} could be fetched from the proxy.`
             );
@@ -86,7 +101,7 @@ const App = (props) => {
 
     if (url.searchParams.has("localstorage")) {
       let td = localStorage.getItem("td");
-      if (td === undefined) {
+      if (!td) {
         alert("Request to read TD from local storage failed.");
         return;
       }
@@ -110,21 +125,23 @@ const App = (props) => {
       <div className="hidden md:block">
         <Container className="height-adjust flex">
           <Section minSize={550} className="w-7/12 min-w-16">
-            <TDViewer />
+            <TDViewer onUndo={handleOnClickUndo} onRedo={handleOnClickRedo} />
           </Section>
           <Bar
             size={7.5}
             className="cursor-col-resize bg-gray-300 hover:bg-blue-500"
           />
           <Section className="w-5/12">
-            <JSONEditorComponent />
+            <JsonEditor editorRef={editorRef} />
           </Section>
         </Container>
       </div>
 
       <div className="height-adjust md:hidden">
-        {doShowJSON && <JSONEditorComponent />}
-        {!doShowJSON && <TDViewer />}
+        {doShowJSON && <JsonEditor editorRef={editorRef} />}
+        {!doShowJSON && (
+          <TDViewer onUndo={handleOnClickUndo} onRedo={handleOnClickRedo} />
+        )}
 
         <button
           className="absolute bottom-12 right-2 z-10 rounded-full bg-blue-500 p-4"
