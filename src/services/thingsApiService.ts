@@ -73,7 +73,10 @@ const createAnonymousThing = async (
  * @param {string} targetUrl
  * @returns
  */
-const retrieveThing = async (id: string, targetUrl: string): Promise<any> => {
+const retrieveThing = async (
+  id: string,
+  targetUrl: string | null
+): Promise<any> => {
   const encodedId = encodeURIComponent(id);
 
   const res = await fetch(`${targetUrl}things/${encodedId}`, {
