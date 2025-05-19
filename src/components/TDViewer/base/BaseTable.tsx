@@ -145,15 +145,6 @@ const BaseTable = <T extends TableItem>({
     );
   };
 
-  const formatTextKey = (key: string, index: number): string => {
-    let propIndex = index + 1;
-    return key + ` (opt.${String(propIndex)})`;
-  };
-  const extractIndexFromId = (id: string): number => {
-    const parts = id.split(" - ");
-    return parseInt(parts[1], 10);
-  };
-
   const renderCell = (item: T, headerKey: string): React.ReactNode => {
     if (renderItem) {
       return renderItem(item, headerKey);
