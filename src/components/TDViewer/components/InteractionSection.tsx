@@ -66,7 +66,13 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     state: "viewProperty",
     title: "Edit Property",
   }); // State to manage editor content
-
+  const [request, setRequest] = useState<{
+    value: string;
+    error: string;
+  }>({
+    value: "",
+    error: "33",
+  });
   const interaction = props.interaction.toLowerCase();
 
   const updateFilter = (event) => setFilter(event.target.value);
