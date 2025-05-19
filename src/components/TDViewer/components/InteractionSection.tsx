@@ -25,10 +25,9 @@ import { SearchBar } from "./SearchBar";
 import EditProperties from "./EditProperties";
 import BaseTable from "../base/BaseTable";
 import DialogTemplate from "./../../Dialogs/DialogTemplate";
-import Editor, { OnChange } from "@monaco-editor/react";
+import Editor from "@monaco-editor/react";
 import { readProperty } from "../../../services/form";
-import { removeKeyFromObjects } from "../../../utils/arrays";
-
+import { extractIndexFromId, formatText } from "../../../utils/strings";
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
 
@@ -67,13 +66,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     state: "viewProperty",
     title: "Edit Property",
   }); // State to manage editor content
-  const [request, setRequest] = useState<{
-    value: string;
-    error: string;
-  }>({
-    value: "",
-    error: "33",
-  });
+
   const interaction = props.interaction.toLowerCase();
 
   const updateFilter = (event) => setFilter(event.target.value);
@@ -201,22 +194,6 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         <path d="M11 5h4M11 9h7M11 13h10M3 17l3 3 3-3M6 18V4" />
       </svg>
     );
-  };
-
-  const formatText = (text: string): string => {
-    if (text.startsWith("modbus:")) {
-      text = text.replace("modbus:", "");
-    }
-    if (text.startsWith("propName")) {
-      text = "Property Name";
-    }
-    text = text.replace(/([a-z])([A-Z])/g, "$1 $2");
-    return text.charAt(0).toUpperCase() + text.slice(1);
-  };
-
-  const extractIndexFromId = (id: string): number => {
-    const parts = id.split(" - ");
-    return parseInt(parts[1], 10);
   };
 
   const handleOnClickSendRequest = async (item: {

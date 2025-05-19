@@ -15,10 +15,9 @@ import BasePagination from "./BasePagination";
 import ButtonSwap from "./ButtonSwap";
 import Icon from "../../InfoIcon/Icon";
 import { Eye, Check, Info, CheckCircle, AlertTriangle } from "react-feather";
-import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import IncrementButton from "./IncrementButton";
+import { extractIndexFromId, formatTextKey } from "../../../utils/strings";
 
-// Type definitions
 export interface TableHeader {
   key: string;
   text: string;
@@ -122,7 +121,7 @@ const BaseTable = <T extends TableItem>({
     const initialResults = items.reduce(
       (acc, item) => {
         if (item.id) {
-          acc[item.id] = { value: "", error: "" }; // Default values
+          acc[item.id] = { value: "", error: "" };
         }
         return acc;
       },
@@ -151,15 +150,6 @@ const BaseTable = <T extends TableItem>({
         ))}
       </select>
     );
-  };
-
-  const formatTextKey = (key: string, index: number): string => {
-    let propIndex = index + 1;
-    return key + ` (opt.${String(propIndex)})`;
-  };
-  const extractIndexFromId = (id: string): number => {
-    const parts = id.split(" - ");
-    return parseInt(parts[1], 10);
   };
 
   const renderCell = (item: T, headerKey: string): React.ReactNode => {
