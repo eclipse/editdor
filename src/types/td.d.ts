@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-export interface IThingDescription {
+declare interface IThingDescription {
   "@context": string | string[];
   "@type"?: string;
   id?: string;

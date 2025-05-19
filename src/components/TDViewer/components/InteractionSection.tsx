@@ -27,6 +27,7 @@ import BaseTable from "../base/BaseTable";
 import DialogTemplate from "./../../Dialogs/DialogTemplate";
 import Editor, { OnChange } from "@monaco-editor/react";
 import { readProperty } from "../../../services/form";
+import { removeKeyFromObjects } from "../../../utils/arrays";
 
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
@@ -58,13 +59,21 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     propName: string;
     formsIndex: number;
     state: "viewProperty" | "viewPropertyElementForm" | "sendRequest";
+    title: string;
   }>({
     editorState: "",
     propName: "",
     formsIndex: 0,
     state: "viewProperty",
+    title: "Edit Property",
   }); // State to manage editor content
-
+  const [request, setRequest] = useState<{
+    value: string;
+    error: string;
+  }>({
+    value: "",
+    error: "33",
+  });
   const interaction = props.interaction.toLowerCase();
 
   const updateFilter = (event) => setFilter(event.target.value);
@@ -194,9 +203,12 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     );
   };
 
-  const formatText = (text: string) => {
+  const formatText = (text: string): string => {
     if (text.startsWith("modbus:")) {
       text = text.replace("modbus:", "");
+    }
+    if (text.startsWith("propName")) {
+      text = "Property Name";
     }
     text = text.replace(/([a-z])([A-Z])/g, "$1 $2");
     return text.charAt(0).toUpperCase() + text.slice(1);
@@ -207,19 +219,21 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     return parseInt(parts[1], 10);
   };
 
-  const handleOnClickSendRequest = (item: { [key: string]: any }) => {
+  const handleOnClickSendRequest = async (item: {
+    [key: string]: any;
+  }): Promise<{ value: string; error: string }> => {
     const index = extractIndexFromId(item.id);
     let value: any;
-    readProperty(td, item.propName, undefined).then((res) => {
-      console.log(res);
-      // Need to add the recevied value to my table
+
+    try {
+      const res = await readProperty(td, item.propName, undefined);
       if (res.err) {
-        console.error(res.err);
-        return;
+        return { value: "", error: res.err.message };
       }
-      console.log("sendRequest");
-      return;
-    });
+      return { value: res.result, error: "" };
+    } catch (err: any) {
+      return { value: "", error: err.message };
+    }
   };
 
   const handleCellClick = (
@@ -259,6 +273,10 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       propName: item.propName,
       formsIndex: index,
       state: state,
+      title:
+        state === "viewProperty"
+          ? editorContent.title
+          : `Edit form number ${index + 1} of property ${item.propName}`,
     });
     setIsDialogOpen(true);
   };
@@ -269,6 +287,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       propName: "",
       formsIndex: 0,
       state: "viewProperty",
+      title: "Edit Property",
     });
     setIsDialogOpen(false);
   };
@@ -291,6 +310,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       propName: "",
       formsIndex: 0,
       state: "viewProperty",
+      title: "Edit Property",
     });
   };
 
@@ -314,7 +334,13 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         filteredInteractions
       ).length
         ? [
-            ...["id", "propName", "previewProperty"],
+            ...[
+              "id",
+              "description",
+              "propName",
+              "viewValues",
+              "previewProperty",
+            ],
             ...[
               ...new Set(
                 Object.keys(filteredInteractions).flatMap((key) => {
@@ -322,7 +348,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
                   return forms.flatMap((form: IForm) => Object.keys(form));
                 })
               ),
-            ].filter((key) => key !== "op" && key !== "href"),
+            ],
           ].map((key) => ({
             key,
             text: formatText(key),
@@ -331,24 +357,30 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
 
       const items = Object.keys(filteredInteractions).flatMap((key) => {
         const forms = filteredInteractions[key].forms || [];
-        return forms
-          .filter((form: IForm) => {
-            if (Array.isArray(form.op)) {
-              return form.op.includes("readproperty");
-            }
-            return form.op === "readproperty";
-          })
-          .map((form: IForm, index: number) => ({
-            id: `${key} - ${index}`,
-            propName: key,
-            ...form,
-          }));
+        return forms.map((form: IForm, index: number) => ({
+          id: `${key} - ${index}`,
+          description: filteredInteractions[key].description ?? "",
+          propName: key,
+          ...form,
+        }));
       });
+
+      const filteredItems = items.filter((form: IForm) => {
+        if (Array.isArray(form.op)) {
+          return form.op.includes("readproperty");
+        }
+        return form.op === "readproperty";
+      });
+
+      const filteredHeaders = headers
+        .filter((header) => header.key !== "op" && header.key !== "href")
+        .filter((header) => header.key !== "id")
+        .filter((header) => header.key !== "description");
 
       return (
         <BaseTable
-          headers={headers}
-          items={items}
+          headers={filteredHeaders}
+          items={filteredItems}
           itemsPerPage={10}
           orderBy=""
           order="asc"
@@ -417,7 +449,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
             </h2>
           </InfoIconWrapper>
           <div>
-            {interaction === "properties" && hasModbusProperties(td) && (
+            {interaction === "properties" && (
               <button
                 className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white hover:bg-blue-600"
                 onClick={() => setModeView("list")}
@@ -425,7 +457,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
                 List
               </button>
             )}
-            {interaction === "properties" && hasModbusProperties(td) && (
+            {interaction === "properties" && (
               <button
                 className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white hover:bg-blue-600"
                 style={{ marginLeft: "10px" }}
@@ -471,7 +503,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       {/* Dialog Template */}
       {isDialogOpen && (
         <DialogTemplate
-          title="Edit Property"
+          title={editorContent.title}
           description="Modify the content using this editor"
           onCancel={handleDialogClose}
           onSubmit={handleDialogSubmit}

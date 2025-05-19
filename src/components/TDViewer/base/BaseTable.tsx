@@ -10,11 +10,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import BasePagination from "./BasePagination";
 import ButtonSwap from "./ButtonSwap";
 import Icon from "../../InfoIcon/Icon";
-import { Eye, Check } from "react-feather";
+import { Eye, Check, Info, CheckCircle, AlertTriangle } from "react-feather";
+import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
+import IncrementButton from "./IncrementButton";
 
 // Type definitions
 export interface TableHeader {
@@ -24,7 +26,7 @@ export interface TableHeader {
 }
 
 export interface TableItem {
-  id?: string | number;
+  id: string | number;
   selected?: boolean;
   priority?: number;
   status?: "info" | "error";
@@ -44,8 +46,10 @@ interface BaseTableProps<T extends TableItem> {
     state: "viewProperty" | "viewPropertyElementForm"
   ) => void;
   onCellClick?: (item: T, headerKey: string, value: any) => void;
-  onSendRequestClick?: (item: T) => void;
-
+  onSendRequestClick?: (item: T) => Promise<{
+    value: string;
+    error: string;
+  }>;
   className?: string;
   renderItem?: (item: T, headerKey: string) => React.ReactNode;
   placeholder?: React.ReactNode;
@@ -62,7 +66,6 @@ const BaseTable = <T extends TableItem>({
   onRowClick,
   onCellClick,
   onSendRequestClick,
-
   className = "",
   renderItem,
   placeholder,
@@ -111,6 +114,24 @@ const BaseTable = <T extends TableItem>({
     });
   }, [filteredItems, orderBy, order]);
 
+  const [requestResults, setRequestResults] = useState<{
+    [id: string]: { value: string; error: string };
+  }>({});
+
+  useEffect(() => {
+    const initialResults = items.reduce(
+      (acc, item) => {
+        if (item.id) {
+          acc[item.id] = { value: "", error: "" }; // Default values
+        }
+        return acc;
+      },
+      {} as { [id: string]: { value: string; error: string } }
+    );
+
+    setRequestResults(initialResults);
+  }, [items]);
+
   const renderSelect = (
     value: string,
     options: string[],
@@ -132,6 +153,15 @@ const BaseTable = <T extends TableItem>({
     );
   };
 
+  const formatTextKey = (key: string, index: number): string => {
+    let propIndex = index + 1;
+    return key + ` (opt.${String(propIndex)})`;
+  };
+  const extractIndexFromId = (id: string): number => {
+    const parts = id.split(" - ");
+    return parseInt(parts[1], 10);
+  };
+
   const renderCell = (item: T, headerKey: string): React.ReactNode => {
     if (renderItem) {
       return renderItem(item, headerKey);
@@ -142,40 +172,93 @@ const BaseTable = <T extends TableItem>({
     switch (headerKey) {
       case "previewProperty":
         return (
-          <div className="flex h-full w-full items-center justify-center px-2 py-1">
-            <div
-              className="flex h-full w-full pl-6"
-              onClick={() => onSendRequestClick?.(item)}
-            >
-              <Icon
-                id="check"
-                html="Click to send request"
-                IconComponent={Check}
-              />
-            </div>
-            <div
-              className="h-full w-full pl-2"
-              onClick={() => onRowClick?.(item, "viewPropertyElementForm")}
-            >
-              <Icon
-                id="eye"
-                html="Click to preview property"
-                IconComponent={Eye}
-              />
-            </div>
+          <div
+            className={`flex h-full w-full items-center justify-center ${
+              requestResults[item.id]?.error ? "bg-red-500 text-white" : ""
+            } ${requestResults[item.id]?.value ? "bg-formGreen text-black" : ""} `}
+            onClick={async () => {
+              if (onSendRequestClick) {
+                const result = await onSendRequestClick(item);
+                setRequestResults((prev) => ({
+                  ...prev,
+                  [item.id]: result,
+                }));
+              }
+            }}
+          >
+            {
+              requestResults[item.id]?.error && (
+                <div className="flex items-center justify-center">
+                  <h1 className="px-2">Error</h1>
+                  <Icon
+                    id="info"
+                    html={`Error description: ${requestResults[item.id].error}`}
+                    color="white"
+                    IconComponent={AlertTriangle}
+                  />
+                </div>
+              )
+              // In the value preview, if there is no error, same text field as usual. If there is error, an exclamation mark, the text "Error" and error description with tooltip
+            }
+            {!requestResults[item.id]?.error &&
+              !requestResults[item.id]?.value && (
+                <Icon
+                  id="check"
+                  html="Click to send request"
+                  IconComponent={Check}
+                  size={20}
+                />
+              )}
+            {!requestResults[item.id]?.error &&
+              requestResults[item.id]?.value && (
+                <div className="flex h-full w-full items-center justify-center">
+                  <h1 className="px-2">{requestResults[item.id].value}</h1>
+                  <Icon
+                    id="checkCircle"
+                    html="Successful read property in the device"
+                    IconComponent={CheckCircle}
+                    size={20}
+                  />
+                </div>
+              )}
           </div>
         );
 
       case "propName":
         return (
           <div
-            className="flex h-full w-full items-center justify-center px-2 py-1"
+            className="flex h-full w-full items-center justify-center px-1"
             onClick={() => onRowClick?.(item, "viewProperty")}
           >
-            {value}
+            <div className="h-full w-full items-center justify-center">
+              {formatTextKey(
+                item.propName,
+                extractIndexFromId(item.id as string)
+              )}
+            </div>
+            <div className="items-center justify-center px-1">
+              <Icon
+                id="info"
+                html={`Property description: ${item.description}`}
+                IconComponent={Info}
+              />
+            </div>
           </div>
         );
-
+      case "viewValues":
+        return (
+          <div
+            className="flex h-full w-full items-center justify-center px-2"
+            onClick={() => onRowClick?.(item, "viewPropertyElementForm")}
+          >
+            <Icon
+              id="eye"
+              html="Click to preview property"
+              IconComponent={Eye}
+              size={20}
+            />
+          </div>
+        );
       case "modbus:entity":
         return renderSelect(
           value,
@@ -271,14 +354,13 @@ const BaseTable = <T extends TableItem>({
 
     if (typeof value === "number") {
       return (
-        <input
-          type="number"
+        <IncrementButton
           value={value}
-          onChange={(e) =>
-            onCellClick?.(item, headerKey, Number(e.target.value))
-          }
-          className="w-full rounded bg-gray-600 px-2 py-1 text-center text-sm font-bold"
-        />
+          onUpdate={(newValue) => {
+            onCellClick?.(item, headerKey, newValue);
+          }}
+          inferiorLimit={0}
+        ></IncrementButton>
       );
     }
 
@@ -340,7 +422,7 @@ const BaseTable = <T extends TableItem>({
                         ? "border-l-definitive"
                         : ""
                     } ${
-                      colIndex > 1 ? "hover:border-white" : ""
+                      colIndex > 0 ? "hover:border-white" : ""
                     } "bg-elevation-1-hover"`}
                     style={{ width: `${100 / headers.length}%` }}
                   >
