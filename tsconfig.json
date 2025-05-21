@@ -104,6 +104,11 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  "include": ["src/**/*", "src/types/*"],
+  "include": [
+    "src/**/*",
+    "src/types/*",
+    "node_modules/wot-typescript-definitions/*",
+    "node_modules/wot-thing-description-types/*"
+  ],
   "exclude": ["build"]
 }

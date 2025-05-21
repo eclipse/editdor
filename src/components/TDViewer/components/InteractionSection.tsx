@@ -200,10 +200,11 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     [key: string]: any;
   }): Promise<{ value: string; error: string }> => {
     const index = extractIndexFromId(item.id);
-    let value: any;
 
     try {
-      const res = await readProperty(td, item.propName, undefined);
+      const res = await readProperty(td, item.propName, {
+        formIndex: index,
+      });
       if (res.err) {
         return { value: "", error: res.err.message };
       }
@@ -311,13 +312,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         filteredInteractions
       ).length
         ? [
-            ...[
-              "id",
-              "description",
-              "propName",
-              "viewValues",
-              "previewProperty",
-            ],
+            ...["id", "description", "propName", "editJson", "previewValue"],
             ...[
               ...new Set(
                 Object.keys(filteredInteractions).flatMap((key) => {
@@ -350,7 +345,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       });
 
       const filteredHeaders = headers
-        .filter((header) => header.key !== "op" && header.key !== "href")
+        .filter((header) => header.key !== "op")
         .filter((header) => header.key !== "id")
         .filter((header) => header.key !== "description");
 

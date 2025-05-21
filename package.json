@@ -36,7 +36,9 @@
     "react-dropzone": "^14.3.8",
     "react-feather": "^2.0.10",
     "react-icons": "^5.2.1",
-    "react-tooltip": "^5.26.4"
+    "react-tooltip": "^5.26.4",
+    "wot-thing-description-types": "1.1.0-12-March-2025",
+    "wot-typescript-definitions": "^0.8.0-SNAPSHOT.30"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",

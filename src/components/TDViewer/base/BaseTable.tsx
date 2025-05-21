@@ -14,7 +14,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import BasePagination from "./BasePagination";
 import ButtonSwap from "./ButtonSwap";
 import Icon from "../../InfoIcon/Icon";
-import { Eye, Check, Info, CheckCircle, AlertTriangle } from "react-feather";
+import { Edit, Check, Info, CheckCircle, AlertTriangle } from "react-feather";
 import IncrementButton from "./IncrementButton";
 import { extractIndexFromId, formatTextKey } from "../../../utils/strings";
 
@@ -160,7 +160,7 @@ const BaseTable = <T extends TableItem>({
     const value = item[headerKey as keyof T];
 
     switch (headerKey) {
-      case "previewProperty":
+      case "previewValue":
         return (
           <div
             className={`flex h-full w-full items-center justify-center ${
@@ -235,7 +235,7 @@ const BaseTable = <T extends TableItem>({
             </div>
           </div>
         );
-      case "viewValues":
+      case "editJson":
         return (
           <div
             className="flex h-full w-full items-center justify-center px-2"
@@ -244,7 +244,7 @@ const BaseTable = <T extends TableItem>({
             <Icon
               id="eye"
               html="Click to preview property"
-              IconComponent={Eye}
+              IconComponent={Edit}
               size={20}
             />
           </div>
@@ -324,17 +324,19 @@ const BaseTable = <T extends TableItem>({
     if (typeof value === "string") {
       return (
         <div className="group relative">
-          <div
-            className="w-full truncate px-2 py-1 text-center text-sm font-bold text-white"
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => onCellClick?.(item, headerKey, e.target.value)}
+            onBlur={(e) => onCellClick?.(item, headerKey, e.target.value)}
+            className="w-full truncate border-none bg-gray-600 px-2 py-1 text-center text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             style={{
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
             }}
             title={value.length > 10 ? value : undefined}
-          >
-            {value.length > 10 ? `${value.slice(0, 10)}...` : value}
-          </div>
+          />
           <div className="absolute left-0 top-full mt-1 hidden w-max max-w-xs rounded bg-gray-700 px-2 py-1 text-sm text-white shadow-lg group-hover:block">
             {value}
           </div>

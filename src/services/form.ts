@@ -166,13 +166,17 @@ const parseContent = (propertyType: string, content: string): any => {
 async function readProperty(
   td: IThingDescription,
   propertyName: string,
-  _
+  options: {
+    formIndex?: number;
+    uriVariables?: object;
+    data?: any;
+  }
 ): Promise<{ result: string; err: Error | null }> {
   try {
     const thingFactory = await servient.start();
     const thing = await thingFactory.consume(td);
 
-    const res = await thing.readProperty(propertyName);
+    const res = await thing.readProperty(propertyName, options);
     // always return the result even if the data schema doesn't fit
     res.ignoreValidation = true;
     const val = await res.value();
