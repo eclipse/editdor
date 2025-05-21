@@ -111,3 +111,7 @@ interface IDataSchema {
   maximum?: number;
   [key: string]: any;
 }
+declare module "*.png" {
+  const value: string;
+  export default value;
+}

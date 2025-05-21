@@ -19,6 +19,7 @@ import {
   Save,
   Settings,
   Share,
+  Link,
 } from "react-feather";
 import editdorLogo from "../../assets/editdor.png";
 import ediTDorContext from "../../context/ediTDorContext";
@@ -30,6 +31,7 @@ import ConvertTmDialog from "../Dialogs/ConvertTmDialog";
 import CreateTdDialog from "../Dialogs/CreateTdDialog";
 import SettingsDialog from "../Dialogs/SettingsDialog";
 import ShareDialog from "../Dialogs/ShareDialog";
+import ContributeToCatalog from "../Dialogs/ContributeToCatalog";
 import Button from "./Button";
 
 const AppHeader: React.FC = () => {
@@ -46,12 +48,6 @@ const AppHeader: React.FC = () => {
     return window.confirm(msg);
   }, [context.isModified]);
 
-  /**
-   *
-   * @param {*} _
-   *
-   * Open File from Filesystem
-   */
   const openFile = useCallback(async () => {
     if (!verifyDiscard()) {
       return;
@@ -202,24 +198,38 @@ const AppHeader: React.FC = () => {
     };
   }, [openFile, save]);
 
-  const convertTmDialog = React.useRef();
+  const convertTmDialog = React.useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
   const openConvertTmDialog = () => {
-    convertTmDialog.current.openModal();
+    convertTmDialog.current?.openModal();
   };
 
-  const shareDialog = React.useRef();
+  const shareDialog = React.useRef<{ openModal: () => void }>(null);
   const openShareDialog = () => {
-    shareDialog.current.openModal();
+    shareDialog.current?.openModal();
   };
 
-  const createTdDialog = React.useRef();
+  const createTdDialog = React.useRef<{ openModal: () => void }>(null);
   const openCreateTdDialog = () => {
-    createTdDialog.current.openModal();
+    createTdDialog.current?.openModal();
   };
 
-  const settingsDialog = React.useRef();
+  const settingsDialog = React.useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
   const openSettingsDialog = () => {
-    settingsDialog.current.openModal();
+    settingsDialog.current?.openModal();
+  };
+
+  const contributeToCatalog = React.useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
+  const openContributeToCatalog = () => {
+    contributeToCatalog.current?.openModal();
   };
 
   return (
@@ -238,6 +248,11 @@ const AppHeader: React.FC = () => {
 
         <div className="flex items-center gap-4 pr-2">
           {isLoading && <div className="app-header-spinner hidden md:block" />}
+
+          <Button onClick={openContributeToCatalog}>
+            <Link />
+            <div className="text-xs">Contribute to Catalog</div>
+          </Button>
 
           <Button onClick={openShareDialog}>
             <Share />
@@ -286,6 +301,7 @@ const AppHeader: React.FC = () => {
       <ShareDialog ref={shareDialog} />
       <CreateTdDialog ref={createTdDialog} />
       <SettingsDialog ref={settingsDialog} />
+      <ContributeToCatalog ref={contributeToCatalog} />
       <input
         className="h-0"
         type="file"
