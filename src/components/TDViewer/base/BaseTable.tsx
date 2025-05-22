@@ -14,7 +14,14 @@ import React, { useMemo, useState, useEffect } from "react";
 import BasePagination from "./BasePagination";
 import ButtonSwap from "./ButtonSwap";
 import Icon from "../../InfoIcon/Icon";
-import { Edit, Check, Info, CheckCircle, AlertTriangle } from "react-feather";
+import {
+  Edit,
+  XCircle,
+  Check,
+  Info,
+  CheckCircle,
+  AlertTriangle,
+} from "react-feather";
 import IncrementButton from "./IncrementButton";
 import { extractIndexFromId, formatTextKey } from "../../../utils/strings";
 
@@ -161,58 +168,77 @@ const BaseTable = <T extends TableItem>({
 
     switch (headerKey) {
       case "previewValue":
-        return (
-          <div
-            className={`flex h-full w-full items-center justify-center ${
-              requestResults[item.id]?.error ? "bg-red-500 text-white" : ""
-            } ${requestResults[item.id]?.value ? "bg-formGreen text-black" : ""} `}
-            onClick={async () => {
-              if (onSendRequestClick) {
-                const result = await onSendRequestClick(item);
-                setRequestResults((prev) => ({
-                  ...prev,
-                  [item.id]: result,
-                }));
+        if (
+          item["href"].startsWith("http") ||
+          item["href"].startsWith("https") ||
+          item["href"].startsWith("ws") ||
+          item["href"].startsWith("wss")
+        ) {
+          return (
+            <div
+              className={`flex h-full w-full items-center justify-center ${
+                requestResults[item.id]?.error ? "bg-red-500 text-white" : ""
+              } ${requestResults[item.id]?.value ? "bg-formGreen text-black" : ""} `}
+              onClick={async () => {
+                if (onSendRequestClick) {
+                  const result = await onSendRequestClick(item);
+                  setRequestResults((prev) => ({
+                    ...prev,
+                    [item.id]: result,
+                  }));
+                }
+              }}
+            >
+              {
+                requestResults[item.id]?.error && (
+                  <div className="flex items-center justify-center">
+                    <h1 className="px-2">Error</h1>
+                    <Icon
+                      id="info"
+                      html={`Error description: ${requestResults[item.id].error}`}
+                      color="white"
+                      IconComponent={AlertTriangle}
+                    />
+                  </div>
+                )
+                // In the value preview, if there is no error, same text field as usual. If there is error, an exclamation mark, the text "Error" and error description with tooltip
               }
-            }}
-          >
-            {
-              requestResults[item.id]?.error && (
-                <div className="flex items-center justify-center">
-                  <h1 className="px-2">Error</h1>
+              {!requestResults[item.id]?.error &&
+                !requestResults[item.id]?.value && (
                   <Icon
-                    id="info"
-                    html={`Error description: ${requestResults[item.id].error}`}
-                    color="white"
-                    IconComponent={AlertTriangle}
-                  />
-                </div>
-              )
-              // In the value preview, if there is no error, same text field as usual. If there is error, an exclamation mark, the text "Error" and error description with tooltip
-            }
-            {!requestResults[item.id]?.error &&
-              !requestResults[item.id]?.value && (
-                <Icon
-                  id="check"
-                  html="Click to send request"
-                  IconComponent={Check}
-                  size={20}
-                />
-              )}
-            {!requestResults[item.id]?.error &&
-              requestResults[item.id]?.value && (
-                <div className="flex h-full w-full items-center justify-center">
-                  <h1 className="px-2">{requestResults[item.id].value}</h1>
-                  <Icon
-                    id="checkCircle"
-                    html="Successful read property in the device"
-                    IconComponent={CheckCircle}
+                    id="check"
+                    html="Click to send request"
+                    IconComponent={Check}
                     size={20}
                   />
-                </div>
-              )}
-          </div>
-        );
+                )}
+              {!requestResults[item.id]?.error &&
+                requestResults[item.id]?.value && (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <h1 className="px-2">{requestResults[item.id].value}</h1>
+                    <Icon
+                      id="checkCircle"
+                      html="Successful read property in the device"
+                      IconComponent={CheckCircle}
+                      size={20}
+                    />
+                  </div>
+                )}
+            </div>
+          );
+        } else {
+          return (
+            <div className="flex h-full w-full items-center justify-center">
+              <h1 className="px-2">Unable</h1>
+              <Icon
+                id="xCircle"
+                html="Unable to perform non HTTP or WebSocket operations"
+                IconComponent={XCircle}
+                size={20}
+              />
+            </div>
+          );
+        }
 
       case "propName":
         return (
@@ -235,14 +261,14 @@ const BaseTable = <T extends TableItem>({
             </div>
           </div>
         );
-      case "editJson":
+      case "editForm":
         return (
           <div
             className="flex h-full w-full items-center justify-center px-2"
             onClick={() => onRowClick?.(item, "viewPropertyElementForm")}
           >
             <Icon
-              id="eye"
+              id="edit"
               html="Click to preview property"
               IconComponent={Edit}
               size={20}
@@ -413,9 +439,7 @@ const BaseTable = <T extends TableItem>({
                       item.status === "error" && colIndex === 0
                         ? "border-l-definitive"
                         : ""
-                    } ${
-                      colIndex > 0 ? "hover:border-white" : ""
-                    } "bg-elevation-1-hover"`}
+                    } bg-elevation-1-hover cursor-pointer hover:border-white`}
                     style={{ width: `${100 / headers.length}%` }}
                   >
                     {renderCell(item, header.key)}

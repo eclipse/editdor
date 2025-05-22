@@ -312,7 +312,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         filteredInteractions
       ).length
         ? [
-            ...["id", "description", "propName", "editJson", "previewValue"],
+            ...["id", "description", "propName", "editForm", "previewValue"],
             ...[
               ...new Set(
                 Object.keys(filteredInteractions).flatMap((key) => {
@@ -337,17 +337,23 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         }));
       });
 
-      const filteredItems = items.filter((form: IForm) => {
+      let filteredItems = items.filter((form: IForm) => {
         if (Array.isArray(form.op)) {
           return form.op.includes("readproperty");
         }
         return form.op === "readproperty";
       });
 
-      const filteredHeaders = headers
+      let filteredHeaders = headers
         .filter((header) => header.key !== "op")
         .filter((header) => header.key !== "id")
         .filter((header) => header.key !== "description");
+
+      if (isBaseModbus) {
+        filteredHeaders = filteredHeaders.filter(
+          (header) => header.key !== "href"
+        );
+      }
 
       return (
         <BaseTable
@@ -479,6 +485,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
           description="Modify the content using this editor"
           onCancel={handleDialogClose}
           onSubmit={handleDialogSubmit}
+          submitText="Save"
         >
           <Editor
             height="400px"

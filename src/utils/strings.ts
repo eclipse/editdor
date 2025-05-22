@@ -17,7 +17,10 @@ export const extractIndexFromId = (id: string): number => {
 
 export const formatTextKey = (key: string, index: number): string => {
   let propIndex = index + 1;
-  return key + ` (opt.${String(propIndex)})`;
+  if (index === 0) {
+    return key;
+  }
+  return key + ` (form.${String(propIndex)})`;
 };
 
 export const formatText = (text: string): string => {

@@ -306,6 +306,8 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
                   <IncrementButton
                     value={unitId}
                     onUpdate={handleUnitIdUpdate}
+                    inferiorLimit={0}
+                    superiorLimit={255}
                   ></IncrementButton>
                 </div>
               </div>
@@ -322,7 +324,7 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
       <div className="grid grid-cols-12 gap-1 rounded-t-md bg-gray-600 px-2">
         <div className="col-span-12 rounded-md bg-gray-600 px-2">
           {props.isBaseModbus ? (
-            <h1 className="py-1 text-xl text-white">Edit in bulk</h1>
+            <h1 className="py-1 text-xl text-white">Group Controls</h1>
           ) : (
             <div></div>
           )}
