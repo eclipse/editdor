@@ -12,12 +12,12 @@
  ********************************************************************************/
 
 import * as joint from "jointjs";
-import { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { changeBetweenTd } from "../../../util";
-import { AddLinkTdDialog } from "../../Dialogs/AddLinkTdDialog";
+import AddLinkTdDialog from "../../Dialogs/AddLinkTdDialog";
 import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
-import { getLinksTooltipContent } from "../../InfoIcon/InfoTooltips";
+import { getLinksTooltipContent } from "../../InfoIcon/TooltipMapper";
 import Link from "./Link";
 
 export default function LinkView(props) {
@@ -242,7 +242,7 @@ export default function LinkView(props) {
     <details className="pt-8">
       <summary className="flex cursor-pointer items-center justify-start">
         <div className="flex flex-grow">
-          <InfoIconWrapper tooltip={getLinksTooltipContent()} id="links">
+          <InfoIconWrapper tooltip={getLinksTooltipContent()}>
             <h2 className="flex-grow p-1 text-2xl text-white">Links</h2>
           </InfoIconWrapper>
 

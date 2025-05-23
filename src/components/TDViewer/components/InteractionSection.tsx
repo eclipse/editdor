@@ -13,18 +13,21 @@
 
 import React, { useContext, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
-import { AddActionDialog } from "../../Dialogs/AddActionDialog";
-import { AddEventDialog } from "../../Dialogs/AddEventDialog";
+import AddActionDialog from "../../Dialogs/AddActionDialog";
+import AddEventDialog from "../../Dialogs/AddEventDialog";
 import { AddPropertyDialog } from "../../Dialogs/AddPropertyDialog";
 import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
-import { tooltipMapper } from "../../InfoIcon/InfoTooltips";
+import { tooltipMapper } from "../../InfoIcon/TooltipMapper";
 import Action from "./Action";
 import Event from "./Event";
 import Property from "./Property";
 import { SearchBar } from "./SearchBar";
-import { IForm, IThingDescription } from "types/td";
 import EditProperties from "./EditProperties";
-
+import BaseTable from "../base/BaseTable";
+import DialogTemplate from "./../../Dialogs/DialogTemplate";
+import Editor from "@monaco-editor/react";
+import { readProperty } from "../../../services/form";
+import { extractIndexFromId, formatText } from "../../../utils/strings";
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
 
@@ -45,6 +48,24 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     : {};
   const [filter, setFilter] = useState("");
   const [sortOrder, setSortOrder] = useState(SORT_ASC);
+  const createPropertyDialog = React.useRef<{ openModal: () => void } | null>(
+    null
+  );
+  const [modeView, setModeView] = useState<"table" | "list">("list");
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control dialog visibility
+  const [editorContent, setEditorContent] = useState<{
+    editorState: string;
+    propName: string;
+    formsIndex: number;
+    state: "viewProperty" | "viewPropertyElementForm" | "sendRequest";
+    title: string;
+  }>({
+    editorState: "",
+    propName: "",
+    formsIndex: 0,
+    state: "viewProperty",
+    title: "Edit Property",
+  }); // State to manage editor content
 
   const interaction = props.interaction.toLowerCase();
 
@@ -58,8 +79,15 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       return false;
     }
 
-    const isHrefModbus = (form: IForm): boolean =>
-      form.href.includes("modbus://") || form.href.includes("modbus+tcp://");
+    const isHrefModbus = (form: IForm): boolean => {
+      if (!form.href) {
+        return false;
+      } else {
+        return (
+          form.href.includes("modbus://") || form.href.includes("modbus+tcp://")
+        );
+      }
+    };
 
     return (
       isBaseModbus ||
@@ -168,19 +196,177 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     );
   };
 
+  const handleOnClickSendRequest = async (item: {
+    [key: string]: any;
+  }): Promise<{ value: string; error: string }> => {
+    const index = extractIndexFromId(item.id);
+
+    try {
+      const res = await readProperty(td, item.propName, {
+        formIndex: index,
+      });
+      if (res.err) {
+        return { value: "", error: res.err.message };
+      }
+      return { value: res.result, error: "" };
+    } catch (err: any) {
+      return { value: "", error: err.message };
+    }
+  };
+
+  const handleCellClick = (
+    item: { [key: string]: any },
+    headerKey: string,
+    value: any
+  ) => {
+    const index = extractIndexFromId(item.id);
+    try {
+      td[interaction][item.propName].forms[index][headerKey] = value;
+    } catch (e) {
+      console.error(e);
+    }
+    context.updateOfflineTD(JSON.stringify(td, null, 2));
+  };
+
+  const handleOnRowClick = (
+    item: { [key: string]: any },
+    state: "viewProperty" | "viewPropertyElementForm"
+  ) => {
+    const index = extractIndexFromId(item.id);
+    let value: any;
+
+    if (state === "viewPropertyElementForm") {
+      value = td[interaction][item.propName].forms[index];
+    } else {
+      try {
+        value = { [item.propName]: td[interaction][item.propName] };
+        //value = td[interaction][item.propName].forms[index];
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    setEditorContent({
+      editorState: JSON.stringify(value, null, 2),
+      propName: item.propName,
+      formsIndex: index,
+      state: state,
+      title:
+        state === "viewProperty"
+          ? editorContent.title
+          : `Edit form number ${index + 1} of property ${item.propName}`,
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setEditorContent({
+      editorState: "",
+      propName: "",
+      formsIndex: 0,
+      state: "viewProperty",
+      title: "Edit Property",
+    });
+    setIsDialogOpen(false);
+  };
+
+  const handleDialogSubmit = () => {
+    let value = JSON.parse(editorContent.editorState);
+    if (editorContent.state === "viewProperty") {
+      td[interaction][editorContent.propName] = value[editorContent.propName];
+    } else {
+      td[interaction][editorContent.propName].forms[editorContent.formsIndex] =
+        value;
+    }
+
+    context.updateOfflineTD(JSON.stringify(td, null, 2));
+
+    setIsDialogOpen(false);
+
+    setEditorContent({
+      editorState: "",
+      propName: "",
+      formsIndex: 0,
+      state: "viewProperty",
+      title: "Edit Property",
+    });
+  };
+
   const buildChildren = () => {
     const filteredInteractions = applyFilter();
 
     if (td.properties && interaction === "properties") {
-      return Object.keys(filteredInteractions).map((key, index) => {
-        return (
-          <Property
-            prop={filteredInteractions[key]}
-            propName={key}
-            key={index}
-          />
-        );
+      if (modeView === "list") {
+        return Object.keys(filteredInteractions).map((key, index) => {
+          return (
+            <Property
+              prop={filteredInteractions[key]}
+              propName={key}
+              key={index}
+            />
+          );
+        });
+      }
+
+      const headers: { key: string; text: string }[] = Object.keys(
+        filteredInteractions
+      ).length
+        ? [
+            ...["id", "description", "propName", "editForm", "previewValue"],
+            ...[
+              ...new Set(
+                Object.keys(filteredInteractions).flatMap((key) => {
+                  const forms = filteredInteractions[key].forms || [];
+                  return forms.flatMap((form: IForm) => Object.keys(form));
+                })
+              ),
+            ],
+          ].map((key) => ({
+            key,
+            text: formatText(key),
+          }))
+        : [];
+
+      const items = Object.keys(filteredInteractions).flatMap((key) => {
+        const forms = filteredInteractions[key].forms || [];
+        return forms.map((form: IForm, index: number) => ({
+          id: `${key} - ${index}`,
+          description: filteredInteractions[key].description ?? "",
+          propName: key,
+          ...form,
+        }));
       });
+
+      let filteredItems = items.filter((form: IForm) => {
+        if (Array.isArray(form.op)) {
+          return form.op.includes("readproperty");
+        }
+        return form.op === "readproperty";
+      });
+
+      let filteredHeaders = headers
+        .filter((header) => header.key !== "op")
+        .filter((header) => header.key !== "id")
+        .filter((header) => header.key !== "description");
+
+      if (isBaseModbus) {
+        filteredHeaders = filteredHeaders.filter(
+          (header) => header.key !== "href"
+        );
+      }
+
+      return (
+        <BaseTable
+          headers={filteredHeaders}
+          items={filteredItems}
+          itemsPerPage={10}
+          orderBy=""
+          order="asc"
+          onCellClick={handleCellClick}
+          onRowClick={handleOnRowClick}
+          onSendRequestClick={handleOnClickSendRequest}
+        />
+      );
     }
     if (td.actions && interaction === "actions") {
       return Object.keys(filteredInteractions).map((key, index) => {
@@ -206,9 +392,6 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     }
   };
 
-  const createPropertyDialog = React.useRef<{ openModal: () => void } | null>(
-    null
-  );
   const openCreatePropertyDialog = () => {
     if (createPropertyDialog.current) {
       createPropertyDialog.current.openModal();
@@ -229,6 +412,8 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     default:
   }
 
+  const childrenContent = buildChildren();
+
   return (
     <>
       <div className="flex items-end justify-start pb-4 pt-8">
@@ -241,6 +426,25 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
               {props.interaction}
             </h2>
           </InfoIconWrapper>
+          <div>
+            {interaction === "properties" && (
+              <button
+                className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white hover:bg-blue-600"
+                onClick={() => setModeView("list")}
+              >
+                List
+              </button>
+            )}
+            {interaction === "properties" && (
+              <button
+                className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white hover:bg-blue-600"
+                style={{ marginLeft: "10px" }}
+                onClick={() => setModeView("table")}
+              >
+                Table
+              </button>
+            )}
+          </div>
         </div>
         <SearchBar
           onKeyUp={(e) => updateFilter(e)}
@@ -249,14 +453,14 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         />
         <div className="w-2"></div>
         <button
-          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-white"
+          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-white hover:bg-blue-600"
           onClick={() => sortKeysInObject(interaction)}
         >
           {sortedIcon()}
         </button>
         <div className="w-2"></div>
         <button
-          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
+          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white hover:bg-blue-600"
           onClick={openCreatePropertyDialog}
         >
           Add
@@ -267,13 +471,39 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       {interaction === "properties" && hasModbusProperties(td) && (
         <EditProperties isBaseModbus={hasModbusProperties(td)} />
       )}
-      {buildChildren() && (
+
+      {childrenContent && (
         <div className="rounded-lg bg-gray-600 px-4 pb-4 pt-4">
-          {buildChildren()}
+          {childrenContent ? childrenContent : <div className="px-6">{}</div>}
         </div>
       )}
-      {!buildChildren() && (
-        <div className="rounded-lg bg-gray-600 px-6 pb-4 pt-4">{}</div>
+
+      {/* Dialog Template */}
+      {isDialogOpen && (
+        <DialogTemplate
+          title={editorContent.title}
+          description="Modify the content using this editor"
+          onCancel={handleDialogClose}
+          onSubmit={handleDialogSubmit}
+          submitText="Save"
+        >
+          <Editor
+            height="400px"
+            defaultLanguage="json"
+            value={editorContent.editorState}
+            onChange={(value) =>
+              setEditorContent({
+                ...editorContent,
+                editorState: value || "",
+              })
+            } // Update editor content
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+            }}
+            theme="vs-dark"
+          />
+        </DialogTemplate>
       )}
     </>
   );

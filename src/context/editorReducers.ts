@@ -10,18 +10,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-export const UPDATE_OFFLINE_TD = "UPDATE_OFFLINE_TD";
-export const UPDATE_IS_MODFIED = "UPDATE_IS_MODFIED";
-export const SET_FILE_HANDLE = "SET_FILE_HANDLE";
-export const REMOVE_FORM_FROM_TD = "REMOVE_FORM_FROM_TD";
-export const REMOVE_LINK_FROM_TD = "REMOVE_LINK_FROM_TD";
-export const ADD_FORM_TO_TD = "ADD_FORM_TO_TD";
-export const REMOVE_ONE_OF_A_KIND_FROM_TD = "REMOVE_ONE_OF_A_KIND_FROM_TD";
-export const ADD_LINKED_TD = "ADD_LINKED_TD";
-export const UPDATE_LINKED_TD = "UPDATE_LINKED_TD";
-export const UPDATE_VALIDATION_MESSAGE = "UPDATE_VALIDATION_MESSAGE";
+import {
+  ADD_FORM_TO_TD,
+  ADD_LINKED_TD,
+  REMOVE_FORM_FROM_TD,
+  REMOVE_LINK_FROM_TD,
+  REMOVE_ONE_OF_A_KIND_FROM_TD,
+  SET_FILE_HANDLE,
+  UPDATE_IS_MODFIED,
+  UPDATE_LINKED_TD,
+  UPDATE_OFFLINE_TD,
+  UPDATE_VALIDATION_MESSAGE,
+} from "./GlobalState";
 
-export const editdorReducer = (state, action) => {
+export const editdorReducer = (
+  state: EditorState,
+  action: Action
+): EditorState => {
   switch (action.type) {
     case UPDATE_OFFLINE_TD:
       return updateOfflineTDReducer(action.offlineTD, state);
@@ -59,7 +64,10 @@ export const editdorReducer = (state, action) => {
   }
 };
 
-const updateOfflineTDReducer = (offlineTD, state) => {
+const updateOfflineTDReducer = (
+  offlineTD: string,
+  state: EditorState
+): EditorState => {
   if (offlineTD == state.offlineTD) {
     return state;
   }
@@ -74,11 +82,11 @@ const updateOfflineTDReducer = (offlineTD, state) => {
     };
   }
 
-  let parsedTD = undefined;
+  let parsedTD: IThingDescription;
   try {
     parsedTD = JSON.parse(offlineTD);
   } catch (e) {
-    console.error(e.message);
+    console.error((e as Error).message);
     return {
       ...state,
       offlineTD: offlineTD,
@@ -95,7 +103,10 @@ const updateOfflineTDReducer = (offlineTD, state) => {
     linkedTd = { [href]: parsedTD };
   } else if (linkedTd && typeof state.fileHandle !== "object") {
     if (document.getElementById("linkedTd")) {
-      const href = document.getElementById("linkedTd").value;
+      const linkedTdElement = document.getElementById(
+        "linkedTd"
+      ) as HTMLInputElement | null;
+      const href = linkedTdElement?.value || "";
       if (href === "") {
         linkedTd[parsedTD["title"] || "ediTDor Thing"] = parsedTD;
       } else {
@@ -124,18 +135,20 @@ const updateOfflineTDReducer = (offlineTD, state) => {
  * @returns
  */
 const removeFormReducer = (
-  level,
-  interactionName,
-  toBeDeletedForm,
-  index,
-  state
-) => {
+  level: "thing" | "properties" | "actions" | "events" | string,
+  interactionName: string,
+  toBeDeletedForm: { href: string; op: string },
+  index: number,
+  state: EditorState
+): EditorState => {
   if (!state.isValidJSON) {
     return state;
   }
 
-  let td = structuredClone(state.parsedTD);
-  let forms = undefined;
+  let td: IThingDescription = structuredClone(
+    state.parsedTD
+  ) as IThingDescription;
+  let forms: IForm;
   if (level === "thing") {
     if (!td.forms || !Array.isArray(td.forms)) {
       return state;
@@ -181,15 +194,15 @@ const removeFormReducer = (
   return { ...state, offlineTD: JSON.stringify(td, null, 2), parsedTD: td };
 };
 
-const removeLinkReducer = (index, state) => {
+const removeLinkReducer = (index: number, state: EditorState): EditorState => {
   if (!state.isValidJSON) {
     return state;
   }
 
-  let td = structuredClone(state.parsedTD);
+  let td = structuredClone(state.parsedTD) as IThingDescription;
 
   try {
-    td.links.splice(index, 1);
+    td.links?.splice(index, 1);
   } catch (e) {
     alert("Sorry we were unable to delete the Link.");
   }
@@ -198,7 +211,10 @@ const removeLinkReducer = (index, state) => {
   if (linkedTd && typeof state.fileHandle !== "object") {
     // TODO: get rid of document.getElement check here
     if (document.getElementById("linkedTd")) {
-      let href = document.getElementById("linkedTd").value;
+      const linkedTdElement = document.getElementById(
+        "linkedTd"
+      ) as HTMLInputElement | null;
+      let href = linkedTdElement ? linkedTdElement.value : "";
       if (href === "") {
         linkedTd[td["title"] || "ediTDor Thing"] = td;
       } else {
@@ -215,7 +231,11 @@ const removeLinkReducer = (index, state) => {
   };
 };
 
-const removeOneOfAKindReducer = (kind, oneOfAKindName, state) => {
+const removeOneOfAKindReducer = (
+  kind: "properties" | "actions" | "events" | string,
+  oneOfAKindName: string,
+  state: EditorState
+): EditorState => {
   if (!state.isValidJSON) {
     return state;
   }
@@ -239,12 +259,17 @@ const removeOneOfAKindReducer = (kind, oneOfAKindName, state) => {
  * @param {Object} state
  * @returns
  */
-const addFormReducer = (level, interactionName, form, state) => {
+const addFormReducer = (
+  level: "thing" | "properties" | "actions" | "events" | string,
+  interactionName: string,
+  form: Record<string, any>,
+  state: EditorState
+): EditorState => {
   if (!state.isValidJSON) {
     return state;
   }
 
-  let td = structuredClone(state.parsedTD);
+  let td = structuredClone(state.parsedTD) as IThingDescription;
   if (level == "thing") {
     if (td.forms && !Array.isArray(td.forms)) {
       return state;
@@ -272,7 +297,10 @@ const addFormReducer = (level, interactionName, form, state) => {
   return { ...state, offlineTD: JSON.stringify(td, null, 2), parsedTD: td };
 };
 
-const addLinkedTd = (td, state) => {
+const addLinkedTd = (
+  td: Record<string, any>,
+  state: EditorState
+): EditorState => {
   let linkedTd = structuredClone(state.linkedTd);
   let resultingLinkedTd = {};
 
@@ -285,18 +313,30 @@ const addLinkedTd = (td, state) => {
   return { ...state, linkedTd: resultingLinkedTd };
 };
 
-const updateLinkedTd = (td, state) => {
+const updateLinkedTd = (
+  td: Record<string, any>,
+  state: EditorState
+): EditorState => {
   return { ...state, linkedTd: td };
 };
 
-const updateIsModified = (isModified, state) => {
+const updateIsModified = (
+  isModified: boolean,
+  state: EditorState
+): EditorState => {
   return { ...state, isModified: isModified };
 };
 
-const updateFileHandleReducer = (fileHandle, state) => {
+const updateFileHandleReducer = (
+  fileHandle: string | null,
+  state: EditorState
+): EditorState => {
   return { ...state, fileHandle: fileHandle };
 };
 
-const updateValidationMessage = (validationMessage, state) => {
+const updateValidationMessage = (
+  validationMessage: string | undefined,
+  state: EditorState
+): EditorState => {
   return { ...state, validationMessage };
 };

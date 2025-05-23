@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-export interface IThingDescription {
+declare interface IThingDescription {
   "@context": string | string[];
   "@type"?: string;
   id?: string;
@@ -35,31 +35,50 @@ export interface IThingDescription {
   uriVairables?: any;
 }
 
-export interface ISecurityScheme {
+interface ISecurityScheme {
   scheme: string;
   description?: string;
   [key: string]: any;
 }
 
-export interface IForm {
-  href: string;
+interface IForm {
+  href?: string;
   contentType?: string;
   op?: string | string[];
   security?: string[];
   [key: string]: any;
 }
 
-export interface IModbusForm extends IForm {
-  "modbus:unitID"?: number;
-  "modbus:address"?: number;
-  "modbus:quantity"?: number;
-  "modbus:zeroBasedAddressing"?: boolean;
+type FormOpKeys =
+  | "readproperty"
+  | "writeproperty"
+  | "observeproperty"
+  | "unobserveproperty"
+  | "invokeaction"
+  | "subscribeevent"
+  | "unsubscribeevent"
+  | "readmultipleproperties"
+  | "readallproperties"
+  | "writemultipleproperties"
+  | "writeallproperties"
+  | "observeallproperties"
+  | "unobserveallproperties";
+
+interface IModbusForm extends IForm {
+  "modbus:unitID": number;
+  "modbus:address": number;
+  "modbus:quantity": number;
+  "modbus:type"?: string;
+  "modbus:zeroBasedAddressing": boolean;
   "modbus:entity"?: string;
-  "modbus:mostSignificantByte"?: boolean;
-  "modbus:mostSignificantWord"?: boolean;
+  "modbus:pollingTime"?: string;
+  "modbus:function"?: string;
+  "modbus:mostSignificantByte": boolean;
+  "modbus:mostSignificantWord": boolean;
+  "modbus:timeout"?: string;
 }
 
-export interface IProperty {
+interface IProperty {
   type?: string;
   description?: string;
   observable?: boolean;
@@ -69,7 +88,7 @@ export interface IProperty {
   [key: string]: any;
 }
 
-export interface IAction {
+interface IAction {
   description?: string;
   input?: IDataSchema;
   output?: IDataSchema;
@@ -77,14 +96,14 @@ export interface IAction {
   [key: string]: any;
 }
 
-export interface IEvent {
+interface IEvent {
   description?: string;
   data?: IDataSchema;
   forms: IForm[];
   [key: string]: any;
 }
 
-export interface IDataSchema {
+interface IDataSchema {
   type?: string;
   description?: string;
   enum?: any[];
