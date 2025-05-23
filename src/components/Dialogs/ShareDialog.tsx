@@ -14,13 +14,18 @@ import React, { forwardRef, useContext, useImperativeHandle } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import { prepareTdForSharing } from "../../share";
-import { DialogTemplate } from "./DialogTemplate";
+import DialogTemplate from "./DialogTemplate";
 
-export const ShareDialog = forwardRef((props, ref) => {
+export interface ShareDialogRef {
+  openModal: () => void;
+  close: () => void;
+}
+
+const ShareDialog = forwardRef((_, ref) => {
   const context = useContext(ediTDorContext);
-  const [display, setDisplay] = React.useState(false);
-  const [compressedTdLink, setCompressedTdLink] = React.useState("");
-  const [compressedTd, setCompressedTd] = React.useState("");
+  const [display, setDisplay] = React.useState<boolean>(false);
+  const [compressedTdLink, setCompressedTdLink] = React.useState<string>("");
+  const [compressedTd, setCompressedTd] = React.useState<string>("");
 
   useImperativeHandle(ref, () => {
     return {
@@ -71,14 +76,14 @@ export const ShareDialog = forwardRef((props, ref) => {
         title={"Share This TD"}
         description={"A link to this TD was copied to your clipboard."}
       />,
-      document.getElementById("modal-root")
+      document.getElementById("modal-root") as HTMLElement
     );
   }
 
   return null;
 });
 
-const copyLinkToClipboard = (compressedTdLink) => {
+const copyLinkToClipboard = (compressedTdLink: string): void => {
   if (document.hasFocus()) {
     navigator.clipboard.writeText(compressedTdLink).then(
       function () {
@@ -91,11 +96,15 @@ const copyLinkToClipboard = (compressedTdLink) => {
   }
 };
 
-const focusPermalinkField = () => {
+const focusPermalinkField = (): void => {
   setTimeout(() => {
     try {
-      const textfield = document.getElementById("share-td-field");
+      const textfield = document.getElementById(
+        "share-td-field"
+      ) as HTMLInputElement;
       textfield.select();
     } catch (_) {}
   }, 250);
 };
+
+export default ShareDialog;

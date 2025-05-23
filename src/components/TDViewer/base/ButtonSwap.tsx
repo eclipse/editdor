@@ -16,12 +16,14 @@ import { RefreshCcw } from "react-feather";
 interface IButtonSwapProps {
   description: string;
   value: boolean;
+  className?: string;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 const ButtonSwap: React.FC<IButtonSwapProps> = ({
   value,
   description,
+  className,
   onClick,
 }) => {
   return (

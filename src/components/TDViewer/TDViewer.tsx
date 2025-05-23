@@ -18,16 +18,15 @@ import {
   getDirectedValue,
   separateForms,
 } from "../../util";
-import { AddFormDialog } from "../Dialogs/AddFormDialog";
+import AddFormDialog from "../Dialogs/AddFormDialog";
 import InfoIconWrapper from "../InfoIcon/InfoIconWrapper";
-import { getFormsTooltipContent } from "../InfoIcon/InfoTooltips";
+import { getFormsTooltipContent } from "../InfoIcon/TooltipMapper";
 import Form from "./components/Form";
 import InteractionSection from "./components/InteractionSection";
 import { RenderedObject } from "./components/RenderedObject";
 import ValidationView from "./components/ValidationView";
 import LinkView from "./components/LinkSection";
 import { useDropzone } from "react-dropzone";
-import { IThingDescription } from "types/td";
 
 interface ITDViewerProps {
   onUndo: () => void;
@@ -110,7 +109,8 @@ const TDViewer: React.FC<ITDViewerProps> = ({ onUndo, onRedo }) => {
           </div>
         ) : (
           <div className="place-self-center text-4xl text-white">
-            Start writing a new TD by clicking &quot;Create&quot;
+            Start writing a new TD by clicking &quot;Create&quot; Start writing
+            a new TD by clicking &quot;Create&quot;
             <p>or drag and drop .json file here</p>
             <div className="pt-4">
               <p className="text-xl text-gray-600">

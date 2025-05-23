@@ -18,12 +18,24 @@ import React, {
 } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
-import { DialogTextArea, DialogTextField } from "./DialogComponents";
-import { DialogTemplate } from "./DialogTemplate";
+import DialogTextArea from "./base/DialogTextArea";
+import DialogTextField from "./base/DialogTextField";
+import DialogTemplate from "./DialogTemplate";
 
-export const AddEventDialog = forwardRef((_, ref) => {
+export interface AddEventDialogRef {
+  openModal: () => void;
+  close?: () => void;
+}
+
+interface Event {
+  title: string;
+  description?: string;
+  forms: any[];
+}
+
+const AddEventDialog = forwardRef<AddEventDialogRef>((_, ref) => {
   const context = useContext(ediTDorContext);
-  const [display, setDisplay] = React.useState(() => {
+  const [display, setDisplay] = React.useState<boolean>(() => {
     return false;
   });
 
@@ -66,10 +78,15 @@ export const AddEventDialog = forwardRef((_, ref) => {
   );
 
   const onAddEvent = () => {
-    let event = {};
-    event.title = document.getElementById(`${type}-title`).value;
+    const event: Event = {
+      title: (document.getElementById(`${type}-title`) as HTMLInputElement)
+        .value,
+      forms: [],
+    };
 
-    const description = document.getElementById(`${type}-description`).value;
+    const description = (
+      document.getElementById(`${type}-description`) as HTMLTextAreaElement
+    ).value;
     if (description !== "") {
       event.description = description;
     }
@@ -90,18 +107,28 @@ export const AddEventDialog = forwardRef((_, ref) => {
     }
   };
 
-  const showErrorMessage = (msg) => {
-    document.getElementById(`${type}-title-helper-text`).textContent = msg;
-    document
-      .getElementById(`${type}-title`)
-      .classList.remove("border-gray-600");
-    document.getElementById(`${type}-title`).classList.add("border-red-400");
+  const showErrorMessage = (msg: string) => {
+    (
+      document.getElementById(`${type}-title-helper-text`) as HTMLElement
+    ).textContent = msg;
+    (
+      document.getElementById(`${type}-title`) as HTMLInputElement
+    ).classList.remove("border-gray-600");
+    (
+      document.getElementById(`${type}-title`) as HTMLInputElement
+    ).classList.add("border-red-400");
   };
 
   const clearErrorMessage = () => {
-    document.getElementById(`${type}-title-helper-text`).textContent = "";
-    document.getElementById(`${type}-title`).classList.add("border-gray-600");
-    document.getElementById(`${type}-title`).classList.remove("border-red-400");
+    (
+      document.getElementById(`${type}-title-helper-text`) as HTMLInputElement
+    ).textContent = "";
+    (
+      document.getElementById(`${type}-title`) as HTMLInputElement
+    ).classList.add("border-gray-600");
+    (
+      document.getElementById(`${type}-title`) as HTMLInputElement
+    ).classList.remove("border-red-400");
   };
 
   if (display) {
@@ -116,9 +143,11 @@ export const AddEventDialog = forwardRef((_, ref) => {
         title={`Add New ${name}`}
         description={`Tell us a little something about the ${name} you want to add.`}
       />,
-      document.getElementById("modal-root")
+      document.getElementById("modal-root") as HTMLElement
     );
   }
 
   return null;
 });
+
+export default AddEventDialog;
