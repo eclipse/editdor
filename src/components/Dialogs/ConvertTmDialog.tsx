@@ -18,12 +18,17 @@ import React, {
 } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
-import { DialogTemplate } from "./DialogTemplate";
+import DialogTemplate from "./DialogTemplate";
 
-export const ConvertTmDialog = forwardRef((props, ref) => {
+export interface ConvertTmDialogRef {
+  openModal: () => void;
+  close: () => void;
+}
+
+const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
   const context = useContext(ediTDorContext);
-  const [htmlInputs, setHtmlInputs] = React.useState([]);
-  const [display, setDisplay] = React.useState(() => {
+  const [htmlInputs, setHtmlInputs] = React.useState<JSX.Element[]>([]);
+  const [display, setDisplay] = React.useState<boolean>(() => {
     return false;
   });
 
@@ -56,14 +61,14 @@ export const ConvertTmDialog = forwardRef((props, ref) => {
         title={"Generate TD From TM"}
         description={"Please provide values to switch the placeholders with."}
       />,
-      document.getElementById("modal-root")
+      document.getElementById("modal-root") as HTMLElement
     );
   }
 
   return null;
 });
 
-const createHtmlInputs = (td) => {
+const createHtmlInputs = (td: string): JSX.Element[] => {
   try {
     let regex = /{{/gi,
       result,
@@ -271,3 +276,5 @@ const convertTmToTd = (td, htmlInputs) => {
     "_blank"
   );
 };
+
+export default ConvertTmDialog;

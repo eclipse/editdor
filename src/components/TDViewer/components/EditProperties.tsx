@@ -14,13 +14,12 @@ import React, { useContext, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
 import ButtonSwap from "../base/ButtonSwap";
 import IncrementButton from "../base/IncrementButton";
-import { IThingDescription } from "types/td";
 import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import {
   getAddressOffsetTooltipContent,
   getEndiannessTooltipContent,
   getUniIdTooltipContent,
-} from "../../InfoIcon/InfoTooltips";
+} from "../../InfoIcon/TooltipMapper";
 
 interface IEndianness {
   wordSwap: boolean;
@@ -317,6 +316,7 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
       </div>
     </>
   );
+
   return (
     <>
       <div className="grid grid-cols-12 gap-1 rounded-t-md bg-gray-600 px-2">

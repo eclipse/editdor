@@ -14,19 +14,24 @@ import React, { forwardRef, useContext, useImperativeHandle } from "react";
 import ReactDOM from "react-dom";
 import { ChevronDown } from "react-feather";
 import ediTDorContext from "../../context/ediTDorContext";
-import { DialogTemplate } from "./DialogTemplate";
+import DialogTemplate from "./DialogTemplate";
 import { parseCsv, mapCsvToProperties } from "../../utils/parser";
 
-export const CreateTdDialog = forwardRef((props, ref) => {
+export interface CreateTdDialogRef {
+  openModal: () => void;
+  close: () => void;
+}
+
+const CreateTdDialog = forwardRef((props, ref) => {
   const context = useContext(ediTDorContext);
   const [display, setDisplay] = React.useState(() => {
     return false;
   });
-  const [type, setType] = React.useState("TD"); // either TD or TM
+  const [type, setType] = React.useState<"TD" | "TM">("TD");
   const [properties, setProperties] = React.useState({});
-  const [fileName, setFileName] = React.useState("");
-  const [protocol, setProtocol] = React.useState("Modbus TCP");
-  const fileInputRef = React.useRef(null);
+  const [fileName, setFileName] = React.useState<string>("");
+  const [protocol, setProtocol] = React.useState<string>("Modbus TCP");
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   useImperativeHandle(ref, () => {
     return {
@@ -46,8 +51,8 @@ export const CreateTdDialog = forwardRef((props, ref) => {
     setDisplay(false);
   };
 
-  const changeType = (e) => {
-    setType(e.target.value);
+  const changeType = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setType(e.target.value as "TD" | "TM");
   };
 
   const content = buildForm(
@@ -81,7 +86,7 @@ export const CreateTdDialog = forwardRef((props, ref) => {
           "To quickly create a basis for your new Thing Description/Thing Model just fill out this little template and we'll get you going."
         }
       />,
-      document.getElementById("modal-root")
+      document.getElementById("modal-root") as HTMLElement
     );
   }
 
@@ -89,14 +94,14 @@ export const CreateTdDialog = forwardRef((props, ref) => {
 });
 
 const buildForm = (
-  changeType,
-  type,
-  protocol,
-  setProtocol,
-  fileName,
-  setFileName,
-  fileInputRef,
-  setProperties
+  changeType: (e: React.ChangeEvent<HTMLSelectElement>) => void,
+  type: "TD" | "TM",
+  protocol: string,
+  setProtocol: React.Dispatch<React.SetStateAction<string>>,
+  fileName: string,
+  setFileName: React.Dispatch<React.SetStateAction<string>>,
+  fileInputRef: React.RefObject<HTMLInputElement>,
+  setProperties: React.Dispatch<React.SetStateAction<Record<string, any>>>
 ) => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -104,7 +109,7 @@ const buildForm = (
       setFileName(file.name);
       const reader = new FileReader();
       reader.onload = (e) => {
-        const csvContent = e.target.result;
+        const csvContent = e.target?.result as string;
         const data = parseCsv(csvContent, true, ",");
         let parsedProperties = {};
         try {
@@ -113,27 +118,27 @@ const buildForm = (
             throw new Error("No valid properties found in the CSV file.");
           }
         } catch (error) {
-          alert(error.message);
+          alert((error as Error).message);
         }
         setProperties(parsedProperties);
       };
 
       reader.onerror = (e) => {
-        alert("Reading file:", e.target.error);
+        alert(`Reading file: ${e.target?.error}`);
       };
 
       reader.readAsText(file);
     }
   };
 
-  const handleButtonClick = () => {
+  const handleButtonClick = (): void => {
     if (!fileInputRef.current) {
       return;
     }
     fileInputRef.current.click();
   };
 
-  const downloadCsvTemplate = () => {
+  const downloadCsvTemplate = (): void => {
     const csvContent = `name,title,description,type,minimum,maximum,unit,href,modbus:unitID,modbus:address,modbus:quantity,modbus:type,modbus:zeroBasedAddressing,modbus:entity,modbus:pollingTime,modbus:function,modbus:mostSignificantByte,modbus:mostSignificantWord,modbus:timeout`;
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -166,13 +171,14 @@ const buildForm = (
           <ChevronDown color="#cacaca"></ChevronDown>
         </div>
       </div>
-      {formField("ID", "urn:thing-id", "thing-id", "url", "autoFocus")}
-      {formField("Title", "Thing Title", "thing-title", "text")}
+      {formField("ID", "urn:thing-id", "thing-id", "url", true)}
+      {formField("Title", "Thing Title", "thing-title", "text", false)}
       {formField(
         "Base",
         "http://www.example.com/thing-path",
         "thing-base",
-        "url"
+        "url",
+        false
       )}
       <label
         htmlFor="thing-description"
@@ -182,7 +188,7 @@ const buildForm = (
       </label>
       <textarea
         id="thing-description"
-        rows="5"
+        rows={5}
         className="w-full appearance-none rounded border-2 border-gray-600 bg-gray-600 p-2 leading-tight text-white focus:border-blue-500 focus:outline-none sm:text-sm"
         placeholder="A short description about this new Thing..."
       />
@@ -281,7 +287,13 @@ const buildForm = (
   );
 };
 
-const formField = (label, placeholder, id, type, autoFocus) => {
+const formField = (
+  label: string,
+  placeholder: string,
+  id: string,
+  type: string,
+  autoFocus: boolean
+) => {
   return (
     <div key={id} className="py-1">
       <label htmlFor={id} className="pl-2 text-sm font-medium text-gray-400">
@@ -293,21 +305,29 @@ const formField = (label, placeholder, id, type, autoFocus) => {
         className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
         placeholder={placeholder}
         type={type}
-        autoFocus={autoFocus === "autoFocus"}
+        autoFocus={autoFocus}
       />
     </div>
   );
 };
 
-const createNewTD = (type, properties) => {
-  let id = document.getElementById("thing-id").value;
-  let title = document.getElementById("thing-title").value;
-  let base = document.getElementById("thing-base").value;
+const createNewTD = (
+  type: "TD" | "TM",
+  properties: Record<string, any>
+): Record<string, any> => {
+  let id = (document.getElementById("thing-id") as HTMLInputElement)?.value;
+  let title = (document.getElementById("thing-title") as HTMLInputElement)
+    ?.value;
+  let base = (document.getElementById("thing-base") as HTMLInputElement)?.value;
 
-  let tdDescription = document.getElementById("thing-description").value;
-  let tdSecurity = document.getElementById("thing-security").value;
+  let tdDescription = (
+    document.getElementById("thing-description") as HTMLTextAreaElement
+  )?.value;
+  let tdSecurity = (
+    document.getElementById("thing-security") as HTMLSelectElement
+  )?.value;
 
-  var thing = {};
+  var thing: Record<string, any> = {};
 
   thing["@context"] = "https://www.w3.org/2019/wot/td/v1";
   thing["title"] = title !== "" ? title : "ediTDor Thing";
@@ -340,3 +360,5 @@ const createNewTD = (type, properties) => {
 
   return thing;
 };
+
+export default CreateTdDialog;

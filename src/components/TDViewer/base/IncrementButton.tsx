@@ -16,19 +16,25 @@ import { Plus, Minus } from "react-feather";
 interface IIncrementButtonProps {
   value: number;
   onUpdate: (newValue: number) => void;
+  inferiorLimit: number;
+  superiorLimit?: number;
 }
 
 const IncrementButton: React.FC<IIncrementButtonProps> = ({
   value,
   onUpdate,
+  inferiorLimit,
+  superiorLimit = 100000,
 }) => {
-  const increment = () => {
-    const newValue = value < 255 ? value + 1 : 0;
+  const increment = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newValue = value < superiorLimit ? value + 1 : inferiorLimit;
     onUpdate(newValue);
   };
 
-  const decrement = () => {
-    const newValue = value > 0 ? value - 1 : 255;
+  const decrement = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newValue = value > inferiorLimit ? value - 1 : superiorLimit;
     onUpdate(newValue);
   };
 

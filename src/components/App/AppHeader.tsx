@@ -19,6 +19,7 @@ import {
   Save,
   Settings,
   Share,
+  Link,
 } from "react-feather";
 import editdorLogo from "../../assets/editdor.png";
 import ediTDorContext from "../../context/ediTDorContext";
@@ -26,16 +27,31 @@ import * as fileTdService from "../../services/fileTdService";
 import { getTargetUrl } from "../../services/targetUrl";
 import * as thingsApiService from "../../services/thingsApiService";
 import { isThingModel } from "../../util";
-import { ConvertTmDialog } from "../Dialogs/ConvertTmDialog";
-import { CreateTdDialog } from "../Dialogs/CreateTdDialog";
-import { SettingsDialog } from "../Dialogs/SettingsDialog";
-import { ShareDialog } from "../Dialogs/ShareDialog";
+import ConvertTmDialog from "../Dialogs/ConvertTmDialog";
+import CreateTdDialog from "../Dialogs/CreateTdDialog";
+import SettingsDialog from "../Dialogs/SettingsDialog";
+import ShareDialog from "../Dialogs/ShareDialog";
+import ContributeToCatalog from "../Dialogs/ContributeToCatalog";
+import ErrorDialog from "../Dialogs/ErrorDialog";
+import Button from "./Button";
 
-export default function AppHeader() {
+const EMPTY_TD_MESSAGE =
+  "To contribute with a Things Model, please first load a Things Description to be validated.";
+const INVALID_TYPE_MESSAGE =
+  'For contribute with a Things Model, the TM must have the following pair key/value:  "@type": "tm:ThingModel"  ';
+
+const AppHeader: React.FC = () => {
   const context = useContext(ediTDorContext);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [errorDisplay, setErrorDisplay] = React.useState<{
+    state: boolean;
+    message: string;
+  }>({
+    state: false,
+    message: "",
+  });
 
-  const verifyDiscard = useCallback(() => {
+  const verifyDiscard = useCallback((): boolean => {
     if (!context.isModified) {
       return true;
     }
@@ -45,12 +61,6 @@ export default function AppHeader() {
     return window.confirm(msg);
   }, [context.isModified]);
 
-  /**
-   *
-   * @param {*} _
-   *
-   * Open File from Filesystem
-   */
   const openFile = useCallback(async () => {
     if (!verifyDiscard()) {
       return;
@@ -60,7 +70,7 @@ export default function AppHeader() {
       const res = await fileTdService.readFromFile();
 
       const linkedFileName = `./${res.fileName}`;
-      let linkedTd = {};
+      let linkedTd: Record<string, any> = {};
       linkedTd[linkedFileName] = res.fileHandle
         ? res.fileHandle
         : JSON.parse(res.td);
@@ -143,7 +153,7 @@ export default function AppHeader() {
     }
   }, [context]);
 
-  const loadingCall = (func) => {
+  const loadingCall = (func: () => Promise<any>) => {
     return async () => {
       setIsLoading(true);
       const res = await func();
@@ -155,7 +165,7 @@ export default function AppHeader() {
   };
 
   useEffect(() => {
-    const shortcutHandler = (e) => {
+    const shortcutHandler = (e: KeyboardEvent) => {
       if (
         (window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) &&
         e.key === "s"
@@ -201,24 +211,50 @@ export default function AppHeader() {
     };
   }, [openFile, save]);
 
-  const convertTmDialog = React.useRef();
+  const convertTmDialog = React.useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
   const openConvertTmDialog = () => {
-    convertTmDialog.current.openModal();
+    convertTmDialog.current?.openModal();
   };
 
-  const shareDialog = React.useRef();
+  const shareDialog = React.useRef<{ openModal: () => void }>(null);
   const openShareDialog = () => {
-    shareDialog.current.openModal();
+    shareDialog.current?.openModal();
   };
 
-  const createTdDialog = React.useRef();
+  const createTdDialog = React.useRef<{ openModal: () => void }>(null);
   const openCreateTdDialog = () => {
-    createTdDialog.current.openModal();
+    createTdDialog.current?.openModal();
   };
 
-  const settingsDialog = React.useRef();
+  const settingsDialog = React.useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
   const openSettingsDialog = () => {
-    settingsDialog.current.openModal();
+    settingsDialog.current?.openModal();
+  };
+
+  const contributeToCatalog = React.useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
+  const openContributeToCatalog = (): void => {
+    if (!context.offlineTD) {
+      setErrorDisplay({
+        state: true,
+        message: EMPTY_TD_MESSAGE,
+      });
+    } else if (!context.parsedTD["@type"]) {
+      setErrorDisplay({
+        state: true,
+        message: INVALID_TYPE_MESSAGE,
+      });
+    } else {
+      contributeToCatalog.current?.openModal();
+    }
   };
 
   return (
@@ -238,46 +274,51 @@ export default function AppHeader() {
         <div className="flex items-center gap-4 pr-2">
           {isLoading && <div className="app-header-spinner hidden md:block" />}
 
-          <AppHeaderButton onClick={openShareDialog}>
+          <Button onClick={openContributeToCatalog}>
+            <Link />
+            <div className="text-xs">Contribute to Catalog</div>
+          </Button>
+
+          <Button onClick={openShareDialog}>
             <Share />
             <div className="text-xs">Share</div>
-          </AppHeaderButton>
+          </Button>
 
           <div className="hidden md:block">
-            <AppHeaderButton onClick={loadingCall(save)}>
+            <Button onClick={loadingCall(save)}>
               <Save />
               <div className="text-xs">Save</div>
-            </AppHeaderButton>
+            </Button>
           </div>
 
           <div className="hidden md:block">
-            <AppHeaderButton onClick={loadingCall(openFile)}>
+            <Button onClick={loadingCall(openFile)}>
               <File />
               <div className="text-xs">Open</div>
-            </AppHeaderButton>
+            </Button>
           </div>
 
-          <AppHeaderButton onClick={openCreateTdDialog}>
+          <Button onClick={openCreateTdDialog}>
             <FilePlus />
             <div className="text-xs">Create</div>
-          </AppHeaderButton>
+          </Button>
 
           {isThingModel(context.parsedTD) && (
-            <AppHeaderButton onClick={openConvertTmDialog}>
+            <Button onClick={openConvertTmDialog}>
               <FileText />
               <div className="text-xs">To TD</div>
-            </AppHeaderButton>
+            </Button>
           )}
 
-          <AppHeaderButton onClick={loadingCall(createNewFile)}>
+          <Button onClick={loadingCall(createNewFile)}>
             <Download />
             <div className="text-xs">Download</div>
-          </AppHeaderButton>
+          </Button>
 
-          <AppHeaderButton onClick={openSettingsDialog}>
+          <Button onClick={openSettingsDialog}>
             <Settings />
             <div className="text-xs">Settings</div>
-          </AppHeaderButton>
+          </Button>
         </div>
       </header>
 
@@ -285,6 +326,13 @@ export default function AppHeader() {
       <ShareDialog ref={shareDialog} />
       <CreateTdDialog ref={createTdDialog} />
       <SettingsDialog ref={settingsDialog} />
+      <ContributeToCatalog ref={contributeToCatalog} />
+      <ErrorDialog
+        isOpen={errorDisplay.state}
+        onClose={() => setErrorDisplay({ state: false, message: "" })}
+        errorMessage={errorDisplay.message}
+      />
+
       <input
         className="h-0"
         type="file"
@@ -294,17 +342,6 @@ export default function AppHeader() {
       <a className="h-0" id="aDownload" href="/" style={{ display: "none" }} />
     </>
   );
-}
+};
 
-function AppHeaderButton(props) {
-  return (
-    <button
-      className="min-w-8 text-white hover:opacity-50"
-      onClick={props.onClick}
-    >
-      <div className="flex flex-col items-center justify-center gap-0.5">
-        {props.children}
-      </div>
-    </button>
-  );
-}
+export default AppHeader;

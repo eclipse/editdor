@@ -13,11 +13,16 @@
 import React, { forwardRef, useImperativeHandle } from "react";
 import ReactDOM from "react-dom";
 import { getTargetUrl, setTargetUrl } from "../../services/targetUrl";
-import { DialogTemplate } from "./DialogTemplate";
+import DialogTemplate from "./DialogTemplate";
 
-export const SettingsDialog = forwardRef((props, ref) => {
-  const [display, setDisplay] = React.useState(false);
-  const [settingsTargetUrl, setSettingsTargetUrl] = React.useState("");
+export interface SettingsDialogRef {
+  openModal: () => void;
+  close: () => void;
+}
+
+const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
+  const [display, setDisplay] = React.useState<boolean>(false);
+  const [settingsTargetUrl, setSettingsTargetUrl] = React.useState<string>("");
 
   useImperativeHandle(ref, () => {
     return {
@@ -47,7 +52,9 @@ export const SettingsDialog = forwardRef((props, ref) => {
         id="settings-target-url-field"
         className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
         value={settingsTargetUrl}
-        onChange={(e) => setSettingsTargetUrl(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setSettingsTargetUrl(e.target.value)
+        }
         placeholder="http://localhost:8080/"
       />
       <p className="pl-2 text-sm text-gray-400">
@@ -76,9 +83,11 @@ export const SettingsDialog = forwardRef((props, ref) => {
           "Change the ediTDors configuration to your needs. More configuration options are yet to come..."
         }
       />,
-      document.getElementById("modal-root")
+      document.getElementById("modal-root") as HTMLElement
     );
   }
 
   return null;
 });
+
+export default SettingsDialog;
