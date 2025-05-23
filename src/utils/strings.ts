@@ -20,7 +20,7 @@ export const formatTextKey = (key: string, index: number): string => {
   if (index === 0) {
     return key;
   }
-  return key + ` (form.${String(propIndex)})`;
+  return key + ` (form ${String(propIndex)})`;
 };
 
 export const formatText = (text: string): string => {
