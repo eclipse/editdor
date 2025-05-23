@@ -3,6 +3,7 @@ import React from "react";
 interface ITextFieldProps {
   id: string;
   label: string;
+  value?: string;
   placeholder?: string;
   type?: string;
   autoFocus?: boolean;
@@ -26,6 +27,7 @@ const DialogTextField: React.FC<ITextFieldProps> = (props) => {
         type={props.type ?? "text"}
         autoFocus={props.autoFocus ?? false}
         onChange={props.onChange}
+        value={props.value}
       />
       <span
         id={`${props.id}-helper-text`}

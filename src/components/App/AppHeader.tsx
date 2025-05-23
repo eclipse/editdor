@@ -32,11 +32,24 @@ import CreateTdDialog from "../Dialogs/CreateTdDialog";
 import SettingsDialog from "../Dialogs/SettingsDialog";
 import ShareDialog from "../Dialogs/ShareDialog";
 import ContributeToCatalog from "../Dialogs/ContributeToCatalog";
+import ErrorDialog from "../Dialogs/ErrorDialog";
 import Button from "./Button";
+
+const EMPTY_TD_MESSAGE =
+  "To contribute with a Things Model, please first load a Things Description to be validated.";
+const INVALID_TYPE_MESSAGE =
+  'For contribute with a Things Model, the TM must have the following pair key/value:  "@type": "tm:ThingModel"  ';
 
 const AppHeader: React.FC = () => {
   const context = useContext(ediTDorContext);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [errorDisplay, setErrorDisplay] = React.useState<{
+    state: boolean;
+    message: string;
+  }>({
+    state: false,
+    message: "",
+  });
 
   const verifyDiscard = useCallback((): boolean => {
     if (!context.isModified) {
@@ -228,8 +241,20 @@ const AppHeader: React.FC = () => {
     openModal: () => void;
     close: () => void;
   }>(null);
-  const openContributeToCatalog = () => {
-    contributeToCatalog.current?.openModal();
+  const openContributeToCatalog = (): void => {
+    if (!context.offlineTD) {
+      setErrorDisplay({
+        state: true,
+        message: EMPTY_TD_MESSAGE,
+      });
+    } else if (!context.parsedTD["@type"]) {
+      setErrorDisplay({
+        state: true,
+        message: INVALID_TYPE_MESSAGE,
+      });
+    } else {
+      contributeToCatalog.current?.openModal();
+    }
   };
 
   return (
@@ -302,6 +327,12 @@ const AppHeader: React.FC = () => {
       <CreateTdDialog ref={createTdDialog} />
       <SettingsDialog ref={settingsDialog} />
       <ContributeToCatalog ref={contributeToCatalog} />
+      <ErrorDialog
+        isOpen={errorDisplay.state}
+        onClose={() => setErrorDisplay({ state: false, message: "" })}
+        errorMessage={errorDisplay.message}
+      />
+
       <input
         className="h-0"
         type="file"
