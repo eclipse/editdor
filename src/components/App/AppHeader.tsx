@@ -38,7 +38,7 @@ import Button from "./Button";
 const EMPTY_TD_MESSAGE =
   "To contribute with a Things Model, please first load a Things Description to be validated.";
 const INVALID_TYPE_MESSAGE =
-  'For contribute with a Things Model, the TM must have the following pair key/value:  "@type": "tm:ThingModel"  ';
+  'To contribute a Thing Model, the TM must have the following pair key/value:  "@type": "tm:ThingModel"  ';
 
 const AppHeader: React.FC = () => {
   const context = useContext(ediTDorContext);
