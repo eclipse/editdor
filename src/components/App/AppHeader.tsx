@@ -36,7 +36,7 @@ import ErrorDialog from "../Dialogs/ErrorDialog";
 import Button from "./Button";
 
 const EMPTY_TD_MESSAGE =
-  "To contribute with a Things Model, please first load a Things Description to be validated.";
+  "To contribute a Thing Model, please first load a Thing Model to be validated.";
 const INVALID_TYPE_MESSAGE =
   'To contribute a Thing Model, the TM must have the following pair key/value:  "@type": "tm:ThingModel"  ';
 
