@@ -122,7 +122,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
           />
           <DialogTextField
             label="License"
-            placeholder="URL the license..."
+            placeholder="URL of the license, e.g., https://www.apache.org/licenses/LICENSE-2.0.txt"
             id="license"
             type="text"
             value={license}
