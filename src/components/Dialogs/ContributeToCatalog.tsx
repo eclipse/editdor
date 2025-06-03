@@ -95,7 +95,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         <div className="px-4">
           <DialogTextField
             label="Model*"
-            placeholder="Model Number, e.g. ABC-DEF-123..."
+            placeholder="The Manufacturer Part Number (MPN) of the product, or the product to which the offer refers."
             id="model"
             type="text"
             value={model}
