@@ -79,7 +79,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   const onClickCatalogValidation = () => {
     const isValid = false;
     if (!isValid) {
-      setErrorMessage("Catalog validation failed. Please check your input.");
+      setErrorMessage("Catalog validation failed. Please check your input against the JSON Schema at https://github.com/wot-oss/tmc/blob/main/internal/commands/validate/tmc-mandatory.schema.json");
     } else {
       setErrorMessage("");
     }
