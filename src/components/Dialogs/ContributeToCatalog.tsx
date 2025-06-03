@@ -163,7 +163,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
             {isValid && (
               <div className="ml-2 mt-2 inline h-10 rounded bg-green-500 p-2 text-white">
                 <Check size={16} className="mr-1 inline" />
-                {"Catalog is valid"}
+                {"TM is valid"}
               </div>
             )}
           </div>
