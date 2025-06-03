@@ -172,7 +172,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       <div>
         <div className="my-4 rounded-md bg-black bg-opacity-80 p-2">
           <DialogTextField
-            label="TM Catalog Endpoint:"
+            label="TM Catalog Endpoint"
             placeholder="TM Catalog Endpoint:..."
             id="catalogEndpoint"
             type="text"
