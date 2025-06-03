@@ -213,7 +213,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         cancelText="Cancel"
         title={"Contribute your TM to a TM Catalog"}
         description={
-          "Fullfil the form below to contribute your TM to the Catalog."
+          "Fullfil the form below to contribute your TM to the Catalog specified in the endpoint at the end."
         }
       />,
       document.getElementById("modal-root") as HTMLElement
