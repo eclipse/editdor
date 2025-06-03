@@ -211,7 +211,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         children={content}
         submitText="Submit"
         cancelText="Cancel"
-        title={"Contribute to the Catalog with your TM"}
+        title={"Contribute your TM to a TM Catalog"}
         description={
           "Fullfil the form below to contribute your TM to the Catalog."
         }
