@@ -139,7 +139,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
             autoFocus={false}
           />
           <DialogTextField
-            label="Holder"
+            label="Copyright Holder"
             placeholder="Organization holding the copyright of the TM..."
             id="holder"
             type="text"
