@@ -113,7 +113,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
           />
           <DialogTextField
             label="Manufacturer*"
-            placeholder="Manufacturer of the hardware"
+            placeholder="Manufacturer of the device"
             id="manufacturer"
             type="text"
             value={manufacturer}
