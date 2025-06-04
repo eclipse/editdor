@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -12,12 +12,13 @@
  ********************************************************************************/
 import React, { forwardRef, useContext, useImperativeHandle } from "react";
 import ReactDOM from "react-dom";
-import { ChevronDown } from "react-feather";
 import ediTDorContext from "../../context/ediTDorContext";
 import DialogTemplate from "./DialogTemplate";
 import DialogTextField from "./base/DialogTextField";
 import DialogButton from "./base/DialogButton";
 import { Check, AlertTriangle } from "react-feather";
+import { isValidUrl } from "../../utils/strings";
+import InfoIconWrapper from "components/InfoIcon/InfoIconWrapper";
 
 export interface IContributeToCatalogProps {
   openModal: () => void;
@@ -37,7 +38,15 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   const [license, setLicense] = React.useState<string>("");
   const [copyrightYear, setCopyrightYear] = React.useState<string>("");
   const [holder, setHolder] = React.useState<string>("");
+
+  const [tmCatalogEndpoint, setTmCatalogEndpoint] = React.useState<string>("");
+  const [repository, setRepository] = React.useState<string>("");
+
   const [errorMessage, setErrorMessage] = React.useState<string>("");
+  const [tmCatalogEndpointError, setTmCatalogEndpointError] =
+    React.useState<string>("");
+
+  const [repositoryError, setRepositoryError] = React.useState<string>("");
 
   useImperativeHandle(ref, () => {
     return {
@@ -52,11 +61,34 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setManufacturer(td["schema:manufacturer"]?.["schema:name"] ?? "");
     setLicense(td["schema:license"] ?? "");
     setCopyrightYear(td["schema:copyrightYear"] ?? "");
-    setHolder(
-      `${td["schema:copyrightHolder"]?.["@type"] || ""} ${
-        td["schema:copyrightHolder"]?.["name"] || ""
-      }`.trim()
-    );
+    setHolder(`${td["schema:copyrightHolder"]?.["name"] || ""}`.trim());
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const tmcEndpointParam = urlParams.get("tmcendpoint");
+    const repositoryParam = urlParams.get("repo");
+
+    const decodedTmcEndpoint = tmcEndpointParam
+      ? decodeURIComponent(tmcEndpointParam)
+      : "";
+
+    const decodedRepository = repositoryParam
+      ? decodeURIComponent(repositoryParam)
+      : "";
+
+    if (!isValidUrl(decodedTmcEndpoint)) {
+      setTmCatalogEndpointError(
+        "Please enter a valid URL starting with http:// or https://"
+      );
+    }
+    setTmCatalogEndpoint(decodedTmcEndpoint);
+
+    if (!isValidUrl(decodedRepository)) {
+      setRepositoryError(
+        "Please enter a valid URL starting with http:// or https://"
+      );
+    }
+    setRepository(decodedRepository);
 
     setDisplay(true);
   };
@@ -78,10 +110,50 @@ const ContributeToCatalog = forwardRef((props, ref) => {
 
   const onClickCatalogValidation = () => {
     const isValid = false;
+
     if (!isValid) {
-      setErrorMessage("Catalog validation failed. Please check your input against the JSON Schema at https://github.com/wot-oss/tmc/blob/main/internal/commands/validate/tmc-mandatory.schema.json");
+      setErrorMessage(
+        "Catalog validation failed. Please check your input against the JSON Schema at https://github.com/wot-oss/tmc/blob/main/internal/commands/validate/tmc-mandatory.schema.json"
+      );
     } else {
       setErrorMessage("");
+    }
+  };
+
+  const onInputTmCatalogEndpoint = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTmCatalogEndpoint(value);
+    if (
+      !value.startsWith("https") &&
+      !value.startsWith("http:") &&
+      value.length > 0
+    ) {
+      setTmCatalogEndpointError("The endpoint must start with http or https.");
+    } else {
+      setTmCatalogEndpointError("");
+    }
+  };
+
+  const onInputRepository = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //
+    const value = e.target.value;
+    //
+    setRepository(value);
+    //
+    if (
+      !value.startsWith("https") &&
+      !value.startsWith("http:") &&
+      value.length > 0
+    ) {
+      setRepositoryError("The repository must start with http or https.");
+    } else {
+      setRepositoryError("");
+    }
+
+    if (!isValidUrl(value)) {
+      setRepositoryError(
+        "Please enter a valid URL starting with http:// or https://"
+      );
     }
   };
 
@@ -150,10 +222,14 @@ const ContributeToCatalog = forwardRef((props, ref) => {
           <div className="flex">
             <DialogButton
               id="catalogValidation"
-              text="Catalog Valitation"
+              text="Validate"
               className="my-2"
               onClick={onClickCatalogValidation}
             ></DialogButton>
+            {
+              // Make a tooltip with the following text:
+              // Make sure that your TM is valid for cataloging purposes
+            }
             {errorMessage && (
               <div className="ml-2 mt-2 inline h-full w-full rounded bg-red-500 p-2 text-white">
                 <AlertTriangle size={16} className="mr-1 inline" />
@@ -176,22 +252,37 @@ const ContributeToCatalog = forwardRef((props, ref) => {
             placeholder="TM Catalog Endpoint:..."
             id="catalogEndpoint"
             type="text"
+            value={tmCatalogEndpoint}
             autoFocus={false}
+            onChange={onInputTmCatalogEndpoint}
+            className={`${
+              tmCatalogEndpointError ? "border-red-500" : "border-gray-300"
+            } w-full rounded-md border p-2 text-sm`}
           />
-        </div>
-        <div className="my-4 rounded-md bg-black bg-opacity-80 p-2">
+          {tmCatalogEndpointError && (
+            <div className="mt-1 text-sm text-red-500">
+              {tmCatalogEndpointError}
+            </div>
+          )}
+          <DialogTextField
+            label="Repository"
+            placeholder="URL of the repository where the TM is stored"
+            id="urlRepository"
+            type="text"
+            value={repository}
+            autoFocus={false}
+            onChange={onInputRepository}
+            className={`${
+              repositoryError ? "border-red-500" : "border-gray-300"
+            } w-full rounded-md border p-2 text-sm`}
+          />
+          {repositoryError && (
+            <div className="mt-1 text-sm text-red-500">{repositoryError}</div>
+          )}
           <div className="my-4">
             <DialogButton
-              id="authenticate"
-              text="Authenticate"
-              className="m-2"
-              onClick={() => {
-                console.log("4");
-              }}
-            ></DialogButton>
-            <DialogButton
               id="submit"
-              text="submit (?)"
+              text="Submit"
               className="m-2"
               onClick={() => {
                 console.log("5");
@@ -209,8 +300,8 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         onCancel={close}
         onSubmit={onClickSubmit}
         children={content}
-        submitText="Submit"
-        cancelText="Cancel"
+        hasSubmit={false}
+        cancelText="Close"
         title={"Contribute your TM to a TM Catalog"}
         description={
           "Fullfil the form below to contribute your TM to the Catalog specified in the endpoint at the end."
