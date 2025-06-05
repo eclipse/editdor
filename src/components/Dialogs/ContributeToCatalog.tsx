@@ -19,6 +19,7 @@ import DialogButton from "./base/DialogButton";
 import { Check, AlertTriangle } from "react-feather";
 import { isValidUrl } from "../../utils/strings";
 import InfoIconWrapper from "components/InfoIcon/InfoIconWrapper";
+import Ajv, { JSONSchemaType } from "ajv";
 
 export interface IContributeToCatalogProps {
   openModal: () => void;
@@ -26,6 +27,9 @@ export interface IContributeToCatalogProps {
 }
 
 const ContributeToCatalog = forwardRef((props, ref) => {
+  const validationTmUrl =
+    "https://raw.githubusercontent.com/wot-oss/tmc/main/internal/commands/validate/tmc-mandatory.schema.json";
+
   const context = useContext(ediTDorContext);
   const td: IThingDescription = context.parsedTD;
 
@@ -76,14 +80,14 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       ? decodeURIComponent(repositoryParam)
       : "";
 
-    if (!isValidUrl(decodedTmcEndpoint)) {
+    if (!isValidUrl(decodedTmcEndpoint) && decodedTmcEndpoint !== "") {
       setTmCatalogEndpointError(
         "Please enter a valid URL starting with http:// or https://"
       );
     }
     setTmCatalogEndpoint(decodedTmcEndpoint);
 
-    if (!isValidUrl(decodedRepository)) {
+    if (!isValidUrl(decodedRepository) && decodedRepository !== "") {
       setRepositoryError(
         "Please enter a valid URL starting with http:// or https://"
       );
@@ -101,26 +105,52 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setCopyrightYear("");
     setHolder("");
     setErrorMessage("");
+    setTmCatalogEndpointError("");
+    setRepositoryError("");
+    setIsValid(false);
     setDisplay(false);
   };
 
-  const onClickSubmit = () => {
+  const onSubmitClick = () => {
     console.log("Submit clicked");
   };
 
-  const onClickCatalogValidation = () => {
-    const isValid = false;
+  const onCatalogValidationClick = async () => {
+    setErrorMessage("");
+    setIsValid(false);
 
-    if (!isValid) {
+    try {
+      const response = await fetch(validationTmUrl);
+      if (!response.ok) throw new Error("Failed to fetch online schema");
+      const schema = await response.json();
+
+      const ajv = new Ajv();
+      const validate = ajv.compile(schema);
+
+      const valid = validate(td);
+
+      if (valid) {
+        setIsValid(true);
+        setErrorMessage("");
+      } else {
+        setIsValid(false);
+        setErrorMessage(
+          "Catalog validation failed: " +
+            (validate.errors ? ajv.errorsText(validate.errors) : "")
+        );
+      }
+    } catch (err) {
+      setIsValid(false);
       setErrorMessage(
-        "Catalog validation failed. Please check your input against the JSON Schema at https://github.com/wot-oss/tmc/blob/main/internal/commands/validate/tmc-mandatory.schema.json"
+        "Could not validate: " +
+          (err instanceof Error ? err.message : String(err))
       );
-    } else {
-      setErrorMessage("");
     }
   };
 
-  const onInputTmCatalogEndpoint = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTmCatalogEndpointChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const value = e.target.value;
     setTmCatalogEndpoint(value);
     if (
@@ -134,7 +164,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     }
   };
 
-  const onInputRepository = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRepositoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     //
     const value = e.target.value;
     //
@@ -219,25 +249,26 @@ const ContributeToCatalog = forwardRef((props, ref) => {
             onChange={(e) => setHolder(e.target.value)}
             autoFocus={false}
           />
-          <div className="flex">
+          <div className="flex flex-col">
             <DialogButton
               id="catalogValidation"
               text="Validate"
-              className="my-2"
-              onClick={onClickCatalogValidation}
+              className="my-2 w-1/4"
+              onClick={onCatalogValidationClick}
             ></DialogButton>
             {
               // Make a tooltip with the following text:
               // Make sure that your TM is valid for cataloging purposes
             }
+
             {errorMessage && (
-              <div className="ml-2 mt-2 inline h-full w-full rounded bg-red-500 p-2 text-white">
+              <div className="mb-2 mt-2 inline h-full w-full rounded bg-red-500 p-2 text-white">
                 <AlertTriangle size={16} className="mr-1 inline" />
                 {errorMessage}
               </div>
             )}
             {isValid && (
-              <div className="ml-2 mt-2 inline h-10 rounded bg-green-500 p-2 text-white">
+              <div className="mb-2 mt-2 inline h-10 rounded bg-green-500 p-2 text-white">
                 <Check size={16} className="mr-1 inline" />
                 {"TM is valid"}
               </div>
@@ -247,46 +278,49 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       </div>
       <div>
         <div className="my-4 rounded-md bg-black bg-opacity-80 p-2">
-          <DialogTextField
-            label="TM Catalog Endpoint"
-            placeholder="TM Catalog Endpoint:..."
-            id="catalogEndpoint"
-            type="text"
-            value={tmCatalogEndpoint}
-            autoFocus={false}
-            onChange={onInputTmCatalogEndpoint}
-            className={`${
-              tmCatalogEndpointError ? "border-red-500" : "border-gray-300"
-            } w-full rounded-md border p-2 text-sm`}
-          />
-          {tmCatalogEndpointError && (
-            <div className="mt-1 text-sm text-red-500">
-              {tmCatalogEndpointError}
-            </div>
-          )}
-          <DialogTextField
-            label="Repository"
-            placeholder="URL of the repository where the TM is stored"
-            id="urlRepository"
-            type="text"
-            value={repository}
-            autoFocus={false}
-            onChange={onInputRepository}
-            className={`${
-              repositoryError ? "border-red-500" : "border-gray-300"
-            } w-full rounded-md border p-2 text-sm`}
-          />
-          {repositoryError && (
-            <div className="mt-1 text-sm text-red-500">{repositoryError}</div>
-          )}
+          <h1 className="font-bold">
+            Add the TM Catalog Endpoint and Repository URL
+          </h1>
+          <div className="px-4">
+            <DialogTextField
+              label="TM Catalog Endpoint"
+              placeholder="TM Catalog Endpoint:..."
+              id="catalogEndpoint"
+              type="text"
+              value={tmCatalogEndpoint}
+              autoFocus={false}
+              onChange={handleTmCatalogEndpointChange}
+              className={`${
+                tmCatalogEndpointError ? "border-red-500" : "border-gray-300"
+              } w-full rounded-md border p-2 text-sm`}
+            />
+            {tmCatalogEndpointError && (
+              <div className="mt-1 text-sm text-red-500">
+                {tmCatalogEndpointError}
+              </div>
+            )}
+            <DialogTextField
+              label="Repository"
+              placeholder="URL of the repository where the TM is stored"
+              id="urlRepository"
+              type="text"
+              value={repository}
+              autoFocus={false}
+              onChange={handleRepositoryChange}
+              className={`${
+                repositoryError ? "border-red-500" : "border-gray-300"
+              } w-full rounded-md border p-2 text-sm`}
+            />
+            {repositoryError && (
+              <div className="mt-1 text-sm text-red-500">{repositoryError}</div>
+            )}
+          </div>
           <div className="my-4">
             <DialogButton
               id="submit"
               text="Submit"
               className="m-2"
-              onClick={() => {
-                console.log("5");
-              }}
+              onClick={onSubmitClick}
             ></DialogButton>
           </div>
         </div>
@@ -298,7 +332,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     return ReactDOM.createPortal(
       <DialogTemplate
         onCancel={close}
-        onSubmit={onClickSubmit}
+        onSubmit={onSubmitClick}
         children={content}
         hasSubmit={false}
         cancelText="Close"
