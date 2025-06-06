@@ -16,10 +16,10 @@ import ediTDorContext from "../../context/ediTDorContext";
 import DialogTemplate from "./DialogTemplate";
 import DialogTextField from "./base/DialogTextField";
 import DialogButton from "./base/DialogButton";
-import { Check, AlertTriangle } from "react-feather";
+import { Check, AlertTriangle, Copy, ExternalLink } from "react-feather";
 import { isValidUrl } from "../../utils/strings";
-import InfoIconWrapper from "components/InfoIcon/InfoIconWrapper";
-import Ajv, { JSONSchemaType } from "ajv";
+import Ajv from "ajv";
+import { requestWeb } from "../../services/thingsApiService";
 
 export interface IContributeToCatalogProps {
   openModal: () => void;
@@ -51,6 +51,12 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     React.useState<string>("");
 
   const [repositoryError, setRepositoryError] = React.useState<string>("");
+
+  const [submitted, setSubmitted] = React.useState<boolean>(false);
+  const [link, setLink] = React.useState<string>("");
+  const [id, setId] = React.useState<string>("");
+
+  const [submittedError, setSubmittedError] = React.useState<string>("");
 
   useImperativeHandle(ref, () => {
     return {
@@ -107,12 +113,56 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setErrorMessage("");
     setTmCatalogEndpointError("");
     setRepositoryError("");
+    setSubmittedError("");
+    setSubmitted(false);
     setIsValid(false);
     setDisplay(false);
   };
 
-  const onSubmitClick = () => {
-    console.log("Submit clicked");
+  const onSubmitClick = async () => {
+    setSubmittedError("");
+    setSubmitted(false);
+    try {
+      const response = await requestWeb(
+        `${tmCatalogEndpoint}/thing-models`,
+        "POST",
+        JSON.stringify(td),
+        {
+          queryParams: {
+            repo: repository,
+          },
+        }
+      );
+
+      if (!response) {
+        setSubmittedError("Failed to connect to the server");
+        return;
+      }
+
+      const result = await response.json();
+
+      if (response.status === 201 && result.data) {
+        const { tmID, message } = result.data;
+
+        if (tmID) {
+          setSubmitted(true);
+          setId(tmID);
+          setLink(`${tmCatalogEndpoint}/${tmID}`);
+        } else {
+          setSubmittedError("Response missing tmID");
+        }
+        return;
+      }
+      const errorMessage = result.detail + " " + result.title;
+      setSubmittedError(`Error: ${errorMessage}`);
+      return;
+    } catch (err) {
+      setSubmittedError(
+        `Failed to process request: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
+    }
   };
 
   const onCatalogValidationClick = async () => {
@@ -185,6 +235,13 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         "Please enter a valid URL starting with http:// or https://"
       );
     }
+  };
+
+  const handleCopyIdClick = async () => {
+    await navigator.clipboard.writeText(id);
+  };
+  const handleOpenLinkClick = async () => {
+    window.open(link, "_blank", "noopener,noreferrer");
   };
 
   const content = (
@@ -276,52 +333,100 @@ const ContributeToCatalog = forwardRef((props, ref) => {
           </div>
         </div>
       </div>
-      <div>
-        <div className="my-4 rounded-md bg-black bg-opacity-80 p-2">
-          <h1 className="font-bold">
-            Add the TM Catalog Endpoint and Repository URL
-          </h1>
-          <div className="px-4">
-            <DialogTextField
-              label="TM Catalog Endpoint"
-              placeholder="TM Catalog Endpoint:..."
-              id="catalogEndpoint"
-              type="text"
-              value={tmCatalogEndpoint}
-              autoFocus={false}
-              onChange={handleTmCatalogEndpointChange}
-              className={`${
-                tmCatalogEndpointError ? "border-red-500" : "border-gray-300"
-              } w-full rounded-md border p-2 text-sm`}
-            />
-            {tmCatalogEndpointError && (
-              <div className="mt-1 text-sm text-red-500">
-                {tmCatalogEndpointError}
-              </div>
-            )}
-            <DialogTextField
-              label="Repository"
-              placeholder="URL of the repository where the TM is stored"
-              id="urlRepository"
-              type="text"
-              value={repository}
-              autoFocus={false}
-              onChange={handleRepositoryChange}
-              className={`${
-                repositoryError ? "border-red-500" : "border-gray-300"
-              } w-full rounded-md border p-2 text-sm`}
-            />
-            {repositoryError && (
-              <div className="mt-1 text-sm text-red-500">{repositoryError}</div>
-            )}
-          </div>
-          <div className="my-4">
+
+      <div className="my-4 rounded-md bg-black bg-opacity-80 p-2">
+        <h1 className="font-bold">
+          Add the TM Catalog Endpoint and Repository URL
+        </h1>
+        <div className="px-4">
+          <DialogTextField
+            label="TM Catalog Endpoint"
+            placeholder="TM Catalog Endpoint:..."
+            id="catalogEndpoint"
+            type="text"
+            value={tmCatalogEndpoint}
+            autoFocus={false}
+            onChange={handleTmCatalogEndpointChange}
+            className={`${
+              tmCatalogEndpointError ? "border-red-500" : "border-gray-300"
+            } w-full rounded-md border p-2 text-sm`}
+          />
+          {tmCatalogEndpointError && (
+            <div className="mt-1 text-sm text-red-500">
+              {tmCatalogEndpointError}
+            </div>
+          )}
+          <DialogTextField
+            label="Repository"
+            placeholder="URL of the repository where the TM is stored"
+            id="urlRepository"
+            type="text"
+            value={repository}
+            autoFocus={false}
+            onChange={handleRepositoryChange}
+            className={`${
+              repositoryError ? "border-red-500" : "border-gray-300"
+            } w-full rounded-md border p-2 text-sm`}
+          />
+          {repositoryError && (
+            <div className="mt-1 text-sm text-red-500">{repositoryError}</div>
+          )}
+          <div className="flex flex-col">
             <DialogButton
               id="submit"
               text="Submit"
-              className="m-2"
+              className="mb-2 mt-2 w-1/4"
               onClick={onSubmitClick}
             ></DialogButton>
+            {submittedError && (
+              <div className="mb-2 mt-2 inline h-full w-full rounded bg-red-500 p-2 text-white">
+                <AlertTriangle size={16} className="mr-1 inline" />
+                {submittedError}
+              </div>
+            )}
+            {submitted && (
+              <>
+                <div className="mb-2 mt-2 inline h-10 rounded bg-green-500 p-2 text-white">
+                  <Check size={16} className="mr-1 inline" />
+                  {"TM submitted successfully!"}
+                </div>
+                <div className="mb-2 mt-2 grid grid-cols-3 items-center">
+                  <div className="col-span-1 w-full">
+                    <DialogButton
+                      id={id}
+                      text={
+                        <div className="flex w-full items-center justify-between">
+                          <span>Copy TM id</span>
+                          <Copy size={20} className="ml-2 cursor-pointer" />
+                        </div>
+                      }
+                      onClick={handleCopyIdClick}
+                      className="w-3/4"
+                    ></DialogButton>
+                  </div>
+                  <h1 className="col-span-2 pl-4 text-center">{id}</h1>
+                </div>
+                <div className="mb-2 mt-2 grid grid-cols-3 items-center">
+                  <div className="col-span-1">
+                    <DialogButton
+                      id={link}
+                      text={
+                        <div className="flex w-full items-center justify-between">
+                          <span>Open in new tab</span>
+                          <ExternalLink
+                            size={20}
+                            className="ml-2 inline cursor-pointer"
+                          />
+                        </div>
+                      }
+                      onClick={handleOpenLinkClick}
+                      className="w-3/4"
+                    ></DialogButton>
+                  </div>
+                  <h1 className="col-span-2 pl-4 text-center">{link}</h1>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
