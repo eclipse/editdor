@@ -16,10 +16,11 @@ import ediTDorContext from "../../context/ediTDorContext";
 import DialogTemplate from "./DialogTemplate";
 import DialogTextField from "./base/DialogTextField";
 import DialogButton from "./base/DialogButton";
-import { Check, AlertTriangle, Copy, ExternalLink } from "react-feather";
+import { Check, AlertTriangle, Copy, ExternalLink, Info } from "react-feather";
 import { isValidUrl } from "../../utils/strings";
 import Ajv from "ajv";
 import { requestWeb } from "../../services/thingsApiService";
+import Icon from "./../InfoIcon/Icon";
 
 export interface IContributeToCatalogProps {
   openModal: () => void;
@@ -309,15 +310,20 @@ const ContributeToCatalog = forwardRef((props, ref) => {
           <div className="flex flex-col">
             <DialogButton
               id="catalogValidation"
-              text="Validate"
+              text={
+                <div className="flex w-full items-center justify-between">
+                  <span className="pl-6">Validate</span>
+                  <Icon
+                    html="Make sure that your TM is valid for cataloging purposes"
+                    id="validateTooltip"
+                    IconComponent={Info}
+                    className="pr-6"
+                  />
+                </div>
+              }
               className="my-2 w-1/4"
               onClick={onCatalogValidationClick}
             ></DialogButton>
-            {
-              // Make a tooltip with the following text:
-              // Make sure that your TM is valid for cataloging purposes
-            }
-
             {errorMessage && (
               <div className="mb-2 mt-2 inline h-full w-full rounded bg-red-500 p-2 text-white">
                 <AlertTriangle size={16} className="mr-1 inline" />
