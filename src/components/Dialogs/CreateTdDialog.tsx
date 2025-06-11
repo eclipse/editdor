@@ -65,6 +65,60 @@ const CreateTdDialog = forwardRef((props, ref) => {
     fileInputRef,
     setProperties
   );
+  const createNewTD = (
+    type: "TD" | "TM",
+    properties: Record<string, any>
+  ): Record<string, any> => {
+    let id = (document.getElementById("thing-id") as HTMLInputElement)?.value;
+    let title = (document.getElementById("thing-title") as HTMLInputElement)
+      ?.value;
+    let base = (document.getElementById("thing-base") as HTMLInputElement)
+      ?.value;
+
+    let tdDescription = (
+      document.getElementById("thing-description") as HTMLTextAreaElement
+    )?.value;
+    let tdSecurity = (
+      document.getElementById("thing-security") as HTMLSelectElement
+    )?.value;
+
+    var thing: Record<string, any> = {};
+
+    thing["@context"] = "https://www.w3.org/2019/wot/td/v1";
+    thing["title"] = title !== "" ? title : "ediTDor Thing";
+
+    if (type === "TM") {
+      thing["@type"] = "tm:ThingModel";
+    }
+
+    if (id !== "") {
+      thing["id"] = id !== "" ? id : "urn:editdor-thing-id";
+    }
+
+    if (fileInputRef !== null && base === "") {
+      thing["base"] = "modbus://{{IP}}:{{PORT}}";
+    } else if (fileInputRef === null && base === "") {
+      thing["base"] = "/";
+    } else {
+      thing["base"] = base;
+    }
+
+    if (tdDescription !== "") {
+      thing["description"] = tdDescription;
+    }
+
+    let securityDefinitions = {};
+    securityDefinitions[`${tdSecurity}_sc`] = { scheme: tdSecurity };
+
+    thing["securityDefinitions"] = securityDefinitions;
+    thing["security"] = `${tdSecurity}_sc`;
+
+    thing["properties"] = properties;
+    thing["actions"] = {};
+    thing["events"] = {};
+
+    return thing;
+  };
 
   if (display) {
     return ReactDOM.createPortal(
@@ -309,56 +363,6 @@ const formField = (
       />
     </div>
   );
-};
-
-const createNewTD = (
-  type: "TD" | "TM",
-  properties: Record<string, any>
-): Record<string, any> => {
-  let id = (document.getElementById("thing-id") as HTMLInputElement)?.value;
-  let title = (document.getElementById("thing-title") as HTMLInputElement)
-    ?.value;
-  let base = (document.getElementById("thing-base") as HTMLInputElement)?.value;
-
-  let tdDescription = (
-    document.getElementById("thing-description") as HTMLTextAreaElement
-  )?.value;
-  let tdSecurity = (
-    document.getElementById("thing-security") as HTMLSelectElement
-  )?.value;
-
-  var thing: Record<string, any> = {};
-
-  thing["@context"] = "https://www.w3.org/2019/wot/td/v1";
-  thing["title"] = title !== "" ? title : "ediTDor Thing";
-
-  if (type === "TM") {
-    thing["@type"] = "tm:ThingModel";
-  }
-
-  if (id !== "") {
-    thing["id"] = id !== "" ? id : "urn:editdor-thing-id";
-  }
-
-  if (base !== "") {
-    thing["base"] = base !== "" ? base : "/";
-  }
-
-  if (tdDescription !== "") {
-    thing["description"] = tdDescription;
-  }
-
-  let securityDefinitions = {};
-  securityDefinitions[`${tdSecurity}_sc`] = { scheme: tdSecurity };
-
-  thing["securityDefinitions"] = securityDefinitions;
-  thing["security"] = `${tdSecurity}_sc`;
-
-  thing["properties"] = properties;
-  thing["actions"] = {};
-  thing["events"] = {};
-
-  return thing;
 };
 
 export default CreateTdDialog;
