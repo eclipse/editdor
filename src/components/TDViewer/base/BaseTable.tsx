@@ -76,20 +76,6 @@ const BaseTable = <T extends TableItem>({
   renderItem,
   placeholder,
 }: BaseTableProps<T>): JSX.Element => {
-  const colWidth = useMemo(() => {
-    const width = Math.floor(100 / headers.length);
-    switch (width) {
-      case 25:
-        return "w-1/4";
-      case 33:
-        return "w-1/3";
-      case 50:
-        return "w-1/2";
-      default:
-        return "grow";
-    }
-  }, [headers.length]);
-
   const filteredItems = useMemo(() => {
     const defaultFilterMethod = (filterValue: string) => (item: T) =>
       !filterValue?.trim() ||
@@ -241,6 +227,9 @@ const BaseTable = <T extends TableItem>({
         }
 
       case "propName":
+        let description = !item.description
+          ? "No description available"
+          : item.description;
         return (
           <div
             className="flex h-full w-full items-center justify-center px-1"
@@ -255,7 +244,7 @@ const BaseTable = <T extends TableItem>({
             <div className="items-center justify-center px-1">
               <Icon
                 id="info"
-                html={`Property description: ${item.description}`}
+                html={`Property description: ${description}`}
                 IconComponent={Info}
               />
             </div>
@@ -388,30 +377,30 @@ const BaseTable = <T extends TableItem>({
   return (
     <BasePagination items={orderedItems} itemsPerPage={itemsPerPage}>
       {({ items: paginatedItems }) => (
-        <div className={`w-full ${className}`}>
-          {/* Headers */}
-          <div className="flex">
-            {headers.map((header, index) => (
-              <div
-                key={`header-${header.key}`}
-                className={`text-elevation-0-1 my-2.5 flex h-auto items-center text-center text-sm font-bold text-white ${
-                  index === 0
-                    ? "justify-start pl-5"
-                    : index === headers.length - 1
-                      ? "justify-end pr-5"
-                      : "justify-center"
-                } `}
-                style={{
-                  width: `${100 / headers.length}%`,
-                  wordWrap: "break-word",
-                  wordBreak: "break-word",
-                  whiteSpace: "normal",
-                }}
-              >
-                <div>{header.text}</div>
-              </div>
-            ))}
-          </div>
+        <div className="relative overflow-x-auto">
+          <div className={`inline-block min-w-full ${className}`}>
+            {/* Table Container */}
+            <div
+              className="grid"
+              style={{
+                gridTemplateColumns: `repeat(${headers.length}, minmax(150px, 1fr))`,
+              }}
+            >
+              {/* Headers */}
+              {headers.map((header, index) => (
+                <div
+                  key={`header-${header.key}`}
+                  className={`text-elevation-0-1 my-2.5 flex items-center justify-center text-sm font-bold text-white ${
+                    index === 0
+                      ? "pl-5"
+                      : index === headers.length - 1
+                        ? "pr-5"
+                        : "px-5"
+                  }`}
+                >
+                  {header.text}
+                </div>
+              ))}
 
           {/* Rows */}
           {paginatedItems.length > 0 ? (
