@@ -16,26 +16,42 @@ import ediTDorContext from "../../context/ediTDorContext";
 import DialogTemplate from "./DialogTemplate";
 import DialogTextField from "./base/DialogTextField";
 import DialogButton from "./base/DialogButton";
-import { Check, AlertTriangle, Copy, ExternalLink, Info } from "react-feather";
+import {
+  Check,
+  AlertTriangle,
+  Copy,
+  ExternalLink,
+  Info,
+  RefreshCw,
+} from "react-feather";
 import { isValidUrl } from "../../utils/strings";
 import Ajv from "ajv";
+import Ajv2019 from "ajv/dist/2019";
+import addFormats from "ajv-formats";
+import draft7MetaSchema from "ajv/dist/refs/json-schema-draft-07.json";
 import { requestWeb } from "../../services/thingsApiService";
-import Icon from "./../InfoIcon/Icon";
+import { getValidateTMContent } from "./../InfoIcon/TooltipMapper";
+import InfoIconWrapper from "./../InfoIcon/InfoIconWrapper";
 
 export interface IContributeToCatalogProps {
   openModal: () => void;
   close: () => void;
 }
 
-const ContributeToCatalog = forwardRef((props, ref) => {
-  const validationTmUrl =
-    "https://raw.githubusercontent.com/wot-oss/tmc/main/internal/commands/validate/tmc-mandatory.schema.json";
+const validationTmcMandatory =
+  "https://raw.githubusercontent.com/wot-oss/tmc/main/internal/commands/validate/tmc-mandatory.schema.json";
+const validationTmJson =
+  "https://raw.githubusercontent.com/wot-oss/tmc/main/internal/commands/validate/tm-json-schema-validation.json";
+const validationModbus =
+  "https://raw.githubusercontent.com/wot-oss/tmc/refs/heads/main/internal/commands/validate/modbus.schema.json";
 
+const ContributeToCatalog = forwardRef((props, ref) => {
   const context = useContext(ediTDorContext);
   const td: IThingDescription = context.parsedTD;
 
   const [display, setDisplay] = React.useState<boolean>(false);
   const [isValid, setIsValid] = React.useState<boolean>(false);
+  const [isValidating, setIsValidating] = React.useState<boolean>(false);
 
   const [model, setModel] = React.useState<string>("");
   const [author, setAuthor] = React.useState<string>("");
@@ -54,6 +70,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   const [repositoryError, setRepositoryError] = React.useState<string>("");
 
   const [submitted, setSubmitted] = React.useState<boolean>(false);
+  const [copied, setCopied] = React.useState<boolean>(false);
   const [link, setLink] = React.useState<string>("");
   const [id, setId] = React.useState<string>("");
 
@@ -116,6 +133,12 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setRepositoryError("");
     setSubmittedError("");
     setSubmitted(false);
+    setCopied(false);
+    setLink("");
+    setId("");
+    setTmCatalogEndpoint("");
+    setRepository("");
+    setIsValidating(false);
     setIsValid(false);
     setDisplay(false);
   };
@@ -148,7 +171,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         if (tmID) {
           setSubmitted(true);
           setId(tmID);
-          setLink(`${tmCatalogEndpoint}/${tmID}`);
+          setLink(`${tmCatalogEndpoint}/thing-models/${tmID}`);
         } else {
           setSubmittedError("Response missing tmID");
         }
@@ -169,33 +192,83 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   const onCatalogValidationClick = async () => {
     setErrorMessage("");
     setIsValid(false);
+    setIsValidating(true);
+
+    const tdCopy = structuredClone(td);
+    tdCopy["schema:mpn"] = model;
+    tdCopy["schema:author"] = {
+      "schema:name": author,
+    };
+    tdCopy["schema:manufacturer"] = {
+      "@type": "Organization",
+      "schema:name": manufacturer,
+    };
+    tdCopy["schema:license"] = license;
+    tdCopy["schema:copyrightYear"] = copyrightYear;
+    tdCopy["schema:copyrightHolder"] = {
+      "@type": "Organization",
+      "schema:name": holder,
+    };
 
     try {
-      const response = await fetch(validationTmUrl);
-      if (!response.ok) throw new Error("Failed to fetch online schema");
-      const schema = await response.json();
+      const ajv = new Ajv2019({
+        strict: false,
+        allErrors: true,
+        validateFormats: true,
+      });
+      addFormats(ajv);
+      ajv.addMetaSchema(draft7MetaSchema);
 
-      const ajv = new Ajv();
-      const validate = ajv.compile(schema);
-
-      const valid = validate(td);
-
-      if (valid) {
-        setIsValid(true);
-        setErrorMessage("");
-      } else {
+      let response = await fetch(validationTmcMandatory);
+      if (!response.ok)
+        throw new Error(
+          `Failed to fetch schema from ${validationTmcMandatory}`
+        );
+      let schema = await response.json();
+      let validate = ajv.compile(schema);
+      let valid = validate(tdCopy);
+      if (!valid) {
         setIsValid(false);
         setErrorMessage(
-          "Catalog validation failed: " +
-            (validate.errors ? ajv.errorsText(validate.errors) : "")
+          `Validation failed for ${validationTmcMandatory}: ${
+            validate.errors ? ajv.errorsText(validate.errors) : ""
+          }`
         );
+        return;
       }
+
+      response = await fetch(validationTmJson);
+      if (!response.ok)
+        throw new Error(`Failed to fetch schema from ${validationTmJson}`);
+      let schemaTmJson = await response.json();
+      ajv.addSchema(schemaTmJson);
+
+      response = await fetch(validationModbus);
+      if (!response.ok)
+        throw new Error(`Failed to fetch schema from ${validationModbus}`);
+      schema = await response.json();
+      validate = ajv.compile(schema);
+      valid = validate(tdCopy);
+      if (!valid) {
+        setIsValid(false);
+        setErrorMessage(
+          `Validation failed for ${validationModbus}: ${
+            validate.errors ? ajv.errorsText(validate.errors) : ""
+          }`
+        );
+        return;
+      }
+
+      setIsValid(true);
+      setErrorMessage("");
     } catch (err) {
       setIsValid(false);
       setErrorMessage(
         "Could not validate: " +
           (err instanceof Error ? err.message : String(err))
       );
+    } finally {
+      setIsValidating(false);
     }
   };
 
@@ -216,11 +289,9 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   };
 
   const handleRepositoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //
     const value = e.target.value;
-    //
     setRepository(value);
-    //
+
     if (
       !value.startsWith("https") &&
       !value.startsWith("http:") &&
@@ -241,8 +312,28 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   const handleCopyIdClick = async () => {
     await navigator.clipboard.writeText(id);
   };
+
   const handleOpenLinkClick = async () => {
     window.open(link, "_blank", "noopener,noreferrer");
+  };
+
+  const handleCopyThingsModelClick = async () => {
+    const tdCopy = structuredClone(td);
+
+    tdCopy["schema:mpn"] = model;
+    tdCopy["schema:author"] = { "schema:name": author };
+    tdCopy["schema:manufacturer"] = {
+      "@type": "Organization",
+      "schema:name": manufacturer,
+    };
+    tdCopy["schema:license"] = license;
+    tdCopy["schema:copyrightYear"] = copyrightYear;
+    tdCopy["schema:copyrightHolder"] = {
+      "@type": "Organization",
+      "schema:name": holder,
+    };
+    await navigator.clipboard.writeText(JSON.stringify(tdCopy, null, 2));
+    setCopied(true);
   };
 
   const content = (
@@ -312,13 +403,20 @@ const ContributeToCatalog = forwardRef((props, ref) => {
               id="catalogValidation"
               text={
                 <div className="flex w-full items-center justify-between">
-                  <span className="pl-6">Validate</span>
-                  <Icon
-                    html="Make sure that your TM is valid for cataloging purposes"
-                    id="validateTooltip"
-                    IconComponent={Info}
-                    className="pr-6"
-                  />
+                  {isValidating ? (
+                    <>
+                      <span className="pl-6">Validating</span>
+                      <RefreshCw className="animate-spin" size={20} />
+                    </>
+                  ) : (
+                    <>
+                      <span className="pl-6">Validate</span>
+                      <InfoIconWrapper
+                        tooltip={getValidateTMContent()}
+                        id="validateTMContent"
+                      />
+                    </>
+                  )}
                 </div>
               }
               className="my-2 w-1/4"
@@ -331,10 +429,22 @@ const ContributeToCatalog = forwardRef((props, ref) => {
               </div>
             )}
             {isValid && (
-              <div className="mb-2 mt-2 inline h-10 rounded bg-green-500 p-2 text-white">
-                <Check size={16} className="mr-1 inline" />
-                {"TM is valid"}
-              </div>
+              <>
+                <div className="mb-2 mt-2 inline h-10 rounded bg-green-500 p-2 text-white">
+                  <Check size={16} className="mr-1 inline" />
+                  {"TM is valid"}
+                </div>
+                <DialogButton
+                  id="copyThingsModel"
+                  className="my-2"
+                  text={
+                    copied
+                      ? "Copied Things Model"
+                      : "Click to Copy the full Things Model"
+                  }
+                  onClick={handleCopyThingsModelClick}
+                ></DialogButton>
+              </>
             )}
           </div>
         </div>
@@ -363,8 +473,8 @@ const ContributeToCatalog = forwardRef((props, ref) => {
             </div>
           )}
           <DialogTextField
-            label="Repository"
-            placeholder="URL of the repository where the TM is stored"
+            label="Name of the Repository"
+            placeholder="In case there are multiple repositories hosted, specify which one with a string. Example: my-catalog"
             id="urlRepository"
             type="text"
             value={repository}

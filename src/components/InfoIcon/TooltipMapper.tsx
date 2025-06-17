@@ -118,6 +118,18 @@ export const getEndiannessTooltipContent: TooltipFunction = () => {
   return new TooltipContent(html, href);
 };
 
+export const getValidateTMContent: TooltipFunction = () => {
+  const html = `<h2 class='text-lg'>Validate</h2>
+                    <p>Validate the Thing Description against the WoT TD Schema.</p>
+                   
+                    <p>Click to get more information about the schema.</p>
+                `;
+  const href =
+    "https://github.com/wot-oss/tmc/blob/main/internal/commands/validate/tmc-mandatory.schema.json";
+
+  return new TooltipContent(html, href);
+};
+
 interface ITooltipMapper {
   properties: TooltipContent;
   actions: TooltipContent;
@@ -127,6 +139,7 @@ interface ITooltipMapper {
   unitId: TooltipContent;
   addressOffset: TooltipContent;
   endianness: TooltipContent;
+  validateTM: TooltipContent;
 }
 
 export const tooltipMapper: ITooltipMapper = {
@@ -138,4 +151,5 @@ export const tooltipMapper: ITooltipMapper = {
   unitId: getUniIdTooltipContent(),
   addressOffset: getAddressOffsetTooltipContent(),
   endianness: getEndiannessTooltipContent(),
+  validateTM: getValidateTMContent(),
 };

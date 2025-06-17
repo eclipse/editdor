@@ -35,7 +35,7 @@ import ContributeToCatalog from "../Dialogs/ContributeToCatalog";
 import ErrorDialog from "../Dialogs/ErrorDialog";
 import Button from "./Button";
 
-const EMPTY_TD_MESSAGE =
+const EMPTY_TM_MESSAGE =
   "To contribute a Thing Model, please first load a Thing Model to be validated.";
 const INVALID_TYPE_MESSAGE =
   'To contribute a Thing Model, the TM must have the following pair key/value:  "@type": "tm:ThingModel"  ';
@@ -245,7 +245,7 @@ const AppHeader: React.FC = () => {
     if (!context.offlineTD) {
       setErrorDisplay({
         state: true,
-        message: EMPTY_TD_MESSAGE,
+        message: EMPTY_TM_MESSAGE,
       });
     } else if (!context.parsedTD["@type"]) {
       setErrorDisplay({

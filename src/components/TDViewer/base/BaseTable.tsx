@@ -452,7 +452,7 @@ const BaseTable = <T extends TableItem>({
               className={`flex items-end justify-center py-6 ${contrast ? "bg-elevation-1-hover" : "bg-elevation-1"} `}
             >
               {placeholder || (
-                <div className="text-elevation-0-1 text-sm font-bold">
+                <div className="text-elevation-0-1 text-sm font-bold text-white">
                   No entries
                 </div>
               )}
