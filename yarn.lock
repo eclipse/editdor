@@ -1040,6 +1040,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/json-schema@npm:^7.0.15":
+  version: 7.0.15
+  resolution: "@types/json-schema@npm:7.0.15"
+  checksum: 10c0/a996a745e6c5d60292f36731dd41341339d4eeed8180bb09226e5c8d23759067692b1d88e5d91d72ee83dfc00d3aca8e7bd43ea120516c17922cbcb7c3e252db
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:^22.13.15":
   version: 22.14.1
   resolution: "@types/node@npm:22.14.1"
@@ -1215,7 +1222,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^8.0.0, ajv@npm:^8.11.0":
+"ajv@npm:^8.0.0, ajv@npm:^8.11.0, ajv@npm:^8.17.1":
   version: 8.17.1
   resolution: "ajv@npm:8.17.1"
   dependencies:
@@ -1914,11 +1921,12 @@ __metadata:
     "@monaco-editor/react": "npm:^4.7.0"
     "@node-wot/browser-bundle": "npm:0.9.0"
     "@types/babel__core": "npm:^7"
+    "@types/json-schema": "npm:^7.0.15"
     "@types/node": "npm:^22.13.15"
     "@types/react": "npm:^18.2.66"
     "@types/react-dom": "npm:^18.2.22"
     "@vitejs/plugin-react": "npm:^4.2.1"
-    ajv: "npm:^8.0.0"
+    ajv: "npm:^8.17.1"
     ajv-errors: "npm:^3.0.0"
     ajv-formats: "npm:^3.0.1"
     ajv-formats-draft2019: "npm:1.6.1"

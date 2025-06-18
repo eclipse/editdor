@@ -17,7 +17,7 @@ import {
   REMOVE_LINK_FROM_TD,
   REMOVE_ONE_OF_A_KIND_FROM_TD,
   SET_FILE_HANDLE,
-  UPDATE_IS_MODFIED,
+  UPDATE_IS_MODIFIED,
   UPDATE_LINKED_TD,
   UPDATE_OFFLINE_TD,
   UPDATE_VALIDATION_MESSAGE,
@@ -30,7 +30,7 @@ export const editdorReducer = (
   switch (action.type) {
     case UPDATE_OFFLINE_TD:
       return updateOfflineTDReducer(action.offlineTD, state);
-    case UPDATE_IS_MODFIED:
+    case UPDATE_IS_MODIFIED:
       return updateIsModified(action.isModified, state);
     case SET_FILE_HANDLE:
       return updateFileHandleReducer(action.fileHandle, state);

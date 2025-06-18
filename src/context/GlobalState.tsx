@@ -16,7 +16,7 @@ import EdiTDorContext from "./ediTDorContext";
 import { editdorReducer } from "./editorReducers";
 
 export const UPDATE_OFFLINE_TD = "UPDATE_OFFLINE_TD";
-export const UPDATE_IS_MODFIED = "UPDATE_IS_MODFIED";
+export const UPDATE_IS_MODIFIED = "UPDATE_IS_MODIFIED";
 export const SET_FILE_HANDLE = "SET_FILE_HANDLE";
 export const REMOVE_FORM_FROM_TD = "REMOVE_FORM_FROM_TD";
 export const REMOVE_LINK_FROM_TD = "REMOVE_LINK_FROM_TD";
@@ -43,7 +43,7 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
   };
 
   const updateIsModified = (isModified: boolean) => {
-    dispatch({ type: UPDATE_IS_MODFIED, isModified: isModified });
+    dispatch({ type: UPDATE_IS_MODIFIED, isModified: isModified });
   };
 
   const setFileHandle = (fileHandle: string | null) => {

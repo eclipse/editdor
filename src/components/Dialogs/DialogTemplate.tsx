@@ -21,6 +21,7 @@ interface DialogTemplateProps {
   submitText?: string;
   onSubmit?: () => void;
   hasSubmit?: boolean;
+  className?: string;
 }
 
 const DialogTemplate: React.FC<DialogTemplateProps> = (props) => {
@@ -57,18 +58,22 @@ const DialogTemplate: React.FC<DialogTemplateProps> = (props) => {
           <div className="flex flex-row items-center justify-start">
             <h1 className="flex-grow pl-2 text-xl font-bold">{title}</h1>
           </div>
-          <h2 className="py-2 pl-2 text-gray-400">{description}</h2>
+          <h2 className={`py-2 pl-2 text-gray-400 ${props.className}`}>
+            {description}
+          </h2>
           <div className="overflow-auto p-2">{children}</div>
           <div className="flex justify-end p-2 pt-4">
-            <button
-              id="cancelButton"
-              className="mr-1 rounded-md bg-blue-500 p-2 text-white hover:bg-blue-600"
-              onClick={() => {
-                onCancel();
-              }}
-            >
-              {cancelText}
-            </button>
+            {submitText !== "OK" && (
+              <button
+                id="cancelButton"
+                className="mr-1 rounded-md bg-blue-500 p-2 text-white hover:bg-blue-600"
+                onClick={() => {
+                  onCancel();
+                }}
+              >
+                {cancelText}
+              </button>
+            )}
             {hasSubmit && (
               <button
                 id="submitButton"

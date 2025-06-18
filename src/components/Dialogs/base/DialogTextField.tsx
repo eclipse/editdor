@@ -1,11 +1,25 @@
+/********************************************************************************
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
+ ********************************************************************************/
 import React from "react";
 
 interface ITextFieldProps {
   id: string;
   label: string;
+  value?: string;
   placeholder?: string;
   type?: string;
   autoFocus?: boolean;
+  className?: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -21,11 +35,12 @@ const DialogTextField: React.FC<ITextFieldProps> = (props) => {
       <input
         name={props.id}
         id={props.id}
-        className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
+        className={` ${props.className} w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm`}
         placeholder={props.placeholder}
         type={props.type ?? "text"}
         autoFocus={props.autoFocus ?? false}
         onChange={props.onChange}
+        value={props.value}
       />
       <span
         id={`${props.id}-helper-text`}

@@ -109,8 +109,7 @@ const TDViewer: React.FC<ITDViewerProps> = ({ onUndo, onRedo }) => {
           </div>
         ) : (
           <div className="place-self-center text-4xl text-white">
-            Start writing a new TD by clicking &quot;Create&quot; Start writing
-            a new TD by clicking &quot;Create&quot;
+            Start writing a new TD by clicking &quot;Create&quot;
             <p>or drag and drop .json file here</p>
             <div className="pt-4">
               <p className="text-xl text-gray-600">

@@ -93,4 +93,52 @@ const retrieveThing = async (
   return payload;
 };
 
-export { createThing, createAnonymousThing, retrieveThing };
+type Method = "GET" | "POST" | "PUT" | "DELETE";
+
+type ErrorResponse = {
+  type: string;
+  title: string;
+  detail: string;
+  instance: string;
+  code: string;
+  status: number;
+};
+
+interface RequestWebOptions extends RequestInit {
+  queryParams?: Record<string, string | number | boolean>;
+}
+
+const buildUrlWithParams = (
+  endpoint: string,
+  queryParams?: Record<string, string | number | boolean>
+) => {
+  if (!queryParams) return endpoint;
+  const url = new URL(endpoint, window.location.origin);
+  Object.entries(queryParams).forEach(([key, value]) => {
+    url.searchParams.append(key, String(value));
+  });
+  return url.toString();
+};
+
+const requestWeb = async (
+  endpoint: string,
+  method: Method = "GET",
+  body?: any,
+  options: RequestWebOptions = {}
+) => {
+  const { headers, queryParams, ...restOptions } = options;
+  const url = buildUrlWithParams(endpoint, queryParams);
+
+  return await fetch(url, {
+    method,
+    body,
+    headers: {
+      "Content-Type": "application/json",
+      ...(headers || {}),
+      //Authorization: `Bearer ${token}`,
+    },
+    ...restOptions,
+  });
+};
+
+export { createThing, createAnonymousThing, retrieveThing, requestWeb };

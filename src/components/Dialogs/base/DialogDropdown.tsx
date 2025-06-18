@@ -5,6 +5,7 @@ interface IDropdownProps {
   id: string;
   label: string;
   options: string[];
+  className?: string;
 }
 
 const DialogDropdown: React.FC<IDropdownProps> = (props) => {
@@ -16,7 +17,7 @@ const DialogDropdown: React.FC<IDropdownProps> = (props) => {
       >
         {props.label}:
       </label>
-      <div className="relative">
+      <div className={`relative ${props.className ?? ""} `}>
         <select
           className="block w-full appearance-none rounded border-2 border-gray-600 bg-gray-600 px-4 py-3 pr-8 leading-tight text-white focus:border-blue-500 focus:outline-none"
           id={props.id}
