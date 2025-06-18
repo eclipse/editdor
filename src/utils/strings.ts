@@ -39,3 +39,8 @@ export const formatText = (text: string): string => {
   text = text.replace(/([a-z])([A-Z])/g, "$1 $2");
   return text.charAt(0).toUpperCase() + text.slice(1);
 };
+
+export const isValidUrl = (url: string): boolean => {
+  const regex = /^(https?:\/\/)([\w.-]+)(:\d+)?(\/[^\s]*)?$/i;
+  return regex.test(url);
+};

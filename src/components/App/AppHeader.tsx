@@ -19,6 +19,7 @@ import {
   Save,
   Settings,
   Share,
+  Link,
 } from "react-feather";
 import editdorLogo from "../../assets/editdor.png";
 import ediTDorContext from "../../context/ediTDorContext";
@@ -30,11 +31,25 @@ import ConvertTmDialog from "../Dialogs/ConvertTmDialog";
 import CreateTdDialog from "../Dialogs/CreateTdDialog";
 import SettingsDialog from "../Dialogs/SettingsDialog";
 import ShareDialog from "../Dialogs/ShareDialog";
+import ContributeToCatalog from "../Dialogs/ContributeToCatalog";
+import ErrorDialog from "../Dialogs/ErrorDialog";
 import Button from "./Button";
+
+const EMPTY_TM_MESSAGE =
+  "To contribute a Thing Model, please first load a Thing Model to be validated.";
+const INVALID_TYPE_MESSAGE =
+  'To contribute a Thing Model, the TM must have the following pair key/value:  "@type": "tm:ThingModel"  ';
 
 const AppHeader: React.FC = () => {
   const context = useContext(ediTDorContext);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [errorDisplay, setErrorDisplay] = React.useState<{
+    state: boolean;
+    message: string;
+  }>({
+    state: false,
+    message: "",
+  });
 
   const verifyDiscard = useCallback((): boolean => {
     if (!context.isModified) {
@@ -46,12 +61,6 @@ const AppHeader: React.FC = () => {
     return window.confirm(msg);
   }, [context.isModified]);
 
-  /**
-   *
-   * @param {*} _
-   *
-   * Open File from Filesystem
-   */
   const openFile = useCallback(async () => {
     if (!verifyDiscard()) {
       return;
@@ -202,24 +211,55 @@ const AppHeader: React.FC = () => {
     };
   }, [openFile, save]);
 
-  const convertTmDialog = React.useRef();
+  const convertTmDialog = React.useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
   const openConvertTmDialog = () => {
-    convertTmDialog.current.openModal();
+    convertTmDialog.current?.openModal();
   };
 
-  const shareDialog = React.useRef();
+  const shareDialog = React.useRef<{ openModal: () => void }>(null);
   const openShareDialog = () => {
-    shareDialog.current.openModal();
+    shareDialog.current?.openModal();
   };
 
-  const createTdDialog = React.useRef();
+  const createTdDialog = React.useRef<{ openModal: () => void }>(null);
   const openCreateTdDialog = () => {
-    createTdDialog.current.openModal();
+    createTdDialog.current?.openModal();
   };
 
-  const settingsDialog = React.useRef();
+  const settingsDialog = React.useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
   const openSettingsDialog = () => {
-    settingsDialog.current.openModal();
+    settingsDialog.current?.openModal();
+  };
+
+  const contributeToCatalog = React.useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
+  const openContributeToCatalog = (): void => {
+    if (!context.offlineTD) {
+      setErrorDisplay({
+        state: true,
+        message: EMPTY_TM_MESSAGE,
+      });
+    } else if (!context.parsedTD["@type"]) {
+      setErrorDisplay({
+        state: true,
+        message: INVALID_TYPE_MESSAGE,
+      });
+    } else if (context.validationMessage?.report.schema === "failed") {
+      setErrorDisplay({
+        state: true,
+        message: `The Thing Model did not pass the JSON schema validation Please make sure the Thing Model is valid according to the JSON schema before contributing it to the catalog.`,
+      });
+    } else {
+      contributeToCatalog.current?.openModal();
+    }
   };
 
   return (
@@ -238,6 +278,11 @@ const AppHeader: React.FC = () => {
 
         <div className="flex items-center gap-4 pr-2">
           {isLoading && <div className="app-header-spinner hidden md:block" />}
+
+          <Button onClick={openContributeToCatalog}>
+            <Link />
+            <div className="text-xs">Contribute to Catalog</div>
+          </Button>
 
           <Button onClick={openShareDialog}>
             <Share />
@@ -286,6 +331,13 @@ const AppHeader: React.FC = () => {
       <ShareDialog ref={shareDialog} />
       <CreateTdDialog ref={createTdDialog} />
       <SettingsDialog ref={settingsDialog} />
+      <ContributeToCatalog ref={contributeToCatalog} />
+      <ErrorDialog
+        isOpen={errorDisplay.state}
+        onClose={() => setErrorDisplay({ state: false, message: "" })}
+        errorMessage={errorDisplay.message}
+      />
+
       <input
         className="h-0"
         type="file"

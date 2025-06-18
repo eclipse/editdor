@@ -6,13 +6,18 @@ interface IIconProps {
   id: string;
   size?: number;
   color?: string;
+  className?: string;
   IconComponent: React.ElementType;
 }
 
 const Icon: React.FC<IIconProps> = (props) => {
   return (
     <>
-      <a data-tooltip-id={props.id} data-tooltip-html={props.html}>
+      <a
+        data-tooltip-id={props.id}
+        data-tooltip-html={props.html}
+        className={props.className}
+      >
         <props.IconComponent
           color={props.color ?? "grey"}
           size={props.size ?? "16"}
