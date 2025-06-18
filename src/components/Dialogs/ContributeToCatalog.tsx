@@ -75,6 +75,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   const [id, setId] = React.useState<string>("");
 
   const [submittedError, setSubmittedError] = React.useState<string>("");
+  const [tmCopy, setTMCopy] = React.useState<IThingDescription | null>(null);
 
   useImperativeHandle(ref, () => {
     return {
@@ -111,11 +112,6 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     }
     setTmCatalogEndpoint(decodedTmcEndpoint);
 
-    if (!isValidUrl(decodedRepository) && decodedRepository !== "") {
-      setRepositoryError(
-        "Please enter a valid URL starting with http:// or https://"
-      );
-    }
     setRepository(decodedRepository);
 
     setDisplay(true);
@@ -150,7 +146,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       const response = await requestWeb(
         `${tmCatalogEndpoint}/thing-models`,
         "POST",
-        JSON.stringify(td),
+        JSON.stringify(tmCopy),
         {
           queryParams: {
             repo: repository,
@@ -209,6 +205,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       "@type": "Organization",
       "schema:name": holder,
     };
+    setTMCopy(tdCopy);
 
     try {
       const ajv = new Ajv2019({
@@ -286,27 +283,21 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     } else {
       setTmCatalogEndpointError("");
     }
+    setSubmitted(false);
+    setSubmittedError("");
   };
 
   const handleRepositoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setRepository(value);
 
-    if (
-      !value.startsWith("https") &&
-      !value.startsWith("http:") &&
-      value.length > 0
-    ) {
-      setRepositoryError("The repository must start with http or https.");
+    if (value.length === 0) {
+      setRepositoryError("The repository name is mandatory");
     } else {
       setRepositoryError("");
     }
-
-    if (!isValidUrl(value)) {
-      setRepositoryError(
-        "Please enter a valid URL starting with http:// or https://"
-      );
-    }
+    setSubmitted(false);
+    setSubmittedError("");
   };
 
   const handleCopyIdClick = async () => {
@@ -317,7 +308,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     window.open(link, "_blank", "noopener,noreferrer");
   };
 
-  const handleCopyThingsModelClick = async () => {
+  const handleCopyThingModelClick = async () => {
     const tdCopy = structuredClone(td);
 
     tdCopy["schema:mpn"] = model;
@@ -341,7 +332,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       <div className="rounded-md bg-black bg-opacity-80 p-2">
         <h1 className="font-bold">
           Add fields for Cataloging to ensure quality and discoverability of
-          Things Models
+          Thing Models
         </h1>
         <div className="px-4">
           <DialogTextField
@@ -350,7 +341,11 @@ const ContributeToCatalog = forwardRef((props, ref) => {
             id="model"
             type="text"
             value={model}
-            onChange={(e) => setModel(e.target.value)}
+            onChange={(e) => {
+              setModel(e.target.value);
+              setIsValid(false);
+              setSubmitted(false);
+            }}
             autoFocus={true}
           />
           <DialogTextField
@@ -359,7 +354,11 @@ const ContributeToCatalog = forwardRef((props, ref) => {
             id="author"
             type="text"
             value={author}
-            onChange={(e) => setAuthor(e.target.value)}
+            onChange={(e) => {
+              setAuthor(e.target.value);
+              setIsValid(false);
+              setSubmitted(false);
+            }}
             autoFocus={false}
           />
           <DialogTextField
@@ -368,7 +367,11 @@ const ContributeToCatalog = forwardRef((props, ref) => {
             id="manufacturer"
             type="text"
             value={manufacturer}
-            onChange={(e) => setManufacturer(e.target.value)}
+            onChange={(e) => {
+              setManufacturer(e.target.value);
+              setIsValid(false);
+              setSubmitted(false);
+            }}
             autoFocus={false}
           />
           <DialogTextField
@@ -435,14 +438,14 @@ const ContributeToCatalog = forwardRef((props, ref) => {
                   {"TM is valid"}
                 </div>
                 <DialogButton
-                  id="copyThingsModel"
+                  id="copyThingModel"
                   className="my-2"
                   text={
                     copied
-                      ? "Copied Things Model"
-                      : "Click to Copy the full Things Model"
+                      ? "Copied Thing Model"
+                      : "Click to Copy the full Thing Model"
                   }
-                  onClick={handleCopyThingsModelClick}
+                  onClick={handleCopyThingModelClick}
                 ></DialogButton>
               </>
             )}
