@@ -110,10 +110,9 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         "Please enter a valid URL starting with http:// or https://"
       );
     }
+
     setTmCatalogEndpoint(decodedTmcEndpoint);
-
     setRepository(decodedRepository);
-
     setDisplay(true);
   };
 
@@ -205,6 +204,17 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       "@type": "Organization",
       "schema:name": holder,
     };
+
+    try {
+      tdCopy["@context"] = normalizeContext(tdCopy["@context"]);
+    } catch (err) {
+      setIsValid(false);
+      setErrorMessage(
+        err instanceof Error ? err.message : "Context normalization error"
+      );
+      return;
+    }
+
     setTMCopy(tdCopy);
 
     try {
@@ -573,3 +583,38 @@ const ContributeToCatalog = forwardRef((props, ref) => {
 });
 
 export default ContributeToCatalog;
+
+function normalizeContext(context: any): any {
+  const TD_CONTEXTS = [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    "https://www.w3.org/2019/wot/td/v1",
+  ];
+  const SCHEMA_URL = "https://schema.org/";
+
+  if (typeof context === "string") {
+    if (TD_CONTEXTS.includes(context)) {
+      return [context, { schema: SCHEMA_URL }];
+    }
+    throw new Error("validation schema is wrong");
+  }
+  if (Array.isArray(context)) {
+    const tdContexts = context.filter(
+      (item) => typeof item === "string" && TD_CONTEXTS.includes(item)
+    );
+    const objContexts = context.filter(
+      (item) => typeof item === "object" && item !== null
+    );
+    if (tdContexts.length > 0) {
+      if (objContexts.length > 0) {
+        const newObjContexts = objContexts.map((obj) =>
+          "schema" in obj ? obj : { schema: SCHEMA_URL, ...obj }
+        );
+        return [...tdContexts, ...newObjContexts];
+      } else {
+        return [...tdContexts, { schema: SCHEMA_URL }];
+      }
+    }
+    return context;
+  }
+  return context;
+}

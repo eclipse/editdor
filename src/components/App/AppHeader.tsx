@@ -252,6 +252,11 @@ const AppHeader: React.FC = () => {
         state: true,
         message: INVALID_TYPE_MESSAGE,
       });
+    } else if (context.validationMessage?.report.schema === "failed") {
+      setErrorDisplay({
+        state: true,
+        message: `The Thing Model did not pass the JSON schema validation Please make sure the Thing Model is valid according to the JSON schema before contributing it to the catalog.`,
+      });
     } else {
       contributeToCatalog.current?.openModal();
     }
