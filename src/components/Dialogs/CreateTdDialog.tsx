@@ -95,9 +95,9 @@ const CreateTdDialog = forwardRef((props, ref) => {
       thing["id"] = id !== "" ? id : "urn:editdor-thing-id";
     }
 
-    if (fileInputRef !== null && base === "") {
+    if (fileName !== "" && base === "") {
       thing["base"] = "modbus+tcp://{{IP}}:{{PORT}}";
-    } else if (fileInputRef === null && base === "") {
+    } else if (fileName === "" && base === "") {
       thing["base"] = "/";
     } else {
       thing["base"] = base;
@@ -366,3 +366,5 @@ const formField = (
 };
 
 export default CreateTdDialog;
+
+CreateTdDialog.displayName = "CreateTdDialog";
