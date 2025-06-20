@@ -45,9 +45,6 @@ const validationModbus =
   "https://raw.githubusercontent.com/wot-oss/tmc/refs/heads/main/internal/commands/validate/modbus.schema.json";
 
 const ContributeToCatalog = forwardRef((props, ref) => {
-  const validationTmUrl =
-    "https://raw.githubusercontent.com/wot-oss/tmc/main/internal/commands/validate/tmc-mandatory.schema.json";
-
   const context = useContext(ediTDorContext);
   const td: ThingDescription = context.parsedTD;
 
