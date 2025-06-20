@@ -110,7 +110,7 @@ const mapRowToProperty = (row: CsvData): Property => ({
   forms: [
     {
       op: "readproperty",
-      href: row.href ?? "/",
+      href: !row.href ? "/" : row.href,
       "modbus:unitID": Number(row["modbus:unitID"]) ?? 1,
       "modbus:address": Number(row["modbus:address"]),
       "modbus:quantity": Number(row["modbus:quantity"]) ?? 1,
