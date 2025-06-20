@@ -402,51 +402,53 @@ const BaseTable = <T extends TableItem>({
                 </div>
               ))}
 
-          {/* Rows */}
-          {paginatedItems.length > 0 ? (
-            paginatedItems.map((item, rowIndex) => (
-              <div
-                key={`row-${item.id || rowIndex}`}
-                className={`hover:bg-elevation-1-hover my-2 flex rounded border border-transparent text-white transition-all`}
-              >
-                {headers.map((header, colIndex) => (
+              {/* Rows */}
+              {paginatedItems.length > 0 ? (
+                paginatedItems.map((item, rowIndex) => (
                   <div
-                    key={`cell-${rowIndex}-${header.key}`}
-                    className={`flex h-full items-center overflow-hidden text-ellipsis rounded border border-transparent ${
-                      colIndex > 0 && colIndex < headers.length - 1
-                        ? "justify-center"
-                        : ""
-                    } ${
-                      colIndex === headers.length - 1
-                        ? "justify-end rounded-r"
-                        : ""
-                    } ${
-                      item.status === "info" && colIndex === 0
-                        ? "border-l-info"
-                        : ""
-                    } ${
-                      item.status === "error" && colIndex === 0
-                        ? "border-l-definitive"
-                        : ""
-                    } bg-elevation-1-hover cursor-pointer hover:border-white`}
-                    style={{ width: `${100 / headers.length}%` }}
+                    key={`row-${item.id || rowIndex}`}
+                    className={`hover:bg-elevation-1-hover my-2 flex rounded border border-transparent text-white transition-all`}
                   >
-                    {renderCell(item, header.key)}
+                    {headers.map((header, colIndex) => (
+                      <div
+                        key={`cell-${rowIndex}-${header.key}`}
+                        className={`flex h-full items-center overflow-hidden text-ellipsis rounded border border-transparent ${
+                          colIndex > 0 && colIndex < headers.length - 1
+                            ? "justify-center"
+                            : ""
+                        } ${
+                          colIndex === headers.length - 1
+                            ? "justify-end rounded-r"
+                            : ""
+                        } ${
+                          item.status === "info" && colIndex === 0
+                            ? "border-l-info"
+                            : ""
+                        } ${
+                          item.status === "error" && colIndex === 0
+                            ? "border-l-definitive"
+                            : ""
+                        } bg-elevation-1-hover cursor-pointer hover:border-white`}
+                        style={{ width: `${100 / headers.length}%` }}
+                      >
+                        {renderCell(item, header.key)}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ))
-          ) : (
-            <div
-              className={`flex items-end justify-center py-6 ${contrast ? "bg-elevation-1-hover" : "bg-elevation-1"} `}
-            >
-              {placeholder || (
-                <div className="text-elevation-0-1 text-sm font-bold text-white">
-                  No entries
+                ))
+              ) : (
+                <div
+                  className={`flex items-end justify-center py-6 ${contrast ? "bg-elevation-1-hover" : "bg-elevation-1"} `}
+                >
+                  {placeholder || (
+                    <div className="text-elevation-0-1 text-sm font-bold text-white">
+                      No entries
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
+          </div>
         </div>
       )}
     </BasePagination>
