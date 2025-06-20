@@ -96,7 +96,7 @@ const CreateTdDialog = forwardRef((props, ref) => {
     }
 
     if (fileInputRef !== null && base === "") {
-      thing["base"] = "modbus://{{IP}}:{{PORT}}";
+      thing["base"] = "modbus+tcp://{{IP}}:{{PORT}}";
     } else if (fileInputRef === null && base === "") {
       thing["base"] = "/";
     } else {
