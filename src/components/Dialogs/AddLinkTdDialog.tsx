@@ -337,4 +337,5 @@ const clearHrefErrorMessage = () => {
   );
 };
 
+AddLinkTdDialog.displayName = "AddLinkTdDialog";
 export default AddLinkTdDialog;

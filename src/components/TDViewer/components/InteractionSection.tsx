@@ -21,7 +21,7 @@ import { tooltipMapper } from "../../InfoIcon/TooltipMapper";
 import Action from "./Action";
 import Event from "./Event";
 import Property from "./Property";
-import { SearchBar } from "./SearchBar";
+import SearchBar from "./SearchBar";
 import EditProperties from "./EditProperties";
 import BaseTable from "../base/BaseTable";
 import DialogTemplate from "./../../Dialogs/DialogTemplate";

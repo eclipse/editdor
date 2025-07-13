@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -14,41 +14,40 @@ import React, { useContext, useState } from "react";
 import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../../util.js";
+import AddFormDialog from "../../Dialogs/AddFormDialog";
 import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import { getFormsTooltipContent } from "../../InfoIcon/TooltipMapper";
 import Form from "./Form";
-import AddFormDialog from "../../Dialogs/AddFormDialog";
 import AddFormElement from "../base/AddFormElement";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
 
-export default function Property(props) {
+const Event: React.FC<any> = (props) => {
   const context = useContext(ediTDorContext);
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const addFormDialog = React.useRef(props);
+  const addFormDialog = React.useRef();
   const openAddFormDialog = () => {
     addFormDialog.current.openModal();
   };
 
   if (
-    Object.keys(props.prop).length === 0 &&
-    props.prop.constructor !== Object
+    Object.keys(props.event).length === 0 &&
+    props.event.constructor !== Object
   ) {
     return (
       <div className="text-3xl text-white">
-        Property could not be rendered because mandatory fields are missing.
+        Event could not be rendered because mandatory fields are missing.
       </div>
     );
   }
 
-  const property = props.prop;
-  const forms = separateForms(structuredClone(props.prop.forms));
-
+  const event = props.event;
+  const forms = separateForms(props.event.forms);
   const attributeListObject = buildAttributeListObject(
-    { name: props.propName },
-    props.prop,
+    { name: props.eventName },
+    props.event,
     alreadyRenderedKeys
   );
   const attributes = Object.keys(attributeListObject).map((x) => {
@@ -59,8 +58,8 @@ export default function Property(props) {
     );
   });
 
-  const onDeletePropertyClicked = () => {
-    context.removeOneOfAKindReducer("properties", props.propName);
+  const onDeleteEventClicked = () => {
+    context.removeOneOfAKindReducer("events", props.eventName);
   };
 
   return (
@@ -72,11 +71,11 @@ export default function Property(props) {
       <summary
         className={`flex cursor-pointer items-center rounded-t-lg pl-2 text-xl font-bold text-white ${isExpanded ? "bg-gray-500" : ""}`}
       >
-        <h3 className="flex-grow px-2">{property.title ?? props.propName}</h3>
+        <div className="flex-grow px-2">{event.title ?? props.eventName}</div>
         {isExpanded && (
           <button
             className="flex h-10 w-10 items-center justify-center self-stretch rounded-bl-md rounded-tr-md bg-gray-400 text-base"
-            onClick={onDeletePropertyClicked}
+            onClick={onDeleteEventClicked}
           >
             <Trash2 size={16} color="white" />
           </button>
@@ -84,9 +83,9 @@ export default function Property(props) {
       </summary>
 
       <div className="mb-4 rounded-b-lg bg-gray-500 px-2 pb-4">
-        {property.description && (
+        {event.description && (
           <div className="px-2 pb-2 text-lg text-gray-400">
-            {property.description}
+            {event.description}
           </div>
         )}
         <ul className="list-disc pl-6 text-base text-gray-300">{attributes}</ul>
@@ -95,7 +94,7 @@ export default function Property(props) {
           <InfoIconWrapper
             className="flex-grow"
             tooltip={getFormsTooltipContent()}
-            id="properties"
+            id="events"
           >
             <h4 className="pr-1 text-lg font-bold text-white">Forms</h4>
           </InfoIconWrapper>
@@ -103,21 +102,22 @@ export default function Property(props) {
 
         <AddFormElement onClick={openAddFormDialog} />
         <AddFormDialog
-          type={"property"}
-          interaction={property}
-          interactionName={props.propName}
+          type={"event"}
+          interaction={event}
+          interactionName={props.eventName}
           ref={addFormDialog}
         />
-
         {forms.map((form, i) => (
           <Form
             key={`${i}-${form.href}`}
-            propName={props.propName}
             form={form}
-            interactionType={"property"}
-          />
+            propName={props.eventName}
+            interactionType={"event"}
+          ></Form>
         ))}
       </div>
     </details>
   );
-}
+};
+
+export default Event;

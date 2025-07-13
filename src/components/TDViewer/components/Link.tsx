@@ -15,7 +15,7 @@ import ediTDorContext from "../../../context/ediTDorContext";
 import { Trash2, Info } from "react-feather";
 import { changeBetweenTd } from "../../../util";
 
-export default function Link(props) {
+const Link: React.FC<any> = (props) => {
   const context = useContext(ediTDorContext);
   const deleteLink = (e) => {
     let currentLinkedTd = context.linkedTd;
@@ -63,4 +63,6 @@ export default function Link(props) {
       </button>
     </div>
   );
-}
+};
+
+export default Link;

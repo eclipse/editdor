@@ -23,9 +23,9 @@ import InfoIconWrapper from "../InfoIcon/InfoIconWrapper";
 import { getFormsTooltipContent } from "../InfoIcon/TooltipMapper";
 import Form from "./components/Form";
 import InteractionSection from "./components/InteractionSection";
-import { RenderedObject } from "./components/RenderedObject";
+import RenderedObject from "./components/RenderedObject";
 import ValidationView from "./components/ValidationView";
-import LinkView from "./components/LinkSection";
+import LinkSection from "./components/LinkSection";
 import { useDropzone } from "react-dropzone";
 import type { ThingDescription } from "wot-thing-description-types";
 interface ITDViewerProps {
@@ -181,7 +181,7 @@ const TDViewer: React.FC<ITDViewerProps> = ({ onUndo, onRedo }) => {
         )}
       </details>
 
-      <LinkView />
+      <LinkSection />
 
       <InteractionSection interaction="Properties"></InteractionSection>
       <InteractionSection interaction="Actions"></InteractionSection>
