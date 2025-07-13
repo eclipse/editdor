@@ -122,35 +122,28 @@ const App: React.FC = () => {
     <main className="flex max-h-screen w-screen flex-col">
       <AppHeader></AppHeader>
 
-      <div className="hidden md:block">
-        <Container className="height-adjust flex">
-          <Section minSize={550} className="w-7/12 min-w-16">
+      <div className="">
+        <Container className="height-adjust flex flex-col md:flex-row">
+          <Section minSize={550} className="w-full min-w-16 md:w-7/12">
             <TDViewer onUndo={handleOnClickUndo} onRedo={handleOnClickRedo} />
           </Section>
+
           <Bar
             size={7.5}
             className="cursor-col-resize bg-gray-300 hover:bg-blue-500"
           />
-          <Section className="w-5/12">
+
+          <Section className="w-full md:w-5/12">
             <JsonEditor editorRef={editorRef} />
           </Section>
+          <button
+            className="fixed bottom-12 right-2 z-10 rounded-full bg-blue-500 p-4"
+            onClick={() => setDoShowJSON(!doShowJSON)}
+          >
+            <RefreshCw color="white" />
+          </button>
         </Container>
       </div>
-
-      <div className="height-adjust md:hidden">
-        {doShowJSON && <JsonEditor editorRef={editorRef} />}
-        {!doShowJSON && (
-          <TDViewer onUndo={handleOnClickUndo} onRedo={handleOnClickRedo} />
-        )}
-
-        <button
-          className="absolute bottom-12 right-2 z-10 rounded-full bg-blue-500 p-4"
-          onClick={() => setDoShowJSON(!doShowJSON)}
-        >
-          <RefreshCw color="white" />
-        </button>
-      </div>
-
       <div className="fixed bottom-0 w-screen">
         <AppFooter></AppFooter>
       </div>
