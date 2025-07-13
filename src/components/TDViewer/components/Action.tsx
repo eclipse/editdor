@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 20 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -22,7 +22,7 @@ import AddFormElement from "../base/AddFormElement";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
 
-export default function Event(props) {
+const Action: React.FC<any>  = (props) => {
   const context = useContext(ediTDorContext);
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -33,21 +33,22 @@ export default function Event(props) {
   };
 
   if (
-    Object.keys(props.event).length === 0 &&
-    props.event.constructor !== Object
+    Object.keys(props.action).length === 0 &&
+    props.action.constructor !== Object
   ) {
     return (
       <div className="text-3xl text-white">
-        Event could not be rendered because mandatory fields are missing.
+        Action could not be rendered because mandatory fields are missing.
       </div>
     );
   }
 
-  const event = props.event;
-  const forms = separateForms(props.event.forms);
+  const action = props.action;
+  const forms = separateForms(props.action.forms);
+
   const attributeListObject = buildAttributeListObject(
-    { name: props.eventName },
-    props.event,
+    { name: props.actionName },
+    props.action,
     alreadyRenderedKeys
   );
   const attributes = Object.keys(attributeListObject).map((x) => {
@@ -58,8 +59,8 @@ export default function Event(props) {
     );
   });
 
-  const onDeleteEventClicked = () => {
-    context.removeOneOfAKindReducer("events", props.eventName);
+  const onDeleteActionClicked = () => {
+    context.removeOneOfAKindReducer("actions", props.actionName);
   };
 
   return (
@@ -71,11 +72,11 @@ export default function Event(props) {
       <summary
         className={`flex cursor-pointer items-center rounded-t-lg pl-2 text-xl font-bold text-white ${isExpanded ? "bg-gray-500" : ""}`}
       >
-        <div className="flex-grow px-2">{event.title ?? props.eventName}</div>
+        <h3 className="flex-grow px-2">{action.title ?? props.actionName}</h3>
         {isExpanded && (
           <button
             className="flex h-10 w-10 items-center justify-center self-stretch rounded-bl-md rounded-tr-md bg-gray-400 text-base"
-            onClick={onDeleteEventClicked}
+            onClick={onDeleteActionClicked}
           >
             <Trash2 size={16} color="white" />
           </button>
@@ -83,9 +84,9 @@ export default function Event(props) {
       </summary>
 
       <div className="mb-4 rounded-b-lg bg-gray-500 px-2 pb-4">
-        {event.description && (
+        {action.description && (
           <div className="px-2 pb-2 text-lg text-gray-400">
-            {event.description}
+            {action.description}
           </div>
         )}
         <ul className="list-disc pl-6 text-base text-gray-300">{attributes}</ul>
@@ -94,7 +95,7 @@ export default function Event(props) {
           <InfoIconWrapper
             className="flex-grow"
             tooltip={getFormsTooltipContent()}
-            id="events"
+            id="actions"
           >
             <h4 className="pr-1 text-lg font-bold text-white">Forms</h4>
           </InfoIconWrapper>
@@ -102,20 +103,22 @@ export default function Event(props) {
 
         <AddFormElement onClick={openAddFormDialog} />
         <AddFormDialog
-          type={"event"}
-          interaction={event}
-          interactionName={props.eventName}
+          type={"action"}
+          interaction={action}
+          interactionName={props.actionName}
           ref={addFormDialog}
         />
         {forms.map((form, i) => (
           <Form
             key={`${i}-${form.href}`}
             form={form}
-            propName={props.eventName}
-            interactionType={"event"}
+            propName={props.actionName}
+            interactionType={"action"}
           ></Form>
         ))}
       </div>
     </details>
   );
 }
+
+export default Action;

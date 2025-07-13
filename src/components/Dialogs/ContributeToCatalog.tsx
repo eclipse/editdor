@@ -581,9 +581,6 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   return null;
 });
 
-export default ContributeToCatalog;
-ContributeToCatalog.displayName = "ContributeToCatalog";
-
 function normalizeContext(context: any): any {
   const TD_CONTEXTS = [
     "https://www.w3.org/2022/wot/td/v1.1",
@@ -618,3 +615,6 @@ function normalizeContext(context: any): any {
   }
   return context;
 }
+
+ContributeToCatalog.displayName = "ContributeToCatalog";
+export default ContributeToCatalog;
