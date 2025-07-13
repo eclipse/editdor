@@ -89,5 +89,5 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
 
   return null;
 });
-
+SettingsDialog.displayName = "SettingsDialog";
 export default SettingsDialog;

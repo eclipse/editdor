@@ -14,24 +14,18 @@ import React, { useContext, useState } from "react";
 import { ChevronUp, Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { formConfigurations } from "../../../services/form";
+import type { ThingDescription } from "wot-thing-description-types";
+import type { IFormProps, FormOpKeys } from "../../../types/td";
 
 type IInteractionFunction = (
-  td: IThingDescription,
+  td: ThingDescription,
   propertyName: string,
   content: any
 ) => Promise<{ result: string; err: Error | null }>;
 
-// TODO check the interface with IForm
-interface FormProps {
-  href: string;
-  op: string | string[];
-  propName: string;
-  actualIndex: number;
-}
-
 interface IFormDetailsProps {
   formType: FormOpKeys;
-  form: FormProps;
+  form: IFormProps;
   interactionFunction: IInteractionFunction | null;
 }
 

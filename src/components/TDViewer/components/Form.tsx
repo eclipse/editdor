@@ -10,10 +10,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext, useState } from "react";
+import React from "react";
 import FormDetails from "../base/FormDetails";
 import UndefinedForm from "../base/UndefinedForm";
 import { formConfigurations } from "../../../services/form";
+import type { IFormProps, FormOpKeys } from "../../../types/td.d";
 
 const typeToJSONKey = (type: string): string => {
   const typeToJSONKey: Record<string, string> = {
@@ -27,7 +28,7 @@ const typeToJSONKey = (type: string): string => {
 };
 
 interface IFormComponentProps {
-  form: FormProps;
+  form: IFormProps;
   propName: string;
   interactionType: "thing" | "properties" | "actions" | "events";
 }

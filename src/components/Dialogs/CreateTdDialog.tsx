@@ -364,7 +364,5 @@ const formField = (
     </div>
   );
 };
-
-export default CreateTdDialog;
-
 CreateTdDialog.displayName = "CreateTdDialog";
+export default CreateTdDialog;

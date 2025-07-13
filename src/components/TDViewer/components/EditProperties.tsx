@@ -20,6 +20,7 @@ import {
   getEndiannessTooltipContent,
   getUniIdTooltipContent,
 } from "../../InfoIcon/TooltipMapper";
+import type { ThingDescription } from "wot-thing-description-types";
 
 interface IEndianness {
   wordSwap: boolean;
@@ -36,11 +37,26 @@ interface IValidationResults {
 interface IEditPropertiesProps {
   isBaseModbus: boolean;
 }
+type ModbusThingDescription = ThingDescription & {
+  properties?: Record<
+    string,
+    {
+      forms?: Array<
+        {
+          "modbus:mostSignificantWord"?: boolean;
+          "modbus:mostSignificantByte"?: boolean;
+          "modbus:unitID"?: number;
+          "modbus:zeroBasedAddressing"?: boolean;
+        } & Record<string, any>
+      >;
+    } & Record<string, any>
+  >;
+};
 
 const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
   const context = useContext(ediTDorContext);
 
-  const td: IThingDescription = context.parsedTD;
+  const td = context.parsedTD as ModbusThingDescription;
 
   const [unitId, setUnitId] = useState<number>(0);
   const [addressOffset, setAddressOffset] = useState<boolean>(true);

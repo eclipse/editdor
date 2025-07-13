@@ -28,12 +28,19 @@ import DialogTemplate from "./../../Dialogs/DialogTemplate";
 import Editor from "@monaco-editor/react";
 import { readProperty } from "../../../services/form";
 import { extractIndexFromId, formatText } from "../../../utils/strings";
+import type {
+  FormElementBase,
+  ThingDescription,
+} from "wot-thing-description-types";
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
 
 interface IInteractionSectionProps {
   interaction: "Properties" | "Actions" | "Events";
 }
+
+type InteractionKey = "properties" | "actions" | "events";
+
 /**
  * Renders a section for an interaction (Property, Action, Event) with a
  * search bar, a sorting icon and a button to add a new interaction.
@@ -43,7 +50,7 @@ interface IInteractionSectionProps {
  */
 const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
   const context = useContext(ediTDorContext);
-  const td: IThingDescription = context.isValidJSON
+  const td: ThingDescription = context.isValidJSON
     ? JSON.parse(context.offlineTD)
     : {};
   const [filter, setFilter] = useState("");
@@ -67,19 +74,19 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     title: "Edit Property",
   }); // State to manage editor content
 
-  const interaction = props.interaction.toLowerCase();
+  const interaction = props.interaction.toLowerCase() as InteractionKey;
 
   const updateFilter = (event) => setFilter(event.target.value);
 
   const isBaseModbus: boolean =
     !!td.base?.includes("modbus://") || !!td.base?.includes("modbus+tcp");
 
-  const hasModbusProperties = (obj: IThingDescription): boolean => {
+  const hasModbusProperties = (obj: ThingDescription): boolean => {
     if (!obj.properties || Object.keys(obj.properties).length === 0) {
       return false;
     }
 
-    const isHrefModbus = (form: IForm): boolean => {
+    const isHrefModbus = (form: FormElementBase): boolean => {
       if (!form.href) {
         return false;
       } else {
@@ -221,7 +228,8 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
   ) => {
     const index = extractIndexFromId(item.id);
     try {
-      td[interaction][item.propName].forms[index][headerKey] = value;
+      td[interaction as InteractionKey][item.propName].forms[index][headerKey] =
+        value;
     } catch (e) {
       console.error(e);
     }
@@ -317,7 +325,9 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
               ...new Set(
                 Object.keys(filteredInteractions).flatMap((key) => {
                   const forms = filteredInteractions[key].forms || [];
-                  return forms.flatMap((form: IForm) => Object.keys(form));
+                  return forms.flatMap((form: FormElementBase) =>
+                    Object.keys(form)
+                  );
                 })
               ),
             ],
@@ -329,7 +339,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
 
       const items = Object.keys(filteredInteractions).flatMap((key) => {
         const forms = filteredInteractions[key].forms || [];
-        return forms.map((form: IForm, index: number) => ({
+        return forms.map((form: FormElementBase, index: number) => ({
           id: `${key} - ${index}`,
           description: filteredInteractions[key].description ?? "",
           propName: key,
@@ -337,7 +347,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         }));
       });
 
-      let filteredItems = items.filter((form: IForm) => {
+      let filteredItems = items.filter((form: FormElementBase) => {
         if (Array.isArray(form.op)) {
           return form.op.includes("readproperty");
         }

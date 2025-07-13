@@ -10,6 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
+import UndefinedForm from "components/TDViewer/base/UndefinedForm";
 import {
   ADD_FORM_TO_TD,
   ADD_LINKED_TD,
@@ -22,6 +23,11 @@ import {
   UPDATE_OFFLINE_TD,
   UPDATE_VALIDATION_MESSAGE,
 } from "./GlobalState";
+import type {
+  ThingDescription,
+  FormElementRoot,
+  FormElementBase,
+} from "wot-thing-description-types";
 
 export const editdorReducer = (
   state: EditorState,
@@ -82,7 +88,7 @@ const updateOfflineTDReducer = (
     };
   }
 
-  let parsedTD: IThingDescription;
+  let parsedTD: ThingDescription;
   try {
     parsedTD = JSON.parse(offlineTD);
   } catch (e) {
@@ -145,10 +151,10 @@ const removeFormReducer = (
     return state;
   }
 
-  let td: IThingDescription = structuredClone(
+  let td: ThingDescription = structuredClone(
     state.parsedTD
-  ) as IThingDescription;
-  let forms: IForm;
+  ) as ThingDescription;
+  let forms: [FormElementRoot, ...FormElementRoot[]];
   if (level === "thing") {
     if (!td.forms || !Array.isArray(td.forms)) {
       return state;
@@ -199,7 +205,7 @@ const removeLinkReducer = (index: number, state: EditorState): EditorState => {
     return state;
   }
 
-  let td = structuredClone(state.parsedTD) as IThingDescription;
+  let td = structuredClone(state.parsedTD) as ThingDescription;
 
   try {
     td.links?.splice(index, 1);
@@ -262,24 +268,24 @@ const removeOneOfAKindReducer = (
 const addFormReducer = (
   level: "thing" | "properties" | "actions" | "events" | string,
   interactionName: string,
-  form: Record<string, any>,
+  form: FormElementBase,
   state: EditorState
 ): EditorState => {
   if (!state.isValidJSON) {
     return state;
   }
 
-  let td = structuredClone(state.parsedTD) as IThingDescription;
+  let td = structuredClone(state.parsedTD) as ThingDescription;
   if (level == "thing") {
     if (td.forms && !Array.isArray(td.forms)) {
       return state;
     }
 
     if (!td.forms) {
-      td.forms = [];
+      td.forms = undefined;
     }
 
-    td.forms.push(form);
+    td.forms?.push(form);
     return { ...state, offlineTD: JSON.stringify(td, null, 2), parsedTD: td };
   }
 

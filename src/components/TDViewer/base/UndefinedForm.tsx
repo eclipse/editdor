@@ -13,19 +13,11 @@
 import React, { useContext } from "react";
 import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
-
-// TODO checks interface with IForm
-interface FormProps {
-  href: string;
-  propName: string;
-  actualIndex: number;
-  op: any;
-  [key: string]: any;
-}
+import type { IFormProps } from "../../../types/td";
 
 interface IUndefinedFormProps {
   level: string;
-  form: FormProps;
+  form: IFormProps;
 }
 
 const UndefinedForm: React.FC<IUndefinedFormProps> = ({ level, form }) => {

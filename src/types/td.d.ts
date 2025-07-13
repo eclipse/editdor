@@ -10,6 +10,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
+import type { FormElementBase } from "wot-thing-description-types";
+/*
 declare interface IThingDescription {
   "@context": string | (string | { [key: string]: string })[];
   "@type"?: string;
@@ -48,6 +50,13 @@ interface IForm {
   security?: string[];
   [key: string]: any;
 }
+*/
+declare const APP_VERSION: string;
+
+declare module "*.png" {
+  const value: string;
+  export default value;
+}
 
 type FormOpKeys =
   | "readproperty"
@@ -64,6 +73,12 @@ type FormOpKeys =
   | "observeallproperties"
   | "unobserveallproperties";
 
+interface IFormProps extends FormElementBase {
+  propName: string;
+  actualIndex: number;
+  op: string; //override
+}
+/*
 interface IModbusForm extends IForm {
   "modbus:unitID": number;
   "modbus:address": number;
@@ -115,3 +130,4 @@ declare module "*.png" {
   const value: string;
   export default value;
 }
+*/

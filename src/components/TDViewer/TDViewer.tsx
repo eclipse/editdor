@@ -27,7 +27,7 @@ import { RenderedObject } from "./components/RenderedObject";
 import ValidationView from "./components/ValidationView";
 import LinkView from "./components/LinkSection";
 import { useDropzone } from "react-dropzone";
-
+import type { ThingDescription } from "wot-thing-description-types";
 interface ITDViewerProps {
   onUndo: () => void;
   onRedo: () => void;
@@ -39,7 +39,7 @@ interface IAddFormDialogRef {
 
 const TDViewer: React.FC<ITDViewerProps> = ({ onUndo, onRedo }) => {
   const context = useContext(ediTDorContext);
-  const td: IThingDescription = context.parsedTD;
+  const td: ThingDescription = context.parsedTD;
   const alreadyRenderedKeys = [
     "id",
     "properties",
