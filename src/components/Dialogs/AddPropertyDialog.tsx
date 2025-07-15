@@ -199,3 +199,6 @@ export const AddPropertyDialog = forwardRef<AddPropertyDialogRef, {}>(
     return null;
   }
 );
+
+AddPropertyDialog.displayName = "AddPropertyDialog";
+export default AddPropertyDialog;

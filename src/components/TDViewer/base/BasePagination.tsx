@@ -64,9 +64,11 @@ const BasePagination = <T,>({
   }, [filteredItems, totalPages, currentPage]);
 
   return (
-    <div>
-      {/* Render the current items using the children function */}
-      {children({ items: currentItems })}
+    <div className="flex flex-col">
+      <div className="overflow-x-auto">
+        {/* Render the current items using the children function */}
+        {children({ items: currentItems })}
+      </div>
 
       {/* Pagination controls */}
       {filteredItems.length > itemsPerPage && (

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -10,12 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, {
-  forwardRef,
-  useContext,
-  useEffect,
-  useImperativeHandle,
-} from "react";
+import React, { forwardRef, useContext, useImperativeHandle } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import DialogTextArea from "./base/DialogTextArea";
@@ -42,8 +37,6 @@ const AddActionDialog = forwardRef<AddActionDialogRef>((_, ref) => {
   const type = "action";
   const key = "actions";
   const name = type && type[0].toUpperCase() + type.slice(1);
-
-  useEffect(() => {}, [display, context]);
 
   useImperativeHandle(ref, () => {
     return {
@@ -150,3 +143,4 @@ const AddActionDialog = forwardRef<AddActionDialogRef>((_, ref) => {
 });
 
 export default AddActionDialog;
+AddActionDialog.displayName = "AddActionDialog";

@@ -31,7 +31,7 @@ const editorOptions: editor.IStandaloneEditorConstructionOptions = {
 
 // delay function that executes the callback once it hasn't been called for
 // at least x ms.
-let timeoutId: NodeJS.Timeout;
+let timeoutId: ReturnType<typeof setTimeout>;
 const delay = (fn: (text: string) => void, text: string, ms: number) => {
   clearTimeout(timeoutId);
   timeoutId = setTimeout(() => fn(text), ms);

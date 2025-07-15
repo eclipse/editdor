@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -23,11 +23,11 @@ import InfoIconWrapper from "../InfoIcon/InfoIconWrapper";
 import { getFormsTooltipContent } from "../InfoIcon/TooltipMapper";
 import Form from "./components/Form";
 import InteractionSection from "./components/InteractionSection";
-import { RenderedObject } from "./components/RenderedObject";
+import RenderedObject from "./components/RenderedObject";
 import ValidationView from "./components/ValidationView";
-import LinkView from "./components/LinkSection";
+import LinkSection from "./components/LinkSection";
 import { useDropzone } from "react-dropzone";
-
+import type { ThingDescription } from "wot-thing-description-types";
 interface ITDViewerProps {
   onUndo: () => void;
   onRedo: () => void;
@@ -39,7 +39,7 @@ interface IAddFormDialogRef {
 
 const TDViewer: React.FC<ITDViewerProps> = ({ onUndo, onRedo }) => {
   const context = useContext(ediTDorContext);
-  const td: IThingDescription = context.parsedTD;
+  const td: ThingDescription = context.parsedTD;
   const alreadyRenderedKeys = [
     "id",
     "properties",
@@ -181,7 +181,7 @@ const TDViewer: React.FC<ITDViewerProps> = ({ onUndo, onRedo }) => {
         )}
       </details>
 
-      <LinkView />
+      <LinkSection />
 
       <InteractionSection interaction="Properties"></InteractionSection>
       <InteractionSection interaction="Actions"></InteractionSection>

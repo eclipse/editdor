@@ -21,17 +21,16 @@ import {
   AlertTriangle,
   Copy,
   ExternalLink,
-  Info,
   RefreshCw,
 } from "react-feather";
 import { isValidUrl } from "../../utils/strings";
-import Ajv from "ajv";
 import Ajv2019 from "ajv/dist/2019";
 import addFormats from "ajv-formats";
 import draft7MetaSchema from "ajv/dist/refs/json-schema-draft-07.json";
 import { requestWeb } from "../../services/thingsApiService";
 import { getValidateTMContent } from "./../InfoIcon/TooltipMapper";
 import InfoIconWrapper from "./../InfoIcon/InfoIconWrapper";
+import type { ThingDescription } from "wot-thing-description-types";
 
 export interface IContributeToCatalogProps {
   openModal: () => void;
@@ -47,7 +46,7 @@ const validationModbus =
 
 const ContributeToCatalog = forwardRef((props, ref) => {
   const context = useContext(ediTDorContext);
-  const td: IThingDescription = context.parsedTD;
+  const td: ThingDescription = context.parsedTD;
 
   const [display, setDisplay] = React.useState<boolean>(false);
   const [isValid, setIsValid] = React.useState<boolean>(false);
@@ -75,7 +74,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   const [id, setId] = React.useState<string>("");
 
   const [submittedError, setSubmittedError] = React.useState<string>("");
-  const [tmCopy, setTMCopy] = React.useState<IThingDescription | null>(null);
+  const [tmCopy, setTMCopy] = React.useState<ThingDescription | null>(null);
 
   useImperativeHandle(ref, () => {
     return {
@@ -85,11 +84,11 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   });
 
   const open = () => {
-    setModel(td["schema:mpn"] ?? "");
+    setModel(`${td["schema:mpn"] ?? ""}`);
     setAuthor(td["schema:author"]?.["schema:name"] ?? "");
     setManufacturer(td["schema:manufacturer"]?.["schema:name"] ?? "");
-    setLicense(td["schema:license"] ?? "");
-    setCopyrightYear(td["schema:copyrightYear"] ?? "");
+    setLicense(`${td["schema:license"] ?? ""}`);
+    setCopyrightYear(`${td["schema:copyrightYear"] ?? ""}`);
     setHolder(`${td["schema:copyrightHolder"]?.["name"] || ""}`.trim());
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -582,8 +581,6 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   return null;
 });
 
-export default ContributeToCatalog;
-
 function normalizeContext(context: any): any {
   const TD_CONTEXTS = [
     "https://www.w3.org/2022/wot/td/v1.1",
@@ -618,3 +615,6 @@ function normalizeContext(context: any): any {
   }
   return context;
 }
+
+ContributeToCatalog.displayName = "ContributeToCatalog";
+export default ContributeToCatalog;

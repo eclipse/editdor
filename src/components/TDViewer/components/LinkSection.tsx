@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -20,7 +20,7 @@ import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import { getLinksTooltipContent } from "../../InfoIcon/TooltipMapper";
 import Link from "./Link";
 
-export default function LinkView(props) {
+const LinkSection: React.FC<any> = (props) => {
   const context = useContext(ediTDorContext);
 
   const addLinkDialog = useRef();
@@ -289,4 +289,5 @@ export default function LinkView(props) {
       )}
     </details>
   );
-}
+};
+export default LinkSection;

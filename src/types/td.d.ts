@@ -10,43 +10,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-declare interface IThingDescription {
-  "@context": string | (string | { [key: string]: string })[];
-  "@type"?: string;
-  id?: string;
-  title: string;
-  titles?: any;
-  description?: string;
-  descriptions?: any[];
-  version?: any;
-  created?: string;
-  modified?: string;
-  support?: string;
-  base?: string;
-  securityDefinitions: Record<string, ISecurityScheme>;
-  security: string | string[];
-  properties?: Record<string, IProperty>;
-  actions?: Record<string, IAction>;
-  events?: Record<string, IEvent>;
-  links?: any[];
-  forms?: IForm[];
-  profile?: any;
-  schemaDefinitions?: any;
-  uriVairables?: any;
-}
+import type { FormElementBase } from "wot-thing-description-types";
 
-interface ISecurityScheme {
-  scheme: string;
-  description?: string;
-  [key: string]: any;
-}
+declare const APP_VERSION: string;
 
-interface IForm {
-  href?: string;
-  contentType?: string;
-  op?: string | string[];
-  security?: string[];
-  [key: string]: any;
+declare module "*.png" {
+  const value: string;
+  export default value;
 }
 
 type FormOpKeys =
@@ -64,6 +34,12 @@ type FormOpKeys =
   | "observeallproperties"
   | "unobserveallproperties";
 
+interface IFormProps extends FormElementBase {
+  propName: string;
+  actualIndex: number;
+  op: string; //override
+}
+/*
 interface IModbusForm extends IForm {
   "modbus:unitID": number;
   "modbus:address": number;
@@ -115,3 +91,4 @@ declare module "*.png" {
   const value: string;
   export default value;
 }
+*/

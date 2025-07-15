@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -13,6 +13,7 @@
 import React, { useContext } from "react";
 import ediTDorContext from "../../context/ediTDorContext";
 import { GitHub } from "react-feather";
+import type { ThingDescription } from "wot-thing-description-types";
 
 const AppFooter: React.FC = (props) => {
   const context = useContext(ediTDorContext);
@@ -23,7 +24,7 @@ const AppFooter: React.FC = (props) => {
   let eventsCount = 0;
 
   if (Object.keys(context.parsedTD).length !== 0) {
-    const td: IThingDescription = context.parsedTD;
+    const td: ThingDescription = context.parsedTD;
     propertiesCount = td.properties ? Object.keys(td.properties).length : 0;
     actionsCount = td.actions ? Object.keys(td.actions).length : 0;
     eventsCount = td.events ? Object.keys(td.events).length : 0;

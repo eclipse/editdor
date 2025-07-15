@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -10,12 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, {
-  forwardRef,
-  useContext,
-  useEffect,
-  useImperativeHandle,
-} from "react";
+import React, { forwardRef, useContext, useImperativeHandle } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import { checkIfFormIsInItem } from "../../util.js";
@@ -48,8 +43,6 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
     const name = type && type[0].toUpperCase() + type.slice(1);
     const interaction = props.interaction ?? {};
     const interactionName = props.interactionName ?? "";
-
-    useEffect(() => {}, [display, context]);
 
     useImperativeHandle(ref, () => {
       return {
@@ -244,3 +237,4 @@ const formCheckbox = (name: string): JSX.Element => {
 };
 
 export default AddFormDialog;
+AddFormDialog.displayName = "AddFormDialog";

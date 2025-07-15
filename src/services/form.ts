@@ -11,6 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import { Core, Http } from "@node-wot/browser-bundle";
+import type { ThingDescription } from "wot-thing-description-types";
 
 const servient = new Core.Servient();
 servient.addClientFactory(new Http.HttpClientFactory());
@@ -164,7 +165,7 @@ const parseContent = (propertyType: string, content: string): any => {
 
 /** @type {InteractionFunction} */
 async function readProperty(
-  td: IThingDescription,
+  td: ThingDescription,
   propertyName: string,
   options: {
     formIndex?: number;
@@ -189,7 +190,7 @@ async function readProperty(
 }
 
 async function writeProperty(
-  td: IThingDescription,
+  td: ThingDescription,
   propertyName: string,
   content: string
 ): Promise<{ result: string; err: Error | null }> {
