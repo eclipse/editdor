@@ -92,11 +92,7 @@ const Property: React.FC<any> = (props) => {
         <ul className="list-disc pl-6 text-base text-gray-300">{attributes}</ul>
 
         <div className="flex items-center justify-start pb-2 pt-2">
-          <InfoIconWrapper
-            className="flex-grow"
-            tooltip={getFormsTooltipContent()}
-            id="properties"
-          >
+          <InfoIconWrapper tooltip={getFormsTooltipContent()} id="properties">
             <h4 className="pr-1 text-lg font-bold text-white">Forms</h4>
           </InfoIconWrapper>
         </div>

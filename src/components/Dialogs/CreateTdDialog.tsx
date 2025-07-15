@@ -16,6 +16,7 @@ import { ChevronDown } from "react-feather";
 import ediTDorContext from "../../context/ediTDorContext";
 import DialogTemplate from "./DialogTemplate";
 import { parseCsv, mapCsvToProperties } from "../../utils/parser";
+import FormField from "./base/FormField";
 
 export interface CreateTdDialogRef {
   openModal: () => void;
@@ -225,15 +226,27 @@ const buildForm = (
           <ChevronDown color="#cacaca"></ChevronDown>
         </div>
       </div>
-      {formField("ID", "urn:thing-id", "thing-id", "url", true)}
-      {formField("Title", "Thing Title", "thing-title", "text", false)}
-      {formField(
-        "Base",
-        "http://www.example.com/thing-path",
-        "thing-base",
-        "url",
-        false
-      )}
+      <FormField
+        label="ID"
+        placeholder="urn:thing-id"
+        id="thing-id"
+        type="url"
+        autoFocus={true}
+      />
+      <FormField
+        label="Title"
+        placeholder="Thing Title"
+        id="thing-title"
+        type="text"
+        autoFocus={false}
+      />
+      <FormField
+        label="Base"
+        placeholder="http://www.example.com/thing-path"
+        id="thing-base"
+        type="url"
+        autoFocus={false}
+      />
       <label
         htmlFor="thing-description"
         className="pl-2 text-sm font-medium text-gray-400"
@@ -342,28 +355,5 @@ const buildForm = (
   );
 };
 
-const formField = (
-  label: string,
-  placeholder: string,
-  id: string,
-  type: string,
-  autoFocus: boolean
-) => {
-  return (
-    <div key={id} className="py-1">
-      <label htmlFor={id} className="pl-2 text-sm font-medium text-gray-400">
-        {label}:
-      </label>
-      <input
-        name={id}
-        id={id}
-        className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
-        placeholder={placeholder}
-        type={type}
-        autoFocus={autoFocus}
-      />
-    </div>
-  );
-};
 CreateTdDialog.displayName = "CreateTdDialog";
 export default CreateTdDialog;

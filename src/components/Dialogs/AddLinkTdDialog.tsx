@@ -179,7 +179,7 @@ const AddLinkTdDialog = forwardRef<AddLinkTdDialogRef, AddLinkTdDialogProps>(
               linkingMethodChange("url");
             }}
           >
-            Ressource url
+            Resource url
           </button>
           <div className="p-1 pt-4">
             <input
