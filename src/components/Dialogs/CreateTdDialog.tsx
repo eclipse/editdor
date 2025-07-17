@@ -278,7 +278,7 @@ const buildForm = (
         </label>
       </div>
 
-      <div className="flex justify-between rounded border-2 border-gray-600">
+      <div className="flex flex-col justify-between rounded border-2 border-gray-600">
         <div className="flex justify-between">
           <div className="flex items-center p-2">
             <label
@@ -291,7 +291,7 @@ const buildForm = (
             <div className="relative">
               <select
                 id="protocol-option"
-                className="block appearance-none rounded border-2 border-gray-600 bg-gray-600 px-4 py-2 pr-8 leading-tight text-white focus:border-blue-500 focus:outline-none"
+                className="block appearance-none rounded border-2 border-gray-600 bg-gray-600 px-1 py-2 pr-4 leading-tight text-white hover:border-blue-500 focus:outline-none"
                 value={protocol}
                 onChange={(e) => setProtocol(e.target.value)}
               >
@@ -300,24 +300,22 @@ const buildForm = (
                   More protocols will be supported in the future
                 </option>
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-2 text-gray-700">
                 <ChevronDown color="#cacaca"></ChevronDown>
               </div>
             </div>
           </div>
-
-          <div className="flex items-center">
-            <button
-              id="download-template"
-              className="rounded border-2 border-gray-600 bg-blue-500 p-2 leading-tight text-white focus:border-blue-500 focus:outline-none"
-              onClick={downloadCsvTemplate}
-            >
-              Download CSV Template
-            </button>
-          </div>
         </div>
+        <div className="mx-2 my-2 flex flex-row items-center gap-4">
+          <button
+            type="button"
+            id="download-template"
+            className="w-60 rounded border-2 border-gray-600 bg-blue-500 p-2 leading-tight text-white hover:bg-blue-600 focus:outline-none"
+            onClick={downloadCsvTemplate}
+          >
+            Download CSV Template
+          </button>
 
-        <div className="ml-2 mr-2 flex items-center">
           <input
             type="file"
             accept=".csv"
@@ -326,14 +324,17 @@ const buildForm = (
             style={{ display: "none" }}
           />
           <button
+            type="button"
             id="submit-csv"
-            className="rounded border-2 border-gray-600 bg-blue-500 p-2 leading-tight text-white focus:border-blue-500 focus:outline-none"
+            className="w-40 rounded border-2 border-gray-600 bg-blue-500 p-2 leading-tight text-white hover:bg-blue-600"
             onClick={handleButtonClick}
           >
             Load a CSV File
           </button>
-          <div className="">
-            <p className="pl-2">{fileName || "No file selected"}</p>
+          <div className="flex-1">
+            <p className="pl-2 text-gray-300">
+              {fileName || "No file selected"}
+            </p>
           </div>
         </div>
       </div>
