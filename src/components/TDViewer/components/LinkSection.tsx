@@ -24,7 +24,7 @@ const LinkSection: React.FC<any> = (props) => {
   const context = useContext(ediTDorContext);
 
   const addLinkDialog = useRef();
-  const openAddLinkDialog = () => {
+  const handleOpenAddLinkDialog = () => {
     addLinkDialog.current.openModal();
   };
 
@@ -268,7 +268,7 @@ const LinkSection: React.FC<any> = (props) => {
         </div>
         <button
           className="cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
-          onClick={openAddLinkDialog}
+          onClick={handleOpenAddLinkDialog}
         >
           Add Top Level Link
         </button>

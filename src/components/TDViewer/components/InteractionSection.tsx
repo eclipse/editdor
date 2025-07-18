@@ -402,7 +402,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     }
   };
 
-  const openCreatePropertyDialog = () => {
+  const handleOpenCreatePropertyDialog = () => {
     if (createPropertyDialog.current) {
       createPropertyDialog.current.openModal();
     }
@@ -471,7 +471,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         <div className="w-2"></div>
         <button
           className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white hover:bg-blue-600"
-          onClick={openCreatePropertyDialog}
+          onClick={handleOpenCreatePropertyDialog}
         >
           Add
         </button>

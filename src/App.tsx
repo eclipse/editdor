@@ -42,16 +42,20 @@ const App: React.FC = () => {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [doShowJSON, setDoShowJSON] = useState(false);
 
-  const handleOnClickUndo = () => {
+  const handleUndo = () => {
     if (editorRef.current) {
       editorRef.current.trigger("keyboard", "undo", null);
     }
   };
 
-  const handleOnClickRedo = () => {
+  const handleRedo = () => {
     if (editorRef.current) {
       editorRef.current.trigger("keyboard", "redo", null);
     }
+  };
+
+  const handleToggleJSON = () => {
+    setDoShowJSON((prev) => !prev);
   };
 
   useEffect(() => {
@@ -125,7 +129,7 @@ const App: React.FC = () => {
       <div className="">
         <Container className="height-adjust flex flex-col md:flex-row">
           <Section minSize={550} className="w-full min-w-16 md:w-7/12">
-            <TDViewer onUndo={handleOnClickUndo} onRedo={handleOnClickRedo} />
+            <TDViewer onUndo={handleUndo} onRedo={handleRedo} />
           </Section>
 
           <Bar
@@ -138,7 +142,7 @@ const App: React.FC = () => {
           </Section>
           <button
             className="fixed bottom-12 right-2 z-10 rounded-full bg-blue-500 p-4"
-            onClick={() => setDoShowJSON(!doShowJSON)}
+            onClick={handleToggleJSON}
           >
             <RefreshCw color="white" />
           </button>

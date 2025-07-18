@@ -52,7 +52,7 @@ const TDViewer: React.FC<ITDViewerProps> = ({ onUndo, onRedo }) => {
   ];
 
   const addFormDialog = React.useRef<IAddFormDialogRef>();
-  const openAddFormDialog = () => {
+  const handleOpenAddFormDialog = () => {
     addFormDialog.current?.openModal();
   };
 
@@ -168,7 +168,7 @@ const TDViewer: React.FC<ITDViewerProps> = ({ onUndo, onRedo }) => {
           </div>
           <button
             className="cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
-            onClick={openAddFormDialog}
+            onClick={handleOpenAddFormDialog}
           >
             Add Top Level Form
           </button>

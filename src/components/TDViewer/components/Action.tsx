@@ -22,13 +22,13 @@ import AddFormElement from "../base/AddFormElement";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
 
-const Action: React.FC<any>  = (props) => {
+const Action: React.FC<any> = (props) => {
   const context = useContext(ediTDorContext);
 
   const [isExpanded, setIsExpanded] = useState(false);
 
   const addFormDialog = React.useRef();
-  const openAddFormDialog = () => {
+  const handleOpenAddFormDialog = () => {
     addFormDialog.current.openModal();
   };
 
@@ -59,7 +59,7 @@ const Action: React.FC<any>  = (props) => {
     );
   });
 
-  const onDeleteActionClicked = () => {
+  const handleDeleteAction = () => {
     context.removeOneOfAKindReducer("actions", props.actionName);
   };
 
@@ -76,7 +76,7 @@ const Action: React.FC<any>  = (props) => {
         {isExpanded && (
           <button
             className="flex h-10 w-10 items-center justify-center self-stretch rounded-bl-md rounded-tr-md bg-gray-400 text-base"
-            onClick={onDeleteActionClicked}
+            onClick={handleDeleteAction}
           >
             <Trash2 size={16} color="white" />
           </button>
@@ -101,7 +101,7 @@ const Action: React.FC<any>  = (props) => {
           </InfoIconWrapper>
         </div>
 
-        <AddFormElement onClick={openAddFormDialog} />
+        <AddFormElement onClick={handleOpenAddFormDialog} />
         <AddFormDialog
           type={"action"}
           interaction={action}
@@ -119,6 +119,6 @@ const Action: React.FC<any>  = (props) => {
       </div>
     </details>
   );
-}
+};
 
 export default Action;

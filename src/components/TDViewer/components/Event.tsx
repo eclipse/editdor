@@ -28,7 +28,7 @@ const Event: React.FC<any> = (props) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const addFormDialog = React.useRef();
-  const openAddFormDialog = () => {
+  const handleOpenAddFormDialog = () => {
     addFormDialog.current.openModal();
   };
 
@@ -58,7 +58,7 @@ const Event: React.FC<any> = (props) => {
     );
   });
 
-  const onDeleteEventClicked = () => {
+  const handleDeleteEventClicked = () => {
     context.removeOneOfAKindReducer("events", props.eventName);
   };
 
@@ -75,7 +75,7 @@ const Event: React.FC<any> = (props) => {
         {isExpanded && (
           <button
             className="flex h-10 w-10 items-center justify-center self-stretch rounded-bl-md rounded-tr-md bg-gray-400 text-base"
-            onClick={onDeleteEventClicked}
+            onClick={handleDeleteEventClicked}
           >
             <Trash2 size={16} color="white" />
           </button>
@@ -100,7 +100,7 @@ const Event: React.FC<any> = (props) => {
           </InfoIconWrapper>
         </div>
 
-        <AddFormElement onClick={openAddFormDialog} />
+        <AddFormElement onClick={handleOpenAddFormDialog} />
         <AddFormDialog
           type={"event"}
           interaction={event}

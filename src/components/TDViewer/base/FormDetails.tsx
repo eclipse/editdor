@@ -55,7 +55,7 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
     </div>
   );
 
-  const callInteractionFunction = async () => {
+  const hanldeCallInteractionFunction = async () => {
     if (!interactionFunction) {
       return;
     }
@@ -84,7 +84,7 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
         className={`flex min-h-12 w-full items-stretch bg-opacity-75 bg-form${fc.color} mt-2 ${isLoading || val !== null || err != null || form.op === "writeproperty" ? "rounded-t-md" : "rounded-md"} border-2 pl-4 border-form${fc.color}`}
       >
         {interactionFunction && (
-          <button onClick={callInteractionFunction}>{label}</button>
+          <button onClick={hanldeCallInteractionFunction}>{label}</button>
         )}
         {!interactionFunction && <div className="flex">{label}</div>}
 
@@ -117,7 +117,7 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            callInteractionFunction();
+            hanldeCallInteractionFunction();
           }}
         >
           <input
