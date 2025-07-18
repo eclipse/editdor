@@ -265,12 +265,12 @@ const BaseTable = <T extends TableItem>({
           </div>
         );
       case "modbus:entity":
-        return renderSelect(
-          value,
-          ["coil", "discreteinput", "holdingregister", "inputregister"],
-          headerKey,
-          item
-        );
+         return renderSelect(
+         value,
+         ["Coil", "DiscreteInput", "HoldingRegister", "InputRegister"],
+        headerKey,
+        item
+       );
 
       case "modbus:function":
         return renderSelect(
