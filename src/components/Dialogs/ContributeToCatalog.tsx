@@ -25,7 +25,6 @@ import {
   RefreshCw,
 } from "react-feather";
 import { isValidUrl } from "../../utils/strings";
-import Ajv from "ajv";
 import Ajv2019 from "ajv/dist/2019";
 import addFormats from "ajv-formats";
 import draft7MetaSchema from "ajv/dist/refs/json-schema-draft-07.json";

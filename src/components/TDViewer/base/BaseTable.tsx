@@ -76,20 +76,6 @@ const BaseTable = <T extends TableItem>({
   renderItem,
   placeholder,
 }: BaseTableProps<T>): JSX.Element => {
-  const colWidth = useMemo(() => {
-    const width = Math.floor(100 / headers.length);
-    switch (width) {
-      case 25:
-        return "w-1/4";
-      case 33:
-        return "w-1/3";
-      case 50:
-        return "w-1/2";
-      default:
-        return "grow";
-    }
-  }, [headers.length]);
-
   const filteredItems = useMemo(() => {
     const defaultFilterMethod = (filterValue: string) => (item: T) =>
       !filterValue?.trim() ||
@@ -241,12 +227,15 @@ const BaseTable = <T extends TableItem>({
         }
 
       case "propName":
+        let description = !item.description
+          ? "No description available"
+          : item.description;
         return (
           <div
-            className="flex h-full w-full items-center justify-center px-1"
+            className="flex h-full w-full items-center px-1"
             onClick={() => onRowClick?.(item, "viewProperty")}
           >
-            <div className="h-full w-full items-center justify-center">
+            <div className="flex h-full w-full items-center">
               {formatTextKey(
                 item.propName,
                 extractIndexFromId(item.id as string)
@@ -255,7 +244,7 @@ const BaseTable = <T extends TableItem>({
             <div className="items-center justify-center px-1">
               <Icon
                 id="info"
-                html={`Property description: ${item.description}`}
+                html={`Property description: ${description}`}
                 IconComponent={Info}
               />
             </div>
@@ -381,83 +370,86 @@ const BaseTable = <T extends TableItem>({
         ></IncrementButton>
       );
     }
-
     return value;
   };
 
   return (
     <BasePagination items={orderedItems} itemsPerPage={itemsPerPage}>
       {({ items: paginatedItems }) => (
-        <div className={`w-full ${className}`}>
-          {/* Headers */}
-          <div className="flex">
-            {headers.map((header, index) => (
-              <div
-                key={`header-${header.key}`}
-                className={`text-elevation-0-1 my-2.5 flex h-auto items-center text-center text-sm font-bold text-white ${
-                  index === 0
-                    ? "justify-start pl-5"
-                    : index === headers.length - 1
-                      ? "justify-end pr-5"
-                      : "justify-center"
-                } `}
-                style={{
-                  width: `${100 / headers.length}%`,
-                  wordWrap: "break-word",
-                  wordBreak: "break-word",
-                  whiteSpace: "normal",
-                }}
-              >
-                <div>{header.text}</div>
-              </div>
-            ))}
-          </div>
+        <div className="relative overflow-x-auto">
+          <div className={`inline-block ${className}`}>
+            {/* HTML Table Container */}
+            <table className="w-full text-nowrap">
+              {/* Table Head */}
+              <thead>
+                <tr>
+                  {headers.map((header, index) => (
+                    <th
+                      key={`header-${header.key}`}
+                      className={`text-elevation-0-1 my-2.5 text-sm font-bold text-white ${
+                        index === 0
+                          ? "pl-5"
+                          : index === headers.length - 1
+                            ? "pr-5"
+                            : "px-5"
+                      }`}
+                    >
+                      {header.text}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
 
-          {/* Rows */}
-          {paginatedItems.length > 0 ? (
-            paginatedItems.map((item, rowIndex) => (
-              <div
-                key={`row-${item.id || rowIndex}`}
-                className={`hover:bg-elevation-1-hover my-2 flex rounded border border-transparent text-white transition-all`}
-              >
-                {headers.map((header, colIndex) => (
-                  <div
-                    key={`cell-${rowIndex}-${header.key}`}
-                    className={`flex h-full items-center overflow-hidden text-ellipsis rounded border border-transparent ${
-                      colIndex > 0 && colIndex < headers.length - 1
-                        ? "justify-center"
-                        : ""
-                    } ${
-                      colIndex === headers.length - 1
-                        ? "justify-end rounded-r"
-                        : ""
-                    } ${
-                      item.status === "info" && colIndex === 0
-                        ? "border-l-info"
-                        : ""
-                    } ${
-                      item.status === "error" && colIndex === 0
-                        ? "border-l-definitive"
-                        : ""
-                    } bg-elevation-1-hover cursor-pointer hover:border-white`}
-                    style={{ width: `${100 / headers.length}%` }}
-                  >
-                    {renderCell(item, header.key)}
-                  </div>
-                ))}
-              </div>
-            ))
-          ) : (
-            <div
-              className={`flex items-end justify-center py-6 ${contrast ? "bg-elevation-1-hover" : "bg-elevation-1"} `}
-            >
-              {placeholder || (
-                <div className="text-elevation-0-1 text-sm font-bold text-white">
-                  No entries
-                </div>
-              )}
-            </div>
-          )}
+              {/* Table Body */}
+              <tbody>
+                {paginatedItems.length > 0 ? (
+                  paginatedItems.map((item, rowIndex) => (
+                    <tr key={`row-${rowIndex}-${item.id}`}>
+                      {headers.map((header, colIndex) => (
+                        <td key={`cell-${rowIndex}-${header.key}`}>
+                          <div
+                            className={`h-10 items-center overflow-hidden text-ellipsis border border-solid border-transparent text-white hover:border-white ${
+                              colIndex > 0 &&
+                              colIndex < headers.length - 1 &&
+                              "text-center"
+                            } ${
+                              colIndex === headers.length - 1 &&
+                              "rounded-r text-right"
+                            } ${
+                              item.status === "info" &&
+                              colIndex === 0 &&
+                              "border-l-info"
+                            } ${
+                              item.status === "error" &&
+                              colIndex === 0 &&
+                              "border-l-definitive"
+                            } bg-elevation-1-hover cursor-pointer`}
+                          >
+                            {renderCell(item, header.key)}
+                          </div>
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={headers.length}
+                      className={`flex items-end justify-center py-6 ${
+                        contrast ? "bg-elevation-1-hover" : "bg-elevation-1"
+                      }`}
+                    >
+                      {placeholder || (
+                        <div className="text-elevation-0-1 text-sm font-bold text-white">
+                          No entries
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </BasePagination>
