@@ -153,7 +153,7 @@ const AppHeader: React.FC = () => {
     }
   }, [context]);
 
-  const loadingCall = (func: () => Promise<any>) => {
+  const handleWithLoadingState = (func: () => Promise<any>) => {
     return async () => {
       setIsLoading(true);
       const res = await func();
@@ -172,7 +172,7 @@ const AppHeader: React.FC = () => {
       ) {
         e.preventDefault();
         e.stopPropagation();
-        loadingCall(save)();
+        handleWithLoadingState(save)();
       }
       if (
         (window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) &&
@@ -180,7 +180,7 @@ const AppHeader: React.FC = () => {
       ) {
         e.preventDefault();
         e.stopPropagation();
-        loadingCall(openFile)();
+        handleWithLoadingState(openFile)();
       }
       if (
         (window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) &&
@@ -188,7 +188,7 @@ const AppHeader: React.FC = () => {
       ) {
         e.preventDefault();
         e.stopPropagation();
-        openCreateTdDialog();
+        handleOpenCreateTdDialog();
       }
     };
 
@@ -215,17 +215,17 @@ const AppHeader: React.FC = () => {
     openModal: () => void;
     close: () => void;
   }>(null);
-  const openConvertTmDialog = () => {
+  const handleOpenConvertTmDialog = () => {
     convertTmDialog.current?.openModal();
   };
 
   const shareDialog = React.useRef<{ openModal: () => void }>(null);
-  const openShareDialog = () => {
+  const handleOpenShareDialog = () => {
     shareDialog.current?.openModal();
   };
 
   const createTdDialog = React.useRef<{ openModal: () => void }>(null);
-  const openCreateTdDialog = () => {
+  const handleOpenCreateTdDialog = () => {
     createTdDialog.current?.openModal();
   };
 
@@ -233,7 +233,7 @@ const AppHeader: React.FC = () => {
     openModal: () => void;
     close: () => void;
   }>(null);
-  const openSettingsDialog = () => {
+  const handleOpenSettingsDialog = () => {
     settingsDialog.current?.openModal();
   };
 
@@ -241,7 +241,7 @@ const AppHeader: React.FC = () => {
     openModal: () => void;
     close: () => void;
   }>(null);
-  const openContributeToCatalog = (): void => {
+  const handleOpenContributeToCatalog = (): void => {
     if (!context.offlineTD) {
       setErrorDisplay({
         state: true,
@@ -279,48 +279,48 @@ const AppHeader: React.FC = () => {
         <div className="flex items-center gap-4 pr-2">
           {isLoading && <div className="app-header-spinner hidden md:block" />}
 
-          <Button onClick={openContributeToCatalog}>
+          <Button onClick={handleOpenContributeToCatalog}>
             <Link />
             <div className="text-xs">Contribute to Catalog</div>
           </Button>
 
-          <Button onClick={openShareDialog}>
+          <Button onClick={handleOpenShareDialog}>
             <Share />
             <div className="text-xs">Share</div>
           </Button>
 
           <div className="hidden md:block">
-            <Button onClick={loadingCall(save)}>
+            <Button onClick={handleWithLoadingState(save)}>
               <Save />
               <div className="text-xs">Save</div>
             </Button>
           </div>
 
           <div className="hidden md:block">
-            <Button onClick={loadingCall(openFile)}>
+            <Button onClick={handleWithLoadingState(openFile)}>
               <File />
               <div className="text-xs">Open</div>
             </Button>
           </div>
 
-          <Button onClick={openCreateTdDialog}>
+          <Button onClick={handleOpenCreateTdDialog}>
             <FilePlus />
             <div className="text-xs">Create</div>
           </Button>
 
           {isThingModel(context.parsedTD) && (
-            <Button onClick={openConvertTmDialog}>
+            <Button onClick={handleOpenConvertTmDialog}>
               <FileText />
               <div className="text-xs">To TD</div>
             </Button>
           )}
 
-          <Button onClick={loadingCall(createNewFile)}>
+          <Button onClick={handleWithLoadingState(createNewFile)}>
             <Download />
             <div className="text-xs">Download</div>
           </Button>
 
-          <Button onClick={openSettingsDialog}>
+          <Button onClick={handleOpenSettingsDialog}>
             <Settings />
             <div className="text-xs">Settings</div>
           </Button>

@@ -137,7 +137,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setDisplay(false);
   };
 
-  const onSubmitClick = async () => {
+  const handleSubmit = async () => {
     setSubmittedError("");
     setSubmitted(false);
     try {
@@ -183,7 +183,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     }
   };
 
-  const onCatalogValidationClick = async () => {
+  const handleCatalogValidation = async () => {
     setErrorMessage("");
     setIsValid(false);
     setIsValidating(true);
@@ -432,7 +432,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
                 </div>
               }
               className="my-2 w-1/4"
-              onClick={onCatalogValidationClick}
+              onClick={handleCatalogValidation}
             ></DialogButton>
             {errorMessage && (
               <div className="mb-2 mt-2 inline h-full w-full rounded bg-red-500 p-2 text-white">
@@ -504,7 +504,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
               id="submit"
               text="Submit"
               className="mb-2 mt-2 w-1/4"
-              onClick={onSubmitClick}
+              onClick={handleSubmit}
             ></DialogButton>
             {submittedError && (
               <div className="mb-2 mt-2 inline h-full w-full rounded bg-red-500 p-2 text-white">
@@ -565,7 +565,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     return ReactDOM.createPortal(
       <DialogTemplate
         onCancel={close}
-        onSubmit={onSubmitClick}
+        onSubmit={handleSubmit}
         children={content}
         hasSubmit={false}
         cancelText="Close"

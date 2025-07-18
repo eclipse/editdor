@@ -26,13 +26,13 @@ const IncrementButton: React.FC<IIncrementButtonProps> = ({
   inferiorLimit,
   superiorLimit = 100000,
 }) => {
-  const increment = (e: React.MouseEvent) => {
+  const handleIncrement = (e: React.MouseEvent) => {
     e.stopPropagation();
     const newValue = value < superiorLimit ? value + 1 : inferiorLimit;
     onUpdate(newValue);
   };
 
-  const decrement = (e: React.MouseEvent) => {
+  const handleDecrement = (e: React.MouseEvent) => {
     e.stopPropagation();
     const newValue = value > inferiorLimit ? value - 1 : superiorLimit;
     onUpdate(newValue);
@@ -48,13 +48,13 @@ const IncrementButton: React.FC<IIncrementButtonProps> = ({
         <div className="col-span-4 flex h-full w-full">
           <button
             className="justify-centers flex h-full w-full cursor-pointer items-center bg-gray-600"
-            onClick={increment}
+            onClick={handleIncrement}
           >
             <Plus size={18} color="white" />
           </button>
           <button
             className="flex h-full w-full cursor-pointer items-center justify-center rounded-r-lg bg-gray-600"
-            onClick={decrement}
+            onClick={handleDecrement}
           >
             <Minus size={18} color="white" />
           </button>

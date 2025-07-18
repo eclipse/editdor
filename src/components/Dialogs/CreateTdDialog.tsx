@@ -120,7 +120,7 @@ const CreateTdDialog = forwardRef((props, ref) => {
 
     return thing;
   };
-
+  // TODO check the undefnied or null state
   if (display) {
     return ReactDOM.createPortal(
       <DialogTemplate
@@ -149,7 +149,7 @@ const CreateTdDialog = forwardRef((props, ref) => {
 });
 
 const buildForm = (
-  changeType: (e: React.ChangeEvent<HTMLSelectElement>) => void,
+  handleChangeType: (e: React.ChangeEvent<HTMLSelectElement>) => void,
   type: "TD" | "TM",
   protocol: string,
   setProtocol: React.Dispatch<React.SetStateAction<string>>,
@@ -186,14 +186,14 @@ const buildForm = (
     }
   };
 
-  const handleButtonClick = (): void => {
+  const handleSubmit = (): void => {
     if (!fileInputRef.current) {
       return;
     }
     fileInputRef.current.click();
   };
 
-  const downloadCsvTemplate = (): void => {
+  const handleDownloadCsvTemplate = (): void => {
     const csvContent = `name,title,description,type,minimum,maximum,unit,href,modbus:unitID,modbus:address,modbus:quantity,modbus:type,modbus:zeroBasedAddressing,modbus:entity,modbus:pollingTime,modbus:function,modbus:mostSignificantByte,modbus:mostSignificantWord,modbus:timeout`;
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -216,7 +216,7 @@ const buildForm = (
         <select
           className="block w-full appearance-none rounded border-2 border-gray-600 bg-gray-600 px-4 py-3 pr-8 leading-tight text-white focus:border-blue-500 focus:outline-none"
           id="type"
-          onChange={changeType}
+          onChange={handleChangeType}
           value={type}
         >
           <option value="TD">Thing Description</option>
@@ -323,7 +323,7 @@ const buildForm = (
             <button
               id="download-template"
               className="rounded border-2 border-gray-600 bg-blue-500 p-2 leading-tight text-white focus:border-blue-500 focus:outline-none"
-              onClick={downloadCsvTemplate}
+              onClick={handleDownloadCsvTemplate}
             >
               Download CSV Template
             </button>
@@ -341,7 +341,7 @@ const buildForm = (
           <button
             id="submit-csv"
             className="rounded border-2 border-gray-600 bg-blue-500 p-2 leading-tight text-white focus:border-blue-500 focus:outline-none"
-            onClick={handleButtonClick}
+            onClick={handleSubmit}
           >
             Load a CSV File
           </button>

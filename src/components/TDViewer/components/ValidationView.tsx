@@ -23,7 +23,10 @@ type ValidationViewProps = {
   onRedo: () => void;
 };
 
-const ValidationView: React.FC<ValidationViewProps> = ({ onUndo, onRedo }) => {
+const ValidationView: React.FC<ValidationViewProps> = ({
+  onUndo: handleUndo,
+  onRedo: handleRedo,
+}) => {
   const context = useContext(ediTDorContext);
 
   const [jsonValidation, setJsonValidation] =
@@ -75,14 +78,14 @@ const ValidationView: React.FC<ValidationViewProps> = ({ onUndo, onRedo }) => {
       <div className="col-span-4 mb-4 flex justify-end gap-2">
         <button
           className="flex h-8 w-40 items-center justify-center rounded-md bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
-          onClick={onUndo}
+          onClick={handleUndo}
         >
           <RotateCcw size={16} strokeWidth={3} className="mr-2"></RotateCcw>
           <span className="font-bold">Undo</span>
         </button>
         <button
           className="flex h-8 w-40 items-center justify-center rounded-md bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
-          onClick={onRedo}
+          onClick={handleRedo}
         >
           <span className="mr-2 font-bold">Redo</span>
           <RotateCw size={16} strokeWidth={3}></RotateCw>

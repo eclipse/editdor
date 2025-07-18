@@ -233,78 +233,80 @@ const AddLinkTdDialog = forwardRef<AddLinkTdDialogRef, AddLinkTdDialogProps>(
       </>
     );
 
+    const handleAddLink = () => {
+      if (!context.isValidJSON) {
+        showHrefErrorMessage("Can't add link. TD is malformed");
+        return;
+      }
+
+      const link: Link = {
+        href:
+          (
+            document.getElementById("link-href") as HTMLInputElement
+          ).value.trim() || "/",
+      };
+      const rel = (
+        document.getElementById("rel") as HTMLInputElement
+      ).value.trim();
+      const type = (
+        document.getElementById("type") as HTMLInputElement
+      ).value.trim();
+
+      if (rel) link.rel = rel;
+      if (type) link.type = type;
+
+      let isValidUrl = true;
+      try {
+        var url = new URL(link.href);
+      } catch (_) {
+        isValidUrl = false;
+      }
+      if (
+        linkingMethod === "url" &&
+        isValidUrl &&
+        (url.protocol === "http:" || url.protocol === "https:")
+      ) {
+        try {
+          var httpRequest = new XMLHttpRequest();
+          httpRequest.open("GET", href, false);
+          httpRequest.send();
+          if (
+            httpRequest
+              .getResponseHeader("content-type")
+              .includes("application/td+json")
+          ) {
+            const thingDescription = httpRequest.response;
+            let parsedTd = JSON.parse(thingDescription);
+            linkedTd[link.href] = parsedTd;
+          }
+        } catch (ex) {
+          const msg = "We ran into an error trying to fetch your TD.";
+          console.error(msg, ex);
+          linkedTd[href] = currentLinkedTd;
+        }
+      } else {
+        linkedTd[href] = currentLinkedTd;
+      }
+
+      if (link.href === "") {
+        showHrefErrorMessage("The href field is mandatory ...");
+      } else if (checkIfLinkExists(link)) {
+        showHrefErrorMessage(
+          "A Link with the target Thing Description already exists ..."
+        );
+      } else {
+        addLinksToTd(link);
+        context.addLinkedTd(linkedTd);
+        setCurrentLinkedTd({});
+        close();
+      }
+    };
+
     if (display) {
       return ReactDOM.createPortal(
         <DialogTemplate
           onCancel={close}
-          onSubmit={() => {
-            if (!context.isValidJSON) {
-              showHrefErrorMessage("Can't add link. TD is malformed");
-              return;
-            }
-
-            const link: Link = {
-              href:
-                (
-                  document.getElementById("link-href") as HTMLInputElement
-                ).value.trim() || "/",
-            };
-            const rel = (
-              document.getElementById("rel") as HTMLInputElement
-            ).value.trim();
-            const type = (
-              document.getElementById("type") as HTMLInputElement
-            ).value.trim();
-
-            if (rel) link.rel = rel;
-            if (type) link.type = type;
-
-            let isValidUrl = true;
-            try {
-              var url = new URL(link.href);
-            } catch (_) {
-              isValidUrl = false;
-            }
-            if (
-              linkingMethod === "url" &&
-              isValidUrl &&
-              (url.protocol === "http:" || url.protocol === "https:")
-            ) {
-              try {
-                var httpRequest = new XMLHttpRequest();
-                httpRequest.open("GET", href, false);
-                httpRequest.send();
-                if (
-                  httpRequest
-                    .getResponseHeader("content-type")
-                    .includes("application/td+json")
-                ) {
-                  const thingDescription = httpRequest.response;
-                  let parsedTd = JSON.parse(thingDescription);
-                  linkedTd[link.href] = parsedTd;
-                }
-              } catch (ex) {
-                const msg = "We ran into an error trying to fetch your TD.";
-                console.error(msg, ex);
-                linkedTd[href] = currentLinkedTd;
-              }
-            } else {
-              linkedTd[href] = currentLinkedTd;
-            }
-
-            if (link.href === "") {
-              showHrefErrorMessage("The href field is mandatory ...");
-            } else if (checkIfLinkExists(link)) {
-              showHrefErrorMessage(
-                "A Link with the target Thing Description already exists ..."
-              );
-            } else {
-              addLinksToTd(link);
-              context.addLinkedTd(linkedTd);
-              setCurrentLinkedTd({});
-              close();
-            }
-          }}
+          onSubmit={handleAddLink}
           submitText={"Add"}
           children={children}
           title={`Add Link `}
