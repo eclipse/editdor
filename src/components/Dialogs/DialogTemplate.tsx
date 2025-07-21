@@ -11,6 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { ReactNode } from "react";
+import BaseButton from "../TDViewer/base/BaseButton";
 
 interface DialogTemplateProps {
   title?: string;
@@ -64,24 +65,26 @@ const DialogTemplate: React.FC<DialogTemplateProps> = (props) => {
           <div className="overflow-auto p-2">{children}</div>
           <div className="flex justify-end p-2 pt-4">
             {submitText !== "OK" && (
-              <button
+              <BaseButton
                 id="cancelButton"
-                className="mr-1 rounded-md bg-blue-500 p-2 text-white hover:bg-blue-600"
-                onClick={() => {
-                  onCancel();
-                }}
+                onClick={() => onCancel()}
+                variant="primary"
+                type="button"
+                className="mr-1"
               >
                 {cancelText}
-              </button>
+              </BaseButton>
             )}
             {hasSubmit && (
-              <button
+              <BaseButton
                 id="submitButton"
-                className="flex rounded-md bg-blue-500 p-2 text-white hover:bg-blue-600"
                 onClick={() => onSubmit()}
+                variant="primary"
+                type="button"
+                className="flex"
               >
                 {submitText}
-              </button>
+              </BaseButton>
             )}
           </div>
         </div>

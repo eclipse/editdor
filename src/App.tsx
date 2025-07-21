@@ -23,6 +23,8 @@ import { RefreshCw } from "react-feather";
 import { retrieveThing } from "./services/thingsApiService";
 import { decompressSharedTd } from "./share";
 import { editor } from "monaco-editor";
+import BaseButton from "./components/TDViewer/base/BaseButton";
+import ErrorDialog from "./components/Dialogs/ErrorDialog";
 
 const GlobalStateWrapper = () => {
   return (
@@ -41,6 +43,16 @@ const App: React.FC = () => {
 
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [doShowJSON, setDoShowJSON] = useState(false);
+  const [errorDisplay, setErrorDisplay] = useState<{
+    state: boolean;
+    message: string;
+  }>({
+    state: false,
+    message: "",
+  });
+  const showError = (message: string) => {
+    setErrorDisplay({ state: true, message });
+  };
 
   const handleUndo = () => {
     if (editorRef.current) {
@@ -75,7 +87,7 @@ const App: React.FC = () => {
     if (compressedTd !== null) {
       const td = decompressSharedTd(compressedTd);
       if (td === undefined) {
-        alert(
+        showError(
           "The lz compressed TD found in the URL couldn't be reconstructed."
         );
         return;
@@ -99,14 +111,14 @@ const App: React.FC = () => {
           context.updateOfflineTD(JSON.stringify(td, null, 2));
         })
         .catch(() => {
-          alert(`Error unable to fetch TD from proxy: ${proxyEndpointUrl}`);
+          showError(`Error unable to fetch TD from proxy: ${proxyEndpointUrl}`);
         });
     }
 
     if (url.searchParams.has("localstorage")) {
       let td = localStorage.getItem("td");
       if (!td) {
-        alert("Request to read TD from local storage failed.");
+        showError("Request to read TD from local storage failed.");
         return;
       }
 
@@ -115,7 +127,7 @@ const App: React.FC = () => {
         context.updateOfflineTD(JSON.stringify(td, null, 2));
       } catch (e) {
         context.updateOfflineTD(td);
-        alert(
+        showError(
           `Tried to JSON parse the TD from local storage, but failed: ${e}`
         );
       }
@@ -140,18 +152,26 @@ const App: React.FC = () => {
           <Section className="w-full md:w-5/12">
             <JsonEditor editorRef={editorRef} />
           </Section>
-          <button
+
+          <BaseButton
+            type="button"
             className="fixed bottom-12 right-2 z-10 rounded-full bg-blue-500 p-4"
             onClick={handleToggleJSON}
+            variant="empty"
           >
             <RefreshCw color="white" />
-          </button>
+          </BaseButton>
         </Container>
       </div>
       <div className="fixed bottom-0 w-screen">
         <AppFooter></AppFooter>
       </div>
       <div id="modal-root"></div>
+      <ErrorDialog
+        isOpen={errorDisplay.state}
+        onClose={() => setErrorDisplay({ state: false, message: "" })}
+        errorMessage={errorDisplay.message}
+      />
     </main>
   );
 };

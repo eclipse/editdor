@@ -17,6 +17,7 @@ import ediTDorContext from "../../context/ediTDorContext";
 import DialogTemplate from "./DialogTemplate";
 import { parseCsv, mapCsvToProperties } from "../../utils/parser";
 import FormField from "./base/FormField";
+import BaseButton from "../TDViewer/base/BaseButton";
 
 export interface CreateTdDialogRef {
   openModal: () => void;
@@ -320,13 +321,14 @@ const buildForm = (
           </div>
 
           <div className="flex items-center">
-            <button
+            <BaseButton
               id="download-template"
-              className="rounded border-2 border-gray-600 bg-blue-500 p-2 leading-tight text-white focus:border-blue-500 focus:outline-none"
               onClick={handleDownloadCsvTemplate}
+              variant="primary"
+              type="button"
             >
               Download CSV Template
-            </button>
+            </BaseButton>
           </div>
         </div>
 
@@ -337,18 +339,17 @@ const buildForm = (
             onChange={handleFileChange}
             style={{ display: "none" }}
           />
-          <button
-            type="button"
+
+          <BaseButton
             id="submit-csv"
-            className="rounded border-2 border-gray-600 bg-blue-500 p-2 leading-tight text-white focus:border-blue-500 focus:outline-none"
             onClick={handleSubmit}
+            variant="primary"
+            type="button"
           >
             Load a CSV File
-          </button>
-          <div className="flex-1">
-            <p className="pl-2 text-gray-300">
-              {fileName || "No file selected"}
-            </p>
+          </BaseButton>
+          <div className="">
+            <p className="pl-2">{fileName || "No file selected"}</p>
           </div>
         </div>
       </div>

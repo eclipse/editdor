@@ -15,6 +15,7 @@ import { useContext, useEffect, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { ImCheckmark, ImCross } from "react-icons/im";
 import { RotateCcw, RotateCw } from "react-feather";
+import BaseButton from "../base/BaseButton";
 
 type ValidationState = "passed" | "failed" | undefined;
 
@@ -76,20 +77,24 @@ const ValidationView: React.FC<ValidationViewProps> = ({
   return (
     <>
       <div className="col-span-4 mb-4 flex justify-end gap-2">
-        <button
-          className="flex h-8 w-40 items-center justify-center rounded-md bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
+        <BaseButton
           onClick={handleUndo}
+          variant="primary"
+          type="button"
+          className="flex h-8 w-40 items-center justify-center px-3 py-1"
         >
-          <RotateCcw size={16} strokeWidth={3} className="mr-2"></RotateCcw>
+          <RotateCcw size={16} strokeWidth={3} className="mr-2" />
           <span className="font-bold">Undo</span>
-        </button>
-        <button
-          className="flex h-8 w-40 items-center justify-center rounded-md bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
+        </BaseButton>
+        <BaseButton
           onClick={handleRedo}
+          variant="primary"
+          type="button"
+          className="flex h-8 w-40 items-center justify-center px-3 py-1"
         >
           <span className="mr-2 font-bold">Redo</span>
-          <RotateCw size={16} strokeWidth={3}></RotateCw>
-        </button>
+          <RotateCw size={16} strokeWidth={3} />
+        </BaseButton>
       </div>
 
       <div className="mb-4 w-full rounded-md bg-gray-600 p-4 text-white">

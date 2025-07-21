@@ -27,6 +27,8 @@ import RenderedObject from "./components/RenderedObject";
 import ValidationView from "./components/ValidationView";
 import LinkSection from "./components/LinkSection";
 import { useDropzone } from "react-dropzone";
+import BaseButton from "./base/BaseButton";
+
 import type { ThingDescription } from "wot-thing-description-types";
 interface ITDViewerProps {
   onUndo: () => void;
@@ -166,12 +168,13 @@ const TDViewer: React.FC<ITDViewerProps> = ({ onUndo, onRedo }) => {
               <h2 className="flex-grow p-1 text-2xl text-white">Forms</h2>
             </InfoIconWrapper>
           </div>
-          <button
-            className="cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
+          <BaseButton
             onClick={handleOpenAddFormDialog}
+            variant="primary"
+            type="button"
           >
             Add Top Level Form
-          </button>
+          </BaseButton>
           <AddFormDialog type="thing" interaction={td} ref={addFormDialog} />
         </summary>
         {forms && (

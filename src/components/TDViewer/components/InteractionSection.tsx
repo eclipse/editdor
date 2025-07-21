@@ -28,6 +28,7 @@ import DialogTemplate from "./../../Dialogs/DialogTemplate";
 import Editor from "@monaco-editor/react";
 import { readProperty } from "../../../services/form";
 import { extractIndexFromId, formatText } from "../../../utils/strings";
+import BaseButton from "../base/BaseButton";
 import type {
   FormElementBase,
   ThingDescription,
@@ -438,21 +439,24 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
           </InfoIconWrapper>
           <div>
             {interaction === "properties" && (
-              <button
-                className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white hover:bg-blue-600"
+              <BaseButton
                 onClick={() => setModeView("list")}
+                variant="primary"
+                type="button"
+                className="h-9"
               >
                 List
-              </button>
+              </BaseButton>
             )}
             {interaction === "properties" && (
-              <button
-                className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white hover:bg-blue-600"
-                style={{ marginLeft: "10px" }}
+              <BaseButton
                 onClick={() => setModeView("table")}
+                variant="primary"
+                type="button"
+                className="ml-2 h-9"
               >
                 Table
-              </button>
+              </BaseButton>
             )}
           </div>
         </div>
@@ -462,19 +466,23 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
           ariaLabel={`Search through all ${props.interaction}`}
         />
         <div className="w-2"></div>
-        <button
-          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-white hover:bg-blue-600"
+        <BaseButton
           onClick={() => sortKeysInObject(interaction)}
+          variant="primary"
+          type="button"
+          className="h-9"
         >
           {sortedIcon()}
-        </button>
+        </BaseButton>
         <div className="w-2"></div>
-        <button
-          className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white hover:bg-blue-600"
+        <BaseButton
           onClick={handleOpenCreatePropertyDialog}
+          variant="primary"
+          type="button"
+          className="h-9"
         >
           Add
-        </button>
+        </BaseButton>
         {addInteractionDialog}
       </div>
 

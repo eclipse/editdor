@@ -19,6 +19,7 @@ import AddLinkTdDialog from "../../Dialogs/AddLinkTdDialog";
 import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import { getLinksTooltipContent } from "../../InfoIcon/TooltipMapper";
 import Link from "./Link";
+import BaseButton from "../base/BaseButton";
 
 const LinkSection: React.FC<any> = (props) => {
   const context = useContext(ediTDorContext);
@@ -247,31 +248,35 @@ const LinkSection: React.FC<any> = (props) => {
           </InfoIconWrapper>
 
           {isLinksOpen && (
-            <button
-              className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
+            <BaseButton
               disabled={representationFormat === "list"}
               onClick={() => setRepresentationFormat("list")}
+              variant="primary"
+              type="button"
+              className="h-9"
             >
               List
-            </button>
+            </BaseButton>
           )}
           {isLinksOpen && (
-            <button
-              className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
-              style={{ marginLeft: "10px" }}
+            <BaseButton
               disabled={representationFormat === "graph"}
               onClick={() => setRepresentationFormat("graph")}
+              variant="primary"
+              type="button"
+              className="ml-2 h-9"
             >
               Graph
-            </button>
+            </BaseButton>
           )}
         </div>
-        <button
-          className="cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
+        <BaseButton
           onClick={handleOpenAddLinkDialog}
+          variant="primary"
+          type="button"
         >
           Add Top Level Link
-        </button>
+        </BaseButton>
         <AddLinkTdDialog type="link" interaction={td} ref={addLinkDialog} />
       </summary>
       {links && representationFormat === "graph" && (

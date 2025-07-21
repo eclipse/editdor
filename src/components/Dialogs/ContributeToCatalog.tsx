@@ -15,7 +15,7 @@ import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import DialogTemplate from "./DialogTemplate";
 import DialogTextField from "./base/DialogTextField";
-import DialogButton from "./base/DialogButton";
+import BaseButton from "../TDViewer/base/BaseButton";
 import {
   Check,
   AlertTriangle,
@@ -411,29 +411,30 @@ const ContributeToCatalog = forwardRef((props, ref) => {
             autoFocus={false}
           />
           <div className="flex flex-col">
-            <DialogButton
+            <BaseButton
               id="catalogValidation"
-              text={
-                <div className="flex w-full items-center justify-between">
-                  {isValidating ? (
-                    <>
-                      <span className="pl-6">Validating</span>
-                      <RefreshCw className="animate-spin" size={20} />
-                    </>
-                  ) : (
-                    <>
-                      <span className="pl-6">Validate</span>
-                      <InfoIconWrapper
-                        tooltip={getValidateTMContent()}
-                        id="validateTMContent"
-                      />
-                    </>
-                  )}
-                </div>
-              }
-              className="my-2 w-1/4"
               onClick={handleCatalogValidation}
-            ></DialogButton>
+              variant="primary"
+              type="button"
+              className="my-2 w-1/4"
+            >
+              <div className="flex w-full items-center justify-between">
+                {isValidating ? (
+                  <>
+                    <span className="pl-6">Validating</span>
+                    <RefreshCw className="animate-spin" size={20} />
+                  </>
+                ) : (
+                  <>
+                    <span className="pl-6">Validate</span>
+                    <InfoIconWrapper
+                      tooltip={getValidateTMContent()}
+                      id="validateTMContent"
+                    />
+                  </>
+                )}
+              </div>
+            </BaseButton>
             {errorMessage && (
               <div className="mb-2 mt-2 inline h-full w-full rounded bg-red-500 p-2 text-white">
                 <AlertTriangle size={16} className="mr-1 inline" />
@@ -446,16 +447,17 @@ const ContributeToCatalog = forwardRef((props, ref) => {
                   <Check size={16} className="mr-1 inline" />
                   {"TM is valid"}
                 </div>
-                <DialogButton
+                <BaseButton
                   id="copyThingModel"
-                  className="my-2"
-                  text={
-                    copied
-                      ? "Copied Thing Model"
-                      : "Click to Copy the full Thing Model"
-                  }
                   onClick={handleCopyThingModelClick}
-                ></DialogButton>
+                  variant="primary"
+                  type="button"
+                  className="my-2"
+                >
+                  {copied
+                    ? "Copied Thing Model"
+                    : "Click to Copy the full Thing Model"}
+                </BaseButton>
               </>
             )}
           </div>
@@ -500,12 +502,15 @@ const ContributeToCatalog = forwardRef((props, ref) => {
             <div className="mt-1 text-sm text-red-500">{repositoryError}</div>
           )}
           <div className="flex flex-col">
-            <DialogButton
+            <BaseButton
               id="submit"
-              text="Submit"
-              className="mb-2 mt-2 w-1/4"
               onClick={handleSubmit}
-            ></DialogButton>
+              variant="primary"
+              type="button"
+              className="mb-2 mt-2 w-1/4"
+            >
+              Submit
+            </BaseButton>
             {submittedError && (
               <div className="mb-2 mt-2 inline h-full w-full rounded bg-red-500 p-2 text-white">
                 <AlertTriangle size={16} className="mr-1 inline" />
@@ -520,36 +525,38 @@ const ContributeToCatalog = forwardRef((props, ref) => {
                 </div>
                 <div className="mb-2 mt-2 grid grid-cols-3 items-center">
                   <div className="col-span-1 w-full">
-                    <DialogButton
+                    <BaseButton
                       id={id}
-                      text={
-                        <div className="flex w-full items-center justify-between">
-                          <span>Copy TM id</span>
-                          <Copy size={20} className="ml-2 cursor-pointer" />
-                        </div>
-                      }
                       onClick={handleCopyIdClick}
+                      variant="primary"
+                      type="button"
                       className="w-3/4"
-                    ></DialogButton>
+                    >
+                      <div className="flex w-full items-center justify-between">
+                        <span>Copy TM id</span>
+                        <Copy size={20} className="ml-2 cursor-pointer" />
+                      </div>
+                    </BaseButton>
                   </div>
                   <h1 className="col-span-2 pl-4 text-center">{id}</h1>
                 </div>
                 <div className="mb-2 mt-2 grid grid-cols-3 items-center">
                   <div className="col-span-1">
-                    <DialogButton
+                    <BaseButton
                       id={link}
-                      text={
-                        <div className="flex w-full items-center justify-between">
-                          <span>Open in new tab</span>
-                          <ExternalLink
-                            size={20}
-                            className="ml-2 inline cursor-pointer"
-                          />
-                        </div>
-                      }
                       onClick={handleOpenLinkClick}
+                      variant="primary"
+                      type="button"
                       className="w-3/4"
-                    ></DialogButton>
+                    >
+                      <div className="flex w-full items-center justify-between">
+                        <span>Open in new tab</span>
+                        <ExternalLink
+                          size={20}
+                          className="ml-2 inline cursor-pointer"
+                        />
+                      </div>
+                    </BaseButton>
                   </div>
                   <h1 className="col-span-2 pl-4 text-center">{link}</h1>
                 </div>

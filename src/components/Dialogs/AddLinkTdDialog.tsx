@@ -21,6 +21,7 @@ import ediTDorContext from "../../context/ediTDorContext";
 import * as fileTdService from "../../services/fileTdService";
 import { checkIfLinkIsInItem } from "../../util.js";
 import DialogTemplate from "./DialogTemplate";
+import BaseButton from "../../components/TDViewer/base/BaseButton";
 
 export interface AddLinkTdDialogRef {
   openModal: () => void;
@@ -162,25 +163,26 @@ const AddLinkTdDialog = forwardRef<AddLinkTdDialogRef, AddLinkTdDialogProps>(
           >
             Target ressource:
           </label>
-          <button
-            className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
+
+          <BaseButton
+            type="button"
             disabled={linkingMethod === "upload"}
-            onClick={() => {
-              linkingMethodChange("upload");
-            }}
+            onClick={() => linkingMethodChange("upload")}
+            className="h-9"
+            variant="primary"
           >
             From local machine
-          </button>
-          <button
-            className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
-            style={{ marginLeft: "2%" }}
+          </BaseButton>
+
+          <BaseButton
+            type="button"
             disabled={linkingMethod === "url"}
-            onClick={() => {
-              linkingMethodChange("url");
-            }}
+            onClick={() => linkingMethodChange("url")}
+            className="ml-2 h-9"
+            variant="primary"
           >
             Resource url
-          </button>
+          </BaseButton>
           <div className="p-1 pt-4">
             <input
               type="text"
@@ -194,13 +196,15 @@ const AddLinkTdDialog = forwardRef<AddLinkTdDialogRef, AddLinkTdDialogProps>(
               disabled={linkingMethod !== "url"}
             />
             {linkingMethod === "upload" && (
-              <button
-                className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-white"
+              <BaseButton
+                type="button"
                 onClick={openFile}
                 disabled={linkingMethod !== "upload"}
+                className="ml-2 h-9"
+                variant="primary"
               >
                 Open TD
-              </button>
+              </BaseButton>
             )}
           </div>
           <span
