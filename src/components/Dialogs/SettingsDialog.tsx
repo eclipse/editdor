@@ -10,10 +10,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { forwardRef, useImperativeHandle } from "react";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 import ReactDOM from "react-dom";
 import { getTargetUrl, setTargetUrl } from "../../services/targetUrl";
 import DialogTemplate from "./DialogTemplate";
+import InfoIconWrapper from "../../components/InfoIcon/InfoIconWrapper";
 
 export interface SettingsDialogRef {
   openModal: () => void;
@@ -21,8 +22,9 @@ export interface SettingsDialogRef {
 }
 
 const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
-  const [display, setDisplay] = React.useState<boolean>(false);
-  const [settingsTargetUrl, setSettingsTargetUrl] = React.useState<string>("");
+  const [display, setDisplay] = useState<boolean>(false);
+  const [northboundUrl, setNorthboundUrl] = useState<string>("");
+  const [southboundUrl, setSouthboundUrl] = useState<string>("");
 
   useImperativeHandle(ref, () => {
     return {
@@ -33,8 +35,8 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
 
   const open = () => {
     setDisplay(true);
-
-    setSettingsTargetUrl(getTargetUrl());
+    setNorthboundUrl(getTargetUrl("northbound"));
+    setSouthboundUrl(getTargetUrl("southbound"));
   };
 
   const close = () => {
@@ -43,28 +45,66 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
 
   let child = (
     <>
-      <label className="pl-2 text-sm font-medium text-gray-400">
-        Target URL:
-      </label>
+      <div className="flex items-center">
+        <label className="py-2 text-sm font-medium text-gray-400">
+          <InfoIconWrapper
+            tooltip={{
+              html: "The target URL northbound should point to a server that implements the Discovery Specifications's Things API. If a valid target URL is provided, the ediTDor automatically uses it to save your changes. Empty this field to simply save files to disk.",
+              href: "",
+            }}
+            id="settings-target-url-northbound-info"
+            children={"Target URL Northbound:"}
+          ></InfoIconWrapper>
+        </label>
+      </div>
       <input
         type="text"
-        name="settings-target-url-field"
-        id="settings-target-url-field"
+        name="settings-target-url-field-northbound"
+        id="settings-target-url-field-northbound"
         className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
-        value={settingsTargetUrl}
+        value={northboundUrl}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setSettingsTargetUrl(e.target.value)
+          setNorthboundUrl(e.target.value)
         }
         placeholder="http://localhost:8080/"
       />
-      <p className="pl-2 text-sm text-gray-400">
-        The target url should point to a server that implements the Discovery
-        Specifications's Things API. If a valid target url is provided, the
-        ediTDor automatically uses it to save your changes. Empty this field to
-        simply save files to disk.
+      <p className="mb-2 pl-2 text-sm text-gray-400">
+        The target url northbound should point to a server that implements the
+        Discovery Specifications's Things API. If a valid target url is
+        provided, the ediTDor automatically uses it to save your changes. Empty
+        this field to simply save files to disk.
       </p>
+      <div className="flex items-center">
+        <label className="py-2 text-sm font-medium text-gray-400">
+          <InfoIconWrapper
+            tooltip={{
+              html: "The target URL southbound",
+              href: "",
+            }}
+            id="settings-target-url-southbound-info"
+            children={"Target URL Southbound:"}
+          ></InfoIconWrapper>
+        </label>
+      </div>
+      <input
+        type="text"
+        name="settings-target-url-field-southbound"
+        id="settings-target-url-field-southbound"
+        className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
+        value={southboundUrl}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setSouthboundUrl(e.target.value)
+        }
+        placeholder="http://localhost:8080/"
+      />
     </>
   );
+
+  const handleSubmit = () => {
+    setTargetUrl(northboundUrl, "northbound");
+    setTargetUrl(southboundUrl, "southbound");
+    close();
+  };
 
   if (display) {
     return ReactDOM.createPortal(
@@ -73,10 +113,7 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
         onCancel={close}
         cancelText={"Cancel"}
         submitText={"Save Changes"}
-        onSubmit={() => {
-          setTargetUrl(settingsTargetUrl);
-          close();
-        }}
+        onSubmit={handleSubmit}
         children={child}
         title={"Settings"}
         description={

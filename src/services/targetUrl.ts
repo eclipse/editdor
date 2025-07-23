@@ -10,7 +10,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-const TARGET_URL_KEY: string = "target-url";
+const TARGET_URL_NORTHBOUND_KEY: string = "target-url-northbound";
+const TARGET_URL_SOUTHBOUND_KEY: string = "target-url-southbound";
 
 /**
 
@@ -18,8 +19,12 @@ const TARGET_URL_KEY: string = "target-url";
  * is stored.
  * @returns string
  */
-const getTargetUrl = (): string => {
-  const targetUrl = localStorage.getItem(TARGET_URL_KEY);
+const getTargetUrl = (boundType: "northbound" | "southbound"): string => {
+  const targetUrl = localStorage.getItem(
+    boundType === "northbound"
+      ? TARGET_URL_NORTHBOUND_KEY
+      : TARGET_URL_SOUTHBOUND_KEY
+  );
   if (targetUrl === null) {
     return "";
   }
@@ -32,11 +37,19 @@ const getTargetUrl = (): string => {
  * @param {string} targetUrl
  * @returns
  */
-const setTargetUrl = (targetUrl: string): void => {
+const setTargetUrl = (
+  targetUrl: string,
+  boundType: "northbound" | "southbound"
+): void => {
   if (targetUrl != "" && !targetUrl.endsWith("/")) {
     targetUrl = targetUrl + "/";
   }
-  localStorage.setItem(TARGET_URL_KEY, targetUrl);
+  localStorage.setItem(
+    boundType === "northbound"
+      ? TARGET_URL_NORTHBOUND_KEY
+      : TARGET_URL_SOUTHBOUND_KEY,
+    targetUrl
+  );
 };
 
 export { getTargetUrl, setTargetUrl };
