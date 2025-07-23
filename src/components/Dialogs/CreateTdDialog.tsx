@@ -293,44 +293,41 @@ const buildForm = (
       </div>
 
       <div className="flex flex-col justify-between rounded border-2 border-gray-600">
-        <div className="flex justify-between">
-          <div className="flex items-center p-2">
-            <label
-              htmlFor="protocol-option"
-              className="pl-2 pr-2 text-lg text-gray-400"
-            >
-              Protocol:
-            </label>
+        <div className="flex items-center p-2">
+          <label
+            htmlFor="protocol-option"
+            className="pl-2 pr-2 text-lg text-gray-400"
+          >
+            Protocol:
+          </label>
 
-            <div className="relative">
-              <select
-                id="protocol-option"
-                className="block appearance-none rounded border-2 border-gray-600 bg-gray-600 px-1 py-2 pr-4 leading-tight text-white hover:border-blue-500 focus:outline-none"
-                value={protocol}
-                onChange={(e) => setProtocol(e.target.value)}
-              >
-                <option>Modbus TCP</option>
-                <option disabled>
-                  More protocols will be supported in the future
-                </option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-2 text-gray-700">
-                <ChevronDown color="#cacaca"></ChevronDown>
-              </div>
+          <div className="relative">
+            <select
+              id="protocol-option"
+              className="block appearance-none rounded border-2 border-gray-600 bg-gray-600 px-1 py-2 pr-4 leading-tight text-white hover:border-blue-500 focus:outline-none"
+              value={protocol}
+              onChange={(e) => setProtocol(e.target.value)}
+            >
+              <option>Modbus TCP</option>
+              <option disabled>
+                More protocols will be supported in the future
+              </option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-2 text-gray-700">
+              <ChevronDown color="#cacaca"></ChevronDown>
             </div>
           </div>
-
-          <div className="flex items-center">
-            <BaseButton
-              id="download-template"
-              onClick={handleDownloadCsvTemplate}
-              variant="primary"
-              type="button"
-            >
-              Download CSV Template
-            </BaseButton>
-          </div>
         </div>
+
+        <div className="flex items-center p-2">
+          <BaseButton
+            id="download-template"
+            onClick={handleDownloadCsvTemplate}
+            variant="primary"
+            type="button"
+          >
+            Download CSV Template
+          </BaseButton>
 
           <input
             type="file"
@@ -345,10 +342,11 @@ const buildForm = (
             onClick={handleSubmit}
             variant="primary"
             type="button"
+            className="ml-2"
           >
             Load a CSV File
           </BaseButton>
-          <div className="">
+          <div className="ml-2">
             <p className="pl-2">{fileName || "No file selected"}</p>
           </div>
         </div>
