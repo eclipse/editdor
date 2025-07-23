@@ -16,10 +16,20 @@ import "./index.css";
 import App from "./App";
 
 // require('string-direction').patch();
+const ReactScanDevtools = import.meta.env.PROD
+  ? () => null // Render nothing in production
+  : React.lazy(() =>
+      // Lazy load in development
+      import("react-scan").then(({ scan }) => {
+        scan({ enabled: true });
+        return { default: () => <></> };
+      })
+    );
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <App />
+    <ReactScanDevtools />
   </React.StrictMode>
 );

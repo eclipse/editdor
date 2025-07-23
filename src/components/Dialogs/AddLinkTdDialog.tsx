@@ -21,6 +21,7 @@ import ediTDorContext from "../../context/ediTDorContext";
 import * as fileTdService from "../../services/fileTdService";
 import { checkIfLinkIsInItem } from "../../util.js";
 import DialogTemplate from "./DialogTemplate";
+import BaseButton from "../../components/TDViewer/base/BaseButton";
 
 export interface AddLinkTdDialogRef {
   openModal: () => void;
@@ -162,25 +163,26 @@ const AddLinkTdDialog = forwardRef<AddLinkTdDialogRef, AddLinkTdDialogProps>(
           >
             Target ressource:
           </label>
-          <button
-            className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
+
+          <BaseButton
+            type="button"
             disabled={linkingMethod === "upload"}
-            onClick={() => {
-              linkingMethodChange("upload");
-            }}
+            onClick={() => linkingMethodChange("upload")}
+            className="h-9"
+            variant="primary"
           >
             From local machine
-          </button>
-          <button
-            className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-sm font-bold text-white"
-            style={{ marginLeft: "2%" }}
+          </BaseButton>
+
+          <BaseButton
+            type="button"
             disabled={linkingMethod === "url"}
-            onClick={() => {
-              linkingMethodChange("url");
-            }}
+            onClick={() => linkingMethodChange("url")}
+            className="ml-2 h-9"
+            variant="primary"
           >
-            Ressource url
-          </button>
+            Resource url
+          </BaseButton>
           <div className="p-1 pt-4">
             <input
               type="text"
@@ -194,13 +196,15 @@ const AddLinkTdDialog = forwardRef<AddLinkTdDialogRef, AddLinkTdDialogProps>(
               disabled={linkingMethod !== "url"}
             />
             {linkingMethod === "upload" && (
-              <button
-                className="h-9 cursor-pointer rounded-md bg-blue-500 p-2 text-white"
+              <BaseButton
+                type="button"
                 onClick={openFile}
                 disabled={linkingMethod !== "upload"}
+                className="ml-2 h-9"
+                variant="primary"
               >
                 Open TD
-              </button>
+              </BaseButton>
             )}
           </div>
           <span
@@ -233,78 +237,80 @@ const AddLinkTdDialog = forwardRef<AddLinkTdDialogRef, AddLinkTdDialogProps>(
       </>
     );
 
+    const handleAddLink = () => {
+      if (!context.isValidJSON) {
+        showHrefErrorMessage("Can't add link. TD is malformed");
+        return;
+      }
+
+      const link: Link = {
+        href:
+          (
+            document.getElementById("link-href") as HTMLInputElement
+          ).value.trim() || "/",
+      };
+      const rel = (
+        document.getElementById("rel") as HTMLInputElement
+      ).value.trim();
+      const type = (
+        document.getElementById("type") as HTMLInputElement
+      ).value.trim();
+
+      if (rel) link.rel = rel;
+      if (type) link.type = type;
+
+      let isValidUrl = true;
+      try {
+        var url = new URL(link.href);
+      } catch (_) {
+        isValidUrl = false;
+      }
+      if (
+        linkingMethod === "url" &&
+        isValidUrl &&
+        (url.protocol === "http:" || url.protocol === "https:")
+      ) {
+        try {
+          var httpRequest = new XMLHttpRequest();
+          httpRequest.open("GET", href, false);
+          httpRequest.send();
+          if (
+            httpRequest
+              .getResponseHeader("content-type")
+              .includes("application/td+json")
+          ) {
+            const thingDescription = httpRequest.response;
+            let parsedTd = JSON.parse(thingDescription);
+            linkedTd[link.href] = parsedTd;
+          }
+        } catch (ex) {
+          const msg = "We ran into an error trying to fetch your TD.";
+          console.error(msg, ex);
+          linkedTd[href] = currentLinkedTd;
+        }
+      } else {
+        linkedTd[href] = currentLinkedTd;
+      }
+
+      if (link.href === "") {
+        showHrefErrorMessage("The href field is mandatory ...");
+      } else if (checkIfLinkExists(link)) {
+        showHrefErrorMessage(
+          "A Link with the target Thing Description already exists ..."
+        );
+      } else {
+        addLinksToTd(link);
+        context.addLinkedTd(linkedTd);
+        setCurrentLinkedTd({});
+        close();
+      }
+    };
+
     if (display) {
       return ReactDOM.createPortal(
         <DialogTemplate
           onCancel={close}
-          onSubmit={() => {
-            if (!context.isValidJSON) {
-              showHrefErrorMessage("Can't add link. TD is malformed");
-              return;
-            }
-
-            const link: Link = {
-              href:
-                (
-                  document.getElementById("link-href") as HTMLInputElement
-                ).value.trim() || "/",
-            };
-            const rel = (
-              document.getElementById("rel") as HTMLInputElement
-            ).value.trim();
-            const type = (
-              document.getElementById("type") as HTMLInputElement
-            ).value.trim();
-
-            if (rel) link.rel = rel;
-            if (type) link.type = type;
-
-            let isValidUrl = true;
-            try {
-              var url = new URL(link.href);
-            } catch (_) {
-              isValidUrl = false;
-            }
-            if (
-              linkingMethod === "url" &&
-              isValidUrl &&
-              (url.protocol === "http:" || url.protocol === "https:")
-            ) {
-              try {
-                var httpRequest = new XMLHttpRequest();
-                httpRequest.open("GET", href, false);
-                httpRequest.send();
-                if (
-                  httpRequest
-                    .getResponseHeader("content-type")
-                    .includes("application/td+json")
-                ) {
-                  const thingDescription = httpRequest.response;
-                  let parsedTd = JSON.parse(thingDescription);
-                  linkedTd[link.href] = parsedTd;
-                }
-              } catch (ex) {
-                const msg = "We ran into an error trying to fetch your TD.";
-                console.error(msg, ex);
-                linkedTd[href] = currentLinkedTd;
-              }
-            } else {
-              linkedTd[href] = currentLinkedTd;
-            }
-
-            if (link.href === "") {
-              showHrefErrorMessage("The href field is mandatory ...");
-            } else if (checkIfLinkExists(link)) {
-              showHrefErrorMessage(
-                "A Link with the target Thing Description already exists ..."
-              );
-            } else {
-              addLinksToTd(link);
-              context.addLinkedTd(linkedTd);
-              setCurrentLinkedTd({});
-              close();
-            }
-          }}
+          onSubmit={handleAddLink}
           submitText={"Add"}
           children={children}
           title={`Add Link `}
@@ -337,4 +343,5 @@ const clearHrefErrorMessage = () => {
   );
 };
 
+AddLinkTdDialog.displayName = "AddLinkTdDialog";
 export default AddLinkTdDialog;

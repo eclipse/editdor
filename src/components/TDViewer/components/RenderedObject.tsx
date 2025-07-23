@@ -22,7 +22,7 @@ function isObject(val) {
   return typeof val === "function" || typeof val === "object";
 }
 
-export const RenderedObject = (map) => {
+const RenderedObject: React.FC<any> = (map) => {
   const context = useContext(ediTDorContext);
   const [showChildren, setShowChildren] = useState(
     new Array(Object.entries(map).length)
@@ -93,3 +93,5 @@ export const RenderedObject = (map) => {
     </>
   );
 };
+
+export default RenderedObject;

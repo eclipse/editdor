@@ -22,6 +22,7 @@ This project aims to make creating W3C Thing Description instances and Thing Mod
 
 - React
 - TailwindCSS
+- Typescript
 
 ## Contribution guide
 
@@ -43,6 +44,10 @@ Please follow our [contribution guide](./CONTRIBUTING.md).
 `yarn build` builds the project for deployment
 
 `yarn dev` starts a local development server on Port 3000 (http://localhost:3000)
+
+## Development enviroment
+
+In development environment it is possible to use [react scan](https://react-scan.com/) to detect performance issues by analyzing the pop up on the bottom right corner. The complete documentation is available [here](https://github.com/aidenybai/react-scan#readme).
 
 ## Implemented Features:
 

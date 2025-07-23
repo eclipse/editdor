@@ -10,11 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-
-interface ThingDescription {
-  id: string;
-  [key: string]: any;
-}
+import type { ThingDescription } from "wot-thing-description-types";
 
 /**
  * @description An id could be a complete url, like "http://host:1234/some/path",
@@ -94,15 +90,6 @@ const retrieveThing = async (
 };
 
 type Method = "GET" | "POST" | "PUT" | "DELETE";
-
-type ErrorResponse = {
-  type: string;
-  title: string;
-  detail: string;
-  instance: string;
-  code: string;
-  status: number;
-};
 
 interface RequestWebOptions extends RequestInit {
   queryParams?: Record<string, string | number | boolean>;

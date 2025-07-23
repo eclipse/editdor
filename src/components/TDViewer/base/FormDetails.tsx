@@ -14,24 +14,18 @@ import React, { useContext, useState } from "react";
 import { ChevronUp, Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { formConfigurations } from "../../../services/form";
+import type { ThingDescription } from "wot-thing-description-types";
+import type { IFormProps, FormOpKeys } from "../../../types/td";
 
 type IInteractionFunction = (
-  td: IThingDescription,
+  td: ThingDescription,
   propertyName: string,
   content: any
 ) => Promise<{ result: string; err: Error | null }>;
 
-// TODO check the interface with IForm
-interface FormProps {
-  href: string;
-  op: string | string[];
-  propName: string;
-  actualIndex: number;
-}
-
 interface IFormDetailsProps {
   formType: FormOpKeys;
-  form: FormProps;
+  form: IFormProps;
   interactionFunction: IInteractionFunction | null;
 }
 
@@ -61,7 +55,7 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
     </div>
   );
 
-  const callInteractionFunction = async () => {
+  const hanldeCallInteractionFunction = async () => {
     if (!interactionFunction) {
       return;
     }
@@ -90,7 +84,7 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
         className={`flex min-h-12 w-full items-stretch bg-opacity-75 bg-form${fc.color} mt-2 ${isLoading || val !== null || err != null || form.op === "writeproperty" ? "rounded-t-md" : "rounded-md"} border-2 pl-4 border-form${fc.color}`}
       >
         {interactionFunction && (
-          <button onClick={callInteractionFunction}>{label}</button>
+          <button onClick={hanldeCallInteractionFunction}>{label}</button>
         )}
         {!interactionFunction && <div className="flex">{label}</div>}
 
@@ -123,7 +117,7 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            callInteractionFunction();
+            hanldeCallInteractionFunction();
           }}
         >
           <input

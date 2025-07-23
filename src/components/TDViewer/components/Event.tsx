@@ -22,13 +22,13 @@ import AddFormElement from "../base/AddFormElement";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
 
-export default function Event(props) {
+const Event: React.FC<any> = (props) => {
   const context = useContext(ediTDorContext);
 
   const [isExpanded, setIsExpanded] = useState(false);
 
   const addFormDialog = React.useRef();
-  const openAddFormDialog = () => {
+  const handleOpenAddFormDialog = () => {
     addFormDialog.current.openModal();
   };
 
@@ -58,7 +58,7 @@ export default function Event(props) {
     );
   });
 
-  const onDeleteEventClicked = () => {
+  const handleDeleteEventClicked = () => {
     context.removeOneOfAKindReducer("events", props.eventName);
   };
 
@@ -75,7 +75,7 @@ export default function Event(props) {
         {isExpanded && (
           <button
             className="flex h-10 w-10 items-center justify-center self-stretch rounded-bl-md rounded-tr-md bg-gray-400 text-base"
-            onClick={onDeleteEventClicked}
+            onClick={handleDeleteEventClicked}
           >
             <Trash2 size={16} color="white" />
           </button>
@@ -100,7 +100,7 @@ export default function Event(props) {
           </InfoIconWrapper>
         </div>
 
-        <AddFormElement onClick={openAddFormDialog} />
+        <AddFormElement onClick={handleOpenAddFormDialog} />
         <AddFormDialog
           type={"event"}
           interaction={event}
@@ -118,4 +118,6 @@ export default function Event(props) {
       </div>
     </details>
   );
-}
+};
+
+export default Event;

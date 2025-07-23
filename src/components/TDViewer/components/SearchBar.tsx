@@ -13,7 +13,7 @@
 import React from "react";
 import { Search } from "react-feather";
 
-export const SearchBar = (props) => {
+const SearchBar: React.FC<any> = (props) => {
   return (
     <div className="relative text-gray-600">
       <input
@@ -34,3 +34,4 @@ export const SearchBar = (props) => {
     </div>
   );
 };
+export default SearchBar;
