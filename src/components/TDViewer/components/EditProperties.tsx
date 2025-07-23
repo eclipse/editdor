@@ -20,6 +20,10 @@ import {
   getEndiannessTooltipContent,
   getUniIdTooltipContent,
 } from "../../InfoIcon/TooltipMapper";
+import type { ThingDescription } from "wot-thing-description-types";
+import SingleIncrementButton from "../base/SingleIncrementButton";
+import SingleSwapButton from "../base/SingleSwapButton";
+import DoubleSwapButton from "../base/DoubleSwapButton";
 
 interface IEndianness {
   wordSwap: boolean;
@@ -36,13 +40,28 @@ interface IValidationResults {
 interface IEditPropertiesProps {
   isBaseModbus: boolean;
 }
+type ModbusThingDescription = ThingDescription & {
+  properties?: Record<
+    string,
+    {
+      forms?: Array<
+        {
+          "modbus:mostSignificantWord"?: boolean;
+          "modbus:mostSignificantByte"?: boolean;
+          "modbus:unitID"?: number;
+          "modbus:zeroBasedAddressing"?: boolean;
+        } & Record<string, any>
+      >;
+    } & Record<string, any>
+  >;
+};
 
 const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
   const context = useContext(ediTDorContext);
 
-  const td: IThingDescription = context.parsedTD;
-
+  const td = context.parsedTD as ModbusThingDescription;
   const [unitId, setUnitId] = useState<number>(0);
+
   const [addressOffset, setAddressOffset] = useState<boolean>(true);
   const [endianness, setEndianness] = useState<IEndianness>({
     wordSwap: false,
@@ -214,111 +233,6 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
     return results;
   }, [td.properties, props.isBaseModbus, unitId, addressOffset, endianness]);
 
-  const AddressOffset = (
-    <>
-      <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-md">
-        <div className="col-span-6 flex items-center justify-center rounded-l-md bg-blue-500">
-          <InfoIconWrapper
-            tooltip={getAddressOffsetTooltipContent()}
-            id="addressOffset"
-          >
-            <h1 className="p-2 font-bold text-white">Address Offset</h1>
-          </InfoIconWrapper>
-        </div>
-        <div className="col-span-6 rounded-r-md bg-blue-500">
-          <div className="grid h-full w-full grid-cols-12">
-            <div className="col-span-12"></div>
-            <div className="col-span-12">
-              <div className="grid h-full w-full grid-cols-12">
-                <div id="firstRow" className="col-span-12 bg-blue-500">
-                  <ButtonSwap
-                    description=""
-                    value={addressOffset}
-                    onClick={() => handleAddressOffsetUpdate(!addressOffset)}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="col-span-12"></div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-
-  const Endianness = (
-    <>
-      <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-md">
-        <div className="col-span-4 flex items-center justify-center rounded-l-md bg-blue-500">
-          <InfoIconWrapper
-            tooltip={getEndiannessTooltipContent()}
-            id="endianness"
-          >
-            <h1 className="p-2 font-bold text-white">Endianness</h1>
-          </InfoIconWrapper>
-        </div>
-        <div className="col-span-8 rounded-r-md">
-          <div className="grid h-full w-full grid-cols-12">
-            <div
-              id="firstRow"
-              className="col-span-12 rounded-tr-md bg-blue-500"
-            >
-              <ButtonSwap
-                description="wordswap"
-                value={endianness.wordSwap}
-                onClick={() =>
-                  handleEndiannessUpdate(!endianness.wordSwap, "wordSwap")
-                }
-              />
-            </div>
-            <div
-              id="secondRow"
-              className="col-span-12 rounded-br-md bg-blue-500"
-            >
-              <ButtonSwap
-                description="byteswap"
-                value={endianness.byteSwap}
-                onClick={() =>
-                  handleEndiannessUpdate(!endianness.byteSwap, "byteSwap")
-                }
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-
-  const UnidId = (
-    <>
-      <div className="col-span-4 grid h-full w-full grid-cols-12 gap-1 rounded-md">
-        <div className="col-span-6 flex items-center justify-center rounded-l-md bg-blue-500">
-          <InfoIconWrapper tooltip={getUniIdTooltipContent()} id="unitId">
-            <h1 className="p-2 font-bold text-white">Unit ID</h1>
-          </InfoIconWrapper>
-        </div>
-        <div className="col-span-6 rounded-r-md bg-blue-500">
-          <div className="grid h-full w-full grid-cols-12">
-            <div className="col-span-12"></div>
-            <div className="col-span-12">
-              <div className="grid h-full w-full grid-cols-12">
-                <div id="firstRow" className="col-span-12 bg-blue-500">
-                  <IncrementButton
-                    value={unitId}
-                    onUpdate={handleUnitIdUpdate}
-                    inferiorLimit={0}
-                    superiorLimit={255}
-                  ></IncrementButton>
-                </div>
-              </div>
-            </div>
-            <div className="col-span-12"></div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-
   return (
     <>
       <div className="grid grid-cols-12 gap-1 rounded-t-md bg-gray-600 px-2">
@@ -336,11 +250,29 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
           }`}
         >
           {validateModbusProperties.unitID ? (
-            UnidId
+            <SingleIncrementButton
+              idIcon="unitId"
+              textLabel="Unit ID"
+              onUpdateIncrement={handleUnitIdUpdate}
+              inferiorLimit={0}
+              superiorLimit={255}
+              tooltip={getUniIdTooltipContent()}
+              valueButton={unitId}
+            />
           ) : (
             <>
               <div className="flex h-full flex-col">
-                <div className="flex-grow">{UnidId}</div>
+                <div className="flex-grow">
+                  <SingleIncrementButton
+                    idIcon="unitId"
+                    textLabel="Unit ID"
+                    onUpdateIncrement={handleUnitIdUpdate}
+                    inferiorLimit={0}
+                    superiorLimit={255}
+                    tooltip={getUniIdTooltipContent()}
+                    valueButton={unitId}
+                  />
+                </div>
                 <div className="rounded-md p-1 text-center">
                   <h1 className="rounded-md border-2 border-red-500 p-1 font-bold text-red-600">
                     Different unit id is detected on different affordances.
@@ -358,11 +290,29 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
           }`}
         >
           {validateModbusProperties.zeroBasedAddressing ? (
-            AddressOffset
+            <SingleSwapButton
+              idIcon="addressOffset"
+              tooltip={getAddressOffsetTooltipContent()}
+              textLabel="Address Offset"
+              valueButton={addressOffset}
+              onUpdateIncrement={() =>
+                handleAddressOffsetUpdate(!addressOffset)
+              }
+            />
           ) : (
             <>
               <div className="flex h-full flex-col">
-                <div className="flex-grow">{AddressOffset}</div>
+                <div className="flex-grow">
+                  <SingleSwapButton
+                    idIcon="addressOffset"
+                    tooltip={getAddressOffsetTooltipContent()}
+                    textLabel="Address Offset"
+                    valueButton={addressOffset}
+                    onUpdateIncrement={() =>
+                      handleAddressOffsetUpdate(!addressOffset)
+                    }
+                  />
+                </div>
 
                 <div className="rounded-md p-1 text-center">
                   <h1 className="rounded-md border-2 border-red-500 p-1 font-bold text-red-600">
@@ -386,10 +336,40 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
         >
           {validateModbusProperties.mostSignificantByte &&
           validateModbusProperties.mostSignificantWord ? (
-            Endianness
+            <DoubleSwapButton
+              idIcon="endianness"
+              tooltip={getEndiannessTooltipContent()}
+              textLabel="Endianness"
+              firstDescription="wordswap"
+              firstValue={endianness.wordSwap}
+              firsthandleOnClick={(newValue, key) =>
+                handleEndiannessUpdate(!endianness.wordSwap, "wordSwap")
+              }
+              secondDescription="byteswap"
+              secondValue={endianness.byteSwap}
+              secondhandleOnClick={() =>
+                handleEndiannessUpdate(!endianness.byteSwap, "byteSwap")
+              }
+            />
           ) : (
             <>
-              <div className="col-span-12">{Endianness}</div>
+              <div className="col-span-12">
+                <DoubleSwapButton
+                  idIcon="endianness"
+                  tooltip={getEndiannessTooltipContent()}
+                  textLabel="Endianness"
+                  firstDescription="wordswap"
+                  firstValue={endianness.wordSwap}
+                  firsthandleOnClick={(newValue, key) =>
+                    handleEndiannessUpdate(!endianness.wordSwap, "wordSwap")
+                  }
+                  secondDescription="byteswap"
+                  secondValue={endianness.byteSwap}
+                  secondhandleOnClick={() =>
+                    handleEndiannessUpdate(!endianness.byteSwap, "byteSwap")
+                  }
+                />
+              </div>
               <div className="col-span-12 p-1">
                 <div className="rounded-md text-center">
                   <h1 className="rounded-md border-2 border-red-500 p-1 font-bold text-red-600">

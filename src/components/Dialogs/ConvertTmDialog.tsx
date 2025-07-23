@@ -276,5 +276,5 @@ const convertTmToTd = (td, htmlInputs) => {
     "_blank"
   );
 };
-
+ConvertTmDialog.displayName = "ConvertTmDialog";
 export default ConvertTmDialog;

@@ -15,6 +15,7 @@ import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import { prepareTdForSharing } from "../../share";
 import DialogTemplate from "./DialogTemplate";
+import { Share } from "react-feather";
 
 export interface ShareDialogRef {
   openModal: () => void;
@@ -38,7 +39,7 @@ const ShareDialog = forwardRef((_, ref) => {
     setDisplay(true);
 
     const tmpCompressedTd = prepareTdForSharing(context.offlineTD);
-    setCompressedTd(tmpCompressedTd);
+    tmpCompressedTd ? setCompressedTd(tmpCompressedTd) : setCompressedTd("");
 
     const tmpCompressedTdLink = `${window.location.origin + window.location.pathname}?td=${tmpCompressedTd}`;
     setCompressedTdLink(tmpCompressedTdLink);
@@ -106,5 +107,5 @@ const focusPermalinkField = (): void => {
     } catch (_) {}
   }, 250);
 };
-
+ShareDialog.displayName = "ShareDialog";
 export default ShareDialog;

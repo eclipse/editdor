@@ -10,12 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, {
-  forwardRef,
-  useContext,
-  useEffect,
-  useImperativeHandle,
-} from "react";
+import React, { forwardRef, useContext, useImperativeHandle } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import DialogTextArea from "./base/DialogTextArea";
@@ -42,8 +37,6 @@ const AddEventDialog = forwardRef<AddEventDialogRef>((_, ref) => {
   const type = "event";
   const key = "events";
   const name = type && type[0].toUpperCase() + type.slice(1);
-
-  useEffect(() => {}, [display, context]);
 
   useImperativeHandle(ref, () => {
     return {
@@ -151,3 +144,4 @@ const AddEventDialog = forwardRef<AddEventDialogRef>((_, ref) => {
 });
 
 export default AddEventDialog;
+AddEventDialog.displayName = "AddEventDialog";
