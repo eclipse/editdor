@@ -102,9 +102,11 @@ const App: React.FC = () => {
       retrieveThing(southboundTdId, proxyEndpointUrl)
         .then((td) => {
           if (!td === undefined) {
-            alert(
-              `No Thing Description with id '${southboundTdId} could be fetched from the proxy.`
-            );
+            setErrorDisplay({
+              state: true,
+              message: `No Thing Description with id '${southboundTdId}' could be fetched from the proxy.`,
+            });
+
             return;
           }
 

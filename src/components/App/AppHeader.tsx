@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useCallback, useContext, useState, useEffect } from "react";
 import {
   Download,
   File,
@@ -43,7 +43,7 @@ const INVALID_TYPE_MESSAGE =
 const AppHeader: React.FC = () => {
   const context = useContext(ediTDorContext);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [errorDisplay, setErrorDisplay] = React.useState<{
+  const [errorDisplay, setErrorDisplay] = useState<{
     state: boolean;
     message: string;
   }>({
@@ -84,7 +84,10 @@ const AppHeader: React.FC = () => {
     } catch (error) {
       const msg = "Opening a new TD was canceled or an error occured.";
       console.error(msg, error);
-      alert(msg);
+      setErrorDisplay({
+        state: true,
+        message: msg,
+      });
     }
   }, [context, verifyDiscard]);
 
@@ -100,9 +103,12 @@ const AppHeader: React.FC = () => {
     const td = context.parsedTD;
 
     if (!context.isValidJSON) {
-      return alert(
-        "Didn't save TD. The given TD can't even be parsed into a JSON object."
-      );
+      setErrorDisplay({
+        state: true,
+        message:
+          "The TD is not valid JSON. Please fix the errors before saving.",
+      });
+      return;
     }
 
     setIsLoading(true);
@@ -125,9 +131,11 @@ const AppHeader: React.FC = () => {
         }
       } catch (error) {
         console.debug(error);
-        alert(
-          "Didn't save TD. Please check if the provided target URL is correct and the intermediary / thing directory is working as intended."
-        );
+        setErrorDisplay({
+          state: true,
+          message:
+            "Didn't save TD. Please check if the provided target URL is correct and the intermediary / thing directory is working as intended.",
+        });
         return;
       }
     }
@@ -147,9 +155,11 @@ const AppHeader: React.FC = () => {
       context.updateIsModified(false);
     } catch (error) {
       console.debug(error);
-      alert(
-        "Didn't save TD. The action was either canceled or ran into an error."
-      );
+      setErrorDisplay({
+        state: true,
+        message:
+          "Didn't save TD. The action was either canceled or ran into an error.",
+      });
     }
   }, [context]);
 
