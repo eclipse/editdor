@@ -11,6 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import type { ThingDescription } from "wot-thing-description-types";
+import { Method, RequestWebOptions } from "../types/td";
 
 /**
  * @description An id could be a complete url, like "http://host:1234/some/path",
@@ -22,6 +23,9 @@ const createThing = async (
   td: ThingDescription,
   targetUrl: string
 ): Promise<number> => {
+  if (!td.id) {
+    throw new Error("Thing description must have an id");
+  }
   const encodedId = encodeURIComponent(td.id);
 
   const res = await fetch(`${targetUrl}things/${encodedId}`, {
@@ -88,12 +92,6 @@ const retrieveThing = async (
 
   return payload;
 };
-
-type Method = "GET" | "POST" | "PUT" | "DELETE";
-
-interface RequestWebOptions extends RequestInit {
-  queryParams?: Record<string, string | number | boolean>;
-}
 
 const buildUrlWithParams = (
   endpoint: string,

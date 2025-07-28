@@ -24,7 +24,7 @@ import {
 import editdorLogo from "../../assets/editdor.png";
 import ediTDorContext from "../../context/ediTDorContext";
 import * as fileTdService from "../../services/fileTdService";
-import { getTargetUrl } from "../../services/targetUrl";
+import { getTargetUrl } from "../../services/smartConnector";
 import * as thingsApiService from "../../services/thingsApiService";
 import { isThingModel } from "../../util";
 import ConvertTmDialog from "../Dialogs/ConvertTmDialog";
@@ -112,7 +112,8 @@ const AppHeader: React.FC = () => {
     }
 
     setIsLoading(true);
-    const targetUrl = getTargetUrl();
+    //TODO const targetUrl = getTargetUrl();
+    const targetUrl = "";
     if (targetUrl === "") {
       // no target url provided, save to file
       const fileHandle = await fileTdService.saveToFile(

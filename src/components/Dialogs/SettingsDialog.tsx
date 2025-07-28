@@ -12,7 +12,7 @@
  ********************************************************************************/
 import React, { forwardRef, useImperativeHandle, useState } from "react";
 import ReactDOM from "react-dom";
-import { getTargetUrl, setTargetUrl } from "../../services/targetUrl";
+import { getTargetUrl, setTargetUrl } from "../../services/smartConnector";
 import DialogTemplate from "./DialogTemplate";
 import InfoIconWrapper from "../../components/InfoIcon/InfoIconWrapper";
 
@@ -45,6 +45,15 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
 
   let child = (
     <>
+      <div className="flex flex-row items-center justify-start">
+        <h1 className="flex-grow text-xl font-bold">Gateway Configuration</h1>
+      </div>
+      <h2 className="py-2 pl-2 text-gray-400">
+        If you want to interact with non-HTTP devices via a gateway, you can
+        send it TDs to its southbound endpoint with a "POST" request. Similarly,
+        you can retrieve TDs from its northbound endpoint. The id of the initial
+        TD is used to correlate both
+      </h2>
       <div className="flex items-center">
         <label className="py-2 text-sm font-medium text-gray-400">
           <InfoIconWrapper
@@ -68,12 +77,7 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
         }
         placeholder="http://localhost:8080/"
       />
-      <p className="mb-2 pl-2 text-sm text-gray-400">
-        The target url northbound should point to a server that implements the
-        Discovery Specifications's Things API. If a valid target url is
-        provided, the ediTDor automatically uses it to save your changes. Empty
-        this field to simply save files to disk.
-      </p>
+
       <div className="flex items-center">
         <label className="py-2 text-sm font-medium text-gray-400">
           <InfoIconWrapper
@@ -97,6 +101,12 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
         }
         placeholder="http://localhost:8080/"
       />
+      <p className="mb-2 pl-2 text-sm text-gray-400">
+        The target url southbound should point to a server that implements the
+        Discovery Specifications's Things API. If a valid target url is
+        provided, the ediTDor automatically uses it to save your changes. Empty
+        this field to simply save files to disk.
+      </p>
     </>
   );
 
