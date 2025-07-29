@@ -10,11 +10,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React from "react";
+import React, { ReactNode } from "react";
 
-interface ITextFieldProps {
+interface IDialogTextFieldProps {
   id: string;
-  label: string;
+  label: string | ReactNode;
   value?: string;
   placeholder?: string;
   type?: string;
@@ -23,14 +23,14 @@ interface ITextFieldProps {
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const DialogTextField: React.FC<ITextFieldProps> = (props) => {
+const DialogTextField: React.FC<IDialogTextFieldProps> = (props) => {
   return (
     <div key={props.id} className="py-1">
       <label
         htmlFor={props.id}
         className="pl-2 text-sm font-medium text-gray-400"
       >
-        {props.label}:
+        {props.label}
       </label>
       <input
         name={props.id}

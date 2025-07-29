@@ -14,7 +14,8 @@ import { requestWeb } from "./thingsApiService";
 import { Method, RequestWebOptions } from "../types/td";
 const TARGET_URL_NORTHBOUND_KEY: string = "target-url-northbound";
 const TARGET_URL_SOUTHBOUND_KEY: string = "target-url-southbound";
-
+const NORTHBOUND_ENDPOINT = "./things";
+const SOUTHBOUND_ENDPOINT = "/things";
 /**
 
  * Returns the target url stored in local storage or an empty string if nothing
@@ -54,9 +55,6 @@ const setTargetUrl = (
   );
 };
 
-const northbound = "./things";
-const southbound = "/things";
-
 // when you do a post to things/ the url will change to .things/{}/.id
 // localhost:8080/.things -> to fetch a list of tm
 // localhost:8080/.things/urn:PowerMeter0/serial_number -> to fecth the all things model
@@ -68,25 +66,25 @@ const handleHttpRequest = async (
   options: RequestWebOptions = {}
 ): Promise<any> => {
   try {
-    const res = await requestWeb(endpoint, method, body, {
+    const response = await requestWeb(endpoint, method, body, {
       ...options,
       headers: {
         "Content-Type": "application/json",
         ...(options.headers || {}),
       },
     });
-    if (!res.ok) {
-      let errorMessage = `Request failed with status ${res.status}`;
+    if (!response.ok) {
+      let errorMessage = `Request failed with status ${response.status}`;
       let payload;
 
       try {
-        payload = await res.json();
+        payload = response;
         errorMessage = payload.error || errorMessage;
       } catch (e) {
         throw new Error(`Failed to parse error response: ${e}`);
       }
 
-      switch (res.status) {
+      switch (response.status) {
         case 400:
           throw new Error(`Bad Request: ${errorMessage}`);
         case 401:
@@ -111,19 +109,25 @@ const handleHttpRequest = async (
           throw new Error(`Gateway Timeout: ${errorMessage}`);
         default:
           throw new Error(
-            `Request failed with status ${res.status}: ${errorMessage}`
+            `Request failed with status ${response.status}: ${errorMessage}`
           );
       }
     }
-
-    try {
-      return await res.json();
-    } catch (e) {
-      return await res.text();
-    }
+    console.log(response.headers.get("Location"));
+    return {
+      data: response,
+      headers: JSON.stringify(response.headers),
+      status: response.status,
+    };
   } catch (error: any) {
     throw new Error(`Request failed: ${error.message}`);
   }
 };
 
-export { getTargetUrl, setTargetUrl };
+export {
+  getTargetUrl,
+  setTargetUrl,
+  handleHttpRequest,
+  NORTHBOUND_ENDPOINT as NORTHBOUND,
+  SOUTHBOUND_ENDPOINT as SOUTHBOUND,
+};

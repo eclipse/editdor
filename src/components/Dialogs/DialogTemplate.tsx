@@ -57,7 +57,7 @@ const DialogTemplate: React.FC<DialogTemplateProps> = (props) => {
       <div className="absolute left-0 top-0 z-10 flex h-full w-full items-center justify-center bg-black bg-opacity-80 text-white">
         <div className="flex max-h-[95%] w-[80%] flex-col justify-start rounded-xl bg-gray-500 p-4 shadow-xl lg:w-[40%]">
           <div className="flex flex-row items-center justify-start">
-            <h1 className="flex-grow pl-2 text-xl font-bold">{title}</h1>
+            <h1 className="flex-grow pl-2 text-2xl font-bold">{title}</h1>
           </div>
           <h2 className={`py-2 pl-2 text-gray-400 ${props.className}`}>
             {description}

@@ -27,13 +27,25 @@ interface IInfoIconWrapperProps {
   tooltip: { html: string; href: string };
   children?: React.ReactNode;
   id: string;
+  className?: string;
 }
 
 const InfoIconWrapper: React.FC<IInfoIconWrapperProps> = (props) => {
+  const isHrefEmpty = !props.tooltip.href || props.tooltip.href.trim() === "";
+  const containerClass =
+    !props.className || props.className.trim() === ""
+      ? `flex ${props.className}`
+      : "flex justify-center";
+
   return (
-    <div className="flex justify-center">
+    <div className={containerClass}>
       <div className="pr-0.5">{props.children}</div>
-      <button onClick={() => window.open(props.tooltip.href, "_blank")}>
+      <button
+        onClick={() =>
+          !isHrefEmpty && window.open(props.tooltip.href, "_blank")
+        }
+        disabled={isHrefEmpty}
+      >
         <Icon
           html={props.tooltip.html || "No tooltip content available"}
           id={props.id}

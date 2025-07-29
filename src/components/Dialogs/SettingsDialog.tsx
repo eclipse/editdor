@@ -10,12 +10,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { forwardRef, useImperativeHandle, useState } from "react";
+import React, {
+  useContext,
+  forwardRef,
+  useImperativeHandle,
+  useState,
+} from "react";
+import ediTDorContext from "../../context/ediTDorContext";
 import ReactDOM from "react-dom";
 import { getTargetUrl, setTargetUrl } from "../../services/smartConnector";
 import DialogTemplate from "./DialogTemplate";
 import InfoIconWrapper from "../../components/InfoIcon/InfoIconWrapper";
-
+import type { ThingDescription } from "wot-thing-description-types";
+import { handleHttpRequest } from "../../services/smartConnector";
+import DialogTextField from "./base/DialogTextField";
 export interface SettingsDialogRef {
   openModal: () => void;
   close: () => void;
@@ -25,6 +33,12 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
   const [display, setDisplay] = useState<boolean>(false);
   const [northboundUrl, setNorthboundUrl] = useState<string>("");
   const [southboundUrl, setSouthboundUrl] = useState<string>("");
+  const [pathToValue, setPathToValue] = useState<string>("/");
+  const [pathToValueError, setPathToValueError] = useState<string>("");
+  const [destination, setDestination] = useState<boolean>(false);
+
+  const context = useContext(ediTDorContext);
+  const td: ThingDescription = context.parsedTD;
 
   useImperativeHandle(ref, () => {
     return {
@@ -39,82 +53,164 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
     setSouthboundUrl(getTargetUrl("southbound"));
   };
 
-  const close = () => {
+  const close = async () => {
     setDisplay(false);
+    /*
+    try {
+      const result = await handleHttpRequest(
+        getTargetUrl("northbound") + "things",
+        "POST",
+        JSON.stringify(td)
+      );
+      console.log(`Success: ${JSON.stringify(result)}`);
+    } catch (error: any) {
+      console.log(`Error: ${error.message}`);
+    }
+*/
   };
-
-  let child = (
-    <>
-      <div className="flex flex-row items-center justify-start">
-        <h1 className="flex-grow text-xl font-bold">Gateway Configuration</h1>
-      </div>
-      <h2 className="py-2 pl-2 text-gray-400">
-        If you want to interact with non-HTTP devices via a gateway, you can
-        send it TDs to its southbound endpoint with a "POST" request. Similarly,
-        you can retrieve TDs from its northbound endpoint. The id of the initial
-        TD is used to correlate both
-      </h2>
-      <div className="flex items-center">
-        <label className="py-2 text-sm font-medium text-gray-400">
-          <InfoIconWrapper
-            tooltip={{
-              html: "The target URL northbound should point to a server that implements the Discovery Specifications's Things API. If a valid target URL is provided, the ediTDor automatically uses it to save your changes. Empty this field to simply save files to disk.",
-              href: "",
-            }}
-            id="settings-target-url-northbound-info"
-            children={"Target URL Northbound:"}
-          ></InfoIconWrapper>
-        </label>
-      </div>
-      <input
-        type="text"
-        name="settings-target-url-field-northbound"
-        id="settings-target-url-field-northbound"
-        className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
-        value={northboundUrl}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setNorthboundUrl(e.target.value)
-        }
-        placeholder="http://localhost:8080/"
-      />
-
-      <div className="flex items-center">
-        <label className="py-2 text-sm font-medium text-gray-400">
-          <InfoIconWrapper
-            tooltip={{
-              html: "The target URL southbound",
-              href: "",
-            }}
-            id="settings-target-url-southbound-info"
-            children={"Target URL Southbound:"}
-          ></InfoIconWrapper>
-        </label>
-      </div>
-      <input
-        type="text"
-        name="settings-target-url-field-southbound"
-        id="settings-target-url-field-southbound"
-        className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
-        value={southboundUrl}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setSouthboundUrl(e.target.value)
-        }
-        placeholder="http://localhost:8080/"
-      />
-      <p className="mb-2 pl-2 text-sm text-gray-400">
-        The target url southbound should point to a server that implements the
-        Discovery Specifications's Things API. If a valid target url is
-        provided, the ediTDor automatically uses it to save your changes. Empty
-        this field to simply save files to disk.
-      </p>
-    </>
-  );
 
   const handleSubmit = () => {
     setTargetUrl(northboundUrl, "northbound");
     setTargetUrl(southboundUrl, "southbound");
     close();
   };
+
+  let child = (
+    <>
+      <div className="rounded-md bg-black bg-opacity-80 p-2">
+        <h1 className="font-bold">Gateway Configuration</h1>
+        <div className="px-4">
+          <h2 className="py-2 text-justify text-gray-400">
+            If you want to interact with non-HTTP devices via a gateway, you can
+            send it TDs to its southbound endpoint with a "POST" request.
+            Similarly, you can retrieve TDs from its northbound endpoint. The id
+            of the initial TD is used to correlate both.
+          </h2>
+
+          <DialogTextField
+            label={
+              <InfoIconWrapper
+                tooltip={{
+                  html: "The target URL northbound should point to a server that implements the Discovery Specifications's Things API. If a valid target URL is provided, the ediTDor automatically uses it to save your changes. Empty this field to simply save files to disk.",
+                  href: "",
+                }}
+                id="settings-target-url-northbound-info"
+                children={"Target URL Northbound:"}
+              />
+            }
+            placeholder="http://localhost:8080/"
+            id="settings-target-url-field-northbound"
+            type="text"
+            value={northboundUrl}
+            autoFocus={false}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setNorthboundUrl(e.target.value)
+            }
+            className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
+          />
+
+          <DialogTextField
+            label={
+              <InfoIconWrapper
+                tooltip={{
+                  html: "The target URL southbound",
+                  href: "",
+                }}
+                id="settings-target-url-southbound-info"
+                children={"Target URL Southbound:"}
+              />
+            }
+            placeholder="http://localhost:8080/"
+            id="settings-target-url-field-southbound"
+            type="text"
+            value={southboundUrl}
+            autoFocus={false}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setSouthboundUrl(e.target.value)
+            }
+            className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
+          />
+        </div>
+      </div>
+
+      <div className="my-4 rounded-md bg-black bg-opacity-80 p-2">
+        <h1 className="font-bold">Path to value</h1>
+        <div className="px-4">
+          <h2 className="py-2 text-justify text-gray-400">
+            {`If the gateway is wrapping the payloads in a JSON object, please provide the path to the value as a JSON pointer. For a JSON like {"foo": {"bar":"baz"}}, where baz is the value according the Data Schema of the TD, you should enter /foo/bar.`}
+          </h2>
+
+          <DialogTextField
+            label={
+              <InfoIconWrapper
+                tooltip={{
+                  html: "JSON pointer path to the actual value in wrapped payloads. Use forward slashes to navigate nested objects.",
+                  href: "",
+                }}
+                id="settingsPathToValueInfo"
+                children={"JSON Pointer Path:"}
+              />
+            }
+            placeholder="/foo/bar"
+            id="settingsPathToValueField"
+            type="text"
+            value={pathToValue}
+            autoFocus={false}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              const value = e.target.value;
+
+              if (value === "") {
+                setPathToValue(value);
+                setPathToValueError("");
+              } else if (!value.startsWith("/")) {
+                setPathToValueError("Path must start with '/'");
+              } else if (value.includes(" ")) {
+                setPathToValueError("Path cannot contain spaces");
+              } else {
+                setPathToValue(value);
+                setPathToValueError("");
+              }
+            }}
+            className={`${
+              pathToValueError ? "border-red-500" : "border-gray-600"
+            } w-full rounded-md border-2 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm`}
+          />
+          {pathToValueError && (
+            <div className="mt-1 text-sm text-red-500">{pathToValueError}</div>
+          )}
+        </div>
+      </div>
+
+      <div className="my-4 rounded-md bg-black bg-opacity-80 p-2">
+        <h1 className="font-bold">Destination save</h1>
+        <div className="px-4">
+          <h2 className="py-1 pl-2 text-justify text-gray-400">
+            Controls the destination of the TDs when saving them.
+          </h2>
+          <div className="flex flex-row pl-2">
+            <input
+              id="destination"
+              type="checkbox"
+              checked={destination}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setDestination(e.target.checked)
+              }
+            />
+            <label className="form-checkbox-label pl-2 text-gray-400">
+              <InfoIconWrapper
+                tooltip={{
+                  html: "If checked, the TDs will be saved to the catalog. If unchecked, they will be saved to the local file system.",
+                  href: "",
+                }}
+                id="settingsPathToValueInfo"
+                children={"Save TDs to the catalog"}
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 
   if (display) {
     return ReactDOM.createPortal(
@@ -126,9 +222,7 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
         onSubmit={handleSubmit}
         children={child}
         title={"Settings"}
-        description={
-          "Change the ediTDors configuration to your needs. More configuration options are yet to come..."
-        }
+        description={"Change the ediTDors configuration to your needs"}
       />,
       document.getElementById("modal-root") as HTMLElement
     );
