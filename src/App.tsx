@@ -50,6 +50,7 @@ const App: React.FC = () => {
     state: false,
     message: "",
   });
+
   const showError = (message: string) => {
     setErrorDisplay({ state: true, message });
   };
@@ -69,6 +70,26 @@ const App: React.FC = () => {
   const handleToggleJSON = () => {
     setDoShowJSON((prev) => !prev);
   };
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const paramsToStore = ["northbound", "southbound", "valuePath"];
+
+    paramsToStore.forEach((param) => {
+      const value = url.searchParams.get(param);
+      if (value !== null) {
+        let processedValue = value;
+        if (
+          (param === "northbound" || param === "southbound") &&
+          !value.endsWith("/")
+        ) {
+          processedValue = value + "/";
+        }
+
+        localStorage.setItem(param, processedValue);
+      }
+    });
+  }, [window.location.search]);
 
   useEffect(() => {
     if (

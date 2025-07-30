@@ -12,8 +12,10 @@
  ********************************************************************************/
 import { requestWeb } from "./thingsApiService";
 import { Method, RequestWebOptions } from "../types/td";
-const TARGET_URL_NORTHBOUND_KEY: string = "target-url-northbound";
-const TARGET_URL_SOUTHBOUND_KEY: string = "target-url-southbound";
+const TARGET_URL_NORTHBOUND_KEY: string = "northbound";
+const TARGET_URL_SOUTHBOUND_KEY: string = "southbound";
+const TARGET_URL_VALUEPATH_KEY: string = "valuePath";
+
 const NORTHBOUND_ENDPOINT = "./things";
 const SOUTHBOUND_ENDPOINT = "/things";
 /**
@@ -22,17 +24,32 @@ const SOUTHBOUND_ENDPOINT = "/things";
  * is stored.
  * @returns string
  */
-const getTargetUrl = (boundType: "northbound" | "southbound"): string => {
-  const targetUrl = localStorage.getItem(
-    boundType === "northbound"
-      ? TARGET_URL_NORTHBOUND_KEY
-      : TARGET_URL_SOUTHBOUND_KEY
-  );
+const getTargetUrl = (
+  boundType: "northbound" | "southbound" | "valuePath"
+): string => {
+  let targetUrlKey: string;
+
+  switch (boundType) {
+    case "northbound":
+      targetUrlKey = TARGET_URL_NORTHBOUND_KEY;
+      break;
+    case "southbound":
+      targetUrlKey = TARGET_URL_SOUTHBOUND_KEY;
+      break;
+    case "valuePath":
+      targetUrlKey = TARGET_URL_VALUEPATH_KEY;
+      break;
+    default:
+      return ""; // Or throw an error, depending on your needs
+  }
+
+  const targetUrl = localStorage.getItem(targetUrlKey);
+
   if (targetUrl === null) {
     return "";
   }
 
-  return targetUrl;
+  return targetUrl || "";
 };
 
 /**
@@ -42,17 +59,31 @@ const getTargetUrl = (boundType: "northbound" | "southbound"): string => {
  */
 const setTargetUrl = (
   targetUrl: string,
-  boundType: "northbound" | "southbound"
+  boundType: "northbound" | "southbound" | "valuePath"
 ): void => {
-  if (targetUrl != "" && !targetUrl.endsWith("/")) {
-    targetUrl = targetUrl + "/";
+  let targetUrlKey: string;
+
+  switch (boundType) {
+    case "northbound":
+      targetUrlKey = TARGET_URL_NORTHBOUND_KEY;
+      if (!targetUrl.endsWith("/")) {
+        targetUrl = targetUrl + "/";
+      }
+      break;
+    case "southbound":
+      targetUrlKey = TARGET_URL_SOUTHBOUND_KEY;
+      if (!targetUrl.endsWith("/")) {
+        targetUrl = targetUrl + "/";
+      }
+      break;
+    case "valuePath":
+      targetUrlKey = TARGET_URL_VALUEPATH_KEY;
+      break;
+    default:
+      return;
   }
-  localStorage.setItem(
-    boundType === "northbound"
-      ? TARGET_URL_NORTHBOUND_KEY
-      : TARGET_URL_SOUTHBOUND_KEY,
-    targetUrl
-  );
+
+  localStorage.setItem(targetUrlKey, targetUrl);
 };
 
 // when you do a post to things/ the url will change to .things/{}/.id

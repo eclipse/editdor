@@ -22,12 +22,12 @@ import { direction } from "direction";
  * it is a TD or a TM. If anything, but an object is passed,
  * the function will return false by default.
  */
-export const isThingModel = (td) => {
+export const isThingModel = (td: any): boolean => {
   if (!(typeof td === "object" && !Array.isArray(td) && td !== null)) {
     return false;
   }
 
-  if (!td.hasOwnProperty("@type")) {
+  if (!Object.prototype.hasOwnProperty.call(td, "@type")) {
     return false;
   }
 

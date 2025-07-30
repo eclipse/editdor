@@ -24,7 +24,7 @@ import {
 import editdorLogo from "../../assets/editdor.png";
 import ediTDorContext from "../../context/ediTDorContext";
 import * as fileTdService from "../../services/fileTdService";
-import { getTargetUrl } from "../../services/smartConnector";
+import { getTargetUrl } from "../../services/localStorage";
 import * as thingsApiService from "../../services/thingsApiService";
 import { isThingModel } from "../../util";
 import ConvertTmDialog from "../Dialogs/ConvertTmDialog";
@@ -50,6 +50,9 @@ const AppHeader: React.FC = () => {
     state: false,
     message: "",
   });
+  const [saveToCatalog, setSaveToCatalog] = useState<boolean>(false);
+  const [useNorthboundForInteractions, setUseNorthboundForInteractions] =
+    useState<boolean>(false);
 
   const verifyDiscard = useCallback((): boolean => {
     if (!context.isModified) {
@@ -143,7 +146,7 @@ const AppHeader: React.FC = () => {
 
     context.updateIsModified(false);
     setIsLoading(false);
-  }, [context]);
+  }, [context, saveToCatalog]);
 
   const createNewFile = useCallback(async () => {
     try {
@@ -170,7 +173,7 @@ const AppHeader: React.FC = () => {
       const res = await func();
       setIsLoading(false);
 
-      console.log(res);
+      //console.log(res);
       return res;
     };
   };
@@ -244,6 +247,7 @@ const AppHeader: React.FC = () => {
     openModal: () => void;
     close: () => void;
   }>(null);
+
   const handleOpenSettingsDialog = () => {
     settingsDialog.current?.openModal();
   };
@@ -252,6 +256,7 @@ const AppHeader: React.FC = () => {
     openModal: () => void;
     close: () => void;
   }>(null);
+
   const handleOpenContributeToCatalog = (): void => {
     if (!context.offlineTD) {
       setErrorDisplay({
@@ -271,6 +276,10 @@ const AppHeader: React.FC = () => {
     } else {
       contributeToCatalog.current?.openModal();
     }
+  };
+
+  const handleChangeOnSaveToCatalog = (value: boolean): void => {
+    setSaveToCatalog(value);
   };
 
   return (
@@ -341,7 +350,15 @@ const AppHeader: React.FC = () => {
       <ConvertTmDialog ref={convertTmDialog} />
       <ShareDialog ref={shareDialog} />
       <CreateTdDialog ref={createTdDialog} />
-      <SettingsDialog ref={settingsDialog} />
+      <SettingsDialog
+        ref={settingsDialog}
+        saveToCatalog={saveToCatalog}
+        handleChangeOnSaveToCatalog={handleChangeOnSaveToCatalog}
+        useNorthboundForInteractions={useNorthboundForInteractions}
+        handleChangeOnUseNorthboundForInteractions={
+          setUseNorthboundForInteractions
+        }
+      />
       <ContributeToCatalog ref={contributeToCatalog} />
       <ErrorDialog
         isOpen={errorDisplay.state}
