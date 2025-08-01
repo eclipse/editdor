@@ -17,7 +17,7 @@ const TARGET_URL_SOUTHBOUND_KEY: string = "southbound";
 const TARGET_URL_VALUEPATH_KEY: string = "valuePath";
 
 const NORTHBOUND_ENDPOINT = "./things";
-const SOUTHBOUND_ENDPOINT = "/things";
+const SOUTHBOUND_ENDPOINT = "things";
 /**
 
  * Returns the target url stored in local storage or an empty string if nothing
@@ -96,6 +96,11 @@ const handleHttpRequest = async (
   body?: any,
   options: RequestWebOptions = {}
 ): Promise<any> => {
+  let errorDescription = {
+    message: "",
+    reason: "",
+  };
+
   try {
     const response = await requestWeb(endpoint, method, body, {
       ...options,
@@ -106,16 +111,18 @@ const handleHttpRequest = async (
     });
     if (!response.ok) {
       let errorMessage = `Request failed with status ${response.status}`;
-      let payload;
 
       try {
-        payload = response;
-        errorMessage = payload.error || errorMessage;
-      } catch (e) {
-        throw new Error(`Failed to parse error response: ${e}`);
-      }
+        const errorData = await response.json();
+        if (errorData?.error) {
+          errorDescription.reason = errorData.error;
+        }
+      } catch (error) {}
 
       switch (response.status) {
+        case 301:
+        case 302:
+          throw new Error(`Bad url: ${errorMessage}`);
         case 400:
           throw new Error(`Bad Request: ${errorMessage}`);
         case 401:
@@ -144,14 +151,16 @@ const handleHttpRequest = async (
           );
       }
     }
-    console.log(response.headers.get("Location"));
     return {
       data: response,
       headers: JSON.stringify(response.headers),
       status: response.status,
     };
   } catch (error: any) {
-    throw new Error(`Request failed: ${error.message}`);
+    return {
+      message: error.message,
+      reason: errorDescription.reason,
+    };
   }
 };
 

@@ -20,11 +20,11 @@ import {
   Settings,
   Share,
   Link,
+  Send,
 } from "react-feather";
 import editdorLogo from "../../assets/editdor.png";
 import ediTDorContext from "../../context/ediTDorContext";
 import * as fileTdService from "../../services/fileTdService";
-import { getTargetUrl } from "../../services/localStorage";
 import * as thingsApiService from "../../services/thingsApiService";
 import { isThingModel } from "../../util";
 import ConvertTmDialog from "../Dialogs/ConvertTmDialog";
@@ -34,6 +34,7 @@ import ShareDialog from "../Dialogs/ShareDialog";
 import ContributeToCatalog from "../Dialogs/ContributeToCatalog";
 import ErrorDialog from "../Dialogs/ErrorDialog";
 import Button from "./Button";
+import SendTDDialog from "../Dialogs/SendTDDialog";
 
 const EMPTY_TM_MESSAGE =
   "To contribute a Thing Model, please first load a Thing Model to be validated.";
@@ -282,6 +283,14 @@ const AppHeader: React.FC = () => {
     setSaveToCatalog(value);
   };
 
+  const sendTdDialog = React.useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
+  const handleSendTD = async () => {
+    sendTdDialog.current?.openModal();
+  };
+
   return (
     <>
       <header className="flex h-14 items-center justify-between bg-blue-500">
@@ -298,6 +307,11 @@ const AppHeader: React.FC = () => {
 
         <div className="flex items-center gap-4 pr-2">
           {isLoading && <div className="app-header-spinner hidden md:block" />}
+
+          <Button onClick={handleSendTD}>
+            <Send />
+            <div className="text-xs">Send TD</div>
+          </Button>
 
           <Button onClick={handleOpenContributeToCatalog}>
             <Link />
@@ -346,7 +360,7 @@ const AppHeader: React.FC = () => {
           </Button>
         </div>
       </header>
-
+      <SendTDDialog ref={sendTdDialog} />
       <ConvertTmDialog ref={convertTmDialog} />
       <ShareDialog ref={shareDialog} />
       <CreateTdDialog ref={createTdDialog} />
