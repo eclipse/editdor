@@ -225,12 +225,19 @@ const SendTDDialog = forwardRef<SendTDDialogRef>((_, ref) => {
         onSubmit={handleSubmit}
         title={"Send TD"}
         description={
-          "The Things Description will be sent to the server located at the endpoint " +
+          "The Thing Description will be sent to the server located at the endpoint " +
           getTargetUrl("southbound") +
-          SOUTHBOUND
+          SOUTHBOUND +
+          "."
         }
       >
-        <div>{dialogContent}</div>
+        <div className="rounded-md bg-black bg-opacity-80 p-2">
+          <h1 className="font-bold">Request information:</h1>
+          <div className="px-4">
+            <h2 className="py-2 text-justify text-gray-400"></h2>
+            {dialogContent}
+          </div>
+        </div>
       </DialogTemplate>,
       document.getElementById("modal-root") as HTMLElement
     );
