@@ -35,11 +35,14 @@ import ContributeToCatalog from "../Dialogs/ContributeToCatalog";
 import ErrorDialog from "../Dialogs/ErrorDialog";
 import Button from "./Button";
 import SendTDDialog from "../Dialogs/SendTDDialog";
+import { getTargetUrl } from "../../services/localStorage";
 
 const EMPTY_TM_MESSAGE =
   "To contribute a Thing Model, please first load a Thing Model to be validated.";
 const INVALID_TYPE_MESSAGE =
   'To contribute a Thing Model, the TM must have the following pair key/value:  "@type": "tm:ThingModel"  ';
+const VALIDATION_FAILED_MESSAGE =
+  "The Thing Model did not pass the JSON schema validation Please make sure the Thing Model is valid according to the JSON schema before contributing it to the catalog.";
 
 const AppHeader: React.FC = () => {
   const context = useContext(ediTDorContext);
@@ -272,7 +275,7 @@ const AppHeader: React.FC = () => {
     } else if (context.validationMessage?.report.schema === "failed") {
       setErrorDisplay({
         state: true,
-        message: `The Thing Model did not pass the JSON schema validation Please make sure the Thing Model is valid according to the JSON schema before contributing it to the catalog.`,
+        message: VALIDATION_FAILED_MESSAGE,
       });
     } else {
       contributeToCatalog.current?.openModal();
@@ -288,7 +291,26 @@ const AppHeader: React.FC = () => {
     close: () => void;
   }>(null);
   const handleSendTD = async () => {
-    sendTdDialog.current?.openModal();
+    if (!context.offlineTD || Object.keys(context.offlineTD).length === 0) {
+      setErrorDisplay({
+        state: true,
+        message:
+          "No Thing Description available to send. Please load a valid TD.",
+      });
+    } else if (context.validationMessage?.report.schema === "failed") {
+      setErrorDisplay({
+        state: true,
+        message: VALIDATION_FAILED_MESSAGE,
+      });
+    } else if (!getTargetUrl("southbound")) {
+      setErrorDisplay({
+        state: true,
+        message:
+          "No Southbound URL available. Please configure the Southbound URL on settings",
+      });
+    } else {
+      sendTdDialog.current?.openModal();
+    }
   };
 
   return (

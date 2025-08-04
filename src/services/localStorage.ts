@@ -16,8 +16,6 @@ const TARGET_URL_NORTHBOUND_KEY: string = "northbound";
 const TARGET_URL_SOUTHBOUND_KEY: string = "southbound";
 const TARGET_URL_VALUEPATH_KEY: string = "valuePath";
 
-const NORTHBOUND_ENDPOINT = "./things";
-const SOUTHBOUND_ENDPOINT = "things";
 /**
 
  * Returns the target url stored in local storage or an empty string if nothing
@@ -66,15 +64,9 @@ const setTargetUrl = (
   switch (boundType) {
     case "northbound":
       targetUrlKey = TARGET_URL_NORTHBOUND_KEY;
-      if (!targetUrl.endsWith("/")) {
-        targetUrl = targetUrl + "/";
-      }
       break;
     case "southbound":
       targetUrlKey = TARGET_URL_SOUTHBOUND_KEY;
-      if (!targetUrl.endsWith("/")) {
-        targetUrl = targetUrl + "/";
-      }
       break;
     case "valuePath":
       targetUrlKey = TARGET_URL_VALUEPATH_KEY;
@@ -83,12 +75,17 @@ const setTargetUrl = (
       return;
   }
 
-  localStorage.setItem(targetUrlKey, targetUrl);
-};
+  if (targetUrl === "") {
+    localStorage.setItem(targetUrlKey, "");
+    return;
+  }
+  const processedUrl =
+    ["northbound", "southbound"].includes(boundType) && !targetUrl.endsWith("/")
+      ? `${targetUrl}/`
+      : targetUrl;
 
-// when you do a post to things/ the url will change to .things/{}/.id
-// localhost:8080/.things -> to fetch a list of tm
-// localhost:8080/.things/urn:PowerMeter0/serial_number -> to fecth the all things model
+  localStorage.setItem(targetUrlKey, processedUrl);
+};
 
 const handleHttpRequest = async (
   endpoint: string,
@@ -164,10 +161,4 @@ const handleHttpRequest = async (
   }
 };
 
-export {
-  getTargetUrl,
-  setTargetUrl,
-  handleHttpRequest,
-  NORTHBOUND_ENDPOINT as NORTHBOUND,
-  SOUTHBOUND_ENDPOINT as SOUTHBOUND,
-};
+export { getTargetUrl, setTargetUrl, handleHttpRequest };

@@ -22,11 +22,7 @@ import DialogTemplate from "./DialogTemplate";
 import type { ThingDescription } from "wot-thing-description-types";
 import ediTDorContext from "../../context/ediTDorContext";
 import SpinnerTemplate from "./SpinnerTemplate";
-import {
-  getTargetUrl,
-  handleHttpRequest,
-  SOUTHBOUND,
-} from "../../services/localStorage";
+import { getTargetUrl, handleHttpRequest } from "../../services/localStorage";
 import { capitalizeFirstLetter } from "../../utils/strings";
 
 export interface SendTDDialogRef {
@@ -46,6 +42,7 @@ const SendTDDialog = forwardRef<SendTDDialogRef>((_, ref) => {
     message: "",
     reason: "",
   });
+  const [dialogContent, setDialogContent] = useState<React.ReactNode>(null);
   const context = useContext(ediTDorContext);
   const td: ThingDescription = context.parsedTD;
 
@@ -65,20 +62,11 @@ const SendTDDialog = forwardRef<SendTDDialogRef>((_, ref) => {
       reason: "",
     });
 
-    // *** testing purposes ***
-    const TESTING_DELAY = 3000;
-    if (TESTING_DELAY > 0) {
-      console.log("Starting timeout for testing...");
-      await new Promise((resolve) => setTimeout(resolve, TESTING_DELAY));
-      console.log("Timeout complete, making request...");
-    }
-    //
-
     let url = getTargetUrl("southbound");
     if (!url.endsWith("/")) {
       url += "/";
     }
-    const endpoint = `${url}${SOUTHBOUND}`;
+    const endpoint = `${url}`;
 
     const response:
       | { data: any; headers: string; status: number }
@@ -124,7 +112,6 @@ const SendTDDialog = forwardRef<SendTDDialogRef>((_, ref) => {
       close();
     }
   };
-  const [dialogContent, setDialogContent] = useState<React.ReactNode>(null);
 
   useEffect(() => {
     if (isLoading) {
@@ -214,8 +201,6 @@ const SendTDDialog = forwardRef<SendTDDialogRef>((_, ref) => {
   }, [isLoading, requestResult]);
 
   if (display) {
-    //const content = getDialogContent();
-
     return ReactDOM.createPortal(
       <DialogTemplate
         hasSubmit={requestResult?.success ? false : true}
@@ -225,9 +210,9 @@ const SendTDDialog = forwardRef<SendTDDialogRef>((_, ref) => {
         onSubmit={handleSubmit}
         title={"Send TD"}
         description={
-          "The Thing Description will be sent to the server located at the endpoint " +
+          "The Thing Description will be sent to a Third-Party service located at the endpoint given in the settings page under Southbound URL. The proxied Thing will be interactable over HTTP in the left view. \
+          Current endpoint configuration: " +
           getTargetUrl("southbound") +
-          SOUTHBOUND +
           "."
         }
       >

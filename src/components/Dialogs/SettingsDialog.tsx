@@ -21,6 +21,7 @@ import { getTargetUrl, setTargetUrl } from "../../services/localStorage";
 import DialogTemplate from "./DialogTemplate";
 import InfoIconWrapper from "../../components/InfoIcon/InfoIconWrapper";
 import DialogTextField from "./base/DialogTextField";
+import { isValidUrl } from "../../utils/strings";
 
 export interface SettingsDialogRef {
   openModal: () => void;
@@ -48,6 +49,8 @@ const SettingsDialog = forwardRef<SettingsDialogRef, SettingsDialogProps>(
     const [northboundUrl, setNorthboundUrl] = useState<string>("");
     const [southboundUrl, setSouthboundUrl] = useState<string>("");
     const [pathToValue, setPathToValue] = useState<string>("/");
+    const [southboundUrlError, setSouthboundUrlError] = useState<string>("");
+    const [northboundUrlError, setNorthboundUrlError] = useState<string>("");
     const [pathToValueError, setPathToValueError] = useState<string>("");
 
     useImperativeHandle(ref, () => {
@@ -66,18 +69,6 @@ const SettingsDialog = forwardRef<SettingsDialogRef, SettingsDialogProps>(
 
     const close = async () => {
       setDisplay(false);
-      /*
-    try {
-      const result = await handleHttpRequest(
-        getTargetUrl("northbound") + "things",
-        "POST",
-        JSON.stringify(td)
-      );
-      console.log(`Success: ${JSON.stringify(result)}`);
-    } catch (error: any) {
-      console.log(`Error: ${error.message}`);
-    }
-*/
     };
 
     const handleSubmit = () => {
@@ -87,6 +78,40 @@ const SettingsDialog = forwardRef<SettingsDialogRef, SettingsDialogProps>(
       close();
     };
 
+    const handleSouthboundUrlChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setSouthboundUrl(value);
+
+        if (value === "") {
+          setSouthboundUrlError("");
+        } else if (!isValidUrl(value)) {
+          setSouthboundUrlError(
+            "Please enter a valid URL (e.g., http://localhost:8080)"
+          );
+        } else {
+          setSouthboundUrlError("");
+        }
+      },
+      [setSouthboundUrl, setSouthboundUrlError]
+    );
+    const handleNorthboundUrlChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setNorthboundUrl(value);
+
+        if (value === "") {
+          setNorthboundUrlError("");
+        } else if (!isValidUrl(value)) {
+          setNorthboundUrlError(
+            "Please enter a valid URL (e.g., http://localhost:8080)"
+          );
+        } else {
+          setNorthboundUrlError("");
+        }
+      },
+      [setNorthboundUrl, setNorthboundUrlError]
+    );
     const handlePathToValueChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -129,16 +154,21 @@ const SettingsDialog = forwardRef<SettingsDialogRef, SettingsDialogProps>(
                   children={"Target URL Northbound:"}
                 />
               }
-              placeholder="http://localhost:8080/"
+              placeholder="e.g.: http://localhost:8080/"
               id="settings-target-url-field-northbound"
               type="text"
               value={northboundUrl}
               autoFocus={false}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setNorthboundUrl(e.target.value)
-              }
-              className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
+              onChange={handleNorthboundUrlChange}
+              className={`${
+                northboundUrlError ? "border-red-500" : "border-gray-600"
+              } w-full rounded-md border-2 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm`}
             />
+            {northboundUrlError && (
+              <div className="mt-1 text-sm text-red-500">
+                {northboundUrlError}
+              </div>
+            )}
 
             <DialogTextField
               label={
@@ -151,16 +181,21 @@ const SettingsDialog = forwardRef<SettingsDialogRef, SettingsDialogProps>(
                   children={"Target URL Southbound:"}
                 />
               }
-              placeholder="http://localhost:8080/"
+              placeholder="e.g.: http://localhost:8080/"
               id="settings-target-url-field-southbound"
               type="text"
               value={southboundUrl}
               autoFocus={false}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setSouthboundUrl(e.target.value)
-              }
-              className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
+              onChange={handleSouthboundUrlChange}
+              className={`${
+                southboundUrlError ? "border-red-500" : "border-gray-600"
+              } w-full rounded-md border-2 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm`}
             />
+            {southboundUrlError && (
+              <div className="mt-1 text-sm text-red-500">
+                {southboundUrlError}
+              </div>
+            )}
           </div>
         </div>
 

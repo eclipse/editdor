@@ -49,6 +49,37 @@ Please follow our [contribution guide](./CONTRIBUTING.md).
 
 In development environment it is possible to use [react scan](https://react-scan.com/) to detect performance issues by analyzing the pop up on the bottom right corner. The complete documentation is available [here](https://github.com/aidenybai/react-scan#readme).
 
+### Contribution to Cataloge feature
+
+You will need the following [tmc]() library to run in the terminal, and have your own catalog locally:
+
+    go install github.com/wot-oss/tmc@v0.1.2
+    $GOPATH/bin/tmc
+    ./tmc-linux-amd64
+
+The most use commands to test are:
+
+    tmc serve
+    tmc repo add --type file <nameOfCatalog> ~/tm-catalog
+
+You will have a local folder inside tm-catalog folder
+
+    tmc list
+    tmc repo list
+    tmc repo remove <nameOfCatalog>
+
+### Send TD feature
+
+To use the **_Send TD_** feature is necessary to define on Settings pop up the Southbound URLs. The Send TD feature allows you to deploy your Thing Description directly to a Third Party Service.
+
+#### Configuration
+
+1. Open the Settings dialog from the main toolbar
+2. Enter your Southbound URL in the designated field (e.g., `http://localhost:8080`)
+3. Click Save to store the URL
+
+The feature uses the Southbound API architecture to communicate with devices. The TD is sent via HTTP POST to the configured endpoint. This enables direct deployment of your edited Thing Description to compatible WoT devices.
+
 ## Implemented Features:
 
 - JSON Editor with JSON Schema support for TD (Autocompletion, JSON Schema Validation)
@@ -56,3 +87,4 @@ In development environment it is possible to use [react scan](https://react-scan
 - Render TD to be more human-readable
 - Validate JSON Syntax and JSON Schema for TD (JSONLD and Additional Validation for nested TM will be implemented in the future)
 - Add a TM or TD via a CSV file (For now, Modbus only)
+- Configuration on Settings page includes: southbound URL, northbound URL, save location, and configuration of the path value
