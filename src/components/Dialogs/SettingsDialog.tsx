@@ -134,7 +134,7 @@ const SettingsDialog = forwardRef<SettingsDialogRef, SettingsDialogProps>(
     let child = (
       <>
         <div className="rounded-md bg-black bg-opacity-80 p-2">
-          <h1 className="font-bold">Gateway Configuration</h1>
+          <h1 className="font-bold">Third Party Service Configuration</h1>
           <div className="px-4">
             <h2 className="py-2 text-justify text-gray-400">
               If you want to interact with non-HTTP devices via a gateway, you

@@ -10,7 +10,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useCallback, useContext, useState, useEffect } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import {
   Download,
   File,
@@ -36,6 +42,7 @@ import ErrorDialog from "../Dialogs/ErrorDialog";
 import Button from "./Button";
 import SendTDDialog from "../Dialogs/SendTDDialog";
 import { getTargetUrl } from "../../services/localStorage";
+import type { ThingDescription } from "wot-thing-description-types";
 
 const EMPTY_TM_MESSAGE =
   "To contribute a Thing Model, please first load a Thing Model to be validated.";
@@ -46,7 +53,9 @@ const VALIDATION_FAILED_MESSAGE =
 
 const AppHeader: React.FC = () => {
   const context = useContext(ediTDorContext);
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const td: ThingDescription = context.parsedTD;
+  /** States*/
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorDisplay, setErrorDisplay] = useState<{
     state: boolean;
     message: string;
@@ -58,6 +67,27 @@ const AppHeader: React.FC = () => {
   const [useNorthboundForInteractions, setUseNorthboundForInteractions] =
     useState<boolean>(false);
 
+  /** Refs */
+  const convertTmDialog = useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
+  const shareDialog = useRef<{ openModal: () => void }>(null);
+  const createTdDialog = useRef<{ openModal: () => void }>(null);
+  const settingsDialog = useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
+  const contributeToCatalog = useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
+  const sendTdDialog = useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
+
+  /** Callbacks */
   const verifyDiscard = useCallback((): boolean => {
     if (!context.isModified) {
       return true;
@@ -176,8 +206,6 @@ const AppHeader: React.FC = () => {
       setIsLoading(true);
       const res = await func();
       setIsLoading(false);
-
-      //console.log(res);
       return res;
     };
   };
@@ -229,37 +257,21 @@ const AppHeader: React.FC = () => {
     };
   }, [openFile, save]);
 
-  const convertTmDialog = React.useRef<{
-    openModal: () => void;
-    close: () => void;
-  }>(null);
   const handleOpenConvertTmDialog = () => {
     convertTmDialog.current?.openModal();
   };
 
-  const shareDialog = React.useRef<{ openModal: () => void }>(null);
   const handleOpenShareDialog = () => {
     shareDialog.current?.openModal();
   };
 
-  const createTdDialog = React.useRef<{ openModal: () => void }>(null);
   const handleOpenCreateTdDialog = () => {
     createTdDialog.current?.openModal();
   };
 
-  const settingsDialog = React.useRef<{
-    openModal: () => void;
-    close: () => void;
-  }>(null);
-
   const handleOpenSettingsDialog = () => {
     settingsDialog.current?.openModal();
   };
-
-  const contributeToCatalog = React.useRef<{
-    openModal: () => void;
-    close: () => void;
-  }>(null);
 
   const handleOpenContributeToCatalog = (): void => {
     if (!context.offlineTD) {
@@ -286,10 +298,6 @@ const AppHeader: React.FC = () => {
     setSaveToCatalog(value);
   };
 
-  const sendTdDialog = React.useRef<{
-    openModal: () => void;
-    close: () => void;
-  }>(null);
   const handleSendTD = async () => {
     if (!context.offlineTD || Object.keys(context.offlineTD).length === 0) {
       setErrorDisplay({
@@ -308,10 +316,20 @@ const AppHeader: React.FC = () => {
         message:
           "No Southbound URL available. Please configure the Southbound URL on settings",
       });
+    } else if (!td.id) {
+      setErrorDisplay({
+        state: true,
+        message:
+          "No identifier available on Thing description. Please add an identifier to the TD.",
+      });
     } else {
       sendTdDialog.current?.openModal();
     }
   };
+
+  // Condition necessary to improve the typescript checks as id is optional
+  // in the current version of wot-thing-description-types
+  const currentTdId = td.id ?? "";
 
   return (
     <>
@@ -382,7 +400,7 @@ const AppHeader: React.FC = () => {
           </Button>
         </div>
       </header>
-      <SendTDDialog ref={sendTdDialog} />
+      <SendTDDialog ref={sendTdDialog} currentTdId={currentTdId} />
       <ConvertTmDialog ref={convertTmDialog} />
       <ShareDialog ref={shareDialog} />
       <CreateTdDialog ref={createTdDialog} />

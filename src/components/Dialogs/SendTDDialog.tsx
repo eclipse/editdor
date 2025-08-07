@@ -10,226 +10,317 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, {
-  forwardRef,
-  useContext,
-  useEffect,
-  useState,
-  useImperativeHandle,
-} from "react";
+import { forwardRef, useContext, useState, useImperativeHandle } from "react";
 import ReactDOM from "react-dom";
 import DialogTemplate from "./DialogTemplate";
 import type { ThingDescription } from "wot-thing-description-types";
 import ediTDorContext from "../../context/ediTDorContext";
 import SpinnerTemplate from "./SpinnerTemplate";
-import { getTargetUrl, handleHttpRequest } from "../../services/localStorage";
-import { capitalizeFirstLetter } from "../../utils/strings";
+import {
+  getTargetUrl,
+  isSuccessResponse,
+  handleHttpRequest,
+} from "../../services/localStorage";
+
+import RequestSuccessful from "./base/RequestSuccessful";
+import RequestFailed from "./base/RequestFailed";
 
 export interface SendTDDialogRef {
   openModal: () => void;
   close: () => void;
 }
+interface SendTDDialogProps {
+  currentTdId: string;
+}
 
-const SendTDDialog = forwardRef<SendTDDialogRef>((_, ref) => {
-  const [display, setDisplay] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [requestResult, setRequestResult] = useState<{
-    success: boolean;
-    message: string;
-    reason: string;
-  }>({
-    success: false,
-    message: "",
-    reason: "",
-  });
-  const [dialogContent, setDialogContent] = useState<React.ReactNode>(null);
-  const context = useContext(ediTDorContext);
-  const td: ThingDescription = context.parsedTD;
+const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
+  ({ currentTdId }, ref) => {
+    const context = useContext(ediTDorContext);
+    const td: ThingDescription = context.parsedTD;
 
-  useImperativeHandle(ref, () => {
-    return {
-      openModal: () => open(),
-      close: () => close(),
-    };
-  });
+    const [display, setDisplay] = useState<boolean>(false);
+    const [isUpdate, setIsUpdate] = useState<boolean>(false);
 
-  const open = async () => {
-    setDisplay(true);
-    setIsLoading(true);
-    setRequestResult({
+    const [requestUpdate, setRequestUpdate] = useState<{
+      isLoading: boolean;
+      success: boolean;
+      message: string;
+      reason: string;
+    }>({
+      isLoading: false,
       success: false,
       message: "",
       reason: "",
     });
 
-    let url = getTargetUrl("southbound");
-    if (!url.endsWith("/")) {
-      url += "/";
-    }
-    const endpoint = `${url}`;
+    const [requestSend, setRequestSend] = useState<{
+      isLoading: boolean;
+      success: boolean;
+      message: string;
+      reason: string;
+    }>({
+      isLoading: false,
+      success: false,
+      message: "",
+      reason: "",
+    });
 
-    const response:
-      | { data: any; headers: string; status: number }
-      | { message: string; reason: string } = await handleHttpRequest(
-      endpoint,
-      "POST",
-      JSON.stringify(td)
-    );
+    useImperativeHandle(ref, () => {
+      return {
+        openModal: () => open(),
+        close: () => close(),
+      };
+    });
 
-    if ("data" in response) {
-      setRequestResult({
-        success: true,
-        message: `TD sent successfully to ${endpoint}!`,
+    const open = async () => {
+      try {
+        const url = getTargetUrl("southbound");
+        if (!url) return;
+
+        const endpoint = `${url}${url.endsWith("/") ? "" : "/"}`;
+        const encodedId = encodeURIComponent(currentTdId);
+
+        const response = await handleHttpRequest(
+          `${endpoint}${encodedId}`,
+          "GET"
+        );
+
+        if ("data" in response && response.status === 200) {
+          setIsUpdate(true);
+        } else {
+          setIsUpdate(false);
+        }
+      } catch (error) {
+        console.error("Error checking TD status:", error);
+      }
+      setDisplay(true);
+    };
+
+    const close = () => {
+      setDisplay(false);
+      setRequestUpdate({
+        isLoading: false,
+        success: false,
+        message: "",
         reason: "",
       });
-    } else {
-      console.error("Failed to send TD:", response);
-
-      setRequestResult({
+      setRequestSend({
+        isLoading: false,
         success: false,
-        message: response.message,
-        reason: response.reason,
+        message: "",
+        reason: "",
       });
-    }
+    };
 
-    setIsLoading(false);
-  };
+    const handleUpdateTd = async () => {
+      setRequestSend({
+        isLoading: false,
+        success: false,
+        message: "",
+        reason: "",
+      });
+      setRequestUpdate({
+        ...requestUpdate,
+        isLoading: true,
+      });
 
-  const close = () => {
-    setDisplay(false);
-    setIsLoading(false);
-    setRequestResult({
-      success: false,
-      message: "",
-      reason: "",
-    });
-  };
+      const url = getTargetUrl("southbound");
+      const endpoint = `${url}/${currentTdId}`;
 
-  const handleSubmit = () => {
-    if (requestResult && !requestResult.success) {
-      open();
-    } else {
-      close();
-    }
-  };
-
-  useEffect(() => {
-    if (isLoading) {
-      setDialogContent(<SpinnerTemplate fullScreen={false} />);
-      return;
-    }
-
-    if (requestResult?.success) {
-      setDialogContent(
-        <div className="flex flex-col items-center justify-center px-4 py-6">
-          <div className="mb-4">
-            <svg
-              className="h-16 w-16 text-green-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-          <h3 className="mb-2 text-lg font-semibold text-green-700">
-            Success!
-          </h3>
-          <p className="text-center text-gray-600">
-            Your Thing Description has been sent successfully.
-          </p>
-        </div>
+      const response = await handleHttpRequest(
+        endpoint,
+        "PUT",
+        JSON.stringify(td)
       );
-      return;
-    }
 
-    if (!isLoading && requestResult) {
-      const errorMessage =
-        typeof requestResult.message === "string"
-          ? requestResult.message
-          : "An unknown error occurred";
+      if (isSuccessResponse(response)) {
+        if (response.status === 204) {
+          setRequestUpdate({
+            ...requestUpdate,
+            isLoading: false,
+            success: true,
+            message: `TD updated successfully to ${endpoint}!`,
+            reason: "",
+          });
+        }
+      } else {
+        setRequestUpdate({
+          ...requestUpdate,
+          isLoading: false,
+          success: false,
+          message: response.message || "Failed to update TD",
+          reason: response.reason || "",
+        });
+      }
+    };
 
-      const errorReason =
-        typeof requestResult.reason === "string" ? requestResult.reason : "";
+    const handleSendTd = async () => {
+      setRequestSend({
+        isLoading: true,
+        success: false,
+        message: "",
+        reason: "",
+      });
 
-      setDialogContent(
-        <div className="flex flex-col items-center justify-center px-4 py-6">
-          <div className="mb-4">
-            <svg
-              className="h-16 w-16 text-red-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <h3 className="mb-3 text-lg font-semibold text-red-700">
-            Request Failed
-          </h3>
-          <div className="w-full">
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-              <h4 className="mb-2 font-medium text-red-800">Error Message:</h4>
-              <p className="mb-3 break-words text-sm text-red-700">
-                {errorMessage}
-              </p>
-              {errorReason && (
-                <>
-                  <h4 className="mb-2 font-medium text-red-800">
-                    Reason of failure:
-                  </h4>
-                  <p className="break-words text-sm text-red-600">
-                    {capitalizeFirstLetter(errorReason)}
-                  </p>
-                </>
-              )}
+      const url = getTargetUrl("southbound");
+      const endpoint = `${url}`;
+
+      const response = await handleHttpRequest(
+        endpoint,
+        "POST",
+        JSON.stringify(td)
+      );
+
+      if (isSuccessResponse(response)) {
+        if (response.status === 201) {
+          setRequestSend({
+            ...requestSend,
+            isLoading: false,
+            success: true,
+            message: `TD sent successfully to ${endpoint}!`,
+            reason: "",
+          });
+          setIsUpdate(true);
+        }
+      } else {
+        setRequestSend({
+          ...requestSend,
+          isLoading: false,
+          success: false,
+          message: response.message || "Failed to send TD",
+          reason: response.reason || "",
+        });
+      }
+    };
+
+    const renderDialogContent = () => {
+      if (requestUpdate.isLoading || requestSend.isLoading) {
+        return <SpinnerTemplate fullScreen={false} />;
+      }
+      const getDisplayRequest = () => {
+        if (isUpdate && requestUpdate.message) {
+          return requestUpdate;
+        }
+        if (requestSend.message) {
+          return requestSend;
+        }
+        return isUpdate ? requestUpdate : requestSend;
+      };
+      const displayRequest = getDisplayRequest();
+
+      if (!displayRequest || displayRequest.message === "") {
+        return <></>;
+      }
+      const operationType = displayRequest === requestSend ? "sent" : "updated";
+      return displayRequest.success ? (
+        <RequestSuccessful
+          message={`Your Thing Description has been ${operationType} successfully.`}
+        />
+      ) : (
+        <RequestFailed
+          errorMessage={displayRequest.message}
+          errorReason={displayRequest.reason}
+        />
+      );
+    };
+
+    if (display) {
+      return ReactDOM.createPortal(
+        <DialogTemplate
+          hasSubmit={false}
+          onCancel={close}
+          cancelText={"Close"}
+          title={"Send TD"}
+          description={
+            "The Thing Description will be sent to a Third-Party Service located at the endpoint configured in the Settings options under Southbound URL field. The proxied Thing will be interactable over HTTP in the left view."
+          }
+        >
+          <div className="mb-2 rounded-md bg-black bg-opacity-80 p-2">
+            <h1 className="mb-2 font-semibold">
+              Current Configuration Details
+            </h1>
+            <div className="w-full overflow-hidden">
+              <table className="w-full border-collapse">
+                <tbody>
+                  <tr className="border-b border-gray-700">
+                    <td className="w-1/3 py-2 pr-2 font-medium text-gray-400">
+                      Endpoint:
+                    </td>
+                    <td className="break-all py-2 text-gray-400">
+                      {getTargetUrl("southbound") || "(No endpoint configured)"}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="w-1/3 py-2 pr-2 font-medium text-gray-400">
+                      TD ID:
+                    </td>
+                    <td className="break-all py-2 text-gray-400">
+                      {currentTdId || "(No ID available)"}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
+
+          <div className="mb-2 rounded-md bg-black bg-opacity-80 p-2">
+            <h1 className="mb-2 font-semibold">Operation Details</h1>
+            <div className="px-4 py-2">
+              <div className="flex items-center">
+                <span className="mr-2 font-medium text-gray-400">Action:</span>
+                <span className="rounded bg-green-900 px-2 py-1 text-sm font-medium text-green-200">
+                  {isUpdate ? "Update Existing TD" : "Send New TD"}
+                </span>
+              </div>
+              <p className="mt-2 text-sm text-gray-400">
+                {isUpdate
+                  ? "You are updating an existing Thing Description that was previously sent to the server."
+                  : "You are sending a new Thing Description to the server for the first time."}
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-md bg-black bg-opacity-80 p-2">
+            <h1 className="font-bold">Result:</h1>
+            <div className="px-4">
+              <h2 className="py-2 text-justify text-gray-400">
+                {requestSend.message
+                  ? requestSend.message
+                  : isUpdate
+                    ? requestUpdate.message || "No update request made yet."
+                    : "No send request made yet."}
+              </h2>
+
+              <div className="my-4 flex justify-end">
+                {isUpdate ? (
+                  <button
+                    onClick={handleUpdateTd}
+                    className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                    disabled={requestUpdate.isLoading}
+                  >
+                    Update TD
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSendTd}
+                    className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                    disabled={requestSend.isLoading}
+                  >
+                    Send TD
+                  </button>
+                )}
+              </div>
+              <div>{renderDialogContent()}</div>
+            </div>
+          </div>
+        </DialogTemplate>,
+        document.getElementById("modal-root") as HTMLElement
       );
     }
-  }, [isLoading, requestResult]);
 
-  if (display) {
-    return ReactDOM.createPortal(
-      <DialogTemplate
-        hasSubmit={requestResult?.success ? false : true}
-        onCancel={close}
-        cancelText={"Close"}
-        submitText={"Resend"}
-        onSubmit={handleSubmit}
-        title={"Send TD"}
-        description={
-          "The Thing Description will be sent to a Third-Party service located at the endpoint given in the settings page under Southbound URL. The proxied Thing will be interactable over HTTP in the left view. \
-          Current endpoint configuration: " +
-          getTargetUrl("southbound") +
-          "."
-        }
-      >
-        <div className="rounded-md bg-black bg-opacity-80 p-2">
-          <h1 className="font-bold">Request information:</h1>
-          <div className="px-4">
-            <h2 className="py-2 text-justify text-gray-400"></h2>
-            {dialogContent}
-          </div>
-        </div>
-      </DialogTemplate>,
-      document.getElementById("modal-root") as HTMLElement
-    );
+    return null;
   }
-
-  return null;
-});
+);
 
 SendTDDialog.displayName = "SendTDDialog";
 export default SendTDDialog;

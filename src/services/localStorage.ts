@@ -79,21 +79,36 @@ const setTargetUrl = (
     localStorage.setItem(targetUrlKey, "");
     return;
   }
-  const processedUrl =
-    ["northbound", "southbound"].includes(boundType) && !targetUrl.endsWith("/")
-      ? `${targetUrl}/`
-      : targetUrl;
 
-  localStorage.setItem(targetUrlKey, processedUrl);
+  localStorage.setItem(targetUrlKey, targetUrl);
 };
+
+interface HttpSuccessResponse {
+  data: Response;
+  headers: string;
+  status: number;
+}
+
+interface HttpErrorResponse {
+  message: string;
+  reason: string;
+}
+
+type HttpResponse = HttpSuccessResponse | HttpErrorResponse;
+
+function isSuccessResponse(
+  response: HttpResponse
+): response is HttpSuccessResponse {
+  return "data" in response && "status" in response;
+}
 
 const handleHttpRequest = async (
   endpoint: string,
   method: Method = "GET",
   body?: any,
   options: RequestWebOptions = {}
-): Promise<any> => {
-  let errorDescription = {
+): Promise<HttpResponse> => {
+  const errorDescription: HttpErrorResponse = {
     message: "",
     reason: "",
   };
@@ -148,17 +163,22 @@ const handleHttpRequest = async (
           );
       }
     }
-    return {
+    const successResponse: HttpSuccessResponse = {
       data: response,
       headers: JSON.stringify(response.headers),
       status: response.status,
     };
-  } catch (error: any) {
-    return {
-      message: error.message,
+
+    return successResponse;
+  } catch (error: unknown) {
+    const typedError = error as Error;
+    const errorResponse: HttpErrorResponse = {
+      message: typedError.message,
       reason: errorDescription.reason,
     };
+
+    return errorResponse;
   }
 };
 
-export { getTargetUrl, setTargetUrl, handleHttpRequest };
+export { getTargetUrl, setTargetUrl, isSuccessResponse, handleHttpRequest };
