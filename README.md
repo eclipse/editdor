@@ -82,6 +82,8 @@ You will have a local folder inside tm-catalog folder
 
 To use the **_Send TD_** feature is necessary to define on Settings pop up the Southbound URLs. The Send TD feature allows you to deploy your Thing Description directly to a Third Party Service.
 
+It follows the Directory Service API guidelines provided [here](https://www.w3.org/TR/wot-discovery/#exploration-directory-api-things)
+
 #### Configuration
 
 1. Open the Settings dialog from the main toolbar
