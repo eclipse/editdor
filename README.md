@@ -17,6 +17,7 @@ This project aims to make creating W3C Thing Description instances and Thing Mod
 - Validating the Thing Description / ThingModel
 - Exporting the Thing Description / ThingModel from the visual representation into JSON-LD
 - Reading/writing exposed properties' values exposed by a proxy (anything that can translate a protocol to HTTP)
+- Exporting the Thing Description / Things Model to a thrid party service by using available API or contributing to a catalog
 
 ## Technologies
 
