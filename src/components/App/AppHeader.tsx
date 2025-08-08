@@ -31,7 +31,6 @@ import {
 import editdorLogo from "../../assets/editdor.png";
 import ediTDorContext from "../../context/ediTDorContext";
 import * as fileTdService from "../../services/fileTdService";
-import * as thingsApiService from "../../services/thingsApiService";
 import { isThingModel } from "../../util";
 import ConvertTmDialog from "../Dialogs/ConvertTmDialog";
 import CreateTdDialog from "../Dialogs/CreateTdDialog";
@@ -128,61 +127,8 @@ const AppHeader: React.FC = () => {
     }
   }, [context, verifyDiscard]);
 
-  /**
-   * @description
-   * *save* tries to save the TD/TM via some intermediary or thing directory,
-   * which supports the Things API (https://www.w3.org/TR/wot-discovery/#exploration-directory-api-things).
-   *
-   * If there is no endpoint to such a Things API defined, it falls back to
-   * simply downloading it.
-   */
-  const save = useCallback(async () => {
-    const td = context.parsedTD;
-
-    if (!context.isValidJSON) {
-      setErrorDisplay({
-        state: true,
-        message:
-          "The TD is not valid JSON. Please fix the errors before saving.",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    //TODO const targetUrl = getTargetUrl();
-    const targetUrl = "";
-    if (targetUrl === "") {
-      // no target url provided, save to file
-      const fileHandle = await fileTdService.saveToFile(
-        context.name,
-        context.fileHandle,
-        context.offlineTD
-      );
-      context.setFileHandle(fileHandle ?? context.fileHandle);
-    } else {
-      // target url provided, try to save it through the Things API
-      try {
-        if (td.id) {
-          thingsApiService.createThing(td, targetUrl);
-        } else {
-          thingsApiService.createAnonymousThing(td, targetUrl);
-        }
-      } catch (error) {
-        console.debug(error);
-        setErrorDisplay({
-          state: true,
-          message:
-            "Didn't save TD. Please check if the provided target URL is correct and the intermediary / thing directory is working as intended.",
-        });
-        return;
-      }
-    }
-
-    context.updateIsModified(false);
-    setIsLoading(false);
-  }, [context, saveToCatalog]);
-
   const createNewFile = useCallback(async () => {
+    setIsLoading(true);
     try {
       const fileHandle = await fileTdService.saveToFile(
         context.name,
@@ -198,6 +144,8 @@ const AppHeader: React.FC = () => {
         message:
           "Didn't save TD. The action was either canceled or ran into an error.",
       });
+    } finally {
+      setIsLoading(false);
     }
   }, [context]);
 
@@ -218,7 +166,7 @@ const AppHeader: React.FC = () => {
       ) {
         e.preventDefault();
         e.stopPropagation();
-        handleWithLoadingState(save)();
+        handleWithLoadingState(createNewFile)();
       }
       if (
         (window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) &&
@@ -255,7 +203,7 @@ const AppHeader: React.FC = () => {
       //Remove Eventlistener for shortcuts before unmounting component
       document.removeEventListener("keydown", shortcutHandler, false);
     };
-  }, [openFile, save]);
+  }, [openFile, createNewFile]);
 
   const handleOpenConvertTmDialog = () => {
     convertTmDialog.current?.openModal();
@@ -363,12 +311,14 @@ const AppHeader: React.FC = () => {
             <div className="text-xs">Share</div>
           </Button>
 
-          <div className="hidden md:block">
+          <div className="w-4" aria-hidden="true" />
+
+          {/* <div className="hidden md:block">
             <Button onClick={handleWithLoadingState(save)}>
               <Save />
               <div className="text-xs">Save</div>
             </Button>
-          </div>
+          </div> */}
 
           <div className="hidden md:block">
             <Button onClick={handleWithLoadingState(openFile)}>
@@ -393,7 +343,7 @@ const AppHeader: React.FC = () => {
             <Download />
             <div className="text-xs">Download</div>
           </Button>
-
+          <div className="w-4" aria-hidden="true" />
           <Button onClick={handleOpenSettingsDialog}>
             <Settings />
             <div className="text-xs">Settings</div>

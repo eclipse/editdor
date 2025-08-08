@@ -16,12 +16,11 @@ import DialogTemplate from "./DialogTemplate";
 import type { ThingDescription } from "wot-thing-description-types";
 import ediTDorContext from "../../context/ediTDorContext";
 import SpinnerTemplate from "./SpinnerTemplate";
+import { getTargetUrl } from "../../services/localStorage";
 import {
-  getTargetUrl,
   isSuccessResponse,
   handleHttpRequest,
-} from "../../services/localStorage";
-
+} from "../../services/thingsApiService";
 import RequestSuccessful from "./base/RequestSuccessful";
 import RequestFailed from "./base/RequestFailed";
 
