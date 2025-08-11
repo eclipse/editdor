@@ -280,12 +280,12 @@ const AppHeader: React.FC = () => {
           {isLoading && <div className="app-header-spinner hidden md:block" />}
 
           <Button onClick={handleOpenContributeToCatalog}>
-            <Link />
+            <Share />
             <div className="text-xs">Contribute to Catalog</div>
           </Button>
 
           <Button onClick={handleOpenShareDialog}>
-            <Share />
+            <Link />
             <div className="text-xs">Share</div>
           </Button>
 
