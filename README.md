@@ -60,7 +60,7 @@ In development environment it is possible to use [react scan](https://react-scan
 
 ### Using the Catalog Contribution Feature
 
-You will need the following [tmc]() library to run in the terminal, and have your own catalog locally:
+You will need a [Thing Model Catalog](https://github.com/wot-oss/tmc) running somewhere. If you want to host it yourself, use the command-line interface to run one in the terminal using the following instructions:
 
     go install github.com/wot-oss/tmc@v0.1.2
     $GOPATH/bin/tmc
