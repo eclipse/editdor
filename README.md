@@ -79,9 +79,8 @@ You will have a local folder inside tm-catalog folder
 
 ### Send TD feature
 
-To use the **_Send TD_** feature is necessary to define on Settings pop up the Southbound URLs. The Send TD feature allows you to deploy your Thing Description directly to a Third Party Service.
-
-It follows the Directory Service API guidelines provided [here](https://www.w3.org/TR/wot-discovery/#exploration-directory-api-things)
+To use the **_Send TD_** feature, it is necessary to define on Settings pop up the Southbound URL and Northbound URL. The Send TD feature allows you to send your Thing Description to any service following [the WoT TD Directory specification](https://www.w3.org/TR/wot-discovery/#exploration-directory-api-things).
+Afterwards, if the service proxies the TD, EdiTDor can fetch the proxied TD containing HTTP `href`s to interact with the original Thing.
 
 #### Configuration
 
