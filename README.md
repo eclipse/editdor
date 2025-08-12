@@ -90,7 +90,7 @@ It follows the Directory Service API guidelines provided [here](https://www.w3.o
 2. Enter your Southbound URL in the designated field (e.g., `http://localhost:8080`)
 3. Click Save to store the URL
 
-The feature uses the Southbound API architecture to communicate with devices. The TD is sent via HTTP POST to the configured endpoint. This enables direct deployment of your edited Thing Description to compatible WoT devices.
+The proxy uses the TD sent to its southbound API endpoint to communicate with a Thing. This way, you can interact with a non-HTTP Thing from your EdiTDor.
 
 ## Implemented Features:
 
