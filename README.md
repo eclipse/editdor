@@ -58,7 +58,7 @@ Please follow our [contribution guide](./CONTRIBUTING.md).
 
 In development environment it is possible to use [react scan](https://react-scan.com/) to detect performance issues by analyzing the pop up on the bottom right corner. The complete documentation is available [here](https://github.com/aidenybai/react-scan#readme).
 
-### Contribution to Cataloge feature
+### Using the Catalog Contribution Feature
 
 You will need the following [tmc]() library to run in the terminal, and have your own catalog locally:
 
