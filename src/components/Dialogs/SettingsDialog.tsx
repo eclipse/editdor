@@ -174,7 +174,7 @@ const SettingsDialog = forwardRef<SettingsDialogRef, SettingsDialogProps>(
               label={
                 <InfoIconWrapper
                   tooltip={{
-                    html: "The target URL southbound",
+                    html: "The target southbound URL",
                     href: "",
                   }}
                   id="settings-target-url-southbound-info"
