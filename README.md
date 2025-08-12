@@ -29,7 +29,7 @@ This project aims to make creating W3C Thing Description instances and Thing Mod
 
 - [Introduction Web Of Things concept - Wikipedia](https://en.wikipedia.org/wiki/Web_of_Things)
 - [Introdcution Things Description - Wikipedia](https://en.wikipedia.org/wiki/Thing_Description)
-- [Standart - W3c Web of Things - Thing Description](<https://w3c.github.io/wot-thing-description/#simple-thing-description-sample%20Web%20of%20Things%20(WoT)%20Thing%20Description%20-%20Next>)
+- [Standard - W3C Web of Things - Thing Description](https://www.w3.org/TR/2023/REC-wot-thing-description11-20231205/)
   [W3c Web of Things (WoT) Modbus Binding Template]
 
 - [Standart - W3c Web of Things (WoT) Modbus Binding Template](https://w3c.github.io/wot-binding-templates/bindings/protocols/modbus/#abstract)
