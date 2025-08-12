@@ -114,6 +114,9 @@ Example of use:
 
 Query parameters **northbound**, **southbound**, **valuePath** will set the value for the _Target URL Northbound_, _Target URL Southbound_, and _JSON Pointer Path_, respectively, under the Settings pop-up.
 
+The _JSON Pointer Path_ is the path to the key on the JSON object where the value to be read or write is. This means when the ediTDor will try to read a value for a given property, the value the user will get from the response corresponds to the value of the key defined. In the case of a nested structure must be the path to the key using "/" character.
+For example, in a JSON like `{"foo": {"bar":"somevalue"}}`, where `somevalue` is the value according the Data Schema of the TD, you should enter `/foo/bar`.
+
 Example of use:
 
     http://localhost:5173/?northbound=http://localhost:8080&southbound=http://github.com&valuePath=/value
