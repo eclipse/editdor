@@ -376,6 +376,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
           onCellClick={handleCellClick}
           onRowClick={handleOnRowClick}
           onSendRequestClick={handleOnClickSendRequest}
+          baseUrl={td.base ?? ""}
         />
       );
     }

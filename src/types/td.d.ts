@@ -19,6 +19,13 @@ declare module "*.png" {
   export default value;
 }
 
+declare const APP_VERSION: string;
+
+declare module "*.png" {
+  const value: string;
+  export default value;
+}
+
 type FormOpKeys =
   | "readproperty"
   | "writeproperty"
@@ -39,56 +46,9 @@ interface IFormProps extends FormElementBase {
   actualIndex: number;
   op: string; //override
 }
-/*
-interface IModbusForm extends IForm {
-  "modbus:unitID": number;
-  "modbus:address": number;
-  "modbus:quantity": number;
-  "modbus:type"?: string;
-  "modbus:zeroBasedAddressing": boolean;
-  "modbus:entity"?: string;
-  "modbus:pollingTime"?: string;
-  "modbus:function"?: string;
-  "modbus:mostSignificantByte": boolean;
-  "modbus:mostSignificantWord": boolean;
-  "modbus:timeout"?: string;
-}
 
-interface IProperty {
-  type?: string;
-  description?: string;
-  observable?: boolean;
-  readOnly?: boolean;
-  writeOnly?: boolean;
-  forms: IForm[];
-  [key: string]: any;
-}
+export type Method = "GET" | "POST" | "PUT" | "DELETE";
 
-interface IAction {
-  description?: string;
-  input?: IDataSchema;
-  output?: IDataSchema;
-  forms: IForm[];
-  [key: string]: any;
+export interface RequestWebOptions extends RequestInit {
+  queryParams?: Record<string, string | number | boolean>;
 }
-
-interface IEvent {
-  description?: string;
-  data?: IDataSchema;
-  forms: IForm[];
-  [key: string]: any;
-}
-
-interface IDataSchema {
-  type?: string;
-  description?: string;
-  enum?: any[];
-  minimum?: number;
-  maximum?: number;
-  [key: string]: any;
-}
-declare module "*.png" {
-  const value: string;
-  export default value;
-}
-*/

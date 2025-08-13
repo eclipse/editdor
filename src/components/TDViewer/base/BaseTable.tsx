@@ -59,6 +59,7 @@ interface BaseTableProps<T extends TableItem> {
   className?: string;
   renderItem?: (item: T, headerKey: string) => React.ReactNode;
   placeholder?: React.ReactNode;
+  baseUrl: string;
 }
 
 const BaseTable = <T extends TableItem>({
@@ -75,6 +76,7 @@ const BaseTable = <T extends TableItem>({
   className = "",
   renderItem,
   placeholder,
+  baseUrl = "",
 }: BaseTableProps<T>): JSX.Element => {
   const filteredItems = useMemo(() => {
     const defaultFilterMethod = (filterValue: string) => (item: T) =>

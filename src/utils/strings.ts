@@ -44,3 +44,22 @@ export const isValidUrl = (url: string): boolean => {
   const regex = /^(https?:\/\/)([\w.-]+)(:\d+)?(\/[^\s]*)?$/i;
   return regex.test(url);
 };
+
+export const capitalizeFirstLetter = (input: string): string => {
+  if (input.length === 0) {
+    return "";
+  }
+  const processed = input.startsWith(" ") ? input.substring(1) : input;
+
+  if (processed.length === 0) {
+    return "";
+  }
+
+  const isFirstCharLetter = /[a-zA-Z]/.test(processed[0]);
+
+  if (isFirstCharLetter) {
+    return processed[0].toUpperCase() + processed.slice(1);
+  }
+
+  return processed;
+};

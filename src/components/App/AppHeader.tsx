@@ -10,22 +10,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useCallback, useContext, useEffect } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import {
   Download,
   File,
   FilePlus,
   FileText,
-  Save,
   Settings,
   Share,
   Link,
+  Send,
 } from "react-feather";
 import editdorLogo from "../../assets/editdor.png";
 import ediTDorContext from "../../context/ediTDorContext";
 import * as fileTdService from "../../services/fileTdService";
-import { getTargetUrl } from "../../services/targetUrl";
-import * as thingsApiService from "../../services/thingsApiService";
 import { isThingModel } from "../../util";
 import ConvertTmDialog from "../Dialogs/ConvertTmDialog";
 import CreateTdDialog from "../Dialogs/CreateTdDialog";
@@ -34,23 +38,50 @@ import ShareDialog from "../Dialogs/ShareDialog";
 import ContributeToCatalog from "../Dialogs/ContributeToCatalog";
 import ErrorDialog from "../Dialogs/ErrorDialog";
 import Button from "./Button";
+import SendTDDialog from "../Dialogs/SendTDDialog";
+import { getTargetUrl } from "../../services/localStorage";
+import type { ThingDescription } from "wot-thing-description-types";
 
 const EMPTY_TM_MESSAGE =
   "To contribute a Thing Model, please first load a Thing Model to be validated.";
 const INVALID_TYPE_MESSAGE =
   'To contribute a Thing Model, the TM must have the following pair key/value:  "@type": "tm:ThingModel"  ';
+const VALIDATION_FAILED_MESSAGE =
+  "The Thing Model did not pass the JSON schema validation Please make sure the Thing Model is valid according to the JSON schema before contributing it to the catalog.";
 
 const AppHeader: React.FC = () => {
   const context = useContext(ediTDorContext);
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [errorDisplay, setErrorDisplay] = React.useState<{
+  const td: ThingDescription = context.parsedTD;
+  /** States*/
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorDisplay, setErrorDisplay] = useState<{
     state: boolean;
     message: string;
   }>({
     state: false,
     message: "",
   });
+  /** Refs */
+  const convertTmDialog = useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
+  const shareDialog = useRef<{ openModal: () => void }>(null);
+  const createTdDialog = useRef<{ openModal: () => void }>(null);
+  const settingsDialog = useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
+  const contributeToCatalog = useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
+  const sendTdDialog = useRef<{
+    openModal: () => void;
+    close: () => void;
+  }>(null);
 
+  /** Callbacks */
   const verifyDiscard = useCallback((): boolean => {
     if (!context.isModified) {
       return true;
@@ -84,59 +115,15 @@ const AppHeader: React.FC = () => {
     } catch (error) {
       const msg = "Opening a new TD was canceled or an error occured.";
       console.error(msg, error);
-      alert(msg);
+      setErrorDisplay({
+        state: true,
+        message: msg,
+      });
     }
   }, [context, verifyDiscard]);
 
-  /**
-   * @description
-   * *save* tries to save the TD/TM via some intermediary or thing directory,
-   * which supports the Things API (https://www.w3.org/TR/wot-discovery/#exploration-directory-api-things).
-   *
-   * If there is no endpoint to such a Things API defined, it falls back to
-   * simply downloading it.
-   */
-  const save = useCallback(async () => {
-    const td = context.parsedTD;
-
-    if (!context.isValidJSON) {
-      return alert(
-        "Didn't save TD. The given TD can't even be parsed into a JSON object."
-      );
-    }
-
-    setIsLoading(true);
-    const targetUrl = getTargetUrl();
-    if (targetUrl === "") {
-      // no target url provided, save to file
-      const fileHandle = await fileTdService.saveToFile(
-        context.name,
-        context.fileHandle,
-        context.offlineTD
-      );
-      context.setFileHandle(fileHandle ?? context.fileHandle);
-    } else {
-      // target url provided, try to save it through the Things API
-      try {
-        if (td.id) {
-          thingsApiService.createThing(td, targetUrl);
-        } else {
-          thingsApiService.createAnonymousThing(td, targetUrl);
-        }
-      } catch (error) {
-        console.debug(error);
-        alert(
-          "Didn't save TD. Please check if the provided target URL is correct and the intermediary / thing directory is working as intended."
-        );
-        return;
-      }
-    }
-
-    context.updateIsModified(false);
-    setIsLoading(false);
-  }, [context]);
-
   const createNewFile = useCallback(async () => {
+    setIsLoading(true);
     try {
       const fileHandle = await fileTdService.saveToFile(
         context.name,
@@ -147,9 +134,13 @@ const AppHeader: React.FC = () => {
       context.updateIsModified(false);
     } catch (error) {
       console.debug(error);
-      alert(
-        "Didn't save TD. The action was either canceled or ran into an error."
-      );
+      setErrorDisplay({
+        state: true,
+        message:
+          "Didn't save TD. The action was either canceled or ran into an error.",
+      });
+    } finally {
+      setIsLoading(false);
     }
   }, [context]);
 
@@ -158,8 +149,6 @@ const AppHeader: React.FC = () => {
       setIsLoading(true);
       const res = await func();
       setIsLoading(false);
-
-      console.log(res);
       return res;
     };
   };
@@ -172,7 +161,7 @@ const AppHeader: React.FC = () => {
       ) {
         e.preventDefault();
         e.stopPropagation();
-        handleWithLoadingState(save)();
+        handleWithLoadingState(createNewFile)();
       }
       if (
         (window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) &&
@@ -209,38 +198,24 @@ const AppHeader: React.FC = () => {
       //Remove Eventlistener for shortcuts before unmounting component
       document.removeEventListener("keydown", shortcutHandler, false);
     };
-  }, [openFile, save]);
+  }, [openFile, createNewFile]);
 
-  const convertTmDialog = React.useRef<{
-    openModal: () => void;
-    close: () => void;
-  }>(null);
   const handleOpenConvertTmDialog = () => {
     convertTmDialog.current?.openModal();
   };
 
-  const shareDialog = React.useRef<{ openModal: () => void }>(null);
   const handleOpenShareDialog = () => {
     shareDialog.current?.openModal();
   };
 
-  const createTdDialog = React.useRef<{ openModal: () => void }>(null);
   const handleOpenCreateTdDialog = () => {
     createTdDialog.current?.openModal();
   };
 
-  const settingsDialog = React.useRef<{
-    openModal: () => void;
-    close: () => void;
-  }>(null);
   const handleOpenSettingsDialog = () => {
     settingsDialog.current?.openModal();
   };
 
-  const contributeToCatalog = React.useRef<{
-    openModal: () => void;
-    close: () => void;
-  }>(null);
   const handleOpenContributeToCatalog = (): void => {
     if (!context.offlineTD) {
       setErrorDisplay({
@@ -255,12 +230,45 @@ const AppHeader: React.FC = () => {
     } else if (context.validationMessage?.report.schema === "failed") {
       setErrorDisplay({
         state: true,
-        message: `The Thing Model did not pass the JSON schema validation Please make sure the Thing Model is valid according to the JSON schema before contributing it to the catalog.`,
+        message: VALIDATION_FAILED_MESSAGE,
       });
     } else {
       contributeToCatalog.current?.openModal();
     }
   };
+
+  const handleSendTD = async () => {
+    if (!context.offlineTD || Object.keys(context.offlineTD).length === 0) {
+      setErrorDisplay({
+        state: true,
+        message:
+          "No Thing Description available to send. Please load a valid TD.",
+      });
+    } else if (context.validationMessage?.report.schema === "failed") {
+      setErrorDisplay({
+        state: true,
+        message: VALIDATION_FAILED_MESSAGE,
+      });
+    } else if (!getTargetUrl("southbound")) {
+      setErrorDisplay({
+        state: true,
+        message:
+          "No Southbound URL available. Please configure the Southbound URL on settings",
+      });
+    } else if (!td.id) {
+      setErrorDisplay({
+        state: true,
+        message:
+          "No identifier available on Thing description. Please add an identifier to the TD.",
+      });
+    } else {
+      sendTdDialog.current?.openModal();
+    }
+  };
+
+  // Condition necessary to improve the typescript checks as id is optional
+  // in the current version of wot-thing-description-types
+  const currentTdId = td.id ?? "";
 
   return (
     <>
@@ -279,6 +287,11 @@ const AppHeader: React.FC = () => {
         <div className="flex items-center gap-4 pr-2">
           {isLoading && <div className="app-header-spinner hidden md:block" />}
 
+          <Button onClick={handleSendTD}>
+            <Send />
+            <div className="text-xs">Send TD</div>
+          </Button>
+
           <Button onClick={handleOpenContributeToCatalog}>
             <Share />
             <div className="text-xs">Contribute to Catalog</div>
@@ -289,12 +302,7 @@ const AppHeader: React.FC = () => {
             <div className="text-xs">Share</div>
           </Button>
 
-          <div className="hidden md:block">
-            <Button onClick={handleWithLoadingState(save)}>
-              <Save />
-              <div className="text-xs">Save</div>
-            </Button>
-          </div>
+          <div className="w-4" aria-hidden="true" />
 
           <div className="hidden md:block">
             <Button onClick={handleWithLoadingState(openFile)}>
@@ -319,14 +327,14 @@ const AppHeader: React.FC = () => {
             <Download />
             <div className="text-xs">Download</div>
           </Button>
-
+          <div className="w-4" aria-hidden="true" />
           <Button onClick={handleOpenSettingsDialog}>
             <Settings />
             <div className="text-xs">Settings</div>
           </Button>
         </div>
       </header>
-
+      <SendTDDialog ref={sendTdDialog} currentTdId={currentTdId} />
       <ConvertTmDialog ref={convertTmDialog} />
       <ShareDialog ref={shareDialog} />
       <CreateTdDialog ref={createTdDialog} />
