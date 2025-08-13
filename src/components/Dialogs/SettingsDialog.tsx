@@ -234,64 +234,6 @@ const SettingsDialog = forwardRef<SettingsDialogRef, SettingsDialogProps>(
             )}
           </div>
         </div>
-
-        <div className="my-4 rounded-md bg-black bg-opacity-80 p-2">
-          <h1 className="font-bold">Destination save</h1>
-          <div className="px-4">
-            <h2 className="py-1 pl-2 text-justify text-gray-400">
-              Controls the destination of the TDs when saving them.
-            </h2>
-            <div className="flex flex-row pl-2">
-              <input
-                id="destination"
-                type="checkbox"
-                checked={saveToCatalog}
-                onChange={() => handleChangeOnSaveToCatalog(!saveToCatalog)}
-              />
-              <label className="form-checkbox-label pl-2 text-gray-400">
-                <InfoIconWrapper
-                  tooltip={{
-                    html: "If checked, the TDs will be saved to the catalog. If unchecked, they will be saved to the local file system.",
-                    href: "",
-                  }}
-                  id="settingsPathToValueInfo"
-                  children={"Save TDs to the catalog"}
-                />
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div className="my-4 rounded-md bg-black bg-opacity-80 p-2">
-          <h1 className="font-bold">Table view Properties</h1>
-          <div className="px-4">
-            <h2 className="py-1 pl-2 text-justify text-gray-400">
-              Controls the way the read of properties will be done.
-            </h2>
-            <div className="flex flex-row pl-2">
-              <input
-                id="useNorthbound"
-                type="checkbox"
-                checked={useNorthboundForInteractions}
-                onChange={() =>
-                  handleChangeOnUseNorthboundForInteractions(
-                    !useNorthboundForInteractions
-                  )
-                }
-              />
-              <label className="form-checkbox-label pl-2 text-gray-400">
-                <InfoIconWrapper
-                  tooltip={{
-                    html: "If checked, when checking the properties in the view Table, the northbound TD will be used to read values.",
-                    href: "",
-                  }}
-                  id="settingsUseNorthboundInfo"
-                  children={"Use northbound TD for interactions"}
-                />
-              </label>
-            </div>
-          </div>
-        </div>
       </>
     );
 
