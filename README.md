@@ -9,20 +9,29 @@ https://eclipse.github.io/editdor/
 
 ## About this project
 
-This project aims to make creating W3C Thing Description instances and Thing Models easy by providing a platform-independent ediTDor tool. The following features are addressed in this project
+This project aims to make creating W3C Thing Description (TD) instances and Thing Model (TM) easy by providing a platform-independent ediTDor tool. The following features are addressed in this project:
 
-- Creating a new Thing Description / ThingModel from scratch
+- Creating a new Thing Description / Thing Model from scratch
 - Rendering a Thing Description / Thing Model
 - Editing the Thing Description / Thing Model
-- Validating the Thing Description / ThingModel
-- Exporting the Thing Description / ThingModel from the visual representation into JSON-LD
+- Validating the Thing Description / Thing Model
+- Exporting the Thing Description / Thing Model from the visual representation into JSON-LD
 - Reading/writing exposed properties' values exposed by a proxy (anything that can translate a protocol to HTTP)
+- Contributing the Thing Model to a third-party catalog using [the Thing Model Catalog API](https://github.com/wot-oss/tmc)
 
 ## Technologies
 
 - React
 - TailwindCSS
 - Typescript
+
+## Resources
+
+- [Introduction Web of Things concept - Wikipedia](https://en.wikipedia.org/wiki/Web_of_Things)
+- [Introduction Thing Description - Wikipedia](https://en.wikipedia.org/wiki/Thing_Description)
+- [Standard - W3C Web of Things - Thing Description](https://www.w3.org/TR/2023/REC-wot-thing-description11-20231205/)
+- [Standard - W3C Web of Things (WoT) Modbus Binding](https://w3c.github.io/wot-binding-templates/bindings/protocols/modbus)
+- [Web of Things Homepage](https://www.w3.org/WoT/)
 
 ## Contribution guide
 
@@ -45,9 +54,72 @@ Please follow our [contribution guide](./CONTRIBUTING.md).
 
 `yarn dev` starts a local development server on Port 3000 (http://localhost:3000)
 
-## Development enviroment
+## Development environment
 
-In development environment it is possible to use [react scan](https://react-scan.com/) to detect performance issues by analyzing the pop up on the bottom right corner. The complete documentation is available [here](https://github.com/aidenybai/react-scan#readme).
+In the development environment it is possible to use [react scan](https://react-scan.com/) to detect performance issues by analyzing the pop-up on the bottom right corner. The complete documentation is available [here](https://github.com/aidenybai/react-scan#readme).
+
+### Using the Catalog Contribution Feature
+
+You will need a [Thing Model Catalog](https://github.com/wot-oss/tmc) running somewhere. If you want to host it yourself, use the command-line interface to run one in the terminal using the following instructions:
+
+```bash
+    go install github.com/wot-oss/tmc@v0.1.2
+    $GOPATH/bin/tmc
+    ./tmc-linux-amd64
+```
+
+The most use commands to test are:
+
+```bash
+    tmc serve
+    tmc repo add --type file <nameOfCatalog> ~/tm-catalog
+```
+
+A local repository folder will be created inside the tm-catalog directory
+
+```bash
+    tmc list
+    tmc repo list
+    tmc repo remove <nameOfCatalog>
+```
+
+### Send TD feature
+
+To use the **_Send TD_** feature, it is necessary to define in the Settings pop-up the Southbound URL and Northbound URL. The Send TD feature allows you to send your Thing Description to any service following [the WoT TD Directory specification](https://www.w3.org/TR/wot-discovery/#exploration-directory-api-things).
+Afterwards, if the service proxies the TD, ediTDor can fetch the proxied TD containing HTTP `href`s to interact with the original Thing.
+
+#### Configuration
+
+1. Open the Settings pop-up from the main toolbar
+2. Enter your Southbound URL in the designated field (e.g., `http://localhost:8080`)
+3. Click Save to store the URL
+
+The proxy uses the TD sent to its southbound API endpoint to communicate with a Thing. This way, you can interact with a non-HTTP Thing from your ediTDor.
+
+### Automatically reading URL parameters
+
+The ediTDor has the functionality to automatically set the following list of variables from a URL with query parameters:
+
+1. tmcendpoint
+2. repo
+3. northbound
+4. southbound
+5. valuePath
+
+Query parameters **tmcendpoint** and **repo** will set the value for the _TMC Catalog Endpoint_ and the _Name of Repository_, respectively, present in the Contribute to Catalog pop-up.
+
+Example of use:
+
+    http://localhost:5173/?tmcendpoint=http://localhost:8080&repo=my-catalog
+
+Query parameters **northbound**, **southbound**, **valuePath** will set the value for the _Target URL Northbound_, _Target URL Southbound_, and _JSON Pointer Path_, respectively, under the Settings pop-up.
+
+The _JSON Pointer Path_ is the path to the key on the JSON object where the value to be read or write is. This means when the ediTDor will try to read a value for a given property, the value the user will get from the response corresponds to the value of the key defined. In the case of a nested structure must be the path to the key using "/" character.
+For example, in a JSON like `{"foo": {"bar":"somevalue"}}`, where `somevalue` is the value according the Data Schema of the TD, you should enter `/foo/bar`.
+
+Example of use:
+
+    http://localhost:5173/?northbound=http://localhost:8080&southbound=http://github.com&valuePath=/value
 
 ## Implemented Features:
 
@@ -56,3 +128,4 @@ In development environment it is possible to use [react scan](https://react-scan
 - Render TD to be more human-readable
 - Validate JSON Syntax and JSON Schema for TD (JSONLD and Additional Validation for nested TM will be implemented in the future)
 - Add a TM or TD via a CSV file (For now, Modbus only)
+- Configuration on Settings page includes: southbound URL, northbound URL, save location, and configuration of the path value
