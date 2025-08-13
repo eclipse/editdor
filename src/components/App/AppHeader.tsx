@@ -22,7 +22,6 @@ import {
   File,
   FilePlus,
   FileText,
-  Save,
   Settings,
   Share,
   Link,
@@ -62,10 +61,6 @@ const AppHeader: React.FC = () => {
     state: false,
     message: "",
   });
-  const [saveToCatalog, setSaveToCatalog] = useState<boolean>(false);
-  const [useNorthboundForInteractions, setUseNorthboundForInteractions] =
-    useState<boolean>(false);
-
   /** Refs */
   const convertTmDialog = useRef<{
     openModal: () => void;
@@ -242,10 +237,6 @@ const AppHeader: React.FC = () => {
     }
   };
 
-  const handleChangeOnSaveToCatalog = (value: boolean): void => {
-    setSaveToCatalog(value);
-  };
-
   const handleSendTD = async () => {
     if (!context.offlineTD || Object.keys(context.offlineTD).length === 0) {
       setErrorDisplay({
@@ -313,13 +304,6 @@ const AppHeader: React.FC = () => {
 
           <div className="w-4" aria-hidden="true" />
 
-          {/* <div className="hidden md:block">
-            <Button onClick={handleWithLoadingState(save)}>
-              <Save />
-              <div className="text-xs">Save</div>
-            </Button>
-          </div> */}
-
           <div className="hidden md:block">
             <Button onClick={handleWithLoadingState(openFile)}>
               <File />
@@ -354,15 +338,7 @@ const AppHeader: React.FC = () => {
       <ConvertTmDialog ref={convertTmDialog} />
       <ShareDialog ref={shareDialog} />
       <CreateTdDialog ref={createTdDialog} />
-      <SettingsDialog
-        ref={settingsDialog}
-        saveToCatalog={saveToCatalog}
-        handleChangeOnSaveToCatalog={handleChangeOnSaveToCatalog}
-        useNorthboundForInteractions={useNorthboundForInteractions}
-        handleChangeOnUseNorthboundForInteractions={
-          setUseNorthboundForInteractions
-        }
-      />
+      <SettingsDialog ref={settingsDialog} />
       <ContributeToCatalog ref={contributeToCatalog} />
       <ErrorDialog
         isOpen={errorDisplay.state}
