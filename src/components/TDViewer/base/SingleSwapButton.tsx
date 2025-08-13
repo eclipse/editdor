@@ -10,8 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext, useState } from "react";
-import IncrementButton from "../base/IncrementButton";
+import React from "react";
 import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import ButtonSwap from "../base/ButtonSwap";
 

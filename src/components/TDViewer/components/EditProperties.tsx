@@ -12,9 +12,6 @@
  ********************************************************************************/
 import React, { useContext, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
-import ButtonSwap from "../base/ButtonSwap";
-import IncrementButton from "../base/IncrementButton";
-import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import {
   getAddressOffsetTooltipContent,
   getEndiannessTooltipContent,

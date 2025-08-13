@@ -63,3 +63,8 @@ export const capitalizeFirstLetter = (input: string): string => {
 
   return processed;
 };
+
+export const ensureTrailingSlash = (url: string): string => {
+  if (!url) return "/";
+  return url.endsWith("/") ? url : `${url}/`;
+};
