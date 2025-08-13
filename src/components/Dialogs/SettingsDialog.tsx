@@ -147,7 +147,7 @@ const SettingsDialog = forwardRef<SettingsDialogRef, SettingsDialogProps>(
               label={
                 <InfoIconWrapper
                   tooltip={{
-                    html: "The target URL northbound should point to a server that implements the Discovery Specifications's Things API. If a valid target URL is provided, the ediTDor automatically uses it to save your changes. Empty this field to simply save files to disk.",
+                    html: "The target northbound URL should point to a server that implements the Discovery Specifications's Things API. If a valid target URL is provided, the editTDor will use it for all interactions with the Thing.",
                     href: "",
                   }}
                   id="settings-target-url-northbound-info"
