@@ -21,6 +21,10 @@ const defaultContext: IEdiTDorContext = {
   fileHandle: null,
   linkedTd: {},
   validationMessage: undefined,
+  northboundConnection: {
+    message: "",
+    northboundTd: {},
+  },
 
   updateOfflineTD: () => {},
   updateIsModified: () => {},
@@ -32,6 +36,7 @@ const defaultContext: IEdiTDorContext = {
   addLinkedTd: () => {},
   updateLinkedTd: () => {},
   updateValidationMessage: () => {},
+  updateNorthboundConnection: () => {},
 };
 
 const ediTDorContext = React.createContext<IEdiTDorContext>(defaultContext);
