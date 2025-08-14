@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useRef } from "react";
 import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../../util.js";
@@ -27,7 +27,7 @@ const Property: React.FC<any> = (props) => {
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const addFormDialog = React.useRef(props);
+  const addFormDialog = useRef(props);
   const handleOpenAddFormDialog = () => {
     addFormDialog.current.openModal();
   };

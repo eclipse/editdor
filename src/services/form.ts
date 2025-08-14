@@ -12,6 +12,7 @@
  ********************************************************************************/
 import { Core, Http } from "@node-wot/browser-bundle";
 import type { ThingDescription } from "wot-thing-description-types";
+import type { IFormConfigurations } from "../types/form.d.ts";
 
 const servient = new Core.Servient();
 servient.addClientFactory(new Http.HttpClientFactory());
@@ -22,13 +23,13 @@ const formConfigurations: Record<string, IFormConfigurations> = {
     color: "Green",
     title: "Read",
     level: "properties",
-    callback: readProperty,
+    callback: readPropertyWithServiant,
   },
   writeproperty: {
     color: "Blue",
     title: "Write",
     level: "properties",
-    callback: writeProperty,
+    callback: writePropertyWithServiant,
   },
   observeproperty: {
     color: "Orange",
@@ -164,7 +165,7 @@ const parseContent = (propertyType: string, content: string): any => {
 };
 
 /** @type {InteractionFunction} */
-async function readProperty(
+async function readPropertyWithServiant(
   td: ThingDescription,
   propertyName: string,
   options: {
@@ -189,7 +190,7 @@ async function readProperty(
   }
 }
 
-async function writeProperty(
+async function writePropertyWithServiant(
   td: ThingDescription,
   propertyName: string,
   content: string
@@ -218,4 +219,8 @@ async function writeProperty(
   }
 }
 
-export { formConfigurations, readProperty, writeProperty };
+export {
+  formConfigurations,
+  readPropertyWithServiant,
+  writePropertyWithServiant,
+};

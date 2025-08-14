@@ -23,6 +23,7 @@ import {
 } from "../../services/thingsApiService";
 import RequestSuccessful from "./base/RequestSuccessful";
 import RequestFailed from "./base/RequestFailed";
+import { fetchNorthboundTD } from "../../services/thingsApiService";
 
 export interface SendTDDialogRef {
   openModal: () => void;
@@ -86,6 +87,11 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
 
         if ("data" in response && response.status === 200) {
           setIsUpdate(true);
+          const responseNorthbound = await fetchNorthboundTD(currentTdId);
+          context.updateNorthboundConnection({
+            message: responseNorthbound.message,
+            northboundTd: responseNorthbound.data ?? {},
+          });
         } else {
           setIsUpdate(false);
         }
@@ -138,8 +144,13 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
             ...requestUpdate,
             isLoading: false,
             success: true,
-            message: `TD updated successfully to ${endpoint}!`,
+            message: `TD updated successfully to ${endpoint}`,
             reason: "",
+          });
+          const responseNorthbound = await fetchNorthboundTD(currentTdId);
+          context.updateNorthboundConnection({
+            message: responseNorthbound.message,
+            northboundTd: responseNorthbound.data ?? {},
           });
         }
       } else {
@@ -176,8 +187,13 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
             ...requestSend,
             isLoading: false,
             success: true,
-            message: `TD sent successfully to ${endpoint}!`,
+            message: `TD sent successfully to ${endpoint}`,
             reason: "",
+          });
+          const responseNorthbound = await fetchNorthboundTD(currentTdId);
+          context.updateNorthboundConnection({
+            message: responseNorthbound.message,
+            northboundTd: responseNorthbound.data ?? {},
           });
           setIsUpdate(true);
         }

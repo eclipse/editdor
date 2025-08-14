@@ -42,7 +42,7 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
     name: "",
     validationMessage: "",
     fileHandle: null,
-    linkedTd: {},
+    linkedTd: undefined,
     northboundConnection: {
       message: "",
       northboundTd: {},

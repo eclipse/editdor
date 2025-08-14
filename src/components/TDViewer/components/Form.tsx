@@ -14,7 +14,7 @@ import React from "react";
 import FormDetails from "../base/FormDetails";
 import UndefinedForm from "../base/UndefinedForm";
 import { formConfigurations } from "../../../services/form";
-import type { IFormProps, FormOpKeys } from "../../../types/td.d";
+import type { IFormProps, FormOpKeys } from "../../../types/global";
 
 const typeToJSONKey = (type: string): string => {
   const typeToJSONKey: Record<string, string> = {

@@ -15,7 +15,7 @@ import { ChevronUp, Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { formConfigurations } from "../../../services/form";
 import type { ThingDescription } from "wot-thing-description-types";
-import type { IFormProps, FormOpKeys } from "../../../types/td";
+import type { IFormProps, FormOpKeys } from "../../../types/global";
 
 type IInteractionFunction = (
   td: ThingDescription,

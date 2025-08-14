@@ -1,8 +1,3 @@
-interface INorthboundConnection {
-  message: string;
-  northboundTd: ThingDescription | {};
-}
-
 interface IEdiTDorContext {
   // offlineTD: Saving or displaying the TD as JSON For storage, sharing, or exporting Primary source of truth for the TD
   offlineTD: string;
@@ -12,7 +7,7 @@ interface IEdiTDorContext {
   isModified: boolean;
   name: string;
   fileHandle: string | null;
-  linkedTd: Record<string, any>;
+  linkedTd: Record<string, any> | undefined;
   validationMessage?: any;
   northboundConnection: INorthboundConnection;
 
@@ -35,6 +30,11 @@ interface IEdiTDorContext {
   updateNorthboundConnection: (
     northboundConnection: INorthboundConnection
   ) => void;
+}
+
+interface INorthboundConnection {
+  message: string;
+  northboundTd: ThingDescription | {};
 }
 
 type EditorState = Omit<
