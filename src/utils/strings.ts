@@ -68,3 +68,7 @@ export const ensureTrailingSlash = (url: string): string => {
   if (!url) return "/";
   return url.endsWith("/") ? url : `${url}/`;
 };
+
+export function stripDoubleQuotes(str: string): string {
+  return str.replace(/^"|"$/g, "");
+}

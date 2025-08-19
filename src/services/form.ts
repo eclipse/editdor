@@ -13,6 +13,7 @@
 import { Core, Http } from "@node-wot/browser-bundle";
 import type { ThingDescription } from "wot-thing-description-types";
 import type { IFormConfigurations } from "../types/form.d.ts";
+import { stripDoubleQuotes } from "../utils/strings.js";
 
 const servient = new Core.Servient();
 servient.addClientFactory(new Http.HttpClientFactory());
@@ -24,84 +25,93 @@ const formConfigurations: Record<string, IFormConfigurations> = {
     title: "Read",
     level: "properties",
     callback: readPropertyWithServiant,
+    thirdPartyCallback: null,
   },
   writeproperty: {
     color: "Blue",
     title: "Write",
     level: "properties",
     callback: writePropertyWithServiant,
+    thirdPartyCallback: null,
   },
   observeproperty: {
     color: "Orange",
     title: "Observe",
     level: "properties",
     callback: null,
+    thirdPartyCallback: null,
   },
   unobserveproperty: {
     color: "Red",
     title: "Unobserve",
     level: "properties",
     callback: null,
+    thirdPartyCallback: null,
   },
   invokeaction: {
     color: "Orange",
     title: "Invoke",
     level: "actions",
     callback: null,
+    thirdPartyCallback: null,
   },
   subscribeevent: {
     color: "Orange",
     title: "Subscribe",
     level: "events",
     callback: null,
+    thirdPartyCallback: null,
   },
   unsubscribeevent: {
     color: "Red",
     title: "Unsubscribe",
     level: "events",
     callback: null,
+    thirdPartyCallback: null,
   },
   readmultipleproperties: {
     color: "Green",
     title: "Read Multiple",
     level: "thing",
     callback: null,
+    thirdPartyCallback: null,
   },
   readallproperties: {
     color: "Green",
     title: "Read All",
     level: "thing",
     callback: null,
+    thirdPartyCallback: null,
   },
   writemultipleproperties: {
     color: "Blue",
     title: "Write Multiple",
     level: "thing",
     callback: null,
+    thirdPartyCallback: null,
   },
   writeallproperties: {
     color: "Blue",
     title: "Write All",
     level: "thing",
     callback: null,
+    thirdPartyCallback: null,
   },
   observeallproperties: {
     color: "Orange",
     title: "Observe All",
     level: "thing",
     callback: null,
+    thirdPartyCallback: null,
   },
   unobserveallproperties: {
     color: "Red",
     title: "Unobserve All",
     level: "thing",
     callback: null,
+    thirdPartyCallback: null,
   },
 };
-
-function stripDoubleQuotes(str: string): string {
-  return str.replace(/^"|"$/g, "");
-}
 
 /**
  * Description of the function
@@ -186,7 +196,7 @@ async function readPropertyWithServiant(
     return { result: JSON.stringify(val, null, 2), err: null };
   } catch (e) {
     console.debug(e);
-    return { result: "", err: e };
+    return { result: "", err: e as Error };
   }
 }
 

@@ -16,11 +16,38 @@ export interface IFormConfigurations {
         propertyName: string,
         options: any
       ) => Promise<{ result: string; err: Error | null }>);
+  thirdPartyCallback:
+    | null
+    | ((
+        td: ThingDescription,
+        propertyName: string,
+        content: string
+      ) => Promise<{ result: string; err: Error | null }>)
+    | ((
+        td: ThingDescription,
+        propertyName: string,
+        options: any
+      ) => Promise<{ result: string; err: Error | null }>);
 }
 
-interface FormProps {
+interface IFormProps {
   href: string;
   op: string | string[];
   propName: string;
   actualIndex: number;
 }
+
+type OpKeys =
+  | "readproperty"
+  | "writeproperty"
+  | "observeproperty"
+  | "unobserveproperty"
+  | "invokeaction"
+  | "subscribeevent"
+  | "unsubscribeevent"
+  | "readmultipleproperties"
+  | "readallproperties"
+  | "writemultipleproperties"
+  | "writeallproperties"
+  | "observeallproperties"
+  | "unobserveallproperties";

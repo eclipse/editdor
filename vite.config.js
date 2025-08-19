@@ -16,5 +16,8 @@ export default defineConfig(({ mode }) => {
       "process.env": env,
       APP_VERSION: JSON.stringify(process.env.npm_package_version),
     },
+    build: {
+      sourcemap: mode === "development",
+    },
   };
 });

@@ -24,27 +24,6 @@ declare module "*.png" {
   export default value;
 }
 
-type FormOpKeys =
-  | "readproperty"
-  | "writeproperty"
-  | "observeproperty"
-  | "unobserveproperty"
-  | "invokeaction"
-  | "subscribeevent"
-  | "unsubscribeevent"
-  | "readmultipleproperties"
-  | "readallproperties"
-  | "writemultipleproperties"
-  | "writeallproperties"
-  | "observeallproperties"
-  | "unobserveallproperties";
-
-interface IFormProps extends FormElementBase {
-  propName: string;
-  actualIndex: number;
-  op: string; //override
-}
-
 export type Method = "GET" | "POST" | "PUT" | "DELETE";
 
 export interface RequestWebOptions extends RequestInit {
