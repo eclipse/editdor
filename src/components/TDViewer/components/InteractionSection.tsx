@@ -37,7 +37,7 @@ import {
   requestWeb,
   extractValueByPath,
 } from "../../../services/thingsApiService";
-import { getTargetUrl } from "../../../services/localStorage";
+import { getLocalStorage } from "../../../services/localStorage";
 import ErrorDialog from "../../Dialogs/ErrorDialog";
 
 const SORT_ASC = "asc";
@@ -237,7 +237,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       const response = await requestWeb(url, "GET");
       if (response.ok) {
         const data = await response.json();
-        let jsonPointerPath = getTargetUrl("valuePath");
+        let jsonPointerPath = getLocalStorage("valuePath");
 
         return {
           value: extractValueByPath(data, jsonPointerPath || "/value"),

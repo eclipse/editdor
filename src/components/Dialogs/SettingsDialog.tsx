@@ -17,7 +17,7 @@ import React, {
   useCallback,
 } from "react";
 import ReactDOM from "react-dom";
-import { getTargetUrl, setTargetUrl } from "../../services/localStorage";
+import { getLocalStorage, setLocalStorage } from "../../services/localStorage";
 import DialogTemplate from "./DialogTemplate";
 import InfoIconWrapper from "../../components/InfoIcon/InfoIconWrapper";
 import DialogTextField from "./base/DialogTextField";
@@ -46,9 +46,9 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
 
   const open = () => {
     setDisplay(true);
-    setNorthboundUrl(getTargetUrl("northbound"));
-    setSouthboundUrl(getTargetUrl("southbound"));
-    setPathToValue(getTargetUrl("valuePath"));
+    setNorthboundUrl(getLocalStorage("northbound"));
+    setSouthboundUrl(getLocalStorage("southbound"));
+    setPathToValue(getLocalStorage("valuePath"));
   };
 
   const close = async () => {
@@ -56,9 +56,9 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
   };
 
   const handleSubmit = () => {
-    setTargetUrl(northboundUrl, "northbound");
-    setTargetUrl(southboundUrl, "southbound");
-    setTargetUrl(pathToValue, "valuePath");
+    setLocalStorage(northboundUrl, "northbound");
+    setLocalStorage(southboundUrl, "southbound");
+    setLocalStorage(pathToValue, "valuePath");
     close();
   };
 

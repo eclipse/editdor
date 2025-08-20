@@ -39,7 +39,7 @@ import ContributeToCatalog from "../Dialogs/ContributeToCatalog";
 import ErrorDialog from "../Dialogs/ErrorDialog";
 import Button from "./Button";
 import SendTDDialog from "../Dialogs/SendTDDialog";
-import { getTargetUrl } from "../../services/localStorage";
+import { getLocalStorage } from "../../services/localStorage";
 import type { ThingDescription } from "wot-thing-description-types";
 
 const EMPTY_TM_MESSAGE =
@@ -249,7 +249,7 @@ const AppHeader: React.FC = () => {
         state: true,
         message: VALIDATION_FAILED_MESSAGE,
       });
-    } else if (!getTargetUrl("southbound")) {
+    } else if (!getLocalStorage("southbound")) {
       setErrorDisplay({
         state: true,
         message:

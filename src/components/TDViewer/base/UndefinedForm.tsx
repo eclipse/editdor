@@ -13,7 +13,7 @@
 import React, { useContext } from "react";
 import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
-import type { IFormProps } from "../../../types/global";
+import type { IFormProps } from "../../../types/form";
 
 interface IUndefinedFormProps {
   level: string;

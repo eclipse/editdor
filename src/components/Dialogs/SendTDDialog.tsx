@@ -16,7 +16,7 @@ import DialogTemplate from "./DialogTemplate";
 import type { ThingDescription } from "wot-thing-description-types";
 import ediTDorContext from "../../context/ediTDorContext";
 import SpinnerTemplate from "./SpinnerTemplate";
-import { getTargetUrl } from "../../services/localStorage";
+import { getLocalStorage } from "../../services/localStorage";
 import {
   isSuccessResponse,
   handleHttpRequest,
@@ -74,7 +74,7 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
 
     const open = async () => {
       try {
-        const url = getTargetUrl("southbound");
+        const url = getLocalStorage("southbound");
         if (!url) return;
 
         const endpoint = `${url}${url.endsWith("/") ? "" : "/"}`;
@@ -129,7 +129,7 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
         isLoading: true,
       });
 
-      const url = getTargetUrl("southbound");
+      const url = getLocalStorage("southbound");
       const endpoint = `${url}/${currentTdId}`;
 
       const response = await handleHttpRequest(
@@ -172,7 +172,7 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
         reason: "",
       });
 
-      const url = getTargetUrl("southbound");
+      const url = getLocalStorage("southbound");
       const endpoint = `${url}`;
 
       const response = await handleHttpRequest(
@@ -262,7 +262,8 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
                       Endpoint:
                     </td>
                     <td className="break-all py-2 text-gray-400">
-                      {getTargetUrl("southbound") || "(No endpoint configured)"}
+                      {getLocalStorage("southbound") ||
+                        "(No endpoint configured)"}
                     </td>
                   </tr>
                   <tr>
