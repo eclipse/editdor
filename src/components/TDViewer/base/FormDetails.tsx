@@ -14,25 +14,26 @@ import React, { useContext, useState } from "react";
 import { ChevronUp, Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { formConfigurations } from "../../../services/form";
-import type { ThingDescription } from "wot-thing-description-types";
-import type { IFormProps, FormOpKeys } from "../../../types/global";
-
-type IInteractionFunction = (
-  td: ThingDescription,
-  propertyName: string,
-  content: any
-) => Promise<{ result: string; err: Error | null }>;
+import type {
+  ThirdPartyCallback,
+  ServiantCallback,
+  IFormProps,
+  OpKeys,
+} from "../../../types/form";
+import { getLocalStorage } from "../../../services/localStorage";
 
 interface IFormDetailsProps {
-  formType: FormOpKeys;
+  operationType: OpKeys;
   form: IFormProps;
-  interactionFunction: IInteractionFunction | null;
+  interactionFunction: ServiantCallback | ThirdPartyCallback | null;
+  usesNorthboundConnection: boolean;
 }
 
 const FormDetails: React.FC<IFormDetailsProps> = ({
-  formType,
+  operationType: formType,
   form,
   interactionFunction,
+  usesNorthboundConnection,
 }) => {
   const context = useContext(ediTDorContext);
   const [writeContent, setWriteContent] = useState<string>("");
@@ -41,6 +42,7 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
   const [err, setErr] = useState<string | null>(null);
 
   const fc = formConfigurations[formType];
+
   if (!fc) {
     return <></>;
   }
@@ -55,27 +57,53 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
     </div>
   );
 
-  const hanldeCallInteractionFunction = async () => {
+  const handleCallInteractionFunction = async () => {
     if (!interactionFunction) {
       return;
     }
 
     setIsLoading(true);
-    const res = await interactionFunction(
-      context.parsedTD,
-      form.propName,
-      writeContent
-    );
-    if (res.err !== null) {
-      setErr(res.err.message);
-      setVal(null);
-    } else {
-      setErr(null);
-      setVal(res.result);
-    }
 
-    setIsLoading(false);
-    setWriteContent("");
+    try {
+      let res;
+
+      if (usesNorthboundConnection) {
+        const thirdPartyCallback = interactionFunction as ThirdPartyCallback;
+
+        const baseUrl = context.northboundConnection?.northboundTd?.base || "";
+        const href = form.href;
+        const valuePath = getLocalStorage("valuePath");
+
+        res = await thirdPartyCallback(baseUrl, href, valuePath);
+      } else {
+        const serviantCallback = interactionFunction as ServiantCallback;
+
+        res = await serviantCallback(
+          context.parsedTD,
+          form.propName,
+          writeContent
+        );
+      }
+
+      if (res.err !== null) {
+        setErr(res.err.message);
+        setVal(null);
+      } else {
+        setErr(null);
+        setVal(res.result);
+      }
+    } catch (error) {
+      setErr(error instanceof Error ? error.message : "Unknown error occurred");
+      setVal(null);
+    } finally {
+      setIsLoading(false);
+      setWriteContent("");
+    }
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleCallInteractionFunction();
   };
 
   return (
@@ -84,7 +112,7 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
         className={`flex min-h-12 w-full items-stretch bg-opacity-75 bg-form${fc.color} mt-2 ${isLoading || val !== null || err != null || form.op === "writeproperty" ? "rounded-t-md" : "rounded-md"} border-2 pl-4 border-form${fc.color}`}
       >
         {interactionFunction && (
-          <button onClick={hanldeCallInteractionFunction}>{label}</button>
+          <button onClick={handleCallInteractionFunction}>{label}</button>
         )}
         {!interactionFunction && <div className="flex">{label}</div>}
 
@@ -114,12 +142,7 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
       </div>
 
       {form.op === "writeproperty" && (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            hanldeCallInteractionFunction();
-          }}
-        >
+        <form onSubmit={handleFormSubmit}>
           <input
             type="text"
             placeholder="Input a value and hit write..."

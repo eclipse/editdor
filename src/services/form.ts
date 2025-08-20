@@ -14,6 +14,7 @@ import { Core, Http } from "@node-wot/browser-bundle";
 import type { ThingDescription } from "wot-thing-description-types";
 import type { IFormConfigurations } from "../types/form.d.ts";
 import { stripDoubleQuotes } from "../utils/strings.js";
+import { handleHttpRequest, isSuccessResponse } from "./thingsApiService.js";
 
 const servient = new Core.Servient();
 servient.addClientFactory(new Http.HttpClientFactory());
@@ -25,14 +26,14 @@ const formConfigurations: Record<string, IFormConfigurations> = {
     title: "Read",
     level: "properties",
     callback: readPropertyWithServiant,
-    thirdPartyCallback: null,
+    thirdPartyCallback: readPropertyThirdParty,
   },
   writeproperty: {
     color: "Blue",
     title: "Write",
     level: "properties",
     callback: writePropertyWithServiant,
-    thirdPartyCallback: null,
+    thirdPartyCallback: writePropertyThirdParty,
   },
   observeproperty: {
     color: "Orange",
@@ -200,6 +201,7 @@ async function readPropertyWithServiant(
   }
 }
 
+/** @type {InteractionFunction} */
 async function writePropertyWithServiant(
   td: ThingDescription,
   propertyName: string,
@@ -226,6 +228,52 @@ async function writePropertyWithServiant(
   } catch (e) {
     console.debug(e);
     return { result: "", err: e as Error };
+  }
+}
+
+/** @type {InteractionFunction} */
+async function writePropertyThirdParty(
+  baseUrl: string,
+  href: string,
+  valuePath: string
+): Promise<{ result: string; err: string | null }> {
+  try {
+    const response = await handleHttpRequest(`${baseUrl}${href}`, "PUT");
+    console.log(response);
+    return { result: "", err: null };
+  } catch (e) {
+    console.debug(e);
+    return { result: "", err: String(e) };
+  }
+}
+
+/** @type {InteractionFunction} */
+async function readPropertyThirdParty(
+  baseUrl: string,
+  href: string,
+  valuePath: string
+): Promise<{ result: string; err: string | null }> {
+  const response = await handleHttpRequest(`${baseUrl}${href}`, "GET");
+
+  if (isSuccessResponse(response)) {
+    try {
+      const responseData = await response.data.json();
+      return {
+        result: responseData[valuePath] || responseData,
+        err: null,
+      };
+    } catch (error) {
+      return {
+        result: "",
+        err: "Error reading data",
+      };
+    }
+  } else {
+    const errorMessage = response.reason || "Failed to third party property";
+    return {
+      result: errorMessage,
+      err: null,
+    };
   }
 }
 

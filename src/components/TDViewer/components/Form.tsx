@@ -36,6 +36,7 @@ interface IFormComponentProps {
   };
   propName: string;
   interactionType: "thing" | "property" | "action" | "event";
+  isNorthboundConnection: boolean;
 }
 
 const Form: React.FC<IFormComponentProps> = (props): JSX.Element => {
@@ -56,9 +57,12 @@ const Form: React.FC<IFormComponentProps> = (props): JSX.Element => {
   return (
     <>
       <FormDetails
-        formType={newForm.op as OpKeys}
+        operationType={newForm.op as OpKeys}
         form={newForm}
-        interactionFunction={fc.callback}
+        interactionFunction={
+          props.isNorthboundConnection ? fc.thirdPartyCallback : fc.callback
+        }
+        usesNorthboundConnection={props.isNorthboundConnection}
       />
     </>
   );

@@ -19,7 +19,7 @@ import {
   HttpSuccessResponse,
   ResponseDataFromNorthbound,
 } from "../types/global";
-import { getTargetUrl } from "./localStorage";
+import { getLocalStorage } from "./localStorage";
 import { ensureTrailingSlash } from "../utils/strings";
 
 function isSuccessResponse(
@@ -59,6 +59,9 @@ const handleHttpRequest = async (
 
       switch (response.status) {
         case 301:
+          throw new Error(`Monitors for the property: ${errorMessage}`);
+        case 304:
+          throw new Error(`Not Modified: ${errorMessage}`);
         case 302:
           throw new Error(`Bad url: ${errorMessage}`);
         case 400:
@@ -69,6 +72,10 @@ const handleHttpRequest = async (
           throw new Error(`Forbidden: ${errorMessage}`);
         case 404:
           throw new Error(`Not Found: ${errorMessage}`);
+        case 405:
+          throw new Error(`Property not writable: ${errorMessage}`);
+        case 406:
+          throw new Error(`Invalid property value: ${errorMessage}`);
         case 409:
           throw new Error(`Conflict: ${errorMessage}`);
         case 429:
@@ -144,7 +151,7 @@ const fetchNorthboundTD = async (
   tdId: string
 ): Promise<{ message: string; data: ThingDescription | null }> => {
   try {
-    const northboundUrl = ensureTrailingSlash(getTargetUrl("northbound"));
+    const northboundUrl = ensureTrailingSlash(getLocalStorage("northbound"));
     if (!northboundUrl) {
       throw new Error("No northbound URL configured in settings");
     }

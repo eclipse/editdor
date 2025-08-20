@@ -1,33 +1,23 @@
 import { ThingDescription } from "wot-thing-description-types";
 
+type ServiantCallback = (
+  td: ThingDescription,
+  propertyName: string,
+  content: any
+) => Promise<{ result: string; err: Error | null }>;
+
+type ThirdPartyCallback = (
+  baseUrl: string,
+  href: string,
+  valuePath: string
+) => Promise<{ result: string; err: string | null }>;
+
 export interface IFormConfigurations {
   color: string;
   title: string;
   level: "thing" | "properties" | "actions" | "events";
-  callback:
-    | null
-    | ((
-        td: ThingDescription,
-        propertyName: string,
-        content: string
-      ) => Promise<{ result: string; err: Error | null }>)
-    | ((
-        td: ThingDescription,
-        propertyName: string,
-        options: any
-      ) => Promise<{ result: string; err: Error | null }>);
-  thirdPartyCallback:
-    | null
-    | ((
-        td: ThingDescription,
-        propertyName: string,
-        content: string
-      ) => Promise<{ result: string; err: Error | null }>)
-    | ((
-        td: ThingDescription,
-        propertyName: string,
-        options: any
-      ) => Promise<{ result: string; err: Error | null }>);
+  callback: ServiantCallback | null;
+  thirdPartyCallback: ThirdPartyCallback | null;
 }
 
 interface IFormProps {
