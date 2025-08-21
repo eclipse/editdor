@@ -45,8 +45,6 @@ const Property: React.FC<IProperty> = (props) => {
   const handleOpenAddFormDialog = () => {
     addFormDialog.current?.openModal();
   };
-  const usesNorthBoundConnection: boolean =
-    Object.keys(context.northboundConnection.northboundTd).length > 0;
 
   if (
     Object.keys(props.prop).length === 0 &&
@@ -134,7 +132,6 @@ const Property: React.FC<IProperty> = (props) => {
             propName={props.propName}
             form={form}
             interactionType={"property"}
-            isNorthboundConnection={usesNorthBoundConnection}
           />
         ))}
       </div>

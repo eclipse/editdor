@@ -10,7 +10,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React from "react";
+import React, { useContext } from "react";
+import ediTDorContext from "../../../context/ediTDorContext";
 import FormDetails from "../base/FormDetails";
 import UndefinedForm from "../base/UndefinedForm";
 import { formConfigurations } from "../../../services/form";
@@ -36,14 +37,20 @@ interface IFormComponentProps {
   };
   propName: string;
   interactionType: "thing" | "property" | "action" | "event";
-  isNorthboundConnection: boolean;
 }
 
 const Form: React.FC<IFormComponentProps> = (props): JSX.Element => {
+  const context = useContext(ediTDorContext);
+
   const newForm = {
     ...props.form,
     propName: props.propName,
   };
+
+  const usesNorthBoundConnection: boolean =
+    Object.keys(context.northboundConnection.northboundTd).length > 0 &&
+    newForm.op === "readproperty";
+
   const fc = formConfigurations[newForm.op as string];
   if (!fc) {
     return (
@@ -60,9 +67,9 @@ const Form: React.FC<IFormComponentProps> = (props): JSX.Element => {
         operationType={newForm.op as OpKeys}
         form={newForm}
         interactionFunction={
-          props.isNorthboundConnection ? fc.thirdPartyCallback : fc.callback
+          usesNorthBoundConnection ? fc.thirdPartyCallback : fc.callback
         }
-        usesNorthboundConnection={props.isNorthboundConnection}
+        usesNorthboundConnection={usesNorthBoundConnection}
       />
     </>
   );
