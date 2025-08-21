@@ -259,7 +259,9 @@ async function readPropertyThirdParty(
     try {
       const responseData = await response.data.json();
       return {
-        result: responseData[valuePath] || responseData,
+        result: valuePath
+          ? getValueByPath(responseData, valuePath)
+          : responseData,
         err: null,
       };
     } catch (error) {
@@ -276,6 +278,41 @@ async function readPropertyThirdParty(
     };
   }
 }
+
+// /** @type {InteractionFunction} */
+// async function subscriptionThirdParty(
+//   baseUrl: string,
+//   href: string,
+//   valuePath: string
+// ): Promise<{ result: string; err: string | null }> {
+//   try {
+//     return { result: "", err: null };
+//   } catch (error) {
+//     console.debug(error);
+//     return { result: "", err: String(error) };
+//   }
+// }
+
+/**
+ * Retrieves a value from a nested object using a path string
+ * @param obj The object to traverse
+ * @param path Path to the property (e.g. "/value" or "/value/value1/value2")
+ * @returns The value at the specified path or undefined if not found
+ */
+const getValueByPath = (obj: any, path: string): any => {
+  const normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+  if (!normalizedPath) {
+    return obj;
+  }
+
+  const segments = normalizedPath.split("/");
+
+  return segments.reduce((current, segment) => {
+    return current && typeof current === "object"
+      ? current[segment]
+      : undefined;
+  }, obj);
+};
 
 export {
   formConfigurations,

@@ -67,17 +67,7 @@ const Property: React.FC<IProperty> = (props) => {
     contentType: string;
     actualIndex: number;
     [key: string]: any;
-  }[];
-  if (usesNorthBoundConnection) {
-    forms = separateForms(
-      structuredClone(
-        context.northboundConnection.northboundTd.properties[props.propName]
-          .forms
-      )
-    );
-  } else {
-    forms = separateForms(structuredClone(props.prop.forms));
-  }
+  }[] = separateForms(structuredClone(props.prop.forms));
 
   const attributeListObject = buildAttributeListObject(
     { name: props.propName },

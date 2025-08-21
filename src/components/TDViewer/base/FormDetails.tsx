@@ -71,7 +71,10 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
         const thirdPartyCallback = interactionFunction as ThirdPartyCallback;
 
         const baseUrl = context.northboundConnection?.northboundTd?.base || "";
-        const href = form.href;
+        const forms =
+          context.northboundConnection?.northboundTd?.properties[form.propName]
+            ?.forms;
+        const href = forms?.find((f) => f.op === form.op)?.href || "";
         const valuePath = getLocalStorage("valuePath");
 
         res = await thirdPartyCallback(baseUrl, href, valuePath);
