@@ -27,7 +27,7 @@ const tdSchema =
 const tmSchema =
   "https://raw.githubusercontent.com/w3c/wot-thing-description/main/validation/tm-json-schema-validation.json";
 
-// eslint-disable-next-line no-restricted-globals
+ 
 self.onmessage = async (message) => {
   // Check that prevents messages sent from webpack and react scripts to be executed.
   // Not sure why this is happening at the moment. This is only a "quick" fix.

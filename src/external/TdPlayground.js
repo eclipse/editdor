@@ -195,13 +195,13 @@ function tdValidator(tdString, logFunc, { checkDefaults = true, checkJsonLd = tr
         /** checking whether a data schema has enum and const at the same and displaying a warning in case there are */
         function checkEnumConst(td) {
             details.enumConst = "passed"
-            if (td.hasOwnProperty("properties")) {
+            if (Object.prototype.hasOwnProperty.call(td, "properties")) {
                 // checking properties
                 let tdProperties = Object.keys(td.properties)
                 for (let i = 0; i < tdProperties.length; i++) {
                     const curPropertyName = tdProperties[i]
                     const curProperty = td.properties[curPropertyName]
-                    if (curProperty.hasOwnProperty("enum") && curProperty.hasOwnProperty("const")) {
+                    if (Object.prototype.hasOwnProperty.call(curProperty, "enum") && Object.prototype.hasOwnProperty.call(curProperty, "const")) {
                         details.enumConst = "warning"
                         logFunc('! Warning: In property ' + curPropertyName +
                             ' enum and const are used at the same time, the values in enum' +
@@ -210,23 +210,23 @@ function tdValidator(tdString, logFunc, { checkDefaults = true, checkJsonLd = tr
                 }
             }
             // checking actions
-            if (td.hasOwnProperty("actions")) {
+            if (Object.prototype.hasOwnProperty.call(td, "actions")) {
                 let tdActions = Object.keys(td.actions)
                 for (let i = 0; i < tdActions.length; i++) {
                     const curActionName = tdActions[i]
                     const curAction = td.actions[curActionName]
-                    if (curAction.hasOwnProperty("input")) {
+                    if (Object.prototype.hasOwnProperty.call(curAction, "input")) {
                         const curInput = curAction.input
-                        if (curInput.hasOwnProperty("enum") && curInput.hasOwnProperty("const")) {
+                        if (Object.prototype.hasOwnProperty.call(curInput, "enum") && Object.prototype.hasOwnProperty.call(curInput, "const")) {
                             details.enumConst = "warning"
                             logFunc('! Warning: In the input of action ' + curActionName +
                                 ' enum and const are used at the same time, the values in enum can' +
                                 ' never be valid in the received JSON value')
                         }
                     }
-                    if (curAction.hasOwnProperty("output")) {
+                    if (Object.prototype.hasOwnProperty.call(curAction, "output")) {
                         const curOutput = curAction.output
-                        if (curOutput.hasOwnProperty("enum") && curOutput.hasOwnProperty("const")) {
+                        if (Object.prototype.hasOwnProperty.call(curOutput, "enum") && Object.prototype.hasOwnProperty.call(curOutput, "const")) {
                             details.enumConst = "warning"
                             logFunc('! Warning: In the output of action ' + curActionName +
                                 ' enum and const are used at the same time, the values in enum can' +
@@ -237,12 +237,12 @@ function tdValidator(tdString, logFunc, { checkDefaults = true, checkJsonLd = tr
                 }
             }
             // checking events
-            if (td.hasOwnProperty("events")) {
+            if (Object.prototype.hasOwnProperty.call(td, "events")) {
                 let tdEvents = Object.keys(td.events)
                 for (let i = 0; i < tdEvents.length; i++) {
                     const curEventName = tdEvents[i]
                     const curEvent = td.events[curEventName]
-                    if (curEvent.hasOwnProperty("enum") && curEvent.hasOwnProperty("const")) {
+                    if (Object.prototype.hasOwnProperty.call(curEvent, "enum") && Object.prototype.hasOwnProperty.call(curEvent, "const")) {
                         details.enumConst = "warning"
                         logFunc('! Warning: In event ' + curEventName +
                             ' enum and const are used at the same time, the' +
@@ -260,20 +260,20 @@ function tdValidator(tdString, logFunc, { checkDefaults = true, checkJsonLd = tr
         function checkPropItems(td) {
             details.propItems = "passed"
 
-            if (td.hasOwnProperty("properties")) {
+            if (Object.prototype.hasOwnProperty.call(td, "properties")) {
                 // checking properties
                 let tdProperties = Object.keys(td.properties)
                 for (let i = 0; i < tdProperties.length; i++) {
                     const curPropertyName = tdProperties[i]
                     const curProperty = td.properties[curPropertyName]
 
-                    if (curProperty.hasOwnProperty("type")) {
-                        if ((curProperty.type === "object") && !(curProperty.hasOwnProperty("properties"))) {
+                    if (Object.prototype.hasOwnProperty.call(curProperty, "type")) {
+                        if ((curProperty.type === "object") && !(Object.prototype.hasOwnProperty.call(curProperty, "properties"))) {
                             details.propItems = "warning"
                             logFunc('! Warning: In property ' + curPropertyName +
                                 ', the type is object but its properties are not specified')
                         }
-                        if ((curProperty.type === "array") && !(curProperty.hasOwnProperty("items"))) {
+                        if ((curProperty.type === "array") && !(Object.prototype.hasOwnProperty.call(curProperty, "items"))) {
                             details.propItems = "warning"
                             logFunc('! Warning: In property ' + curPropertyName +
                                 ', the type is array but its items are not specified')
@@ -282,36 +282,36 @@ function tdValidator(tdString, logFunc, { checkDefaults = true, checkJsonLd = tr
                 }
             }
             // checking actions
-            if (td.hasOwnProperty("actions")) {
+            if (Object.prototype.hasOwnProperty.call(td, "actions")) {
                 let tdActions = Object.keys(td.actions)
                 for (let i = 0; i < tdActions.length; i++) {
                     const curActionName = tdActions[i]
                     const curAction = td.actions[curActionName]
 
-                    if (curAction.hasOwnProperty("input")) {
+                    if (Object.prototype.hasOwnProperty.call(curAction, "input")) {
                         const curInput = curAction.input
-                        if (curInput.hasOwnProperty("type")) {
-                            if ((curInput.type === "object") && !(curInput.hasOwnProperty("properties"))) {
+                        if (Object.prototype.hasOwnProperty.call(curInput, "type")) {
+                            if ((curInput.type === "object") && !(Object.prototype.hasOwnProperty.call(curInput, "properties"))) {
                                 details.propItems = "warning"
                                 logFunc('! Warning: In the input of action ' + curActionName +
                                     ', the type is object but its properties are not specified')
                             }
-                            if ((curInput.type === "array") && !(curInput.hasOwnProperty("items"))) {
+                            if ((curInput.type === "array") && !(Object.prototype.hasOwnProperty.call(curInput, "items"))) {
                                 details.propItems = "warning"
                                 logFunc('! Warning: In the output of action ' + curActionName +
                                     ', the type is array but its items are not specified')
                             }
                         }
                     }
-                    if (curAction.hasOwnProperty("output")) {
+                    if (Object.prototype.hasOwnProperty.call(curAction, "output")) {
                         const curOutput = curAction.output
-                        if (curOutput.hasOwnProperty("type")) {
-                            if ((curOutput.type === "object") && !(curOutput.hasOwnProperty("properties"))) {
+                        if (Object.prototype.hasOwnProperty.call(curOutput, "type")) {
+                            if ((curOutput.type === "object") && !(Object.prototype.hasOwnProperty.call(curOutput, "properties"))) {
                                 details.propItems = "warning"
                                 logFunc('! Warning: In the output of action ' + curActionName +
                                     ', the type is object but its properties are not specified')
                             }
-                            if ((curOutput.type === "array") && !(curOutput.hasOwnProperty("items"))) {
+                            if ((curOutput.type === "array") && !(Object.prototype.hasOwnProperty.call(curOutput, "items"))) {
                                 details.propItems = "warning"
                                 logFunc('! Warning: In the output of action ' + curActionName +
                                     ', the type is array but its items are not specified')
@@ -321,19 +321,19 @@ function tdValidator(tdString, logFunc, { checkDefaults = true, checkJsonLd = tr
                 }
             }
             // checking events
-            if (td.hasOwnProperty("events")) {
+            if (Object.prototype.hasOwnProperty.call(td, "events")) {
                 let tdEvents = Object.keys(td.events)
                 for (let i = 0; i < tdEvents.length; i++) {
                     const curEventName = tdEvents[i]
                     const curEvent = td.events[curEventName]
 
-                    if (curEvent.hasOwnProperty("type")) {
-                        if ((curEvent.type === "object") && !(curEvent.hasOwnProperty("properties"))) {
+                    if (Object.prototype.hasOwnProperty.call(curEvent, "type")) {
+                        if ((curEvent.type === "object") && !(Object.prototype.hasOwnProperty.call(curEvent, "properties"))) {
                             details.propItems = "warning"
                             logFunc('! Warning: In event ' + curEventName +
                                 ', the type is object but its properties are not specified')
                         }
-                        if ((curEvent.type === "array") && !(curEvent.hasOwnProperty("items"))) {
+                        if ((curEvent.type === "array") && !(Object.prototype.hasOwnProperty.call(curEvent, "items"))) {
                             details.propItems = "warning"
                             logFunc('! Warning: In event ' + curEventName +
                                 ', the type is array but its items are not specified')
@@ -353,7 +353,7 @@ function tdValidator(tdString, logFunc, { checkDefaults = true, checkJsonLd = tr
         function checkReadWriteOnly(td) {
             details.readWriteOnly = "passed"
 
-            if (td.hasOwnProperty("properties")) {
+            if (Object.prototype.hasOwnProperty.call(td, "properties")) {
                 // checking properties
                 let tdProperties = Object.keys(td.properties)
                 for (let i = 0; i < tdProperties.length; i++) {
@@ -361,20 +361,20 @@ function tdValidator(tdString, logFunc, { checkDefaults = true, checkJsonLd = tr
                     const curProperty = td.properties[curPropertyName]
 
                     // if readOnly is set
-                    if (curProperty.hasOwnProperty("readOnly") && curProperty.readOnly === true) {
+                    if (Object.prototype.hasOwnProperty.call(curProperty, "readOnly") && curProperty.readOnly === true) {
                         // check if both readOnly and writeOnly are true
-                        if (curProperty.hasOwnProperty("writeOnly") && curProperty.writeOnly === true) {
+                        if (Object.prototype.hasOwnProperty.call(curProperty, "writeOnly") && curProperty.writeOnly === true) {
                             details.readWriteOnly = "warning"
                             logFunc('! Warning: In property ' + curPropertyName +
                                 ', both readOnly and writeOnly are set to true!')
                         }
 
                         // check forms if op writeProperty is set
-                        if (curProperty.hasOwnProperty("forms")) {
+                        if (Object.prototype.hasOwnProperty.call(curProperty, "forms")) {
                             for (const formElIndex in curProperty.forms) {
-                                if (curProperty.forms.hasOwnProperty(formElIndex)) {
+                                if (Object.prototype.hasOwnProperty.call(curProperty.forms, formElIndex)) {
                                     const formEl = curProperty.forms[formElIndex]
-                                    if (formEl.hasOwnProperty("op")) {
+                                    if (Object.prototype.hasOwnProperty.call(formEl, "op")) {
                                         if ((typeof formEl.op === "string" && formEl.op === "writeproperty") ||
                                             (typeof formEl.op === "object" && formEl.op.some(el => (el === "writeproperty")))) {
                                             details.readWriteOnly = "warning"
@@ -392,14 +392,14 @@ function tdValidator(tdString, logFunc, { checkDefaults = true, checkJsonLd = tr
                     }
 
                     // if writeOnly is set
-                    if (curProperty.hasOwnProperty("writeOnly") && curProperty.writeOnly === true) {
+                    if (Object.prototype.hasOwnProperty.call(curProperty, "writeOnly") && curProperty.writeOnly === true) {
 
                         // check forms if op readProperty is set
-                        if (curProperty.hasOwnProperty("forms")) {
+                        if (Object.prototype.hasOwnProperty.call(curProperty, "forms")) {
                             for (const formElIndex in curProperty.forms) {
-                                if (curProperty.forms.hasOwnProperty(formElIndex)) {
+                                if (Object.prototype.hasOwnProperty.call(curProperty.forms, formElIndex)) {
                                     const formEl = curProperty.forms[formElIndex]
-                                    if (formEl.hasOwnProperty("op")) {
+                                    if (Object.prototype.hasOwnProperty.call(formEl, "op")) {
                                         if ((typeof formEl.op === "string" && formEl.op === "readproperty") ||
                                             (typeof formEl.op === "object" && formEl.op.some(el => (el === "readproperty")))) {
                                             details.readWriteOnly = "warning"
@@ -421,7 +421,7 @@ function tdValidator(tdString, logFunc, { checkDefaults = true, checkJsonLd = tr
                         }
 
                         // check if observable is also set
-                        if (curProperty.hasOwnProperty("observable") && curProperty.observable === true) {
+                        if (Object.prototype.hasOwnProperty.call(curProperty, "observable") && curProperty.observable === true) {
                             details.readWriteOnly = "warning"
                             logFunc('! Warning: In property ' + curPropertyName +
                                 ', both writeOnly and observable are set to true!')
@@ -456,7 +456,7 @@ function tdValidator(tdString, logFunc, { checkDefaults = true, checkJsonLd = tr
                 // finally get the interaction name
                 const securitySchemeName = restString.slice(0, endQuote)
 
-                if (td.securityDefinitions.hasOwnProperty(securitySchemeName)) {
+                if (Object.prototype.hasOwnProperty.call(td.securityDefinitions, securitySchemeName)) {
                     result = "failed"
                     logFunc("KO Error: The securityDefinitions contain a duplicate")
                 }
@@ -641,13 +641,13 @@ function tmValidator(tmString, logFunc, { checkDefaults = true, checkJsonLd = tr
         /** checking whether a data schema has enum and const at the same and displaying a warning in case there are */
         function checkEnumConst(tm) {
             details.enumConst = "passed"
-            if (tm.hasOwnProperty("properties")) {
+            if (Object.prototype.hasOwnProperty.call(tm, "properties")) {
                 // checking properties
                 let tmProperties = Object.keys(tm.properties)
                 for (let i = 0; i < tmProperties.length; i++) {
                     const curPropertyName = tmProperties[i]
                     const curProperty = tm.properties[curPropertyName]
-                    if (curProperty.hasOwnProperty("enum") && curProperty.hasOwnProperty("const")) {
+                    if (Object.prototype.hasOwnProperty.call(curProperty, "enum") && Object.prototype.hasOwnProperty.call(curProperty, "const")) {
                         details.enumConst = "warning"
                         logFunc('! Warning: In property ' + curPropertyName +
                             ' enum and const are used at the same time, the values in enum' +
@@ -656,23 +656,23 @@ function tmValidator(tmString, logFunc, { checkDefaults = true, checkJsonLd = tr
                 }
             }
             // checking actions
-            if (tm.hasOwnProperty("actions")) {
+            if (Object.prototype.hasOwnProperty.call(tm, "actions")) {
                 let tmActions = Object.keys(tm.actions)
                 for (let i = 0; i < tmActions.length; i++) {
                     const curActionName = tmActions[i]
                     const curAction = tm.actions[curActionName]
-                    if (curAction.hasOwnProperty("input")) {
+                    if (Object.prototype.hasOwnProperty.call(curAction, "input")) {
                         const curInput = curAction.input
-                        if (curInput.hasOwnProperty("enum") && curInput.hasOwnProperty("const")) {
+                        if (Object.prototype.hasOwnProperty.call(curInput, "enum") && Object.prototype.hasOwnProperty.call(curInput, "const")) {
                             details.enumConst = "warning"
                             logFunc('! Warning: In the input of action ' + curActionName +
                                 ' enum and const are used at the same time, the values in enum can' +
                                 ' never be valid in the received JSON value')
                         }
                     }
-                    if (curAction.hasOwnProperty("output")) {
+                    if (Object.prototype.hasOwnProperty.call(curAction, "output")) {
                         const curOutput = curAction.output
-                        if (curOutput.hasOwnProperty("enum") && curOutput.hasOwnProperty("const")) {
+                        if (Object.prototype.hasOwnProperty.call(curOutput, "enum") && Object.prototype.hasOwnProperty.call(curOutput, "const")) {
                             details.enumConst = "warning"
                             logFunc('! Warning: In the output of action ' + curActionName +
                                 ' enum and const are used at the same time, the values in enum can' +
@@ -683,12 +683,12 @@ function tmValidator(tmString, logFunc, { checkDefaults = true, checkJsonLd = tr
                 }
             }
             // checking events
-            if (tm.hasOwnProperty("events")) {
+            if (Object.prototype.hasOwnProperty.call(tm, "events")) {
                 let tmEvents = Object.keys(tm.events)
                 for (let i = 0; i < tmEvents.length; i++) {
                     const curEventName = tmEvents[i]
                     const curEvent = tm.events[curEventName]
-                    if (curEvent.hasOwnProperty("enum") && curEvent.hasOwnProperty("const")) {
+                    if (Object.prototype.hasOwnProperty.call(curEvent, "enum") && Object.prototype.hasOwnProperty.call(curEvent, "const")) {
                         details.enumConst = "warning"
                         logFunc('! Warning: In event ' + curEventName +
                             ' enum and const are used at the same time, the' +
@@ -706,20 +706,20 @@ function tmValidator(tmString, logFunc, { checkDefaults = true, checkJsonLd = tr
         function checkPropItems(tm) {
             details.propItems = "passed"
 
-            if (tm.hasOwnProperty("properties")) {
+            if (Object.prototype.hasOwnProperty.call(tm, "properties")) {
                 // checking properties
                 let tmProperties = Object.keys(tm.properties)
                 for (let i = 0; i < tmProperties.length; i++) {
                     const curPropertyName = tmProperties[i]
                     const curProperty = tm.properties[curPropertyName]
 
-                    if (curProperty.hasOwnProperty("type")) {
-                        if ((curProperty.type === "object") && !(curProperty.hasOwnProperty("properties"))) {
+                    if (Object.prototype.hasOwnProperty.call(curProperty, "type")) {
+                        if ((curProperty.type === "object") && !(Object.prototype.hasOwnProperty.call(curProperty, "properties"))) {
                             details.propItems = "warning"
                             logFunc('! Warning: In property ' + curPropertyName +
                                 ', the type is object but its properties are not specified')
                         }
-                        if ((curProperty.type === "array") && !(curProperty.hasOwnProperty("items"))) {
+                        if ((curProperty.type === "array") && !(Object.prototype.hasOwnProperty.call(curProperty, "items"))) {
                             details.propItems = "warning"
                             logFunc('! Warning: In property ' + curPropertyName +
                                 ', the type is array but its items are not specified')
@@ -728,36 +728,36 @@ function tmValidator(tmString, logFunc, { checkDefaults = true, checkJsonLd = tr
                 }
             }
             // checking actions
-            if (tm.hasOwnProperty("actions")) {
+            if (Object.prototype.hasOwnProperty.call(tm, "actions")) {
                 let tmActions = Object.keys(tm.actions)
                 for (let i = 0; i < tmActions.length; i++) {
                     const curActionName = tmActions[i]
                     const curAction = tm.actions[curActionName]
 
-                    if (curAction.hasOwnProperty("input")) {
+                    if (Object.prototype.hasOwnProperty.call(curAction, "input")) {
                         const curInput = curAction.input
-                        if (curInput.hasOwnProperty("type")) {
-                            if ((curInput.type === "object") && !(curInput.hasOwnProperty("properties"))) {
+                        if (Object.prototype.hasOwnProperty.call(curInput, "type")) {
+                            if ((curInput.type === "object") && !(Object.prototype.hasOwnProperty.call(curInput, "properties"))) {
                                 details.propItems = "warning"
                                 logFunc('! Warning: In the input of action ' + curActionName +
                                     ', the type is object but its properties are not specified')
                             }
-                            if ((curInput.type === "array") && !(curInput.hasOwnProperty("items"))) {
+                            if ((curInput.type === "array") && !(Object.prototype.hasOwnProperty.call(curInput, "items"))) {
                                 details.propItems = "warning"
                                 logFunc('! Warning: In the output of action ' + curActionName +
                                     ', the type is array but its items are not specified')
                             }
                         }
                     }
-                    if (curAction.hasOwnProperty("output")) {
+                    if (Object.prototype.hasOwnProperty.call(curAction, "output")) {
                         const curOutput = curAction.output
-                        if (curOutput.hasOwnProperty("type")) {
-                            if ((curOutput.type === "object") && !(curOutput.hasOwnProperty("properties"))) {
+                        if (Object.prototype.hasOwnProperty.call(curOutput, "type")) {
+                            if ((curOutput.type === "object") && !(Object.prototype.hasOwnProperty.call(curOutput, "properties"))) {
                                 details.propItems = "warning"
                                 logFunc('! Warning: In the output of action ' + curActionName +
                                     ', the type is object but its properties are not specified')
                             }
-                            if ((curOutput.type === "array") && !(curOutput.hasOwnProperty("items"))) {
+                            if ((curOutput.type === "array") && !(Object.prototype.hasOwnProperty.call(curOutput, "items"))) {
                                 details.propItems = "warning"
                                 logFunc('! Warning: In the output of action ' + curActionName +
                                     ', the type is array but its items are not specified')
@@ -767,19 +767,19 @@ function tmValidator(tmString, logFunc, { checkDefaults = true, checkJsonLd = tr
                 }
             }
             // checking events
-            if (tm.hasOwnProperty("events")) {
+            if (Object.prototype.hasOwnProperty.call(tm, "events")) {
                 let tmEvents = Object.keys(tm.events)
                 for (let i = 0; i < tmEvents.length; i++) {
                     const curEventName = tmEvents[i]
                     const curEvent = tm.events[curEventName]
 
-                    if (curEvent.hasOwnProperty("type")) {
-                        if ((curEvent.type === "object") && !(curEvent.hasOwnProperty("properties"))) {
+                    if (Object.prototype.hasOwnProperty.call(curEvent, "type")) {
+                        if ((curEvent.type === "object") && !(Object.prototype.hasOwnProperty.call(curEvent, "properties"))) {
                             details.propItems = "warning"
                             logFunc('! Warning: In event ' + curEventName +
                                 ', the type is object but its properties are not specified')
                         }
-                        if ((curEvent.type === "array") && !(curEvent.hasOwnProperty("items"))) {
+                        if ((curEvent.type === "array") && !(Object.prototype.hasOwnProperty.call(curEvent, "items"))) {
                             details.propItems = "warning"
                             logFunc('! Warning: In event ' + curEventName +
                                 ', the type is array but its items are not specified')
@@ -799,7 +799,7 @@ function tmValidator(tmString, logFunc, { checkDefaults = true, checkJsonLd = tr
         function checkReadWriteOnly(tm) {
             details.readWriteOnly = "passed"
 
-            if (tm.hasOwnProperty("properties")) {
+            if (Object.prototype.hasOwnProperty.call(tm, "properties")) {
                 // checking properties
                 let tmProperties = Object.keys(tm.properties)
                 for (let i = 0; i < tmProperties.length; i++) {
@@ -807,20 +807,20 @@ function tmValidator(tmString, logFunc, { checkDefaults = true, checkJsonLd = tr
                     const curProperty = tm.properties[curPropertyName]
 
                     // if readOnly is set
-                    if (curProperty.hasOwnProperty("readOnly") && curProperty.readOnly === true) {
+                    if (Object.prototype.hasOwnProperty.call(curProperty, "readOnly") && curProperty.readOnly === true) {
                         // check if both readOnly and writeOnly are true
-                        if (curProperty.hasOwnProperty("writeOnly") && curProperty.writeOnly === true) {
+                        if (Object.prototype.hasOwnProperty.call(curProperty, "writeOnly") && curProperty.writeOnly === true) {
                             details.readWriteOnly = "warning"
                             logFunc('! Warning: In property ' + curPropertyName +
                                 ', both readOnly and writeOnly are set to true!')
                         }
 
                         // check forms if op writeProperty is set
-                        if (curProperty.hasOwnProperty("forms")) {
+                        if (Object.prototype.hasOwnProperty.call(curProperty, "forms")) {
                             for (const formElIndex in curProperty.forms) {
-                                if (curProperty.forms.hasOwnProperty(formElIndex)) {
+                                if (Object.prototype.hasOwnProperty.call(curProperty.forms, formElIndex)) {
                                     const formEl = curProperty.forms[formElIndex]
-                                    if (formEl.hasOwnProperty("op")) {
+                                    if (Object.prototype.hasOwnProperty.call(formEl, "op")) {
                                         if ((typeof formEl.op === "string" && formEl.op === "writeproperty") ||
                                             (typeof formEl.op === "object" && formEl.op.some(el => (el === "writeproperty")))) {
                                             details.readWriteOnly = "warning"
@@ -839,14 +839,14 @@ function tmValidator(tmString, logFunc, { checkDefaults = true, checkJsonLd = tr
                     }
 
                     // if writeOnly is set
-                    if (curProperty.hasOwnProperty("writeOnly") && curProperty.writeOnly === true) {
+                    if (Object.prototype.hasOwnProperty.call(curProperty, "writeOnly") && curProperty.writeOnly === true) {
 
                         // check forms if op readProperty is set
-                        if (curProperty.hasOwnProperty("forms")) {
+                        if (Object.prototype.hasOwnProperty.call(curProperty, "forms")) {
                             for (const formElIndex in curProperty.forms) {
-                                if (curProperty.forms.hasOwnProperty(formElIndex)) {
+                                if (Object.prototype.hasOwnProperty.call(curProperty.forms, formElIndex)) {
                                     const formEl = curProperty.forms[formElIndex]
-                                    if (formEl.hasOwnProperty("op")) {
+                                    if (Object.prototype.hasOwnProperty.call(formEl, "op")) {
                                         if ((typeof formEl.op === "string" && formEl.op === "readproperty") ||
                                             (typeof formEl.op === "object" && formEl.op.some(el => (el === "readproperty")))) {
                                             details.readWriteOnly = "warning"
@@ -870,7 +870,7 @@ function tmValidator(tmString, logFunc, { checkDefaults = true, checkJsonLd = tr
                         }
 
                         // check if observable is also set
-                        if (curProperty.hasOwnProperty("observable") && curProperty.observable === true) {
+                        if (Object.prototype.hasOwnProperty.call(curProperty, "observable") && curProperty.observable === true) {
                             details.readWriteOnly = "warning"
                             logFunc('! Warning: In property ' + curPropertyName +
                                 ', both writeOnly and observable are set to true!')
@@ -906,7 +906,7 @@ function tmValidator(tmString, logFunc, { checkDefaults = true, checkJsonLd = tr
                 // finally get the interaction name
                 const securitySchemeName = restString.slice(0, endQuote)
 
-                if (tm.securityDefinitions.hasOwnProperty(securitySchemeName)) {
+                if (Object.prototype.hasOwnProperty.call(tm.securityDefinitions, securitySchemeName)) {
                     result = "failed"
                     logFunc("KO Error: The securityDefinitions contain a duplicate")
                 }
@@ -1015,7 +1015,7 @@ function checkTypos(td) {
  */
 function searchTypos(typos, tdJson, lookupTable, searchDepth, searchPath) {
     for (const key in tdJson) {
-        if (tdJson.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(tdJson, key)) {
             const pathMap = lookupTable.get(searchDepth)
             const wordSet = pathMap.get(searchPath)
 
@@ -1093,7 +1093,7 @@ function findPathsInSchema(lookupTable, schema, path) {
     if (schema['type'] === 'object') {
         const properties = schema[PROPERTIES]
         for (const key in properties) {
-            if (properties.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(properties, key)) {
                 if (key === REF) {
                     if (path[0] === 'r' && properties[key].includes(DATA_SCHEMA)) {
                         continue
@@ -1114,7 +1114,7 @@ function findPathsInSchema(lookupTable, schema, path) {
 
         const additionalProperties = schema[ADDITONAL_PROPERTIES]
         for (const key in additionalProperties) {
-            if (additionalProperties.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(additionalProperties, key)) {
                 if (key === REF) {
                     if (path[0] === 'r' && additionalProperties[key].includes(DATA_SCHEMA)) {
                         continue
@@ -1137,7 +1137,7 @@ function findPathsInSchema(lookupTable, schema, path) {
         const items = schema['items']
 
         for (const item in items) {
-            if (items.hasOwnProperty(item)) {
+            if (Object.prototype.hasOwnProperty.call(items, item)) {
                 if (item === REF) {
                     if (path[0] === 'r' && items[item].includes(DATA_SCHEMA)) {
                         continue
@@ -1157,7 +1157,7 @@ function findPathsInSchema(lookupTable, schema, path) {
     }
 
     for (const key in schema) {
-        if (schema.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(schema, key)) {
             if (['allOf', 'oneOf', 'anyOf'].includes(key)) {
                 if (Array.isArray(schema[key])) {
                     schema[key].forEach(element => {
