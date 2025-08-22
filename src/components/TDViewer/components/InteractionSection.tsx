@@ -242,7 +242,6 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         return {
           value: extractValueByPath(data, jsonPointerPath || "/value"),
           error: "",
-          s,
         };
       } else {
         setErrorDisplay({
