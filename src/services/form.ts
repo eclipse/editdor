@@ -25,14 +25,14 @@ const formConfigurations: Record<string, IFormConfigurations> = {
     color: "Green",
     title: "Read",
     level: "properties",
-    callback: readPropertyWithServiant,
+    callback: readPropertyWithServient,
     thirdPartyCallback: readPropertyThirdParty,
   },
   writeproperty: {
     color: "Blue",
     title: "Write",
     level: "properties",
-    callback: writePropertyWithServiant,
+    callback: writePropertyWithServient,
     thirdPartyCallback: writePropertyThirdParty,
   },
   observeproperty: {
@@ -176,7 +176,7 @@ const parseContent = (propertyType: string, content: string): any => {
 };
 
 /** @type {InteractionFunction} */
-async function readPropertyWithServiant(
+async function readPropertyWithServient(
   td: ThingDescription,
   propertyName: string,
   options: {
@@ -202,7 +202,7 @@ async function readPropertyWithServiant(
 }
 
 /** @type {InteractionFunction} */
-async function writePropertyWithServiant(
+async function writePropertyWithServient(
   td: ThingDescription,
   propertyName: string,
   content: string
@@ -316,6 +316,6 @@ const getValueByPath = (obj: any, path: string): any => {
 
 export {
   formConfigurations,
-  readPropertyWithServiant,
-  writePropertyWithServiant,
+  readPropertyWithServient,
+  writePropertyWithServient,
 };

@@ -16,7 +16,7 @@ import ButtonSwap from "../base/ButtonSwap";
 
 interface SingleSwapButtonProps {
   idIcon: string;
-  onUpdateIncrement: (newValue: boolean) => void;
+  onUpdateValue: (newValue: boolean) => void;
   tooltip: { html: string; href: string };
   textLabel: string;
   valueButton: boolean;
@@ -24,7 +24,7 @@ interface SingleSwapButtonProps {
 
 const SingleSwapButton: React.FC<SingleSwapButtonProps> = ({
   idIcon,
-  onUpdateIncrement,
+  onUpdateValue: onUpdateValue,
   tooltip,
   textLabel,
   valueButton,
@@ -46,7 +46,7 @@ const SingleSwapButton: React.FC<SingleSwapButtonProps> = ({
                   <ButtonSwap
                     description=""
                     value={valueButton}
-                    onClick={() => onUpdateIncrement(!valueButton)}
+                    onClick={() => onUpdateValue(!valueButton)}
                   />
                 </div>
               </div>

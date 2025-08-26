@@ -26,7 +26,7 @@ import EditProperties from "./EditProperties";
 import BaseTable from "../base/BaseTable";
 import DialogTemplate from "./../../Dialogs/DialogTemplate";
 import Editor from "@monaco-editor/react";
-import { readPropertyWithServiant } from "../../../services/form";
+import { readPropertyWithServient } from "../../../services/form";
 import { extractIndexFromId, formatText } from "../../../utils/strings";
 import BaseButton from "../base/BaseButton";
 import type {
@@ -253,7 +253,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       }
     } else {
       try {
-        const res = await readPropertyWithServiant(td, item.propName, {
+        const res = await readPropertyWithServient(td, item.propName, {
           formIndex: index,
         });
         if (res.err) {

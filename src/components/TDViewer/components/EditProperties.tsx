@@ -292,9 +292,7 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
               tooltip={getAddressOffsetTooltipContent()}
               textLabel="Address Offset"
               valueButton={addressOffset}
-              onUpdateIncrement={() =>
-                handleAddressOffsetUpdate(!addressOffset)
-              }
+              onUpdateValue={() => handleAddressOffsetUpdate(!addressOffset)}
             />
           ) : (
             <>
@@ -305,7 +303,7 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
                     tooltip={getAddressOffsetTooltipContent()}
                     textLabel="Address Offset"
                     valueButton={addressOffset}
-                    onUpdateIncrement={() =>
+                    onUpdateValue={() =>
                       handleAddressOffsetUpdate(!addressOffset)
                     }
                   />

@@ -1,6 +1,6 @@
 import { ThingDescription } from "wot-thing-description-types";
 
-type ServiantCallback = (
+type ServientCallback = (
   td: ThingDescription,
   propertyName: string,
   content: any
@@ -16,7 +16,7 @@ export interface IFormConfigurations {
   color: string;
   title: string;
   level: "thing" | "properties" | "actions" | "events";
-  callback: ServiantCallback | null;
+  callback: ServientCallback | null;
   thirdPartyCallback: ThirdPartyCallback | null;
 }
 

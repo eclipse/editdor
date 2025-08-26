@@ -16,7 +16,7 @@ import ediTDorContext from "../../../context/ediTDorContext";
 import { formConfigurations } from "../../../services/form";
 import type {
   ThirdPartyCallback,
-  ServiantCallback,
+  ServientCallback,
   IFormProps,
   OpKeys,
 } from "../../../types/form";
@@ -25,7 +25,7 @@ import { getLocalStorage } from "../../../services/localStorage";
 interface IFormDetailsProps {
   operationType: OpKeys;
   form: IFormProps;
-  interactionFunction: ServiantCallback | ThirdPartyCallback | null;
+  interactionFunction: ServientCallback | ThirdPartyCallback | null;
   usesNorthboundConnection: boolean;
 }
 
@@ -79,9 +79,9 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
 
         res = await thirdPartyCallback(baseUrl, href, valuePath);
       } else {
-        const serviantCallback = interactionFunction as ServiantCallback;
+        const servientCallback = interactionFunction as ServientCallback;
 
-        res = await serviantCallback(
+        res = await servientCallback(
           context.parsedTD,
           form.propName,
           writeContent
