@@ -15,6 +15,7 @@ import type { ThingDescription } from "wot-thing-description-types";
 import type { IFormConfigurations } from "../types/form.d.ts";
 import { stripDoubleQuotes } from "../utils/strings.js";
 import { handleHttpRequest, isSuccessResponse } from "./thingsApiService.js";
+import JSONPointer from "jsonpointer";
 
 const servient = new Core.Servient();
 servient.addClientFactory(new Http.HttpClientFactory());
@@ -33,7 +34,7 @@ const formConfigurations: Record<string, IFormConfigurations> = {
     title: "Write",
     level: "properties",
     callback: writePropertyWithServient,
-    thirdPartyCallback: writePropertyThirdParty,
+    thirdPartyCallback: null,
   },
   observeproperty: {
     color: "Orange",
@@ -232,20 +233,20 @@ async function writePropertyWithServient(
 }
 
 /** @type {InteractionFunction} */
-async function writePropertyThirdParty(
-  baseUrl: string,
-  href: string,
-  valuePath: string
-): Promise<{ result: string; err: string | null }> {
-  try {
-    const response = await handleHttpRequest(`${baseUrl}${href}`, "PUT");
-    console.log(response);
-    return { result: "", err: null };
-  } catch (e) {
-    console.debug(e);
-    return { result: "", err: String(e) };
-  }
-}
+// async function writePropertyThirdParty(
+//   baseUrl: string,
+//   href: string,
+//   valuePath: string
+// ): Promise<{ result: string; err: string | null }> {
+//   try {
+//     const response = await handleHttpRequest(`${baseUrl}${href}`, "PUT");
+//     console.log(response);
+//     return { result: "", err: null };
+//   } catch (e) {
+//     console.debug(e);
+//     return { result: "", err: String(e) };
+//   }
+// }
 
 /** @type {InteractionFunction} */
 async function readPropertyThirdParty(
@@ -258,16 +259,16 @@ async function readPropertyThirdParty(
   if (isSuccessResponse(response)) {
     try {
       const responseData = await response.data.json();
+      const key = JSONPointer.get(responseData, valuePath);
+      const keyAsString: string = String(key);
       return {
-        result: valuePath
-          ? getValueByPath(responseData, valuePath)
-          : responseData,
+        result: keyAsString,
         err: null,
       };
     } catch (error) {
       return {
         result: "",
-        err: "Error reading data",
+        err: ("Error reading data " + error) as string,
       };
     }
   } else {
@@ -278,41 +279,6 @@ async function readPropertyThirdParty(
     };
   }
 }
-
-// /** @type {InteractionFunction} */
-// async function subscriptionThirdParty(
-//   baseUrl: string,
-//   href: string,
-//   valuePath: string
-// ): Promise<{ result: string; err: string | null }> {
-//   try {
-//     return { result: "", err: null };
-//   } catch (error) {
-//     console.debug(error);
-//     return { result: "", err: String(error) };
-//   }
-// }
-
-/**
- * Retrieves a value from a nested object using a path string
- * @param obj The object to traverse
- * @param path Path to the property (e.g. "/value" or "/value/value1/value2")
- * @returns The value at the specified path or undefined if not found
- */
-const getValueByPath = (obj: any, path: string): any => {
-  const normalizedPath = path.startsWith("/") ? path.substring(1) : path;
-  if (!normalizedPath) {
-    return obj;
-  }
-
-  const segments = normalizedPath.split("/");
-
-  return segments.reduce((current, segment) => {
-    return current && typeof current === "object"
-      ? current[segment]
-      : undefined;
-  }, obj);
-};
 
 export {
   formConfigurations,

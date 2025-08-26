@@ -39,6 +39,7 @@ import {
 } from "../../../services/thingsApiService";
 import { getLocalStorage } from "../../../services/localStorage";
 import ErrorDialog from "../../Dialogs/ErrorDialog";
+import JSONPointer from "jsonpointer";
 
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
@@ -239,8 +240,10 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         const data = await response.json();
         let jsonPointerPath = getLocalStorage("valuePath");
 
+        const key = JSONPointer.get(data, jsonPointerPath);
+        const keyAsString: string = String(key);
         return {
-          value: extractValueByPath(data, jsonPointerPath || "/value"),
+          value: keyAsString,
           error: "",
         };
       } else {
