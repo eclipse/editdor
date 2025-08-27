@@ -30,7 +30,7 @@ interface IFormDetailsProps {
 }
 
 const FormDetails: React.FC<IFormDetailsProps> = ({
-  operationType: formType,
+  operationType,
   form,
   interactionFunction,
   usesNorthboundConnection,
@@ -41,7 +41,7 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
   const [val, setVal] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
-  const fc = formConfigurations[formType];
+  const fc = formConfigurations[operationType];
 
   if (!fc) {
     return <></>;
@@ -68,16 +68,28 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
       let res;
 
       if (usesNorthboundConnection) {
-        const thirdPartyCallback = interactionFunction as ThirdPartyCallback;
+        if (operationType === "writeproperty") {
+          const servientCallback = interactionFunction as ServientCallback;
 
-        const baseUrl = context.northboundConnection?.northboundTd?.base || "";
-        const forms =
-          context.northboundConnection?.northboundTd?.properties[form.propName]
-            ?.forms;
-        const href = forms?.find((f) => f.op === form.op)?.href || "";
-        const valuePath = getLocalStorage("valuePath");
+          res = await servientCallback(
+            context.northboundConnection.northboundTd,
+            form.propName,
+            writeContent
+          );
+        } else {
+          const thirdPartyCallback = interactionFunction as ThirdPartyCallback;
 
-        res = await thirdPartyCallback(baseUrl, href, valuePath);
+          const baseUrl =
+            context.northboundConnection?.northboundTd?.base || "";
+          const forms =
+            context.northboundConnection?.northboundTd?.properties[
+              form.propName
+            ]?.forms;
+          const href = forms?.find((f) => f.op === form.op)?.href || "";
+          const valuePath = getLocalStorage("valuePath");
+
+          res = await thirdPartyCallback(baseUrl, href, valuePath);
+        }
       } else {
         const servientCallback = interactionFunction as ServientCallback;
 

@@ -11,11 +11,16 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import { Core, Http } from "@node-wot/browser-bundle";
-import type { ThingDescription } from "wot-thing-description-types";
+import type {
+  ConsumedThing,
+  ThingDescription,
+  InteractionOutput,
+} from "wot-typescript-definitions";
 import type { IFormConfigurations } from "../types/form.d.ts";
 import { stripDoubleQuotes } from "../utils/strings.js";
 import { handleHttpRequest, isSuccessResponse } from "./thingsApiService.js";
 import JSONPointer from "jsonpointer";
+import { DataSchemaType } from "wot-thing-description-types";
 
 const servient = new Core.Servient();
 servient.addClientFactory(new Http.HttpClientFactory());
@@ -34,7 +39,7 @@ const formConfigurations: Record<string, IFormConfigurations> = {
     title: "Write",
     level: "properties",
     callback: writePropertyWithServient,
-    thirdPartyCallback: null,
+    thirdPartyCallback: writePropertyWithServient,
   },
   observeproperty: {
     color: "Orange",
@@ -123,7 +128,10 @@ const formConfigurations: Record<string, IFormConfigurations> = {
  * @param {String} propertyName The name of the Property
  * @param {any} content What should be written in case of e.g. a writeproperty call
  */
-const parseContent = (propertyType: string, content: string): any => {
+const parseContent = (
+  propertyType: string | undefined,
+  content: string
+): any => {
   try {
     switch (propertyType) {
       case "boolean":
@@ -188,11 +196,14 @@ async function readPropertyWithServient(
 ): Promise<{ result: string; err: Error | null }> {
   try {
     const thingFactory = await servient.start();
-    const thing = await thingFactory.consume(td);
+    const thing: ConsumedThing = await thingFactory.consume(td);
 
-    const res = await thing.readProperty(propertyName, options);
+    const res: InteractionOutput = await thing.readProperty(
+      propertyName,
+      options
+    );
     // always return the result even if the data schema doesn't fit
-    res.ignoreValidation = true;
+    //res.ignoreValidation = true;
     const val = await res.value();
 
     return { result: JSON.stringify(val, null, 2), err: null };
@@ -209,11 +220,21 @@ async function writePropertyWithServient(
   content: string
 ): Promise<{ result: string; err: Error | null }> {
   try {
-    const propertyType = td.properties[propertyName].type;
+    if (
+      td.properties === undefined ||
+      td.properties[propertyName] === undefined
+    ) {
+      throw new Error(
+        `Property "${propertyName}" not found in Thing Description.`
+      );
+    }
+    const propertyType: DataSchemaType | undefined =
+      td.properties[propertyName].type;
+
     const contentConverted = parseContent(propertyType, content);
 
     const thingFactory = await servient.start();
-    const thing = await thingFactory.consume(td);
+    const thing: ConsumedThing = await thingFactory.consume(td);
 
     // no return value - only exception on error
     await thing.writeProperty(propertyName, contentConverted);

@@ -17,7 +17,7 @@ export interface IFormConfigurations {
   title: string;
   level: "thing" | "properties" | "actions" | "events";
   callback: ServientCallback | null;
-  thirdPartyCallback: ThirdPartyCallback | null;
+  thirdPartyCallback: ThirdPartyCallback | ServientCallback | null;
 }
 
 interface IFormProps {

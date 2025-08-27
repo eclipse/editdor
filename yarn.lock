@@ -2994,6 +2994,7 @@ __metadata:
     vite: "npm:^5.2.0"
     vitest: "npm:^3.2.4"
     wot-thing-description-types: "npm:1.1.0-12-March-2025"
+    wot-thing-model-types: "npm:1.1.0-12-March-2025"
     wot-typescript-definitions: "npm:^0.8.0-SNAPSHOT.30"
   languageName: unknown
   linkType: soft
@@ -7777,6 +7778,13 @@ __metadata:
   version: 1.1.0-12-March-2025
   resolution: "wot-thing-description-types@npm:1.1.0-12-March-2025"
   checksum: 10c0/001a49e0fab400e15661d08387e51d8359a40ca251c93e8ec0768e5e4b6e4f6c077730814604d2ebcc6a5e9d42163abc14fe8ca36c0b99960bc98a9c0c254aa7
+  languageName: node
+  linkType: hard
+
+"wot-thing-model-types@npm:1.1.0-12-March-2025":
+  version: 1.1.0-12-March-2025
+  resolution: "wot-thing-model-types@npm:1.1.0-12-March-2025"
+  checksum: 10c0/a8e8941ceee1c6589d60f50e835a87404f173809c5fea2400d226f3bc12c4de99848a3faeb40c54c7cd64930b9b133baca23daf329fef8914eb467ebe88a0bee
   languageName: node
   linkType: hard
 
