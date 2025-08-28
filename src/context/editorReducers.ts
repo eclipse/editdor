@@ -10,7 +10,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import UndefinedForm from "components/TDViewer/base/UndefinedForm";
 import {
   ADD_FORM_TO_TD,
   ADD_LINKED_TD,
@@ -22,6 +21,7 @@ import {
   UPDATE_LINKED_TD,
   UPDATE_OFFLINE_TD,
   UPDATE_VALIDATION_MESSAGE,
+  UPDATE_NORTHBOUND_CONNECTION,
 } from "./GlobalState";
 import type {
   ThingDescription,
@@ -65,6 +65,8 @@ export const editdorReducer = (
       return updateLinkedTd(action.linkedTd, state);
     case UPDATE_VALIDATION_MESSAGE:
       return updateValidationMessage(action.validationMessage, state);
+    case UPDATE_NORTHBOUND_CONNECTION:
+      return updateNorthboundConnection(action.northboundConnection, state);
     default:
       return state;
   }
@@ -345,4 +347,11 @@ const updateValidationMessage = (
   state: EditorState
 ): EditorState => {
   return { ...state, validationMessage };
+};
+
+const updateNorthboundConnection = (
+  northboundConnection: INorthboundConnection,
+  state: EditorState
+): EditorState => {
+  return { ...state, northboundConnection };
 };

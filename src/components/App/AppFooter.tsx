@@ -39,6 +39,10 @@ const AppFooter: React.FC = (props) => {
             <div>| Actions: {actionsCount}</div>
             <div>| Events: {eventsCount}</div>
             <div>| Size: {megaBytes}</div>
+            <div>
+              | Northbound State:{" "}
+              {context.northboundConnection?.message ?? "Unknown"}
+            </div>
           </div>
           <div className="flex grow gap-2 md:hidden">
             <div>P: {propertiesCount}</div>

@@ -21,7 +21,7 @@ const TARGET_URL_VALUEPATH_KEY: string = "valuePath";
  * is stored.
  * @returns string
  */
-const getTargetUrl = (
+const getLocalStorage = (
   boundType: "northbound" | "southbound" | "valuePath"
 ): string => {
   let targetUrlKey: string;
@@ -54,7 +54,7 @@ const getTargetUrl = (
  * @param {string} targetUrl
  * @returns
  */
-const setTargetUrl = (
+const setLocalStorage = (
   targetUrl: string,
   boundType: "northbound" | "southbound" | "valuePath"
 ): void => {
@@ -82,4 +82,4 @@ const setTargetUrl = (
   localStorage.setItem(targetUrlKey, targetUrl);
 };
 
-export { getTargetUrl, setTargetUrl };
+export { getLocalStorage, setLocalStorage };

@@ -156,77 +156,58 @@ const BaseTable = <T extends TableItem>({
 
     switch (headerKey) {
       case "previewValue":
-        if (
-          item["href"].startsWith("http") ||
-          item["href"].startsWith("https") ||
-          item["href"].startsWith("ws") ||
-          item["href"].startsWith("wss")
-        ) {
-          return (
-            <div
-              className={`flex h-full w-full items-center justify-center ${
-                requestResults[item.id]?.error ? "bg-red-500 text-white" : ""
-              } ${requestResults[item.id]?.value ? "bg-formGreen text-black" : ""} `}
-              onClick={async () => {
-                if (onSendRequestClick) {
-                  const result = await onSendRequestClick(item);
-                  setRequestResults((prev) => ({
-                    ...prev,
-                    [item.id]: result,
-                  }));
-                }
-              }}
-            >
-              {
-                requestResults[item.id]?.error && (
-                  <div className="flex items-center justify-center">
-                    <h1 className="px-2">Error</h1>
-                    <Icon
-                      id="info"
-                      html={`Error description: ${requestResults[item.id].error}`}
-                      color="white"
-                      IconComponent={AlertTriangle}
-                    />
-                  </div>
-                )
-                // In the value preview, if there is no error, same text field as usual. If there is error, an exclamation mark, the text "Error" and error description with tooltip
+        return (
+          <div
+            className={`flex h-full w-full items-center justify-center ${
+              requestResults[item.id]?.error ? "bg-red-500 text-white" : ""
+            } ${requestResults[item.id]?.value ? "bg-formGreen text-black" : ""} `}
+            onClick={async () => {
+              if (onSendRequestClick) {
+                const result = await onSendRequestClick(item);
+                setRequestResults((prev) => ({
+                  ...prev,
+                  [item.id]: result,
+                }));
               }
-              {!requestResults[item.id]?.error &&
-                !requestResults[item.id]?.value && (
+            }}
+          >
+            {
+              requestResults[item.id]?.error && (
+                <div className="flex items-center justify-center">
+                  <h1 className="px-2">Error</h1>
                   <Icon
-                    id="check"
-                    html="Click to send request"
-                    IconComponent={Check}
+                    id="info"
+                    html={`Error description: ${requestResults[item.id].error}`}
+                    color="white"
+                    IconComponent={AlertTriangle}
+                  />
+                </div>
+              )
+              // In the value preview, if there is no error, same text field as usual. If there is error, an exclamation mark, the text "Error" and error description with tooltip
+            }
+            {!requestResults[item.id]?.error &&
+              !requestResults[item.id]?.value && (
+                <Icon
+                  id="check"
+                  html="Click to send request"
+                  IconComponent={Check}
+                  size={20}
+                />
+              )}
+            {!requestResults[item.id]?.error &&
+              requestResults[item.id]?.value && (
+                <div className="flex h-full w-full items-center justify-center">
+                  <h1 className="px-2">{requestResults[item.id].value}</h1>
+                  <Icon
+                    id="checkCircle"
+                    html="Successful read property in the device"
+                    IconComponent={CheckCircle}
                     size={20}
                   />
-                )}
-              {!requestResults[item.id]?.error &&
-                requestResults[item.id]?.value && (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <h1 className="px-2">{requestResults[item.id].value}</h1>
-                    <Icon
-                      id="checkCircle"
-                      html="Successful read property in the device"
-                      IconComponent={CheckCircle}
-                      size={20}
-                    />
-                  </div>
-                )}
-            </div>
-          );
-        } else {
-          return (
-            <div className="flex h-full w-full items-center justify-center">
-              <h1 className="px-2">Unable</h1>
-              <Icon
-                id="xCircle"
-                html="Unable to perform non HTTP or WebSocket operations"
-                IconComponent={XCircle}
-                size={20}
-              />
-            </div>
-          );
-        }
+                </div>
+              )}
+          </div>
+        );
 
       case "propName":
         let description = !item.description

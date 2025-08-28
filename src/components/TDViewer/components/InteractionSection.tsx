@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useMemo, useRef } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
 import AddActionDialog from "../../Dialogs/AddActionDialog";
 import AddEventDialog from "../../Dialogs/AddEventDialog";
@@ -26,13 +26,21 @@ import EditProperties from "./EditProperties";
 import BaseTable from "../base/BaseTable";
 import DialogTemplate from "./../../Dialogs/DialogTemplate";
 import Editor from "@monaco-editor/react";
-import { readProperty } from "../../../services/form";
+import { readPropertyWithServient } from "../../../services/form";
 import { extractIndexFromId, formatText } from "../../../utils/strings";
 import BaseButton from "../base/BaseButton";
 import type {
   FormElementBase,
   ThingDescription,
 } from "wot-thing-description-types";
+import {
+  requestWeb,
+  extractValueByPath,
+} from "../../../services/thingsApiService";
+import { getLocalStorage } from "../../../services/localStorage";
+import ErrorDialog from "../../Dialogs/ErrorDialog";
+import JSONPointer from "jsonpointer";
+
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
 
@@ -54,11 +62,16 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
   const td: ThingDescription = context.isValidJSON
     ? JSON.parse(context.offlineTD)
     : {};
+  const northboundConnection = useMemo(() => {
+    return {
+      message: context.northboundConnection?.message ?? "",
+      northboundTd: context.northboundConnection?.northboundTd ?? {},
+    };
+  }, [context.northboundConnection]);
+  /** States */
   const [filter, setFilter] = useState("");
   const [sortOrder, setSortOrder] = useState(SORT_ASC);
-  const createPropertyDialog = React.useRef<{ openModal: () => void } | null>(
-    null
-  );
+  const createPropertyDialog = useRef<{ openModal: () => void } | null>(null);
   const [modeView, setModeView] = useState<"table" | "list">("list");
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control dialog visibility
   const [editorContent, setEditorContent] = useState<{
@@ -74,6 +87,13 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     state: "viewProperty",
     title: "Edit Property",
   }); // State to manage editor content
+  const [errorDisplay, setErrorDisplay] = useState<{
+    state: boolean;
+    message: string;
+  }>({
+    state: false,
+    message: "",
+  });
 
   const interaction = props.interaction.toLowerCase() as InteractionKey;
 
@@ -209,16 +229,40 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
   }): Promise<{ value: string; error: string }> => {
     const index = extractIndexFromId(item.id);
 
-    try {
-      const res = await readProperty(td, item.propName, {
-        formIndex: index,
-      });
-      if (res.err) {
-        return { value: "", error: res.err.message };
+    if (Object.keys(northboundConnection.northboundTd).length > 0) {
+      try {
+        const res = await readPropertyWithServient(
+          northboundConnection.northboundTd as ThingDescription,
+          item.propName,
+          {
+            formIndex: index,
+          },
+          getLocalStorage("valuePath") ?? ""
+        );
+        if (res.err) {
+          return { value: "", error: res.err.message };
+        }
+        return { value: res.result, error: "" };
+      } catch (err: any) {
+        return { value: "", error: err.message };
       }
-      return { value: res.result, error: "" };
-    } catch (err: any) {
-      return { value: "", error: err.message };
+    } else {
+      try {
+        const res = await readPropertyWithServient(
+          td,
+          item.propName,
+          {
+            formIndex: index,
+          },
+          ""
+        );
+        if (res.err) {
+          return { value: "", error: res.err.message };
+        }
+        return { value: res.result, error: "" };
+      } catch (err: any) {
+        return { value: "", error: err.message };
+      }
     }
   };
 
@@ -524,6 +568,11 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
           />
         </DialogTemplate>
       )}
+      <ErrorDialog
+        isOpen={errorDisplay.state}
+        onClose={() => setErrorDisplay({ state: false, message: "" })}
+        errorMessage={errorDisplay.message}
+      />
     </>
   );
 };

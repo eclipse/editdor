@@ -10,11 +10,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React from "react";
+import React, { useContext } from "react";
+import ediTDorContext from "../../../context/ediTDorContext";
 import FormDetails from "../base/FormDetails";
 import UndefinedForm from "../base/UndefinedForm";
 import { formConfigurations } from "../../../services/form";
-import type { IFormProps, FormOpKeys } from "../../../types/td.d";
+import type { OpKeys } from "../../../types/form";
 
 const typeToJSONKey = (type: string): string => {
   const typeToJSONKey: Record<string, string> = {
@@ -28,20 +29,33 @@ const typeToJSONKey = (type: string): string => {
 };
 
 interface IFormComponentProps {
-  form: IFormProps;
+  form: {
+    href: string;
+    contentType: string;
+    op: string;
+    actualIndex: number;
+  };
   propName: string;
-  interactionType: "thing" | "properties" | "actions" | "events";
+  interactionType: "thing" | "property" | "action" | "event";
 }
 
-const Form: React.FC<any> = (props: IFormComponentProps): JSX.Element => {
-  props.form.propName = props.propName;
+const Form: React.FC<IFormComponentProps> = (props): JSX.Element => {
+  const context = useContext(ediTDorContext);
 
-  const fc = formConfigurations[props.form.op as string];
+  const newForm = {
+    ...props.form,
+    propName: props.propName,
+  };
+
+  const usesNorthBoundConnection: boolean =
+    Object.keys(context.northboundConnection.northboundTd).length > 0;
+
+  const fc = formConfigurations[newForm.op as string];
   if (!fc) {
     return (
       <UndefinedForm
         level={typeToJSONKey(props.interactionType)}
-        form={props.form}
+        form={newForm}
       />
     );
   }
@@ -49,9 +63,10 @@ const Form: React.FC<any> = (props: IFormComponentProps): JSX.Element => {
   return (
     <>
       <FormDetails
-        formType={props.form.op as FormOpKeys}
-        form={props.form}
+        operationType={newForm.op as OpKeys}
+        form={newForm}
         interactionFunction={fc.callback}
+        usesNorthboundConnection={usesNorthBoundConnection}
       />
     </>
   );

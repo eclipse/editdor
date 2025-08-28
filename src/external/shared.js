@@ -22,7 +22,7 @@ import jsonValidator from 'json-dup-key-validator';
 
 
 // This is used to validate if the multi language JSON keys are valid according to the BCP47 spec
-const bcp47pattern = /^(?:(en-GB-oed|i-ami|i-bnn|i-default|i-enochian|i-hak|i-klingon|i-lux|i-mingo|i-navajo|i-pwn|i-tao|i-tay|i-tsu|sgn-BE-FR|sgn-BE-NL|sgn-CH-DE)|(art-lojban|cel-gaulish|no-bok|no-nyn|zh-guoyu|zh-hakka|zh-min|zh-min-nan|zh-xiang))$|^((?:[a-z]{2,3}(?:(?:-[a-z]{3}){1,3})?)|[a-z]{4}|[a-z]{5,8})(?:-([a-z]{4}))?(?:-([a-z]{2}|\d{3}))?((?:-(?:[\da-z]{5,8}|\d[\da-z]{3}))*)?((?:-[\da-wy-z](?:-[\da-z]{2,8})+)*)?(-x(?:-[\da-z]{1,8})+)?$|^(x(?:-[\da-z]{1,8})+)$/i // eslint-disable-line max-len
+const bcp47pattern = /^(?:(en-GB-oed|i-ami|i-bnn|i-default|i-enochian|i-hak|i-klingon|i-lux|i-mingo|i-navajo|i-pwn|i-tao|i-tay|i-tsu|sgn-BE-FR|sgn-BE-NL|sgn-CH-DE)|(art-lojban|cel-gaulish|no-bok|no-nyn|zh-guoyu|zh-hakka|zh-min|zh-min-nan|zh-xiang))$|^((?:[a-z]{2,3}(?:(?:-[a-z]{3}){1,3})?)|[a-z]{4}|[a-z]{5,8})(?:-([a-z]{4}))?(?:-([a-z]{2}|\d{3}))?((?:-(?:[\da-z]{5,8}|\d[\da-z]{3}))*)?((?:-[\da-wy-z](?:-[\da-z]{2,8})+)*)?(-x(?:-[\da-z]{1,8})+)?$|^(x(?:-[\da-z]{1,8})+)$/i  
 
 
 export {
@@ -69,11 +69,11 @@ function checkPropUniqueness(tdString) {
         const td = JSON.parse(tdString)
 
         // no problem in interaction level
-        //eslint-disable-next-line
+         
         // let tdInteractions = [] // not used
 
         // checking whether there are properties at all, if not uniqueness is not impl
-        if (td.hasOwnProperty("properties")) {
+        if (Object.prototype.hasOwnProperty.call(td, "properties")) {
             // tdInteractions = tdInteractions.concat(Object.keys(td.properties)) // not used
             // then we can add unique properties pass
             results.push({
@@ -91,7 +91,7 @@ function checkPropUniqueness(tdString) {
         }
 
         // similar to just before, checking whether there are actions at all, if not uniqueness is not impl
-        if (td.hasOwnProperty("actions")) {
+        if (Object.prototype.hasOwnProperty.call(td, "actions")) {
             // tdInteractions = tdInteractions.concat(Object.keys(td.actions)) // not used
             results.push({
                 "ID": "td-actions_uniqueness",
@@ -108,7 +108,7 @@ function checkPropUniqueness(tdString) {
         }
 
         // similar to just before, checking whether there are events at all, if not uniqueness is not impl
-        if (td.hasOwnProperty("events")) {
+        if (Object.prototype.hasOwnProperty.call(td, "events")) {
             // tdInteractions = tdInteractions.concat(Object.keys(td.events)) // not used
             results.push({
                 "ID": "td-events_uniqueness",
@@ -144,9 +144,9 @@ function checkPropUniqueness(tdString) {
         // trying to find where this interaction is and put results accordingly
         const td = JSON.parse(tdString)
 
-        if (td.hasOwnProperty("properties")) {
+        if (Object.prototype.hasOwnProperty.call(td, "properties")) {
             const tdProperties = td.properties
-            if (tdProperties.hasOwnProperty(interactionName)) {
+            if (Object.prototype.hasOwnProperty.call(tdProperties, interactionName)) {
                 // duplicate was at properties but that fails the td-unique identifiers as well
                 results.push({
                     "ID": "td-properties_uniqueness",
@@ -172,9 +172,9 @@ function checkPropUniqueness(tdString) {
             })
         }
 
-        if (td.hasOwnProperty("actions")) {
+        if (Object.prototype.hasOwnProperty.call(td, "actions")) {
             const tdActions = td.actions
-            if (tdActions.hasOwnProperty(interactionName)) {
+            if (Object.prototype.hasOwnProperty.call(tdActions, interactionName)) {
                 // duplicate was at actions but that fails the td-unique identifiers as well
                 results.push({
                     "ID": "td-actions_uniqueness",
@@ -198,9 +198,9 @@ function checkPropUniqueness(tdString) {
             })
         }
 
-        if (td.hasOwnProperty("events")) {
+        if (Object.prototype.hasOwnProperty.call(td, "events")) {
             const tdEvents = td.events
-            if (tdEvents.hasOwnProperty(interactionName)) {
+            if (Object.prototype.hasOwnProperty.call(tdEvents, interactionName)) {
                 // duplicate was at events but that fails the td-unique identifiers as well
                 results.push({
                     "ID": "td-events_uniqueness",
@@ -238,7 +238,7 @@ function checkPropUniqueness(tdString) {
 function checkSecurity(td) {
 
     const results = []
-    if (td.hasOwnProperty("securityDefinitions")) {
+    if (Object.prototype.hasOwnProperty.call(td, "securityDefinitions")) {
         const securityDefinitionsObject = td.securityDefinitions
         const securityDefinitions = Object.keys(securityDefinitionsObject)
 
@@ -256,7 +256,7 @@ function checkSecurity(td) {
             return results
         }
 
-        if (td.hasOwnProperty("properties")) {
+        if (Object.prototype.hasOwnProperty.call(td, "properties")) {
             // checking security in property level
             let tdProperties = Object.keys(td.properties)
             for (let i = 0; i < tdProperties.length; i++) {
@@ -267,7 +267,7 @@ function checkSecurity(td) {
                 const curForms = curProperty.forms
                 for (let j = 0; j < curForms.length; j++) {
                     const curForm = curForms[j]
-                    if (curForm.hasOwnProperty("security")) {
+                    if (Object.prototype.hasOwnProperty.call(curForm, "security")) {
                         const curSecurity = curForm.security
                         if (securityContains(securityDefinitions, curSecurity)) {
                             // all good
@@ -284,7 +284,7 @@ function checkSecurity(td) {
             }
         }
 
-        if (td.hasOwnProperty("actions")) {
+        if (Object.prototype.hasOwnProperty.call(td, "actions")) {
             // checking security in action level
             let tdActions = Object.keys(td.actions)
             for (let i = 0; i < tdActions.length; i++) {
@@ -295,7 +295,7 @@ function checkSecurity(td) {
                 const curForms = curAction.forms
                 for (let j = 0; j < curForms.length; j++) {
                     const curForm = curForms[j]
-                    if (curForm.hasOwnProperty("security")) {
+                    if (Object.prototype.hasOwnProperty.call(curForm, "security")) {
                         const curSecurity = curForm.security
                         if (securityContains(securityDefinitions, curSecurity)) {
                             // all good
@@ -313,7 +313,7 @@ function checkSecurity(td) {
             }
         }
 
-        if (td.hasOwnProperty("events")) {
+        if (Object.prototype.hasOwnProperty.call(td, "events")) {
             // checking security in event level
             let tdEvents = Object.keys(td.events)
             for (let i = 0; i < tdEvents.length; i++) {
@@ -324,7 +324,7 @@ function checkSecurity(td) {
                 const curForms = curEvent.forms
                 for (let j = 0; j < curForms.length; j++) {
                     const curForm = curForms[j]
-                    if (curForm.hasOwnProperty("security")) {
+                    if (Object.prototype.hasOwnProperty.call(curForm, "security")) {
                         const curSecurity = curForm.security
                         if (securityContains(securityDefinitions, curSecurity)) {
                             // all good
@@ -387,50 +387,50 @@ function checkMultiLangConsistency(td) {
     const isTdTitlesDescriptions = [] // an array of boolean values to check td-titles-descriptions assertion
 
     // checking root
-    if (td.hasOwnProperty("titles")) {
+    if (Object.prototype.hasOwnProperty.call(td, "titles")) {
         const rootTitlesObject = td.titles
         const rootTitles = Object.keys(rootTitlesObject)
         multiLang.push(rootTitles)
         // checking for td-titles-descriptions
-        //eslint-disable-next-line
+         
         isTdTitlesDescriptions.push({["root_title"]: isStringObjectKeyValue(td.title, rootTitlesObject)})
     }
 
-    if (td.hasOwnProperty("descriptions")) {
+    if (Object.prototype.hasOwnProperty.call(td, "descriptions")) {
         const rootDescriptionsObject = td.descriptions
         const rootDescriptions = Object.keys(rootDescriptionsObject)
         multiLang.push(rootDescriptions)
         // check whether description exists in descriptions
-        if (td.hasOwnProperty("description")) {
-            //eslint-disable-next-line
+        if (Object.prototype.hasOwnProperty.call(td, "description")) {
+             
             isTdTitlesDescriptions.push({["root_description"]: isStringObjectKeyValue(td.description, rootDescriptionsObject)})
         }
     }
 
     // checking inside each interaction
-    if (td.hasOwnProperty("properties")) {
+    if (Object.prototype.hasOwnProperty.call(td, "properties")) {
         // checking security in property level
         let tdProperties = Object.keys(td.properties)
         for (let i = 0; i < tdProperties.length; i++) {
             const curPropertyName = tdProperties[i]
             const curProperty = td.properties[curPropertyName]
 
-            if (curProperty.hasOwnProperty("titles")) {
+            if (Object.prototype.hasOwnProperty.call(curProperty, "titles")) {
                 const titlesKeys = Object.keys(curProperty.titles)
                 multiLang.push(titlesKeys)
                 // checking if title exists in titles
-                if (curProperty.hasOwnProperty("title")) {
+                if (Object.prototype.hasOwnProperty.call(curProperty, "title")) {
                     isTdTitlesDescriptions.push({
                         ["property_"+curPropertyName + "_title"]: isStringObjectKeyValue(curProperty.title, curProperty.titles)
                     })
                 }
             }
 
-            if (curProperty.hasOwnProperty("descriptions")) {
+            if (Object.prototype.hasOwnProperty.call(curProperty, "descriptions")) {
                 const descriptionsKeys = Object.keys(curProperty.descriptions)
                 multiLang.push(descriptionsKeys)
                 // checking if description exists in descriptions
-                if (curProperty.hasOwnProperty("description")) {
+                if (Object.prototype.hasOwnProperty.call(curProperty, "description")) {
                     isTdTitlesDescriptions.push({
                     ["property_" + curPropertyName + "_desc"]: isStringObjectKeyValue(curProperty.description,curProperty.descriptions)
                     })
@@ -439,29 +439,29 @@ function checkMultiLangConsistency(td) {
         }
     }
 
-    if (td.hasOwnProperty("actions")) {
+    if (Object.prototype.hasOwnProperty.call(td, "actions")) {
         // checking security in action level
         let tdActions = Object.keys(td.actions)
         for (let i = 0; i < tdActions.length; i++) {
             const curActionName = tdActions[i]
             const curAction = td.actions[curActionName]
 
-            if (curAction.hasOwnProperty("titles")) {
+            if (Object.prototype.hasOwnProperty.call(curAction, "titles")) {
                 const titlesKeys = Object.keys(curAction.titles)
                 multiLang.push(titlesKeys)
                 // checking if title exists in titles
-                if (curAction.hasOwnProperty("title")) {
+                if (Object.prototype.hasOwnProperty.call(curAction, "title")) {
                     isTdTitlesDescriptions.push({
                         ["action_" + curActionName + "_title"]: isStringObjectKeyValue(curAction.title, curAction.titles)
                     })
                 }
             }
 
-            if (curAction.hasOwnProperty("descriptions")) {
+            if (Object.prototype.hasOwnProperty.call(curAction, "descriptions")) {
                 const descriptionsKeys = Object.keys(curAction.descriptions)
                 multiLang.push(descriptionsKeys)
                 // checking if description exists in descriptions
-                if (curAction.hasOwnProperty("description")) {
+                if (Object.prototype.hasOwnProperty.call(curAction, "description")) {
                     isTdTitlesDescriptions.push({
                          ["action_" + curActionName + "_desc"]: isStringObjectKeyValue(curAction.description, curAction.descriptions)
                     })
@@ -471,29 +471,29 @@ function checkMultiLangConsistency(td) {
         }
     }
 
-    if (td.hasOwnProperty("events")) {
+    if (Object.prototype.hasOwnProperty.call(td, "events")) {
         // checking security in event level
         let tdEvents = Object.keys(td.events)
         for (let i = 0; i < tdEvents.length; i++) {
             const curEventName = tdEvents[i]
             const curEvent = td.events[curEventName]
 
-            if (curEvent.hasOwnProperty("titles")) {
+            if (Object.prototype.hasOwnProperty.call(curEvent, "titles")) {
                 const titlesKeys = Object.keys(curEvent.titles)
                 multiLang.push(titlesKeys)
                 // checking if title exists in titles
-                if (curEvent.hasOwnProperty("title")) {
+                if (Object.prototype.hasOwnProperty.call(curEvent, "title")) {
                     isTdTitlesDescriptions.push({
                         ["event_" + curEventName + "_title"]: isStringObjectKeyValue(curEvent.title, curEvent.titles)
                     })
                 }
             }
 
-            if (curEvent.hasOwnProperty("descriptions")) {
+            if (Object.prototype.hasOwnProperty.call(curEvent, "descriptions")) {
                 const descriptionsKeys = Object.keys(curEvent.descriptions)
                 multiLang.push(descriptionsKeys)
                 // checking if description exists in descriptions
-                if (curEvent.hasOwnProperty("description")) {
+                if (Object.prototype.hasOwnProperty.call(curEvent, "description")) {
                     isTdTitlesDescriptions.push({
                         ["event_" + curEventName + "_desc"]: isStringObjectKeyValue(curEvent.description, curEvent.descriptions)
                     })
@@ -683,12 +683,12 @@ function checkLinksRelTypeCount(td){
 
     const results = []
 
-    if (td.hasOwnProperty("links")){
+    if (Object.prototype.hasOwnProperty.call(td, "links")){
         // links exist, check if there is rel type
         let typeCount = 0
         for (let i = 0; i < td.links.length; i++) {
             const element = td.links[i]
-            if(element.hasOwnProperty("rel")){
+            if(Object.prototype.hasOwnProperty.call(element, "rel")){
                 if (element.rel === "type"){
                     typeCount++
                 }
@@ -736,7 +736,7 @@ function checkLinksRelTypeCount(td){
 function checkUriSecurity(td) {
 
     const results = []
-    if (td.hasOwnProperty("securityDefinitions")) {
+    if (Object.prototype.hasOwnProperty.call(td, "securityDefinitions")) {
         const securityDefinitionsObject = td.securityDefinitions
         const securityDefinitionsNames = Object.keys(securityDefinitionsObject)
 
@@ -744,9 +744,9 @@ function checkUriSecurity(td) {
         for (let index = 0; index < securityDefinitionsNames.length; index++) {
             const curSecurityDefinition = securityDefinitionsObject[securityDefinitionsNames[index]];
             if (curSecurityDefinition.scheme === "apikey"){
-                if (curSecurityDefinition.hasOwnProperty("in")){
+                if (Object.prototype.hasOwnProperty.call(curSecurityDefinition, "in")){
                     if (curSecurityDefinition.in === "uri"){
-                        if (curSecurityDefinition.hasOwnProperty("name")){
+                        if (Object.prototype.hasOwnProperty.call(curSecurityDefinition, "name")){
                             securityUriVariables.push(curSecurityDefinition.name)
                         }
                     }
@@ -770,10 +770,10 @@ function checkUriSecurity(td) {
             let uriVariablesResult = "not-impl"
             let uriVariablesDistinctResult = "not-impl"
             let rootUriVariables = [];
-            if (td.hasOwnProperty("uriVariables")) {
+            if (Object.prototype.hasOwnProperty.call(td, "uriVariables")) {
                 rootUriVariables = Object.keys(td.uriVariables)
             }
-            if (td.hasOwnProperty("properties")) {
+            if (Object.prototype.hasOwnProperty.call(td, "properties")) {
                 // checking security in property level
                 let tdProperties = Object.keys(td.properties)
                 for (let i = 0; i < tdProperties.length; i++) {
@@ -783,7 +783,7 @@ function checkUriSecurity(td) {
                     const curForms = curProperty.forms
                     for (let j = 0; j < curForms.length; j++) {
                         const curForm = curForms[j]
-                        if (curForm.hasOwnProperty("href")){
+                        if (Object.prototype.hasOwnProperty.call(curForm, "href")){
                             const curHref = curForm.href
                             // bottom thing is taken from https://stackoverflow.com/a/5582621/3806426
                             if (securityUriVariables.some(v => curHref.includes(v))) {
@@ -795,7 +795,7 @@ function checkUriSecurity(td) {
                         }
                     }
                     // part for the check of td-security-uri-variables-distinct
-                    if (curProperty.hasOwnProperty("uriVariables")){
+                    if (Object.prototype.hasOwnProperty.call(curProperty, "uriVariables")){
                         let curPropertyUriVariables = Object.keys(curProperty.uriVariables)
                         curPropertyUriVariables.push(...rootUriVariables)
                         if (curPropertyUriVariables.length>0){ // there are urivariables somewhere at least
@@ -814,7 +814,7 @@ function checkUriSecurity(td) {
                 }
             }
 
-            if (td.hasOwnProperty("actions")) {
+            if (Object.prototype.hasOwnProperty.call(td, "actions")) {
                 // checking security in property level
                 let tdActions = Object.keys(td.actions)
                 for (let i = 0; i < tdActions.length; i++) {
@@ -824,7 +824,7 @@ function checkUriSecurity(td) {
                     const curForms = curAction.forms
                     for (let j = 0; j < curForms.length; j++) {
                         const curForm = curForms[j]
-                        if (curForm.hasOwnProperty("href")){
+                        if (Object.prototype.hasOwnProperty.call(curForm, "href")){
                             const curHref = curForm.href
                             // bottom thing is taken from https://stackoverflow.com/a/5582621/3806426
                             if (securityUriVariables.some(v => curHref.includes(v))) {
@@ -836,7 +836,7 @@ function checkUriSecurity(td) {
                         }
                     }
                     // part for the check of td-security-uri-variables-distinct
-                    if (curAction.hasOwnProperty("uriVariables")){
+                    if (Object.prototype.hasOwnProperty.call(curAction, "uriVariables")){
                         let curActionUriVariables = Object.keys(curAction.uriVariables)
                         curActionUriVariables.push(...rootUriVariables)
                         if (curActionUriVariables.length>0){ // there are urivariables somewhere at least
@@ -855,7 +855,7 @@ function checkUriSecurity(td) {
                 }
             }
 
-            if (td.hasOwnProperty("events")) {
+            if (Object.prototype.hasOwnProperty.call(td, "events")) {
                 // checking security in property level
                 let tdEvents = Object.keys(td.events)
                 for (let i = 0; i < tdEvents.length; i++) {
@@ -865,7 +865,7 @@ function checkUriSecurity(td) {
                     const curForms = curEvent.forms
                     for (let j = 0; j < curForms.length; j++) {
                         const curForm = curForms[j]
-                        if (curForm.hasOwnProperty("href")){
+                        if (Object.prototype.hasOwnProperty.call(curForm, "href")){
                             const curHref = curForm.href
                             // bottom thing is taken from https://stackoverflow.com/a/5582621/3806426
                             if (securityUriVariables.some(v => curHref.includes(v))) {
@@ -877,7 +877,7 @@ function checkUriSecurity(td) {
                         }
                     }
                     // part for the check of td-security-uri-variables-distinct
-                    if (curEvent.hasOwnProperty("uriVariables")){
+                    if (Object.prototype.hasOwnProperty.call(curEvent, "uriVariables")){
                         let curEventUriVariables = Object.keys(curEvent.uriVariables)
                         curEventUriVariables.push(...rootUriVariables)
                         if (curEventUriVariables.length>0){ // there are urivariables somewhere at least
@@ -928,7 +928,7 @@ function checkUriSecurity(td) {
  */
 function checkTmOptionalPointer(td){
     const results = []
-    if(td.hasOwnProperty("tm:optional")){
+    if(Object.prototype.hasOwnProperty.call(td, "tm:optional")){
         td["tm:optional"].forEach(element => {
             // However, tm: optional values start with / so it should be removed first
             element = element.substring(1)
