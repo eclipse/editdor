@@ -11,7 +11,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import { Core, Http } from "@node-wot/browser-bundle";
-import type { ThingDescription } from "wot-thing-description-types";
+import type {
+  ConsumedThing,
+  ThingDescription,
+} from "wot-typescript-definitions";
+import type { IFormConfigurations } from "../types/form.d.ts";
+import { stripDoubleQuotes } from "../utils/strings.js";
+import JSONPointer from "jsonpointer";
+import { DataSchemaType } from "wot-thing-description-types";
 
 const servient = new Core.Servient();
 servient.addClientFactory(new Http.HttpClientFactory());
@@ -22,13 +29,13 @@ const formConfigurations: Record<string, IFormConfigurations> = {
     color: "Green",
     title: "Read",
     level: "properties",
-    callback: readProperty,
+    callback: readPropertyWithServient,
   },
   writeproperty: {
     color: "Blue",
     title: "Write",
     level: "properties",
-    callback: writeProperty,
+    callback: writePropertyWithServient,
   },
   observeproperty: {
     color: "Orange",
@@ -98,10 +105,6 @@ const formConfigurations: Record<string, IFormConfigurations> = {
   },
 };
 
-function stripDoubleQuotes(str: string): string {
-  return str.replace(/^"|"$/g, "");
-}
-
 /**
  * Description of the function
  * @name InteractionFunction
@@ -110,7 +113,10 @@ function stripDoubleQuotes(str: string): string {
  * @param {String} propertyName The name of the Property
  * @param {any} content What should be written in case of e.g. a writeproperty call
  */
-const parseContent = (propertyType: string, content: string): any => {
+const parseContent = (
+  propertyType: string | undefined,
+  content: string
+): any => {
   try {
     switch (propertyType) {
       case "boolean":
@@ -164,42 +170,76 @@ const parseContent = (propertyType: string, content: string): any => {
 };
 
 /** @type {InteractionFunction} */
-async function readProperty(
+async function readPropertyWithServient(
   td: ThingDescription,
   propertyName: string,
   options: {
     formIndex?: number;
     uriVariables?: object;
     data?: any;
-  }
+  },
+  valuePath: string
 ): Promise<{ result: string; err: Error | null }> {
   try {
     const thingFactory = await servient.start();
-    const thing = await thingFactory.consume(td);
+    const thing: ConsumedThing = await thingFactory.consume(td);
 
     const res = await thing.readProperty(propertyName, options);
-    // always return the result even if the data schema doesn't fit
+    // @ts-expect-error always return the result even if the data schema doesn't fit
     res.ignoreValidation = true;
     const val = await res.value();
+
+    if (valuePath === "") {
+      return { result: JSON.stringify(val, null, 2), err: null };
+    }
+
+    if (val === null) {
+      return { result: "null", err: null };
+    }
+
+    if (typeof val === "object" || Array.isArray(val)) {
+      try {
+        const key = JSONPointer.get(val, valuePath);
+        return { result: JSON.stringify(key, null, 2), err: null };
+      } catch (e) {
+        return {
+          result: "",
+          err: new Error(
+            "Failed to get value with JSONPointer path: " + valuePath
+          ),
+        };
+      }
+    }
 
     return { result: JSON.stringify(val, null, 2), err: null };
   } catch (e) {
     console.debug(e);
-    return { result: "", err: e };
+    return { result: "", err: e as Error };
   }
 }
 
-async function writeProperty(
+/** @type {InteractionFunction} */
+async function writePropertyWithServient(
   td: ThingDescription,
   propertyName: string,
   content: string
 ): Promise<{ result: string; err: Error | null }> {
   try {
-    const propertyType = td.properties[propertyName].type;
+    if (
+      td.properties === undefined ||
+      td.properties[propertyName] === undefined
+    ) {
+      throw new Error(
+        `Property "${propertyName}" not found in Thing Description.`
+      );
+    }
+    const propertyType: DataSchemaType | undefined =
+      td.properties[propertyName].type;
+
     const contentConverted = parseContent(propertyType, content);
 
     const thingFactory = await servient.start();
-    const thing = await thingFactory.consume(td);
+    const thing: ConsumedThing = await thingFactory.consume(td);
 
     // no return value - only exception on error
     await thing.writeProperty(propertyName, contentConverted);
@@ -218,4 +258,8 @@ async function writeProperty(
   }
 }
 
-export { formConfigurations, readProperty, writeProperty };
+export {
+  formConfigurations,
+  readPropertyWithServient,
+  writePropertyWithServient,
+};

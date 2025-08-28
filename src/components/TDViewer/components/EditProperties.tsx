@@ -12,9 +12,6 @@
  ********************************************************************************/
 import React, { useContext, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
-import ButtonSwap from "../base/ButtonSwap";
-import IncrementButton from "../base/IncrementButton";
-import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import {
   getAddressOffsetTooltipContent,
   getEndiannessTooltipContent,
@@ -295,9 +292,7 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
               tooltip={getAddressOffsetTooltipContent()}
               textLabel="Address Offset"
               valueButton={addressOffset}
-              onUpdateIncrement={() =>
-                handleAddressOffsetUpdate(!addressOffset)
-              }
+              onUpdateValue={() => handleAddressOffsetUpdate(!addressOffset)}
             />
           ) : (
             <>
@@ -308,7 +303,7 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
                     tooltip={getAddressOffsetTooltipContent()}
                     textLabel="Address Offset"
                     valueButton={addressOffset}
-                    onUpdateIncrement={() =>
+                    onUpdateValue={() =>
                       handleAddressOffsetUpdate(!addressOffset)
                     }
                   />

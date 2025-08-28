@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useRef } from "react";
 import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../../util.js";
@@ -22,14 +22,28 @@ import AddFormElement from "../base/AddFormElement";
 
 const alreadyRenderedKeys = ["title", "forms", "description"];
 
-const Property: React.FC<any> = (props) => {
+interface IProperty {
+  prop: {
+    title: string;
+    forms: Array<{
+      href: string;
+      contentType?: string;
+      op?: string | string[];
+      [key: string]: any;
+    }>;
+    description?: string;
+    [key: string]: any;
+  };
+  propName: string;
+}
+const Property: React.FC<IProperty> = (props) => {
   const context = useContext(ediTDorContext);
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const addFormDialog = React.useRef(props);
+  const addFormDialog = useRef<{ openModal: () => void }>(null);
   const handleOpenAddFormDialog = () => {
-    addFormDialog.current.openModal();
+    addFormDialog.current?.openModal();
   };
 
   if (
@@ -44,7 +58,14 @@ const Property: React.FC<any> = (props) => {
   }
 
   const property = props.prop;
-  const forms = separateForms(structuredClone(props.prop.forms));
+
+  let forms: {
+    href: string;
+    op: string;
+    contentType: string;
+    actualIndex: number;
+    [key: string]: any;
+  }[] = separateForms(structuredClone(props.prop.forms));
 
   const attributeListObject = buildAttributeListObject(
     { name: props.propName },

@@ -11,20 +11,16 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import type { ThingDescription } from "wot-thing-description-types";
-import { Method, RequestWebOptions } from "../types/td";
-
-interface HttpSuccessResponse {
-  data: Response;
-  headers: string;
-  status: number;
-}
-
-interface HttpErrorResponse {
-  message: string;
-  reason: string;
-}
-
-type HttpResponse = HttpSuccessResponse | HttpErrorResponse;
+import {
+  Method,
+  RequestWebOptions,
+  HttpResponse,
+  HttpErrorResponse,
+  HttpSuccessResponse,
+  ResponseDataFromNorthbound,
+} from "../types/global";
+import { getLocalStorage } from "./localStorage";
+import { ensureTrailingSlash } from "../utils/strings";
 
 function isSuccessResponse(
   response: HttpResponse
@@ -63,6 +59,9 @@ const handleHttpRequest = async (
 
       switch (response.status) {
         case 301:
+          throw new Error(`Monitors for the property: ${errorMessage}`);
+        case 304:
+          throw new Error(`Not Modified: ${errorMessage}`);
         case 302:
           throw new Error(`Bad url: ${errorMessage}`);
         case 400:
@@ -73,6 +72,10 @@ const handleHttpRequest = async (
           throw new Error(`Forbidden: ${errorMessage}`);
         case 404:
           throw new Error(`Not Found: ${errorMessage}`);
+        case 405:
+          throw new Error(`Property not writable: ${errorMessage}`);
+        case 406:
+          throw new Error(`Invalid property value: ${errorMessage}`);
         case 409:
           throw new Error(`Conflict: ${errorMessage}`);
         case 429:
@@ -144,4 +147,92 @@ const requestWeb = async (
   });
 };
 
-export { requestWeb, isSuccessResponse, handleHttpRequest };
+const fetchNorthboundTD = async (
+  tdId: string
+): Promise<{ message: string; data: ThingDescription | null }> => {
+  try {
+    const northboundUrl = ensureTrailingSlash(getLocalStorage("northbound"));
+    if (!northboundUrl) {
+      throw new Error("No northbound URL configured in settings");
+    }
+
+    const endpoint = `${northboundUrl}${encodeURIComponent(tdId)}`;
+
+    const response = await handleHttpRequest(endpoint, "GET");
+
+    if (isSuccessResponse(response)) {
+      try {
+        const responseData = await response.data.json();
+        return {
+          message: "Northbound TD available",
+          data: responseData as ThingDescription,
+        };
+      } catch (error) {
+        return {
+          message: "Failed to parse northbound TD",
+          data: null,
+        };
+      }
+    } else {
+      const errorMessage = response.message || "Failed to fetch northbound TD";
+      return {
+        message: errorMessage,
+        data: null,
+      };
+    }
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    return {
+      message: errorMessage,
+      data: null,
+    };
+  }
+};
+
+/**
+ * Extracts a value from response data based on a JSON Pointer-like path
+ * @param responseData - The response data object
+ * @param path - The path to extract (e.g., "/", "/value", "/path/value")
+ * @returns The extracted value as a string
+ */
+const extractValueByPath = (
+  responseData: ResponseDataFromNorthbound,
+  path?: string
+): string => {
+  // Case 1: ("/")
+  if (!path || path === "/") {
+    return JSON.stringify(responseData);
+  }
+
+  const segments = path.split("/").filter((segment) => segment.length > 0);
+
+  // Case 2: ("/value")
+  if (segments.length === 1) {
+    const key = segments[0];
+    return responseData[key] !== undefined
+      ? String(responseData[key])
+      : JSON.stringify(responseData);
+  }
+
+  // Case 3:("/path/value")
+  let current: any = responseData;
+
+  for (const segment of segments) {
+    if (current === undefined || current === null) {
+      return JSON.stringify(responseData);
+    }
+
+    current = current[segment];
+  }
+
+  return current !== undefined ? String(current) : JSON.stringify(responseData);
+};
+
+export {
+  requestWeb,
+  isSuccessResponse,
+  handleHttpRequest,
+  fetchNorthboundTD,
+  extractValueByPath,
+};

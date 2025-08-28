@@ -121,7 +121,7 @@ function extractSchemaUrisFromContext(context) {
 
     // schema is object
     for (const ontologyName in schema) {
-      if (!schema.hasOwnProperty(ontologyName)) {
+      if (!Object.prototype.hasOwnProperty.call(schema, ontologyName)) {
         continue;
       }
 
@@ -144,7 +144,7 @@ function extractSchemaUrisFromContext(context) {
  * @returns {Array<String>}
  */
 function extractSchemaUriFromBase(td) {
-  if (!td.hasOwnProperty("base")) {
+  if (!Object.prototype.hasOwnProperty.call(td, "base")) {
     return [];
   }
 

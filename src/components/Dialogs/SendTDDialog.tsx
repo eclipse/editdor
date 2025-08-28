@@ -16,13 +16,14 @@ import DialogTemplate from "./DialogTemplate";
 import type { ThingDescription } from "wot-thing-description-types";
 import ediTDorContext from "../../context/ediTDorContext";
 import SpinnerTemplate from "./SpinnerTemplate";
-import { getTargetUrl } from "../../services/localStorage";
+import { getLocalStorage } from "../../services/localStorage";
 import {
   isSuccessResponse,
   handleHttpRequest,
 } from "../../services/thingsApiService";
 import RequestSuccessful from "./base/RequestSuccessful";
 import RequestFailed from "./base/RequestFailed";
+import { fetchNorthboundTD } from "../../services/thingsApiService";
 
 export interface SendTDDialogRef {
   openModal: () => void;
@@ -73,7 +74,7 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
 
     const open = async () => {
       try {
-        const url = getTargetUrl("southbound");
+        const url = getLocalStorage("southbound");
         if (!url) return;
 
         const endpoint = `${url}${url.endsWith("/") ? "" : "/"}`;
@@ -86,6 +87,11 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
 
         if ("data" in response && response.status === 200) {
           setIsUpdate(true);
+          const responseNorthbound = await fetchNorthboundTD(currentTdId);
+          context.updateNorthboundConnection({
+            message: responseNorthbound.message,
+            northboundTd: responseNorthbound.data ?? {},
+          });
         } else {
           setIsUpdate(false);
         }
@@ -123,7 +129,7 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
         isLoading: true,
       });
 
-      const url = getTargetUrl("southbound");
+      const url = getLocalStorage("southbound");
       const endpoint = `${url}/${currentTdId}`;
 
       const response = await handleHttpRequest(
@@ -138,8 +144,13 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
             ...requestUpdate,
             isLoading: false,
             success: true,
-            message: `TD updated successfully to ${endpoint}!`,
+            message: `TD updated successfully to ${endpoint}`,
             reason: "",
+          });
+          const responseNorthbound = await fetchNorthboundTD(currentTdId);
+          context.updateNorthboundConnection({
+            message: responseNorthbound.message,
+            northboundTd: responseNorthbound.data ?? {},
           });
         }
       } else {
@@ -161,7 +172,7 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
         reason: "",
       });
 
-      const url = getTargetUrl("southbound");
+      const url = getLocalStorage("southbound");
       const endpoint = `${url}`;
 
       const response = await handleHttpRequest(
@@ -176,8 +187,13 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
             ...requestSend,
             isLoading: false,
             success: true,
-            message: `TD sent successfully to ${endpoint}!`,
+            message: `TD sent successfully to ${endpoint}`,
             reason: "",
+          });
+          const responseNorthbound = await fetchNorthboundTD(currentTdId);
+          context.updateNorthboundConnection({
+            message: responseNorthbound.message,
+            northboundTd: responseNorthbound.data ?? {},
           });
           setIsUpdate(true);
         }
@@ -246,7 +262,8 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
                       Endpoint:
                     </td>
                     <td className="break-all py-2 text-gray-400">
-                      {getTargetUrl("southbound") || "(No endpoint configured)"}
+                      {getLocalStorage("southbound") ||
+                        "(No endpoint configured)"}
                     </td>
                   </tr>
                   <tr>

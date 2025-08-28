@@ -17,7 +17,7 @@ interface IButtonSwapProps {
   description: string;
   value: boolean;
   className?: string;
-  onClick: () => void;
+  onClick: (e: any) => void;
 }
 
 const ButtonSwap: React.FC<IButtonSwapProps> = ({

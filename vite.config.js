@@ -16,5 +16,14 @@ export default defineConfig(({ mode }) => {
       "process.env": env,
       APP_VERSION: JSON.stringify(process.env.npm_package_version),
     },
+    build: {
+      sourcemap: mode === "development",
+    },
+    test: {
+      globals: true,
+      environment: "jsdom",
+      setupFiles: "./src/setupTests.ts",
+      include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    },
   };
 });

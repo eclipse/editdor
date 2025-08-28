@@ -1,8 +1,19 @@
 module.exports = {
   root: true,
   env: { browser: true, es2020: true },
-  extends: ["eslint:recommended", "plugin:react/recommended", "plugin:react-hooks/recommended"],
-  ignorePatterns: ["dist", ".eslintrc.cjs", "vite.config.js"],
+  extends: [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+  ],
+  ignorePatterns: [
+    "dist",
+    "coverage",
+    ".eslintrc.cjs",
+    "vite.config.js",
+    "tailwind.config.js",
+    "postcss.config.js",
+  ],
   parser: "@babel/eslint-parser",
   parserOptions: {
     requireConfigFile: false,
@@ -14,6 +25,9 @@ module.exports = {
   },
   plugins: ["react", "react-refresh"],
   rules: {
-    "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+    "react-refresh/only-export-components": [
+      "warn",
+      { allowConstantExport: true },
+    ],
   },
 };

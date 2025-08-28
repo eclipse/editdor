@@ -13,7 +13,7 @@
 import { tdValidator, tmValidator } from "../external/TdPlayground";
 import { isThingModel } from "../util";
 
-// eslint-disable-next-line no-restricted-globals
+ 
 self.onmessage = async (message) => {
   console.debug("validation worker received message...");
   let tdStr = message.data;

@@ -51,7 +51,7 @@ const readFromFile = async () => {
 const getFileHTML5 = async () => {
   return new Promise((resolve, reject) => {
     const fileInput = document.getElementById("fileInput");
-    fileInput.onchange = (e) => {
+    fileInput.onchange = () => {
       const file = fileInput.files[0];
       if (file) {
         return resolve(file);
