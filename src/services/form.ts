@@ -14,11 +14,9 @@ import { Core, Http } from "@node-wot/browser-bundle";
 import type {
   ConsumedThing,
   ThingDescription,
-  InteractionOutput,
 } from "wot-typescript-definitions";
 import type { IFormConfigurations } from "../types/form.d.ts";
 import { stripDoubleQuotes } from "../utils/strings.js";
-import { handleHttpRequest, isSuccessResponse } from "./thingsApiService.js";
 import JSONPointer from "jsonpointer";
 import { DataSchemaType } from "wot-thing-description-types";
 
@@ -32,91 +30,78 @@ const formConfigurations: Record<string, IFormConfigurations> = {
     title: "Read",
     level: "properties",
     callback: readPropertyWithServient,
-    thirdPartyCallback: readPropertyThirdParty,
   },
   writeproperty: {
     color: "Blue",
     title: "Write",
     level: "properties",
     callback: writePropertyWithServient,
-    thirdPartyCallback: writePropertyWithServient,
   },
   observeproperty: {
     color: "Orange",
     title: "Observe",
     level: "properties",
     callback: null,
-    thirdPartyCallback: null,
   },
   unobserveproperty: {
     color: "Red",
     title: "Unobserve",
     level: "properties",
     callback: null,
-    thirdPartyCallback: null,
   },
   invokeaction: {
     color: "Orange",
     title: "Invoke",
     level: "actions",
     callback: null,
-    thirdPartyCallback: null,
   },
   subscribeevent: {
     color: "Orange",
     title: "Subscribe",
     level: "events",
     callback: null,
-    thirdPartyCallback: null,
   },
   unsubscribeevent: {
     color: "Red",
     title: "Unsubscribe",
     level: "events",
     callback: null,
-    thirdPartyCallback: null,
   },
   readmultipleproperties: {
     color: "Green",
     title: "Read Multiple",
     level: "thing",
     callback: null,
-    thirdPartyCallback: null,
   },
   readallproperties: {
     color: "Green",
     title: "Read All",
     level: "thing",
     callback: null,
-    thirdPartyCallback: null,
   },
   writemultipleproperties: {
     color: "Blue",
     title: "Write Multiple",
     level: "thing",
     callback: null,
-    thirdPartyCallback: null,
   },
   writeallproperties: {
     color: "Blue",
     title: "Write All",
     level: "thing",
     callback: null,
-    thirdPartyCallback: null,
   },
   observeallproperties: {
     color: "Orange",
     title: "Observe All",
     level: "thing",
     callback: null,
-    thirdPartyCallback: null,
   },
   unobserveallproperties: {
     color: "Red",
     title: "Unobserve All",
     level: "thing",
     callback: null,
-    thirdPartyCallback: null,
   },
 };
 
@@ -192,19 +177,39 @@ async function readPropertyWithServient(
     formIndex?: number;
     uriVariables?: object;
     data?: any;
-  }
+  },
+  valuePath: string
 ): Promise<{ result: string; err: Error | null }> {
   try {
     const thingFactory = await servient.start();
     const thing: ConsumedThing = await thingFactory.consume(td);
 
-    const res: InteractionOutput = await thing.readProperty(
-      propertyName,
-      options
-    );
-    // always return the result even if the data schema doesn't fit
-    //res.ignoreValidation = true;
+    const res = await thing.readProperty(propertyName, options);
+    // @ts-expect-error always return the result even if the data schema doesn't fit
+    res.ignoreValidation = true;
     const val = await res.value();
+
+    if (valuePath === "") {
+      return { result: JSON.stringify(val, null, 2), err: null };
+    }
+
+    if (val === null) {
+      return { result: "null", err: null };
+    }
+
+    if (typeof val === "object" || Array.isArray(val)) {
+      try {
+        const key = JSONPointer.get(val, valuePath);
+        return { result: JSON.stringify(key, null, 2), err: null };
+      } catch (e) {
+        return {
+          result: "",
+          err: new Error(
+            "Failed to get value with JSONPointer path: " + valuePath
+          ),
+        };
+      }
+    }
 
     return { result: JSON.stringify(val, null, 2), err: null };
   } catch (e) {
@@ -250,54 +255,6 @@ async function writePropertyWithServient(
   } catch (e) {
     console.debug(e);
     return { result: "", err: e as Error };
-  }
-}
-
-/** @type {InteractionFunction} */
-// async function writePropertyThirdParty(
-//   baseUrl: string,
-//   href: string,
-//   valuePath: string
-// ): Promise<{ result: string; err: string | null }> {
-//   try {
-//     const response = await handleHttpRequest(`${baseUrl}${href}`, "PUT");
-//     console.log(response);
-//     return { result: "", err: null };
-//   } catch (e) {
-//     console.debug(e);
-//     return { result: "", err: String(e) };
-//   }
-// }
-
-/** @type {InteractionFunction} */
-async function readPropertyThirdParty(
-  baseUrl: string,
-  href: string,
-  valuePath: string
-): Promise<{ result: string; err: string | null }> {
-  const response = await handleHttpRequest(`${baseUrl}${href}`, "GET");
-
-  if (isSuccessResponse(response)) {
-    try {
-      const responseData = await response.data.json();
-      const key = JSONPointer.get(responseData, valuePath);
-      const keyAsString: string = String(key);
-      return {
-        result: keyAsString,
-        err: null,
-      };
-    } catch (error) {
-      return {
-        result: "",
-        err: ("Error reading data " + error) as string,
-      };
-    }
-  } else {
-    const errorMessage = response.reason || "Failed to third party property";
-    return {
-      result: errorMessage,
-      err: null,
-    };
   }
 }
 

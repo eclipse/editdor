@@ -14,18 +14,13 @@ import React, { useContext, useState } from "react";
 import { ChevronUp, Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { formConfigurations } from "../../../services/form";
-import type {
-  ThirdPartyCallback,
-  ServientCallback,
-  IFormProps,
-  OpKeys,
-} from "../../../types/form";
+import type { ServientCallback, IFormProps, OpKeys } from "../../../types/form";
 import { getLocalStorage } from "../../../services/localStorage";
 
 interface IFormDetailsProps {
   operationType: OpKeys;
   form: IFormProps;
-  interactionFunction: ServientCallback | ThirdPartyCallback | null;
+  interactionFunction: ServientCallback | null;
   usesNorthboundConnection: boolean;
 }
 
@@ -66,37 +61,22 @@ const FormDetails: React.FC<IFormDetailsProps> = ({
 
     try {
       let res;
+      const servientCallback = interactionFunction as ServientCallback;
+      const valuePath = getLocalStorage("valuePath");
 
       if (usesNorthboundConnection) {
-        if (operationType === "writeproperty") {
-          const servientCallback = interactionFunction as ServientCallback;
-
-          res = await servientCallback(
-            context.northboundConnection.northboundTd,
-            form.propName,
-            writeContent
-          );
-        } else {
-          const thirdPartyCallback = interactionFunction as ThirdPartyCallback;
-
-          const baseUrl =
-            context.northboundConnection?.northboundTd?.base || "";
-          const forms =
-            context.northboundConnection?.northboundTd?.properties[
-              form.propName
-            ]?.forms;
-          const href = forms?.find((f) => f.op === form.op)?.href || "";
-          const valuePath = getLocalStorage("valuePath");
-
-          res = await thirdPartyCallback(baseUrl, href, valuePath);
-        }
+        res = await servientCallback(
+          context.northboundConnection.northboundTd,
+          form.propName,
+          writeContent,
+          valuePath
+        );
       } else {
-        const servientCallback = interactionFunction as ServientCallback;
-
         res = await servientCallback(
           context.parsedTD,
           form.propName,
-          writeContent
+          writeContent,
+          ""
         );
       }
 

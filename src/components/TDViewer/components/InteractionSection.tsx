@@ -229,36 +229,33 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
   }): Promise<{ value: string; error: string }> => {
     const index = extractIndexFromId(item.id);
 
-    if (isBaseModbus || hasModbusProperties(td)) {
-      const baseUrl = northboundConnection.northboundTd.base;
-      const href =
-        northboundConnection.northboundTd.properties[item.propName].forms[0]
-          .href;
-      const url = baseUrl + href;
-      const response = await requestWeb(url, "GET");
-      if (response.ok) {
-        const data = await response.json();
-        let jsonPointerPath = getLocalStorage("valuePath");
-
-        const key = JSONPointer.get(data, jsonPointerPath);
-        const keyAsString: string = String(key);
-        return {
-          value: keyAsString,
-          error: "",
-        };
-      } else {
-        setErrorDisplay({
-          state: true,
-          message:
-            "Error Get Request to Northbound. Please check settings definitions",
-        });
-        return { value: "", error: "Error Get Request to Northbound" };
+    if (Object.keys(northboundConnection.northboundTd).length > 0) {
+      try {
+        const res = await readPropertyWithServient(
+          northboundConnection.northboundTd as ThingDescription,
+          item.propName,
+          {
+            formIndex: index,
+          },
+          getLocalStorage("valuePath") ?? ""
+        );
+        if (res.err) {
+          return { value: "", error: res.err.message };
+        }
+        return { value: res.result, error: "" };
+      } catch (err: any) {
+        return { value: "", error: err.message };
       }
     } else {
       try {
-        const res = await readPropertyWithServient(td, item.propName, {
-          formIndex: index,
-        });
+        const res = await readPropertyWithServient(
+          td,
+          item.propName,
+          {
+            formIndex: index,
+          },
+          ""
+        );
         if (res.err) {
           return { value: "", error: res.err.message };
         }

@@ -48,8 +48,7 @@ const Form: React.FC<IFormComponentProps> = (props): JSX.Element => {
   };
 
   const usesNorthBoundConnection: boolean =
-    Object.keys(context.northboundConnection.northboundTd).length > 0 &&
-    newForm.op === "readproperty";
+    Object.keys(context.northboundConnection.northboundTd).length > 0;
 
   const fc = formConfigurations[newForm.op as string];
   if (!fc) {
@@ -66,9 +65,7 @@ const Form: React.FC<IFormComponentProps> = (props): JSX.Element => {
       <FormDetails
         operationType={newForm.op as OpKeys}
         form={newForm}
-        interactionFunction={
-          usesNorthBoundConnection ? fc.thirdPartyCallback : fc.callback
-        }
+        interactionFunction={fc.callback}
         usesNorthboundConnection={usesNorthBoundConnection}
       />
     </>
