@@ -125,8 +125,8 @@ const CreateTdDialog = forwardRef((props, ref) => {
   if (display) {
     return ReactDOM.createPortal(
       <DialogTemplate
-        onCancel={close}
-        onSubmit={() => {
+        onHandleEventLeftButton={close}
+        onHandleEventRightButton={() => {
           let td = createNewTD(type, properties);
           let linkedTd = {};
           linkedTd[td["title"]] = td;
@@ -136,7 +136,7 @@ const CreateTdDialog = forwardRef((props, ref) => {
           close();
         }}
         children={content}
-        submitText={type === "TD" ? "Create TD" : "Create TM"}
+        rightButton={type === "TD" ? "Create TD" : "Create TM"}
         title={"Create a New TD/TM"}
         description={
           "To quickly create a basis for your new Thing Description/Thing Model just fill out this little template and we'll get you going."

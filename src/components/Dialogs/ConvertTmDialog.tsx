@@ -54,9 +54,11 @@ const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
   if (display) {
     return ReactDOM.createPortal(
       <DialogTemplate
-        onCancel={close}
-        onSubmit={() => convertTmToTd(context.offlineTD, htmlInputs)}
-        submitText={"Generate TD"}
+        onHandleEventLeftButton={close}
+        onHandleEventRightButton={() =>
+          convertTmToTd(context.offlineTD, htmlInputs)
+        }
+        rightButton={"Generate TD"}
         children={htmlInputs}
         title={"Generate TD From TM"}
         description={"Please provide values to switch the placeholders with."}

@@ -17,10 +17,10 @@ interface DialogTemplateProps {
   title?: string;
   description?: string;
   children?: ReactNode;
-  cancelText?: string;
-  onCancel?: () => void;
-  submitText?: string;
-  onSubmit?: () => void;
+  leftButton?: string;
+  onHandleEventLeftButton?: () => void;
+  rightButton?: string;
+  onHandleEventRightButton?: () => void;
   hasSubmit?: boolean;
   className?: string;
 }
@@ -31,12 +31,13 @@ const DialogTemplate: React.FC<DialogTemplateProps> = (props) => {
     props.description ?? "Default description, please override.";
   const children = props.children ?? <></>;
 
-  const cancelText = props.cancelText ?? "Cancel";
-  const onCancel = props.onCancel ?? (() => {});
+  const leftText = props.leftButton ?? "Cancel";
+  const onHandleEventLeftButton = props.onHandleEventLeftButton ?? (() => {});
 
-  const submitText = props.submitText ?? "Submit";
-  const onSubmit = props.onSubmit ?? (() => {});
+  const rightText = props.rightButton ?? "Submit";
+  const onHandleEventRightButton = props.onHandleEventRightButton ?? (() => {});
   const hasSubmit = props.hasSubmit ?? true;
+  const className = props.className ?? "lg:w-[40%]";
 
   let keysDown = {};
   window.onkeydown = function (e: KeyboardEvent) {
@@ -55,35 +56,36 @@ const DialogTemplate: React.FC<DialogTemplateProps> = (props) => {
   return (
     <>
       <div className="absolute left-0 top-0 z-10 flex h-full w-full items-center justify-center bg-black bg-opacity-80 text-white">
-        <div className="flex max-h-[95%] w-[80%] flex-col justify-start rounded-xl bg-gray-500 p-4 shadow-xl lg:w-[40%]">
+        <div
+          className={`flex max-h-[95%] w-[80%] flex-col justify-start rounded-xl bg-gray-500 p-4 shadow-xl ${className}`}
+        >
           <div className="flex flex-row items-center justify-start">
             <h1 className="flex-grow pl-2 text-2xl font-bold">{title}</h1>
           </div>
-          <h2 className={`py-2 pl-2 text-gray-400 ${props.className}`}>
-            {description}
-          </h2>
+
+          <h2 className={`py-2 pl-2 text-gray-400`}>{description}</h2>
           <div className="overflow-auto p-2">{children}</div>
           <div className="flex justify-end p-2 pt-4">
-            {submitText !== "OK" && (
+            {rightText !== "OK" && (
               <BaseButton
-                id="cancelButton"
-                onClick={() => onCancel()}
+                id="leftButton"
+                onClick={() => onHandleEventLeftButton()}
                 variant="primary"
                 type="button"
                 className="mr-1"
               >
-                {cancelText}
+                {leftText}
               </BaseButton>
             )}
             {hasSubmit && (
               <BaseButton
-                id="submitButton"
-                onClick={() => onSubmit()}
+                id="rightButton"
+                onClick={() => onHandleEventRightButton()}
                 variant="primary"
                 type="button"
                 className="flex"
               >
-                {submitText}
+                {rightText}
               </BaseButton>
             )}
           </div>

@@ -66,10 +66,10 @@ const ShareDialog = forwardRef((_, ref) => {
     return ReactDOM.createPortal(
       <DialogTemplate
         hasSubmit={true}
-        onCancel={close}
-        cancelText={"Okay"}
-        submitText={"Open in Playground"}
-        onSubmit={() => {
+        onHandleEventLeftButton={close}
+        leftButton={"Okay"}
+        rightButton={"Open in Playground"}
+        onHandleEventRightButton={() => {
           window.open(`https://playground.thingweb.io//#${compressedTd}`);
           close();
         }}

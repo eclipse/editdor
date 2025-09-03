@@ -546,9 +546,9 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         <DialogTemplate
           title={editorContent.title}
           description="Modify the content using this editor"
-          onCancel={handleDialogClose}
-          onSubmit={handleDialogSubmit}
-          submitText="Save"
+          onHandleEventLeftButton={handleDialogClose}
+          onHandleEventRightButton={handleDialogSubmit}
+          rightButton="Save"
         >
           <Editor
             height="400px"

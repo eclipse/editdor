@@ -31,8 +31,8 @@ const ErrorDialog: React.FC<ErrorDialogProps> = ({
     <DialogTemplate
       title="Error"
       description={errorMessage}
-      onSubmit={onClose}
-      submitText="OK"
+      onHandleEventRightButton={onClose}
+      rightButton="OK"
       className="text-lg"
     />,
     document.getElementById("modal-root") as HTMLElement

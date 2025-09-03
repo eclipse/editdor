@@ -223,10 +223,10 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
     return ReactDOM.createPortal(
       <DialogTemplate
         hasSubmit={true}
-        onCancel={close}
-        cancelText={"Cancel"}
-        submitText={"Save Changes"}
-        onSubmit={handleSubmit}
+        onHandleEventLeftButton={close}
+        leftButton={"Cancel"}
+        rightButton={"Save Changes"}
+        onHandleEventRightButton={handleSubmit}
         children={child}
         title={"Settings"}
         description={"Change the ediTDors configuration to your needs"}

@@ -243,8 +243,8 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
       return ReactDOM.createPortal(
         <DialogTemplate
           hasSubmit={false}
-          onCancel={close}
-          cancelText={"Close"}
+          onHandleEventLeftButton={close}
+          leftButton={"Close"}
           title={"Send TD"}
           description={
             "The Thing Description will be sent to a Third-Party Service located at the endpoint configured in the Settings options under Southbound URL field. The proxied Thing will be interactable over HTTP in the left view."
