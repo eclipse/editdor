@@ -60,6 +60,10 @@ interface BaseTableProps<T extends TableItem> {
   renderItem?: (item: T, headerKey: string) => React.ReactNode;
   placeholder?: React.ReactNode;
   baseUrl: string;
+  expandTable?: boolean;
+  requestResults?: {
+    [id: string]: { value: string; error: string };
+  };
 }
 
 const BaseTable = <T extends TableItem>({
@@ -77,6 +81,8 @@ const BaseTable = <T extends TableItem>({
   renderItem,
   placeholder,
   baseUrl = "",
+  expandTable = false,
+  requestResults = {},
 }: BaseTableProps<T>): JSX.Element => {
   const filteredItems = useMemo(() => {
     const defaultFilterMethod = (filterValue: string) => (item: T) =>
@@ -108,23 +114,28 @@ const BaseTable = <T extends TableItem>({
     });
   }, [filteredItems, orderBy, order]);
 
-  const [requestResults, setRequestResults] = useState<{
+  const [internalRequestResults, setInternalRequestResults] = useState<{
     [id: string]: { value: string; error: string };
   }>({});
 
   useEffect(() => {
-    const initialResults = items.reduce(
-      (acc, item) => {
-        if (item.id) {
-          acc[item.id] = { value: "", error: "" };
-        }
-        return acc;
-      },
-      {} as { [id: string]: { value: string; error: string } }
-    );
+    if (Object.keys(requestResults).length === 0) {
+      const initialResults = items.reduce(
+        (acc, item) => {
+          if (item.id) {
+            acc[item.id] = { value: "", error: "" };
+          }
+          return acc;
+        },
+        {} as { [id: string]: { value: string; error: string } }
+      );
+      setInternalRequestResults(initialResults);
+    }
+  }, [items, requestResults]);
 
-    setRequestResults(initialResults);
-  }, [items]);
+  const mergedResults = useMemo(() => {
+    return { ...internalRequestResults, ...requestResults };
+  }, [internalRequestResults, requestResults]);
 
   const renderSelect = (
     value: string,
@@ -159,34 +170,35 @@ const BaseTable = <T extends TableItem>({
         return (
           <div
             className={`flex h-full w-full items-center justify-center ${
-              requestResults[item.id]?.error ? "bg-red-500 text-white" : ""
-            } ${requestResults[item.id]?.value ? "bg-formGreen text-black" : ""} `}
+              mergedResults[item.id]?.error ? "bg-red-500 text-white" : ""
+            } ${mergedResults[item.id]?.value ? "bg-formGreen text-black" : ""} `}
             onClick={async () => {
-              if (onSendRequestClick) {
+              // Only allow click action if not provided by parent
+              if (
+                onSendRequestClick &&
+                Object.keys(requestResults).length === 0
+              ) {
                 const result = await onSendRequestClick(item);
-                setRequestResults((prev) => ({
+                setInternalRequestResults((prev) => ({
                   ...prev,
                   [item.id]: result,
                 }));
               }
             }}
           >
-            {
-              requestResults[item.id]?.error && (
-                <div className="flex items-center justify-center">
-                  <h1 className="px-2">Error</h1>
-                  <Icon
-                    id="info"
-                    html={`Error description: ${requestResults[item.id].error}`}
-                    color="white"
-                    IconComponent={AlertTriangle}
-                  />
-                </div>
-              )
-              // In the value preview, if there is no error, same text field as usual. If there is error, an exclamation mark, the text "Error" and error description with tooltip
-            }
-            {!requestResults[item.id]?.error &&
-              !requestResults[item.id]?.value && (
+            {mergedResults[item.id]?.error && (
+              <div className="flex items-center justify-center">
+                <h1 className="px-2">Error</h1>
+                <Icon
+                  id="info"
+                  html={`Error description: ${mergedResults[item.id].error}`}
+                  color="white"
+                  IconComponent={AlertTriangle}
+                />
+              </div>
+            )}
+            {!mergedResults[item.id]?.error &&
+              !mergedResults[item.id]?.value && (
                 <Icon
                   id="check"
                   html="Click to send request"
@@ -194,10 +206,10 @@ const BaseTable = <T extends TableItem>({
                   size={20}
                 />
               )}
-            {!requestResults[item.id]?.error &&
-              requestResults[item.id]?.value && (
+            {!mergedResults[item.id]?.error &&
+              mergedResults[item.id]?.value && (
                 <div className="flex h-full w-full items-center justify-center">
-                  <h1 className="px-2">{requestResults[item.id].value}</h1>
+                  <h1 className="px-2">{mergedResults[item.id].value}</h1>
                   <Icon
                     id="checkCircle"
                     html="Successful read property in the device"
@@ -359,10 +371,14 @@ const BaseTable = <T extends TableItem>({
   return (
     <BasePagination items={orderedItems} itemsPerPage={itemsPerPage}>
       {({ items: paginatedItems }) => (
-        <div className="relative overflow-x-auto">
-          <div className={`inline-block ${className}`}>
+        <div
+          className={`relative overflow-x-auto ${expandTable ? "w-full" : ""} `}
+        >
+          <div
+            className={`${className} ${expandTable ? "w-full" : "inline-block"}`}
+          >
             {/* HTML Table Container */}
-            <table className="w-full text-nowrap">
+            <table className={`w-full text-nowrap`}>
               {/* Table Head */}
               <thead>
                 <tr>

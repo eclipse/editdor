@@ -10,27 +10,36 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { forwardRef, useContext, useImperativeHandle } from "react";
+import React, {
+  forwardRef,
+  useContext,
+  useImperativeHandle,
+  useState,
+  useMemo,
+} from "react";
 import ReactDOM from "react-dom";
-import ediTDorContext from "../../context/ediTDorContext";
-import DialogTemplate from "./DialogTemplate";
-import DialogTextField from "./base/DialogTextField";
-import BaseButton from "../TDViewer/base/BaseButton";
-import {
-  Check,
-  AlertTriangle,
-  Copy,
-  ExternalLink,
-  RefreshCw,
-} from "react-feather";
-import { isValidUrl } from "../../utils/strings";
+import { RefreshCw } from "react-feather";
+import draft7MetaSchema from "ajv/dist/refs/json-schema-draft-07.json";
+import type {
+  FormElementBase,
+  ThingDescription,
+} from "wot-thing-description-types";
+import "react-step-progress-bar/styles.css";
 import Ajv2019 from "ajv/dist/2019";
 import addFormats from "ajv-formats";
-import draft7MetaSchema from "ajv/dist/refs/json-schema-draft-07.json";
+import { ProgressBar, Step } from "react-step-progress-bar";
+
+import ediTDorContext from "../../context/ediTDorContext";
+import DialogTemplate from "./DialogTemplate";
+import BaseButton from "../TDViewer/base/BaseButton";
+import FormCatalogFields from "./base/FormCatalogFields";
+import FormCatalogTmEndpoints from "./base/FormCatalogTmEndpoints";
+import { isValidUrl, formatText } from "../../utils/strings";
 import { requestWeb } from "../../services/thingsApiService";
-import { getValidateTMContent } from "./../InfoIcon/TooltipMapper";
-import InfoIconWrapper from "./../InfoIcon/InfoIconWrapper";
-import type { ThingDescription } from "wot-thing-description-types";
+import BaseTable from "../TDViewer/base/BaseTable";
+import { readPropertyWithServient } from "../../services/form";
+import { extractIndexFromId } from "../../utils/strings";
+import { normalizeContext } from "../../services/operations";
 
 export interface IContributeToCatalogProps {
   openModal: () => void;
@@ -48,33 +57,38 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   const context = useContext(ediTDorContext);
   const td: ThingDescription = context.parsedTD;
 
-  const [display, setDisplay] = React.useState<boolean>(false);
-  const [isValid, setIsValid] = React.useState<boolean>(false);
-  const [isValidating, setIsValidating] = React.useState<boolean>(false);
+  const [display, setDisplay] = useState<boolean>(false);
+  const [isValid, setIsValid] = useState<boolean>(false);
+  const [isValidating, setIsValidating] = useState<boolean>(false);
 
-  const [model, setModel] = React.useState<string>("");
-  const [author, setAuthor] = React.useState<string>("");
-  const [manufacturer, setManufacturer] = React.useState<string>("");
-  const [license, setLicense] = React.useState<string>("");
-  const [copyrightYear, setCopyrightYear] = React.useState<string>("");
-  const [holder, setHolder] = React.useState<string>("");
+  const [model, setModel] = useState<string>("");
+  const [author, setAuthor] = useState<string>("");
+  const [manufacturer, setManufacturer] = useState<string>("");
+  const [license, setLicense] = useState<string>("");
+  const [copyrightYear, setCopyrightYear] = useState<string>("");
+  const [holder, setHolder] = useState<string>("");
 
-  const [tmCatalogEndpoint, setTmCatalogEndpoint] = React.useState<string>("");
-  const [repository, setRepository] = React.useState<string>("");
+  const [tmCatalogEndpoint, setTmCatalogEndpoint] = useState<string>("");
+  const [repository, setRepository] = useState<string>("");
 
-  const [errorMessage, setErrorMessage] = React.useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [tmCatalogEndpointError, setTmCatalogEndpointError] =
-    React.useState<string>("");
+    useState<string>("");
 
-  const [repositoryError, setRepositoryError] = React.useState<string>("");
+  const [repositoryError, setRepositoryError] = useState<string>("");
 
-  const [submitted, setSubmitted] = React.useState<boolean>(false);
-  const [copied, setCopied] = React.useState<boolean>(false);
-  const [link, setLink] = React.useState<string>("");
-  const [id, setId] = React.useState<string>("");
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const [copied, setCopied] = useState<boolean>(false);
+  const [link, setLink] = useState<string>("");
+  const [id, setId] = useState<string>("");
 
-  const [submittedError, setSubmittedError] = React.useState<string>("");
-  const [tmCopy, setTMCopy] = React.useState<ThingDescription | null>(null);
+  const [submittedError, setSubmittedError] = useState<string>("");
+  const [tmCopy, setTMCopy] = useState<ThingDescription | null>(null);
+  const [workflowState, setWorkflowState] = useState<number>(1);
+  const [allRequestResults, setAllRequestResults] = useState<{
+    [id: string]: { value: string; error: string };
+  }>({});
+  const [isTestingAll, setIsTestingAll] = useState(false);
 
   useImperativeHandle(ref, () => {
     return {
@@ -82,6 +96,10 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       close: () => close(),
     };
   });
+
+  const propertiesTd = useMemo(() => {
+    return td["properties"] || {};
+  }, [td]);
 
   const open = () => {
     setModel(`${td["schema:mpn"] ?? ""}`);
@@ -135,6 +153,9 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setIsValidating(false);
     setIsValid(false);
     setDisplay(false);
+    setWorkflowState(1);
+    setAllRequestResults({});
+    setIsTestingAll(false);
   };
 
   const handleSubmit = async () => {
@@ -309,14 +330,6 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setSubmittedError("");
   };
 
-  const handleCopyIdClick = async () => {
-    await navigator.clipboard.writeText(id);
-  };
-
-  const handleOpenLinkClick = async () => {
-    window.open(link, "_blank", "noopener,noreferrer");
-  };
-
   const handleCopyThingModelClick = async () => {
     const tdCopy = structuredClone(td);
 
@@ -336,233 +349,246 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setCopied(true);
   };
 
+  const handleOnChangeModel = (e) => {
+    setModel(e.target.value);
+    setIsValid(false);
+    setSubmitted(false);
+  };
+
+  const handleOnChangeAuthor = (e) => {
+    setAuthor(e.target.value);
+    setIsValid(false);
+    setSubmitted(false);
+  };
+
+  const handleOnChangeManufacturer = (e) => {
+    setManufacturer(e.target.value);
+    setIsValid(false);
+    setSubmitted(false);
+  };
+
+  const handleOnChangeLicense = (e) => {
+    setLicense(e.target.value);
+  };
+
+  const handleOnChangeCopyrightYear = (e) => {
+    setCopyrightYear(e.target.value);
+  };
+
+  const handleOnChangeHolder = (e) => {
+    setHolder(e.target.value);
+  };
+
+  const progressPercent =
+    workflowState === 1 ? 0 : workflowState === 2 ? 50 : 100;
+
+  const tableHeaders: { key: string; text: string }[] = Object.keys(
+    propertiesTd
+  ).length
+    ? [
+        ...["propName"],
+        ...[
+          ...new Set(
+            Object.keys(propertiesTd).flatMap((key) => {
+              const forms = propertiesTd[key].forms || [];
+              return forms.flatMap((form: FormElementBase) =>
+                Object.keys(form)
+              );
+            })
+          ),
+        ],
+        ...["previewValue"],
+      ].map((key) => ({
+        key,
+        text: formatText(key),
+      }))
+    : [];
+
+  const tabelRowsFormsOfProperties = Object.keys(propertiesTd).flatMap(
+    (key) => {
+      const forms = propertiesTd[key].forms || [];
+      return forms.map((form: FormElementBase, index: number) => ({
+        id: `${key} - ${index}`,
+        description: propertiesTd[key].description ?? "",
+        propName: key,
+        ...form,
+      }));
+    }
+  );
+
+  let filteredRows = tabelRowsFormsOfProperties.filter(
+    (form: FormElementBase) => {
+      if (Array.isArray(form.op)) {
+        return form.op.includes("readproperty");
+      }
+      return form.op === "readproperty";
+    }
+  );
+
+  let filteredHeaders = tableHeaders.filter(
+    (header) =>
+      header.key === "previewValue" ||
+      header.key === "propName" ||
+      header.key === "href" ||
+      header.key === "contentType"
+  );
+
+  const handleTestAllProperties = async () => {
+    setIsTestingAll(true);
+    const results = { ...allRequestResults };
+
+    for (const item of filteredRows) {
+      try {
+        const res = await readPropertyWithServient(
+          td,
+          item.propName,
+          {
+            formIndex: extractIndexFromId(item.id as string),
+          },
+          ""
+        );
+
+        if (res.err) {
+          results[item.id] = { value: "", error: res.err.message };
+        } else {
+          results[item.id] = { value: res.result, error: "" };
+        }
+      } catch (err: any) {
+        results[item.id] = { value: "", error: err.message };
+      }
+    }
+
+    setAllRequestResults(results);
+    setIsTestingAll(false);
+  };
+
   const content = (
     <>
-      <div className="rounded-md bg-black bg-opacity-80 p-2">
-        <h1 className="font-bold">
-          Add fields for Cataloging to ensure quality and discoverability of
-          Thing Models
-        </h1>
-        <div className="px-4">
-          <DialogTextField
-            label="Model*"
-            placeholder="The Manufacturer Part Number (MPN) of the product, or the product to which the offer refers."
-            id="model"
-            type="text"
-            value={model}
-            onChange={(e) => {
-              setModel(e.target.value);
-              setIsValid(false);
-              setSubmitted(false);
-            }}
-            autoFocus={true}
-          />
-          <DialogTextField
-            label="Author*"
-            placeholder="The organization writing the TM"
-            id="author"
-            type="text"
-            value={author}
-            onChange={(e) => {
-              setAuthor(e.target.value);
-              setIsValid(false);
-              setSubmitted(false);
-            }}
-            autoFocus={false}
-          />
-          <DialogTextField
-            label="Manufacturer*"
-            placeholder="Manufacturer of the device"
-            id="manufacturer"
-            type="text"
-            value={manufacturer}
-            onChange={(e) => {
-              setManufacturer(e.target.value);
-              setIsValid(false);
-              setSubmitted(false);
-            }}
-            autoFocus={false}
-          />
-          <DialogTextField
-            label="License"
-            placeholder="URL of the license, e.g., https://www.apache.org/licenses/LICENSE-2.0.txt"
-            id="license"
-            type="text"
-            value={license}
-            onChange={(e) => setLicense(e.target.value)}
-            autoFocus={false}
-          />
-          <DialogTextField
-            label="Copyright Year"
-            placeholder="e.g. 2024..."
-            id="copyright"
-            type="text"
-            value={copyrightYear}
-            onChange={(e) => setCopyrightYear(e.target.value)}
-            autoFocus={false}
-          />
-          <DialogTextField
-            label="Copyright Holder"
-            placeholder="Organization holding the copyright of the TM..."
-            id="holder"
-            type="text"
-            value={holder}
-            onChange={(e) => setHolder(e.target.value)}
-            autoFocus={false}
-          />
-          <div className="flex flex-col">
-            <BaseButton
-              id="catalogValidation"
-              onClick={handleCatalogValidation}
-              variant="primary"
-              type="button"
-              className="my-2 w-1/4"
-            >
-              <div className="flex w-full items-center justify-between">
-                {isValidating ? (
-                  <>
-                    <span className="pl-6">Validating</span>
-                    <RefreshCw className="animate-spin" size={20} />
-                  </>
-                ) : (
-                  <>
-                    <span className="pl-6">Validate</span>
-                    <InfoIconWrapper
-                      tooltip={getValidateTMContent()}
-                      id="validateTMContent"
-                    />
-                  </>
-                )}
-              </div>
-            </BaseButton>
-            {errorMessage && (
-              <div className="mb-2 mt-2 inline h-full w-full rounded bg-red-500 p-2 text-white">
-                <AlertTriangle size={16} className="mr-1 inline" />
-                {errorMessage}
-              </div>
-            )}
-            {isValid && (
-              <>
-                <div className="mb-2 mt-2 inline h-10 rounded bg-green-500 p-2 text-white">
-                  <Check size={16} className="mr-1 inline" />
-                  {"TM is valid"}
+      <div className="p-4">
+        <div className="p-2">
+          <ProgressBar
+            percent={progressPercent}
+            filledBackground="linear-gradient(to right, #A8B988, #B5D7BD)"
+          >
+            <Step transition="scale">
+              {({ accomplished, index }) => (
+                <div
+                  className={`h-[30px] w-[30px] rounded-full ${accomplished ? "bg-[#B5D7BD]" : "bg-gray-300"} ${accomplished ? "text-white" : "text-gray-500"} flex items-center justify-center border-2 text-lg font-bold ${accomplished ? "border-[#f0bb31]" : "border-gray-300"} transition-colors duration-300`}
+                >
+                  {index + 1}
                 </div>
+              )}
+            </Step>
+            <Step transition="scale">
+              {({ accomplished, index }) => (
+                <div
+                  className={`h-[30px] w-[30px] rounded-full ${
+                    accomplished ? "bg-[#B5D7BD]" : "bg-gray-300"
+                  } ${
+                    accomplished ? "text-white" : "text-gray-500"
+                  } flex items-center justify-center border-2 text-lg font-bold ${
+                    accomplished ? "border-[#f0bb31]" : "border-gray-300"
+                  } transition-colors duration-300`}
+                >
+                  {index + 1}
+                </div>
+              )}
+            </Step>
+            <Step transition="scale">
+              {({ accomplished, index }) => (
+                <div
+                  className={`h-[30px] w-[30px] rounded-full ${
+                    accomplished ? "bg-[#B5D7BD]" : "bg-gray-300"
+                  } ${
+                    accomplished ? "text-white" : "text-gray-500"
+                  } flex items-center justify-center border-2 text-lg font-bold ${
+                    accomplished ? "border-[#f0bb31]" : "border-gray-300"
+                  } transition-colors duration-300`}
+                >
+                  {index + 1}
+                </div>
+              )}
+            </Step>
+          </ProgressBar>
+        </div>
+
+        <div className="my-4 flex space-x-2">
+          {workflowState === 1 && (
+            <>
+              <FormCatalogFields
+                model={model}
+                onChangeModel={handleOnChangeModel}
+                author={author}
+                onChangeAuthor={handleOnChangeAuthor}
+                manufacturer={manufacturer}
+                onChangeManufacturer={handleOnChangeManufacturer}
+                license={license}
+                onChangeLicense={handleOnChangeLicense}
+                copyrightYear={copyrightYear}
+                onChangeCopyrightYear={handleOnChangeCopyrightYear}
+                holder={holder}
+                onChangeHolder={handleOnChangeHolder}
+                onClickCatalogValidation={handleCatalogValidation}
+                onClickCopyThingModel={handleCopyThingModelClick}
+                isValidating={isValidating}
+                isValid={isValid}
+                errorMessage={errorMessage}
+                copied={copied}
+              />
+            </>
+          )}
+          {workflowState === 2 && (
+            <div className="w-full rounded-md bg-black bg-opacity-80 p-2">
+              <h1 className="font-bold">Test endpoints on properties</h1>
+              <div className="p-2">
+                <BaseTable
+                  headers={filteredHeaders}
+                  items={filteredRows}
+                  itemsPerPage={10}
+                  orderBy=""
+                  order="asc"
+                  baseUrl={td.base ?? ""}
+                  expandTable={true}
+                  requestResults={allRequestResults}
+                />
+              </div>
+              <div className="mb-4 mt-2 flex justify-end px-4">
                 <BaseButton
-                  id="copyThingModel"
-                  onClick={handleCopyThingModelClick}
+                  onClick={handleTestAllProperties}
                   variant="primary"
                   type="button"
-                  className="my-2"
+                  disabled={isTestingAll}
+                  className="flex items-center"
                 >
-                  {copied
-                    ? "Copied Thing Model"
-                    : "Click to Copy the full Thing Model"}
+                  {isTestingAll ? (
+                    <>
+                      <RefreshCw className="mr-2 animate-spin" size={16} />
+                      Testing...
+                    </>
+                  ) : (
+                    "Test All Properties"
+                  )}
                 </BaseButton>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="my-4 rounded-md bg-black bg-opacity-80 p-2">
-        <h1 className="font-bold">
-          Add the TM Catalog Endpoint and Repository URL
-        </h1>
-        <div className="px-4">
-          <DialogTextField
-            label="TM Catalog Endpoint"
-            placeholder="TM Catalog Endpoint:..."
-            id="catalogEndpoint"
-            type="text"
-            value={tmCatalogEndpoint}
-            autoFocus={false}
-            onChange={handleTmCatalogEndpointChange}
-            className={`${
-              tmCatalogEndpointError ? "border-red-500" : "border-gray-300"
-            } w-full rounded-md border p-2 text-sm`}
-          />
-          {tmCatalogEndpointError && (
-            <div className="mt-1 text-sm text-red-500">
-              {tmCatalogEndpointError}
+              </div>
             </div>
           )}
-          <DialogTextField
-            label="Name of the Repository"
-            placeholder="In case there are multiple repositories hosted, specify which one with a string. Example: my-catalog"
-            id="urlRepository"
-            type="text"
-            value={repository}
-            autoFocus={false}
-            onChange={handleRepositoryChange}
-            className={`${
-              repositoryError ? "border-red-500" : "border-gray-300"
-            } w-full rounded-md border p-2 text-sm`}
-          />
-          {repositoryError && (
-            <div className="mt-1 text-sm text-red-500">{repositoryError}</div>
+          {workflowState === 3 && (
+            <>
+              <FormCatalogTmEndpoints
+                tmCatalogEndpoint={tmCatalogEndpoint}
+                tmCatalogEndpointError={tmCatalogEndpointError}
+                handleTmCatalogEndpointChange={handleTmCatalogEndpointChange}
+                repository={repository}
+                repositoryError={repositoryError}
+                handleRepositoryChange={handleRepositoryChange}
+                handleSubmit={handleSubmit}
+                submittedError={submittedError}
+                submitted={submitted}
+                id={id}
+                link={link}
+              />
+            </>
           )}
-          <div className="flex flex-col">
-            <BaseButton
-              id="submit"
-              onClick={handleSubmit}
-              variant="primary"
-              type="button"
-              className="mb-2 mt-2 w-1/4"
-            >
-              Submit
-            </BaseButton>
-            {submittedError && (
-              <div className="mb-2 mt-2 inline h-full w-full rounded bg-red-500 p-2 text-white">
-                <AlertTriangle size={16} className="mr-1 inline" />
-                {submittedError}
-              </div>
-            )}
-            {submitted && (
-              <>
-                <div className="mb-2 mt-2 inline h-10 rounded bg-green-500 p-2 text-white">
-                  <Check size={16} className="mr-1 inline" />
-                  {"TM submitted successfully!"}
-                </div>
-                <div className="mb-2 mt-2 grid grid-cols-3 items-center">
-                  <div className="col-span-1 w-full">
-                    <BaseButton
-                      id={id}
-                      onClick={handleCopyIdClick}
-                      variant="primary"
-                      type="button"
-                      className="w-3/4"
-                    >
-                      <div className="flex w-full items-center justify-between">
-                        <span>Copy TM id</span>
-                        <Copy size={20} className="ml-2 cursor-pointer" />
-                      </div>
-                    </BaseButton>
-                  </div>
-                  <h1 className="col-span-2 pl-4 text-center">{id}</h1>
-                </div>
-                <div className="mb-2 mt-2 grid grid-cols-3 items-center">
-                  <div className="col-span-1">
-                    <BaseButton
-                      id={link}
-                      onClick={handleOpenLinkClick}
-                      variant="primary"
-                      type="button"
-                      className="w-3/4"
-                    >
-                      <div className="flex w-full items-center justify-between">
-                        <span>Open in new tab</span>
-                        <ExternalLink
-                          size={20}
-                          className="ml-2 inline cursor-pointer"
-                        />
-                      </div>
-                    </BaseButton>
-                  </div>
-                  <h1 className="col-span-2 pl-4 text-center">{link}</h1>
-                </div>
-              </>
-            )}
-          </div>
         </div>
       </div>
     </>
@@ -571,15 +597,21 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   if (display) {
     return ReactDOM.createPortal(
       <DialogTemplate
-        onCancel={close}
-        onSubmit={handleSubmit}
+        onHandleEventLeftButton={
+          workflowState > 1 ? () => setWorkflowState(workflowState - 1) : close
+        }
+        onHandleEventRightButton={
+          workflowState < 3 ? () => setWorkflowState(workflowState + 1) : close
+        }
         children={content}
-        hasSubmit={false}
-        cancelText="Close"
+        hasSubmit={true}
+        leftButton={workflowState > 1 ? "Previous" : "Close"}
+        rightButton={workflowState < 3 ? "Next" : "Close"}
         title={"Contribute your TM to a TM Catalog"}
         description={
           "Fullfil the form below to contribute your TM to the Catalog specified in the endpoint at the end."
         }
+        className="lg:w-[60%]"
       />,
       document.getElementById("modal-root") as HTMLElement
     );
@@ -587,41 +619,6 @@ const ContributeToCatalog = forwardRef((props, ref) => {
 
   return null;
 });
-
-function normalizeContext(context: any): any {
-  const TD_CONTEXTS = [
-    "https://www.w3.org/2022/wot/td/v1.1",
-    "https://www.w3.org/2019/wot/td/v1",
-  ];
-  const SCHEMA_URL = "https://schema.org/";
-
-  if (typeof context === "string") {
-    if (TD_CONTEXTS.includes(context)) {
-      return [context, { schema: SCHEMA_URL }];
-    }
-    throw new Error("validation schema is wrong");
-  }
-  if (Array.isArray(context)) {
-    const tdContexts = context.filter(
-      (item) => typeof item === "string" && TD_CONTEXTS.includes(item)
-    );
-    const objContexts = context.filter(
-      (item) => typeof item === "object" && item !== null
-    );
-    if (tdContexts.length > 0) {
-      if (objContexts.length > 0) {
-        const newObjContexts = objContexts.map((obj) =>
-          "schema" in obj ? obj : { schema: SCHEMA_URL, ...obj }
-        );
-        return [...tdContexts, ...newObjContexts];
-      } else {
-        return [...tdContexts, { schema: SCHEMA_URL }];
-      }
-    }
-    return context;
-  }
-  return context;
-}
 
 ContributeToCatalog.displayName = "ContributeToCatalog";
 export default ContributeToCatalog;
