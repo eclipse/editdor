@@ -114,6 +114,7 @@ const handleHttpRequest = async (
   }
 };
 
+/** @internal */
 const buildUrlWithParams = (
   endpoint: string,
   queryParams?: Record<string, string | number | boolean>
@@ -235,4 +236,5 @@ export {
   handleHttpRequest,
   fetchNorthboundTD,
   extractValueByPath,
+  buildUrlWithParams,
 };
