@@ -58,7 +58,7 @@ const FormCatalogTmEndpoints: React.FC<IFormCatalogTMEndpoints> = ({
         <h1 className="font-bold">
           Add the TM Catalog Endpoint and Repository URL
         </h1>
-        <div className="w-[70%] px-4">
+        <div className="mx-auto w-[70%] flex-col px-4">
           <DialogTextField
             label="TM Catalog Endpoint"
             placeholder="TM Catalog Endpoint:..."

@@ -64,7 +64,7 @@ const FormCatalogFields: React.FC<IFormCatalogFieldsProps> = ({
           Add fields for Cataloging to ensure quality and discoverability of
           Thing Models
         </h1>
-        <div className="w-[70%] flex-row px-4">
+        <div className="mx-auto w-[70%] flex-col px-4">
           <DialogTextField
             label="Model*"
             placeholder="The Manufacturer Part Number (MPN) of the product, or the product to which the offer refers."

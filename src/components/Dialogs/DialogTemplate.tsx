@@ -23,6 +23,8 @@ interface DialogTemplateProps {
   onHandleEventRightButton?: () => void;
   hasSubmit?: boolean;
   className?: string;
+  auxiliaryButton?: boolean;
+  onHandleEventAuxiliaryButton?: () => void;
 }
 
 const DialogTemplate: React.FC<DialogTemplateProps> = (props) => {
@@ -36,6 +38,9 @@ const DialogTemplate: React.FC<DialogTemplateProps> = (props) => {
 
   const rightText = props.rightButton ?? "Submit";
   const onHandleEventRightButton = props.onHandleEventRightButton ?? (() => {});
+  const auxiliaryButton = props.auxiliaryButton ?? false;
+  const onHandleEventAuxiliaryButton =
+    props.onHandleEventAuxiliaryButton ?? (() => {});
   const hasSubmit = props.hasSubmit ?? true;
   const className = props.className ?? "lg:w-[40%]";
 
@@ -72,18 +77,30 @@ const DialogTemplate: React.FC<DialogTemplateProps> = (props) => {
                 onClick={() => onHandleEventLeftButton()}
                 variant="primary"
                 type="button"
-                className="mr-1"
+                className="ml-2"
               >
                 {leftText}
               </BaseButton>
             )}
+            {auxiliaryButton && (
+              <BaseButton
+                id="closeButton"
+                onClick={() => onHandleEventAuxiliaryButton()}
+                variant="primary"
+                type="button"
+                className="ml-2 flex"
+              >
+                Close
+              </BaseButton>
+            )}
+
             {hasSubmit && (
               <BaseButton
                 id="rightButton"
                 onClick={() => onHandleEventRightButton()}
                 variant="primary"
                 type="button"
-                className="flex"
+                className="ml-2 flex"
               >
                 {rightText}
               </BaseButton>

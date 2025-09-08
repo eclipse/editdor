@@ -607,6 +607,8 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         hasSubmit={true}
         leftButton={workflowState > 1 ? "Previous" : "Close"}
         rightButton={workflowState < 3 ? "Next" : "Close"}
+        auxiliaryButton={workflowState === 2}
+        onHandleEventAuxiliaryButton={close}
         title={"Contribute your TM to a TM Catalog"}
         description={
           "Fullfil the form below to contribute your TM to the Catalog specified in the endpoint at the end."
