@@ -25,6 +25,16 @@ const defaultContext: IEdiTDorContext = {
     message: "",
     northboundTd: {},
   },
+  contributeCatalog: {
+    model: "",
+    author: "",
+    manufacturer: "",
+    license: "",
+    copyrightYear: "",
+    holder: "",
+    tmCatalogEndpoint: "",
+    nameRepository: "",
+  },
 
   updateOfflineTD: () => {},
   updateIsModified: () => {},
@@ -37,6 +47,7 @@ const defaultContext: IEdiTDorContext = {
   updateLinkedTd: () => {},
   updateValidationMessage: () => {},
   updateNorthboundConnection: () => {},
+  updateContributeCatalog: () => {},
 };
 
 const ediTDorContext = React.createContext<IEdiTDorContext>(defaultContext);

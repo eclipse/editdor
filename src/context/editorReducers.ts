@@ -22,6 +22,7 @@ import {
   UPDATE_OFFLINE_TD,
   UPDATE_VALIDATION_MESSAGE,
   UPDATE_NORTHBOUND_CONNECTION,
+  UPDATE_CONTRIBUTE_CATALOG,
 } from "./GlobalState";
 import type {
   ThingDescription,
@@ -67,6 +68,8 @@ export const editdorReducer = (
       return updateValidationMessage(action.validationMessage, state);
     case UPDATE_NORTHBOUND_CONNECTION:
       return updateNorthboundConnection(action.northboundConnection, state);
+    case UPDATE_CONTRIBUTE_CATALOG:
+      return updateContributeCatalog(action.contributeCatalog, state);
     default:
       return state;
   }
@@ -354,4 +357,11 @@ const updateNorthboundConnection = (
   state: EditorState
 ): EditorState => {
   return { ...state, northboundConnection };
+};
+
+const updateContributeCatalog = (
+  contributeCatalog: IContributeCatalog,
+  state: EditorState
+): EditorState => {
+  return { ...state, contributeCatalog };
 };
