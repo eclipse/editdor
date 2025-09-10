@@ -61,8 +61,9 @@ const FormCatalogFields: React.FC<IFormCatalogFieldsProps> = ({
     <>
       <div className="w-full rounded-md bg-black bg-opacity-80 p-2">
         <h1 className="font-bold">
-          Add fields for Cataloging to ensure quality and discoverability of
-          Thing Models
+          The following fields will be added in the background to your TM for
+          cataloging purposes to ensure quality and discoverability of Thing
+          Models.
         </h1>
         <div className="mx-auto w-[70%] flex-col px-4">
           <DialogTextField
