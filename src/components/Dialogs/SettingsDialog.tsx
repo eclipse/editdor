@@ -10,18 +10,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, {
-  forwardRef,
-  useImperativeHandle,
-  useState,
-  useCallback,
-} from "react";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 import ReactDOM from "react-dom";
 import { getLocalStorage, setLocalStorage } from "../../services/localStorage";
 import DialogTemplate from "./DialogTemplate";
-import InfoIconWrapper from "../../components/InfoIcon/InfoIconWrapper";
-import DialogTextField from "./base/DialogTextField";
-import { isValidUrl } from "../../utils/strings";
+import Settings, { SettingsData } from "../App/Settings";
 
 export interface SettingsDialogRef {
   openModal: () => void;
@@ -30,12 +23,12 @@ export interface SettingsDialogRef {
 
 const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
   const [display, setDisplay] = useState<boolean>(false);
-  const [northboundUrl, setNorthboundUrl] = useState<string>("");
-  const [southboundUrl, setSouthboundUrl] = useState<string>("");
-  const [pathToValue, setPathToValue] = useState<string>("/");
-  const [southboundUrlError, setSouthboundUrlError] = useState<string>("");
-  const [northboundUrlError, setNorthboundUrlError] = useState<string>("");
-  const [pathToValueError, setPathToValueError] = useState<string>("");
+  const [settingsData, setSettingsData] = useState<SettingsData>({
+    northboundUrl: "",
+    southboundUrl: "",
+    pathToValue: "/",
+  });
+  const [isValid, setIsValid] = useState(true);
 
   useImperativeHandle(ref, () => {
     return {
@@ -46,9 +39,11 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
 
   const open = () => {
     setDisplay(true);
-    setNorthboundUrl(getLocalStorage("northbound"));
-    setSouthboundUrl(getLocalStorage("southbound"));
-    setPathToValue(getLocalStorage("valuePath"));
+    setSettingsData({
+      northboundUrl: getLocalStorage("northbound") || "",
+      southboundUrl: getLocalStorage("southbound") || "",
+      pathToValue: getLocalStorage("valuePath") || "/",
+    });
   };
 
   const close = async () => {
@@ -56,168 +51,18 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
   };
 
   const handleSubmit = () => {
-    setLocalStorage(northboundUrl, "northbound");
-    setLocalStorage(southboundUrl, "southbound");
-    setLocalStorage(pathToValue, "valuePath");
-    close();
+    if (isValid) {
+      setLocalStorage(settingsData.northboundUrl, "northbound");
+      setLocalStorage(settingsData.southboundUrl, "southbound");
+      setLocalStorage(settingsData.pathToValue, "valuePath");
+      close();
+    }
   };
 
-  const handleSouthboundUrlChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setSouthboundUrl(value);
-
-      if (value === "") {
-        setSouthboundUrlError("");
-      } else if (!isValidUrl(value)) {
-        setSouthboundUrlError(
-          "Please enter a valid URL (e.g., http://localhost:8080)"
-        );
-      } else {
-        setSouthboundUrlError("");
-      }
-    },
-    [setSouthboundUrl, setSouthboundUrlError]
-  );
-  const handleNorthboundUrlChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setNorthboundUrl(value);
-
-      if (value === "") {
-        setNorthboundUrlError("");
-      } else if (!isValidUrl(value)) {
-        setNorthboundUrlError(
-          "Please enter a valid URL (e.g., http://localhost:8080)"
-        );
-      } else {
-        setNorthboundUrlError("");
-      }
-    },
-    [setNorthboundUrl, setNorthboundUrlError]
-  );
-  const handlePathToValueChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-
-      if (value === "") {
-        setPathToValue(value);
-        setPathToValueError("");
-      } else if (!value.startsWith("/")) {
-        setPathToValueError("Path must start with '/'");
-      } else if (value.includes(" ")) {
-        setPathToValueError("Path cannot contain spaces");
-      } else {
-        setPathToValue(value);
-        setPathToValueError("");
-      }
-    },
-    [setPathToValue, setPathToValueError]
-  );
-
-  let child = (
-    <>
-      <div className="rounded-md bg-black bg-opacity-80 p-2">
-        <h1 className="font-bold">Third Party Service Configuration</h1>
-        <div className="px-4">
-          <h2 className="py-2 text-justify text-gray-400">
-            If you want to interact with non-HTTP devices via a gateway, you can
-            send it TDs to its southbound endpoint with a "POST" request.
-            Similarly, you can retrieve TDs from its northbound endpoint. The id
-            of the initial TD is used to correlate both.
-          </h2>
-
-          <DialogTextField
-            label={
-              <InfoIconWrapper
-                tooltip={{
-                  html: "The target northbound URL should point to a server that implements the Discovery Specifications's Things API. If a valid target URL is provided, the editTDor will use it for all interactions with the Thing.",
-                  href: "",
-                }}
-                id="settings-target-url-northbound-info"
-                children={"Target URL Northbound:"}
-              />
-            }
-            placeholder="e.g.: http://localhost:8080/"
-            id="settings-target-url-field-northbound"
-            type="text"
-            value={northboundUrl}
-            autoFocus={false}
-            onChange={handleNorthboundUrlChange}
-            className={`${
-              northboundUrlError ? "border-red-500" : "border-gray-600"
-            } w-full rounded-md border-2 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm`}
-          />
-          {northboundUrlError && (
-            <div className="mt-1 text-sm text-red-500">
-              {northboundUrlError}
-            </div>
-          )}
-
-          <DialogTextField
-            label={
-              <InfoIconWrapper
-                tooltip={{
-                  html: "The target southbound URL",
-                  href: "",
-                }}
-                id="settings-target-url-southbound-info"
-                children={"Target URL Southbound:"}
-              />
-            }
-            placeholder="e.g.: http://localhost:8080/"
-            id="settings-target-url-field-southbound"
-            type="text"
-            value={southboundUrl}
-            autoFocus={false}
-            onChange={handleSouthboundUrlChange}
-            className={`${
-              southboundUrlError ? "border-red-500" : "border-gray-600"
-            } w-full rounded-md border-2 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm`}
-          />
-          {southboundUrlError && (
-            <div className="mt-1 text-sm text-red-500">
-              {southboundUrlError}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="my-4 rounded-md bg-black bg-opacity-80 p-2">
-        <h1 className="font-bold">Path to value</h1>
-        <div className="px-4">
-          <h2 className="py-2 text-justify text-gray-400">
-            {`If the gateway is wrapping the payloads in a JSON object, please provide the path to the value as a JSON pointer. For a JSON like {"foo": {"bar":"baz"}}, where baz is the value according the Data Schema of the TD, you should enter /foo/bar.`}
-          </h2>
-
-          <DialogTextField
-            label={
-              <InfoIconWrapper
-                tooltip={{
-                  html: "JSON pointer path to the actual value in wrapped payloads. Use forward slashes to navigate nested objects.",
-                  href: "",
-                }}
-                id="settingsPathToValueInfo"
-                children={"JSON Pointer Path:"}
-              />
-            }
-            placeholder="/foo/bar"
-            id="settingsPathToValueField"
-            type="text"
-            value={pathToValue}
-            autoFocus={false}
-            onChange={handlePathToValueChange}
-            className={`${
-              pathToValueError ? "border-red-500" : "border-gray-600"
-            } w-full rounded-md border-2 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm`}
-          />
-          {pathToValueError && (
-            <div className="mt-1 text-sm text-red-500">{pathToValueError}</div>
-          )}
-        </div>
-      </div>
-    </>
-  );
+  const handleSettingsChange = (data: SettingsData, valid: boolean) => {
+    setSettingsData(data);
+    setIsValid(valid);
+  };
 
   if (display) {
     return ReactDOM.createPortal(
@@ -227,15 +72,17 @@ const SettingsDialog = forwardRef<SettingsDialogRef>((_, ref) => {
         leftButton={"Cancel"}
         rightButton={"Save Changes"}
         onHandleEventRightButton={handleSubmit}
-        children={child}
         title={"Settings"}
         description={"Change the ediTDors configuration to your needs"}
-      />,
+      >
+        <Settings initialData={settingsData} onChange={handleSettingsChange} />
+      </DialogTemplate>,
       document.getElementById("modal-root") as HTMLElement
     );
   }
 
   return null;
 });
+
 SettingsDialog.displayName = "SettingsDialog";
 export default SettingsDialog;
