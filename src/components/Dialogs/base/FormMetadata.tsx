@@ -17,7 +17,7 @@ import { AlertTriangle, Check, RefreshCw } from "react-feather";
 import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
 import { getValidateTMContent } from "../../InfoIcon/TooltipMapper";
 
-interface IFormCatalogFieldsProps {
+interface IFormMetadataProps {
   model: string;
   onChangeModel: (event: React.ChangeEvent<HTMLInputElement>) => void;
   author: string;
@@ -37,7 +37,7 @@ interface IFormCatalogFieldsProps {
   errorMessage: string;
   copied: boolean;
 }
-const FormCatalogFields: React.FC<IFormCatalogFieldsProps> = ({
+const FormMetadata: React.FC<IFormMetadataProps> = ({
   model,
   onChangeModel,
   author,
@@ -183,4 +183,4 @@ const FormCatalogFields: React.FC<IFormCatalogFieldsProps> = ({
     </>
   );
 };
-export default FormCatalogFields;
+export default FormMetadata;

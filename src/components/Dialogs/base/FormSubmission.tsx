@@ -15,7 +15,7 @@ import DialogTextField from "./DialogTextField";
 import BaseButton from "../../TDViewer/base/BaseButton";
 import { AlertTriangle, Check, Copy, ExternalLink } from "react-feather";
 
-interface IFormCatalogTMEndpoints {
+interface IFormSubmissionProps {
   tmCatalogEndpoint: string;
   tmCatalogEndpointError: string;
   handleTmCatalogEndpointChange: (
@@ -31,7 +31,7 @@ interface IFormCatalogTMEndpoints {
   link: string;
 }
 
-const FormCatalogTmEndpoints: React.FC<IFormCatalogTMEndpoints> = ({
+const FormSubmission: React.FC<IFormSubmissionProps> = ({
   tmCatalogEndpoint,
   tmCatalogEndpointError,
   handleTmCatalogEndpointChange,
@@ -162,4 +162,4 @@ const FormCatalogTmEndpoints: React.FC<IFormCatalogTMEndpoints> = ({
   );
 };
 
-export default FormCatalogTmEndpoints;
+export default FormSubmission;

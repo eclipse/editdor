@@ -18,7 +18,6 @@ import React, {
   useMemo,
 } from "react";
 import ReactDOM from "react-dom";
-import { RefreshCw } from "react-feather";
 import draft7MetaSchema from "ajv/dist/refs/json-schema-draft-07.json";
 import type {
   FormElementBase,
@@ -31,21 +30,22 @@ import { ProgressBar, Step } from "react-step-progress-bar";
 
 import ediTDorContext from "../../context/ediTDorContext";
 import DialogTemplate from "./DialogTemplate";
-import BaseButton from "../TDViewer/base/BaseButton";
-import FormCatalogFields from "./base/FormCatalogFields";
-import FormCatalogTmEndpoints from "./base/FormCatalogTmEndpoints";
+import FormMetadata from "./base/FormMetadata";
+import FormSubmission from "./base/FormSubmission";
+import FormInteraction from "./base/FormInteraction";
 import { isValidUrl, formatText } from "../../utils/strings";
 import { requestWeb } from "../../services/thingsApiService";
-import BaseTable from "../TDViewer/base/BaseTable";
 import { readPropertyWithServient } from "../../services/form";
 import { extractIndexFromId } from "../../utils/strings";
 import { normalizeContext } from "../../services/operations";
+import { getLocalStorage } from "../../services/localStorage";
+import { getErrorSummary } from "../../utils/arrays";
 
 export interface IContributeToCatalogProps {
   openModal: () => void;
   close: () => void;
 }
-
+const TITLE = "Contribute your TM to a TM Catalog";
 const validationTmcMandatory =
   "https://raw.githubusercontent.com/wot-oss/tmc/main/internal/commands/validate/tmc-mandatory.schema.json";
 const validationTmJson =
@@ -56,6 +56,7 @@ const validationModbus =
 const ContributeToCatalog = forwardRef((props, ref) => {
   const context = useContext(ediTDorContext);
   const td: ThingDescription = context.parsedTD;
+  const contributeCatalogData = context.contributeCatalog;
 
   const [display, setDisplay] = useState<boolean>(false);
   const [isValid, setIsValid] = useState<boolean>(false);
@@ -89,6 +90,19 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     [id: string]: { value: string; error: string };
   }>({});
   const [isTestingAll, setIsTestingAll] = useState(false);
+  const [errorAllRequests, setErrorAllRequests] = useState<{
+    firstError: {
+      id: string;
+      message: string;
+    };
+    errorCount: number;
+  }>({
+    firstError: {
+      id: "test Error",
+      message: "test Error",
+    },
+    errorCount: 1,
+  });
 
   useImperativeHandle(ref, () => {
     return {
@@ -97,17 +111,42 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     };
   });
 
+  const dynamicTitle =
+    TITLE +
+    (workflowState === 1
+      ? " - Metadata"
+      : workflowState === 2
+        ? " - Interaction"
+        : " - Submission");
   const propertiesTd = useMemo(() => {
     return td["properties"] || {};
   }, [td]);
 
   const open = () => {
     setModel(`${td["schema:mpn"] ?? ""}`);
+    if (model === "" && contributeCatalogData.model !== "") {
+      setModel(contributeCatalogData.model);
+    }
     setAuthor(td["schema:author"]?.["schema:name"] ?? "");
+    if (author === "" && contributeCatalogData.author !== "") {
+      setAuthor(contributeCatalogData.author);
+    }
     setManufacturer(td["schema:manufacturer"]?.["schema:name"] ?? "");
+    if (manufacturer === "" && contributeCatalogData.manufacturer !== "") {
+      setManufacturer(contributeCatalogData.manufacturer);
+    }
     setLicense(`${td["schema:license"] ?? ""}`);
+    if (license === "" && contributeCatalogData.license !== "") {
+      setLicense(contributeCatalogData.license);
+    }
     setCopyrightYear(`${td["schema:copyrightYear"] ?? ""}`);
+    if (copyrightYear === "" && contributeCatalogData.license !== "") {
+      setCopyrightYear(contributeCatalogData.license);
+    }
     setHolder(`${td["schema:copyrightHolder"]?.["name"] || ""}`.trim());
+    if (holder === "" && contributeCatalogData.holder !== "") {
+      setHolder(contributeCatalogData.holder);
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -129,7 +168,18 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     }
 
     setTmCatalogEndpoint(decodedTmcEndpoint);
+    if (
+      tmCatalogEndpoint === "" &&
+      contributeCatalogData.tmCatalogEndpoint !== ""
+    ) {
+      setTmCatalogEndpoint(contributeCatalogData.tmCatalogEndpoint);
+    }
+
     setRepository(decodedRepository);
+    if (repository === "" && contributeCatalogData.nameRepository !== "") {
+      setRepository(contributeCatalogData.nameRepository);
+    }
+
     setDisplay(true);
   };
 
@@ -202,6 +252,8 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         }`
       );
     }
+    // TODO
+    //Clear the context state of contributeCatalog
   };
 
   const handleCatalogValidation = async () => {
@@ -224,6 +276,15 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       "@type": "Organization",
       "schema:name": holder,
     };
+
+    if (model === "" || author === "" || manufacturer === "") {
+      setIsValid(false);
+      setIsValidating(false);
+      setErrorMessage(
+        `Please fill in all required fields: ${model === "" ? "Model" : ""} ${author === "" ? "Author" : ""} ${manufacturer === "" ? "Manufacturer" : ""}`
+      );
+      return;
+    }
 
     try {
       tdCopy["@context"] = normalizeContext(tdCopy["@context"]);
@@ -304,6 +365,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   ) => {
     const value = e.target.value;
     setTmCatalogEndpoint(value);
+    contributeCatalogData.tmCatalogEndpoint = value;
     if (
       !value.startsWith("https") &&
       !value.startsWith("http:") &&
@@ -320,6 +382,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   const handleRepositoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setRepository(value);
+    contributeCatalogData.nameRepository = value;
 
     if (value.length === 0) {
       setRepositoryError("The repository name is mandatory");
@@ -351,32 +414,44 @@ const ContributeToCatalog = forwardRef((props, ref) => {
 
   const handleOnChangeModel = (e) => {
     setModel(e.target.value);
+    contributeCatalogData.model = e.target.value;
+    context.updateContributeCatalog(contributeCatalogData);
     setIsValid(false);
     setSubmitted(false);
   };
 
   const handleOnChangeAuthor = (e) => {
     setAuthor(e.target.value);
+    contributeCatalogData.author = e.target.value;
+    context.updateContributeCatalog(contributeCatalogData);
     setIsValid(false);
     setSubmitted(false);
   };
 
   const handleOnChangeManufacturer = (e) => {
     setManufacturer(e.target.value);
+    contributeCatalogData.manufacturer = e.target.value;
+    context.updateContributeCatalog(contributeCatalogData);
     setIsValid(false);
     setSubmitted(false);
   };
 
   const handleOnChangeLicense = (e) => {
     setLicense(e.target.value);
+    contributeCatalogData.license = e.target.value;
+    context.updateContributeCatalog(contributeCatalogData);
   };
 
   const handleOnChangeCopyrightYear = (e) => {
     setCopyrightYear(e.target.value);
+    contributeCatalogData.copyrightYear = e.target.value;
+    context.updateContributeCatalog(contributeCatalogData);
   };
 
   const handleOnChangeHolder = (e) => {
     setHolder(e.target.value);
+    contributeCatalogData.holder = e.target.value;
+    context.updateContributeCatalog(contributeCatalogData);
   };
 
   const progressPercent =
@@ -433,35 +508,6 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       header.key === "contentType"
   );
 
-  const handleTestAllProperties = async () => {
-    setIsTestingAll(true);
-    const results = { ...allRequestResults };
-
-    for (const item of filteredRows) {
-      try {
-        const res = await readPropertyWithServient(
-          td,
-          item.propName,
-          {
-            formIndex: extractIndexFromId(item.id as string),
-          },
-          ""
-        );
-
-        if (res.err) {
-          results[item.id] = { value: "", error: res.err.message };
-        } else {
-          results[item.id] = { value: res.result, error: "" };
-        }
-      } catch (err: any) {
-        results[item.id] = { value: "", error: err.message };
-      }
-    }
-
-    setAllRequestResults(results);
-    setIsTestingAll(false);
-  };
-
   const content = (
     <>
       <div className="p-4">
@@ -515,7 +561,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         <div className="my-4 flex space-x-2">
           {workflowState === 1 && (
             <>
-              <FormCatalogFields
+              <FormMetadata
                 model={model}
                 onChangeModel={handleOnChangeModel}
                 author={author}
@@ -538,43 +584,18 @@ const ContributeToCatalog = forwardRef((props, ref) => {
             </>
           )}
           {workflowState === 2 && (
-            <div className="w-full rounded-md bg-black bg-opacity-80 p-2">
-              <h1 className="font-bold">Test endpoints on properties</h1>
-              <div className="p-2">
-                <BaseTable
-                  headers={filteredHeaders}
-                  items={filteredRows}
-                  itemsPerPage={10}
-                  orderBy=""
-                  order="asc"
-                  baseUrl={td.base ?? ""}
-                  expandTable={true}
-                  requestResults={allRequestResults}
-                />
-              </div>
-              <div className="mb-4 mt-2 flex justify-end px-4">
-                <BaseButton
-                  onClick={handleTestAllProperties}
-                  variant="primary"
-                  type="button"
-                  disabled={isTestingAll}
-                  className="flex items-center"
-                >
-                  {isTestingAll ? (
-                    <>
-                      <RefreshCw className="mr-2 animate-spin" size={16} />
-                      Testing...
-                    </>
-                  ) : (
-                    "Test All Properties"
-                  )}
-                </BaseButton>
-              </div>
-            </div>
+            <FormInteraction
+              filteredHeaders={filteredHeaders}
+              filteredRows={filteredRows}
+              allRequestResults={allRequestResults}
+              setAllRequestResults={setAllRequestResults}
+              errorAllRequests={errorAllRequests}
+              setErrorAllRequests={setErrorAllRequests}
+            />
           )}
           {workflowState === 3 && (
             <>
-              <FormCatalogTmEndpoints
+              <FormSubmission
                 tmCatalogEndpoint={tmCatalogEndpoint}
                 tmCatalogEndpointError={tmCatalogEndpointError}
                 handleTmCatalogEndpointChange={handleTmCatalogEndpointChange}
@@ -609,7 +630,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         rightButton={workflowState < 3 ? "Next" : "Close"}
         auxiliaryButton={workflowState === 2}
         onHandleEventAuxiliaryButton={close}
-        title={"Contribute your TM to a TM Catalog"}
+        title={dynamicTitle}
         description={
           "Fullfil the form below to contribute your TM to the Catalog specified in the endpoint at the end."
         }
