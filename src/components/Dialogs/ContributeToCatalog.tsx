@@ -35,11 +35,8 @@ import FormSubmission from "./base/FormSubmission";
 import FormInteraction from "./base/FormInteraction";
 import { isValidUrl, formatText } from "../../utils/strings";
 import { requestWeb } from "../../services/thingsApiService";
-import { readPropertyWithServient } from "../../services/form";
-import { extractIndexFromId } from "../../utils/strings";
+
 import { normalizeContext } from "../../services/operations";
-import { getLocalStorage } from "../../services/localStorage";
-import { getErrorSummary } from "../../utils/arrays";
 
 export interface IContributeToCatalogProps {
   openModal: () => void;

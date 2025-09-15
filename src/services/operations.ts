@@ -47,3 +47,105 @@ export function normalizeContext(context: ThingContext): any {
   }
   return context;
 }
+
+export function extractPlaceholdersRefactor(td: string): string[] {
+  const regex = /{{(.*?)}}/g;
+  const matches: RegExpMatchArray[] = [...td.matchAll(regex)];
+  const placeholders: string[] = matches.map((match) => match[1].trim());
+  return Array.from(new Set(placeholders));
+}
+
+export function extractPlaceholders(td: string): string[] {
+  let regex: RegExp = /{{/gi;
+  let result: RegExpExecArray | null;
+  let startIndices: number[] = [];
+  while ((result = regex.exec(td))) {
+    startIndices.push(result.index);
+  }
+  regex = /}}/gi;
+  let endIndices: number[] = [];
+  while ((result = regex.exec(td))) {
+    endIndices.push(result.index);
+  }
+  let placeholders: string[] = [];
+  for (let i = 0; i < startIndices.length; i++) {
+    placeholders.push(td.slice(startIndices[i] + 2, endIndices[i]));
+  }
+  return [...new Set(placeholders)];
+}
+
+/**
+ * Filters an affordance object (properties, actions, events) to only include allowed/selected keys.
+ * @param affordanceObj The original affordance object (e.g., parse["properties"])
+ * @param allowedKeys Array of keys to keep (e.g., properties)
+ * @returns A new object with only the allowed keys
+ */
+export function filterAffordances<T extends Record<string, any>>(
+  affordanceObj: T,
+  allowedKeys: string[]
+): {
+  [key: string]: object;
+} {
+  return Object.keys(affordanceObj)
+    .filter((key: string) => allowedKeys.includes(key))
+    .reduce(
+      (
+        obj: {
+          [key: string]: object;
+        },
+        key: string
+      ) => {
+        obj[key] = affordanceObj[key];
+        return obj;
+      },
+      {} as T
+    );
+}
+
+export function processConversionTMtoTD(
+  tmContent: string,
+  placeholderValues: Record<string, string>,
+  properties: string[],
+  actions: string[],
+  events: string[]
+) {
+  // Apply placeholder values
+  let processedContent = tmContent;
+
+  Object.entries(placeholderValues).forEach(([key, value]) => {
+    const numValue = Number(value);
+    if (!isNaN(numValue)) {
+      processedContent = processedContent
+        .replace(new RegExp(`"{{${key}}}"`, "g"), value)
+        .replace(new RegExp(`{{${key}}}`, "g"), value);
+    } else {
+      processedContent = processedContent.replace(
+        new RegExp(`{{${key}}}`, "g"),
+        value
+      );
+    }
+  });
+
+  try {
+    const parsed = JSON.parse(processedContent);
+
+    // Filter affordances
+    if (parsed.properties) {
+      parsed.properties = filterAffordances(parsed.properties, properties);
+    }
+    if (parsed.actions) {
+      parsed.actions = filterAffordances(parsed.actions, actions);
+    }
+    if (parsed.events) {
+      parsed.events = filterAffordances(parsed.events, events);
+    }
+
+    delete parsed["@type"];
+    delete parsed["tm:required"];
+
+    return parsed;
+  } catch (error) {
+    console.error("Error processing TM:", error);
+    return null;
+  }
+}

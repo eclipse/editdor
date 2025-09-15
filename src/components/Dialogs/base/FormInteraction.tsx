@@ -23,6 +23,7 @@ import { getLocalStorage } from "../../../services/localStorage";
 import { getErrorSummary } from "../../../utils/arrays";
 import Settings, { SettingsData } from "../../App/Settings";
 import { ChevronDown, ChevronUp } from "react-feather";
+import TmInputForm from "../../App/TmInputForm";
 
 interface ErrorAllRequests {
   firstError: {
@@ -31,6 +32,8 @@ interface ErrorAllRequests {
   };
   errorCount: number;
 }
+
+type ActiveSection = "instance" | "gateway" | "table" | "savingResults";
 
 interface FormInteractionProps {
   filteredHeaders: { key: string; text: string }[];
@@ -61,13 +64,17 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
     pathToValue: getLocalStorage("valuePath") || "/",
   });
 
-  const [instanceSectionExpanded, setInstanceSectionExpanded] = useState(true);
-  const [gatewaySectionExpanded, setGatewaySectionExpanded] = useState(false);
-  const [tableSectionExpanded, setTableSectionExpanded] = useState(false);
-  const [savingSectionExpanded, setSavingSectionExpanded] = useState(false);
+  const [activeSection, setActiveSection] = useState<ActiveSection>("instance");
 
   const [testingExpanded, setTestingExpanded] = useState(true);
 
+  const toggleSection = (sectionName: ActiveSection) => {
+    if (activeSection === sectionName) {
+      setActiveSection("instance");
+    } else {
+      setActiveSection(sectionName);
+    }
+  };
   const handleTestAllProperties = async () => {
     setIsTestingAll(true);
     const results = { ...allRequestResults };
@@ -148,6 +155,9 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
       setSettingsData(data);
     }
   };
+  const handleOnChangeValues = (values: Record<string, string>) => {
+    console.log("Received values from TmInputForm:", values);
+  };
 
   return (
     <>
@@ -160,48 +170,59 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
             instance-specific information such as IP address.
           </p>
         </div>
-        <div className="overflow-hidden rounded-md bg-black bg-opacity-80">
+        <div
+          id="instanceSection"
+          className="overflow-hidden rounded-md bg-black bg-opacity-80"
+        >
           <div
             className="flex cursor-pointer items-center p-2 font-bold"
-            onClick={() => setInstanceSectionExpanded(!instanceSectionExpanded)}
+            onClick={() => toggleSection("instance")}
           >
             <ChevronDown
               size={16}
-              className={`mr-2 transition-transform duration-200 ${instanceSectionExpanded ? "rotate-0" : "-rotate-90"}`}
+              className={`mr-2 transition-transform duration-200 ${activeSection === "instance" ? "rotate-0" : "-rotate-90"}`}
             />
             <span className="flex-grow"> 2.1 Instance</span>
-            {instanceSectionExpanded ? (
+            {activeSection === "instance" ? (
               <ChevronDown size={16} />
             ) : (
               <ChevronUp size={16} />
             )}
           </div>
 
-          {instanceSectionExpanded && (
-            <div className="p-2 pt-0">
-              <div className="mx-auto w-[70%]"></div>
+          {activeSection === "instance" && (
+            <div className="w-full p-2">
+              <div className="mx-auto mb-2 w-[70%]">
+                <TmInputForm
+                  tmContent={context.offlineTD}
+                  onValueUpdate={handleOnChangeValues}
+                />
+              </div>
             </div>
           )}
         </div>
 
-        <div className="overflow-hidden rounded-md bg-black bg-opacity-80">
+        <div
+          id="gatewaySection"
+          className="overflow-hidden rounded-md bg-black bg-opacity-80"
+        >
           <div
             className="flex cursor-pointer items-center p-2 font-bold"
-            onClick={() => setGatewaySectionExpanded(!gatewaySectionExpanded)}
+            onClick={() => toggleSection("gateway")}
           >
             <ChevronDown
               size={16}
-              className={`mr-2 transition-transform duration-200 ${gatewaySectionExpanded ? "rotate-0" : "-rotate-90"}`}
+              className={`mr-2 transition-transform duration-200 ${activeSection === "gateway" ? "rotate-0" : "-rotate-90"}`}
             />
             <span className="flex-grow"> 2.2 Gateway</span>
-            {gatewaySectionExpanded ? (
+            {activeSection === "gateway" ? (
               <ChevronDown size={16} />
             ) : (
               <ChevronUp size={16} />
             )}
           </div>
 
-          {gatewaySectionExpanded && (
+          {activeSection === "gateway" && (
             <div className="w-full p-2">
               <div className="mx-auto mt-4 w-[70%]">
                 <Settings
@@ -213,24 +234,27 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
           )}
         </div>
 
-        <div className="overflow-hidden rounded-md bg-black bg-opacity-80">
+        <div
+          id="tableSection"
+          className="overflow-hidden rounded-md bg-black bg-opacity-80"
+        >
           <div
             className="flex cursor-pointer items-center p-2 font-bold"
-            onClick={() => setTableSectionExpanded(!tableSectionExpanded)}
+            onClick={() => toggleSection("table")}
           >
             <ChevronDown
               size={16}
-              className={`mr-2 transition-transform duration-200 ${tableSectionExpanded ? "rotate-0" : "-rotate-90"}`}
+              className={`mr-2 transition-transform duration-200 ${activeSection === "table" ? "rotate-0" : "-rotate-90"}`}
             />
             <span className="flex-grow"> 2.3 Table</span>
-            {tableSectionExpanded ? (
+            {activeSection === "table" ? (
               <ChevronDown size={16} />
             ) : (
               <ChevronUp size={16} />
             )}
           </div>
 
-          {tableSectionExpanded && (
+          {activeSection === "table" && (
             <div className="mt-4 w-full p-2">
               <h1 className="font-bold">Test endpoints on properties</h1>
               <div className="p-2">
@@ -283,26 +307,29 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
           )}
         </div>
 
-        <div className="overflow-hidden rounded-md bg-black bg-opacity-80">
+        <div
+          id="savingResultsSection"
+          className="overflow-hidden rounded-md bg-black bg-opacity-80"
+        >
           <div
             className="flex cursor-pointer items-center p-2 font-bold"
-            onClick={() => setSavingSectionExpanded(!savingSectionExpanded)}
+            onClick={() => toggleSection("savingResults")}
           >
             <ChevronDown
               size={16}
-              className={`mr-2 transition-transform duration-200 ${savingSectionExpanded ? "rotate-0" : "-rotate-90"}`}
+              className={`mr-2 transition-transform duration-200 ${activeSection === "savingResults" ? "rotate-0" : "-rotate-90"}`}
             />
             <span className="flex-grow"> 2.4 Saving results</span>
-            {savingSectionExpanded ? (
+            {activeSection === "savingResults" ? (
               <ChevronDown size={16} />
             ) : (
               <ChevronUp size={16} />
             )}
           </div>
 
-          {savingSectionExpanded && (
+          {activeSection === "savingResults" && (
             <div className="p-2 pt-0">
-              <div className="mx-auto w-[70%]"></div>
+              <div className="mx-auto w-[70%]">Saving Results ...</div>
             </div>
           )}
         </div>

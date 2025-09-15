@@ -14,11 +14,14 @@ import React, {
   forwardRef,
   useContext,
   useEffect,
+  useState,
   useImperativeHandle,
 } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import DialogTemplate from "./DialogTemplate";
+import { processConversionTMtoTD } from "../../services/operations";
+import TmInputForm from "../App/TmInputForm";
 
 export interface ConvertTmDialogRef {
   openModal: () => void;
@@ -27,42 +30,76 @@ export interface ConvertTmDialogRef {
 
 const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
   const context = useContext(ediTDorContext);
+  const td = context.offlineTD;
   const [htmlInputs, setHtmlInputs] = React.useState<JSX.Element[]>([]);
   const [display, setDisplay] = React.useState<boolean>(() => {
     return false;
   });
 
+  const [affordanceElements, setAffordanceElements] = useState<JSX.Element[]>(
+    []
+  );
+  const [placeholderValues, setPlaceholderValues] = useState<
+    Record<string, string>
+  >({});
+
   useEffect(() => {
     setHtmlInputs(createHtmlInputs(context.offlineTD));
-  }, [context]);
+    setAffordanceElements(createAffordanceElements(context.offlineTD));
+  }, [context.offlineTD]);
 
-  useImperativeHandle(ref, () => {
-    return {
-      openModal: () => open(),
-      close: () => close(),
-    };
-  });
+  useImperativeHandle(ref, () => ({
+    openModal: () => setDisplay(true),
+    close: () => setDisplay(false),
+  }));
 
-  const open = () => {
-    setDisplay(true);
+  const handlePlaceholderUpdate = (values: Record<string, string>) => {
+    setPlaceholderValues(values);
   };
 
-  const close = () => {
-    setDisplay(false);
+  const handleGenerateTd = () => {
+    const selections = getSelectedAffordances(affordanceElements);
+
+    const newTD = processConversionTMtoTD(
+      context.offlineTD,
+      placeholderValues,
+      selections.properties,
+      selections.actions,
+      selections.events
+    );
+    const resultJson = JSON.stringify(newTD, null, 2);
+    localStorage.setItem("td", resultJson);
+    window.open(
+      `${window.location.origin + window.location.pathname}?localstorage`,
+      "_blank"
+    );
   };
+
+  if (!display) return null;
 
   if (display) {
     return ReactDOM.createPortal(
       <DialogTemplate
-        onHandleEventLeftButton={close}
-        onHandleEventRightButton={() =>
-          convertTmToTd(context.offlineTD, htmlInputs)
-        }
+        onHandleEventLeftButton={() => setDisplay(false)}
+        onHandleEventRightButton={handleGenerateTd}
         rightButton={"Generate TD"}
-        children={htmlInputs}
         title={"Generate TD From TM"}
         description={"Please provide values to switch the placeholders with."}
-      />,
+      >
+        <>
+          <TmInputForm
+            tmContent={context.offlineTD}
+            onValueUpdate={handlePlaceholderUpdate}
+          />
+
+          <h2 className="pb-2 pt-4 text-gray-400">
+            Select/unselect the interaction affordances you would like to see in
+            the new TD.
+          </h2>
+
+          <div className="affordances-container">{affordanceElements}</div>
+        </>
+      </DialogTemplate>,
       document.getElementById("modal-root") as HTMLElement
     );
   }
@@ -70,59 +107,74 @@ const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
   return null;
 });
 
+function getSelectedAffordances(elements: JSX.Element[]) {
+  const result = {
+    properties: [] as string[],
+    actions: [] as string[],
+    events: [] as string[],
+  };
+
+  elements.forEach((element) => {
+    if (element.props.className.includes("form-checkbox")) {
+      const checkbox = document.getElementById(
+        element.props.children[0].props.id
+      ) as HTMLInputElement;
+      if (checkbox?.checked) {
+        const [type, name] = element.key.toString().split("/");
+
+        if (type === "properties") result.properties.push(name);
+        else if (type === "actions") result.actions.push(name);
+        else if (type === "events") result.events.push(name);
+      }
+    }
+  });
+
+  return result;
+}
+
+// Create affordance element remains similar to your original implementation
+function createAffordanceElements(tmContent: string): JSX.Element[] {
+  try {
+    if (!tmContent) return [];
+    const parsed = JSON.parse(tmContent);
+    const { properties, actions, events, requiredFields } =
+      extractAffordances(parsed);
+
+    const propertyElements = createAffordanceHtml(
+      "properties",
+      properties,
+      requiredFields
+    );
+    const actionElements = createAffordanceHtml(
+      "actions",
+      actions,
+      requiredFields
+    );
+    const eventElements = createAffordanceHtml(
+      "events",
+      events,
+      requiredFields
+    );
+
+    return [...propertyElements, ...actionElements, ...eventElements];
+  } catch (e) {
+    console.error("Error creating affordance elements:", e);
+    return [];
+  }
+}
+
 const createHtmlInputs = (td: string): JSX.Element[] => {
   try {
-    let regex = /{{/gi,
-      result,
-      startIindices = [];
-    while ((result = regex.exec(td))) {
-      startIindices.push(result.index);
-    }
-    regex = /}}/gi;
-    let endIndices = [];
-    while ((result = regex.exec(td))) {
-      endIndices.push(result.index);
-    }
-    let placeholders = [];
-    for (let i = 0; i < startIindices.length; i++) {
-      placeholders.push(td.slice(startIindices[i] + 2, endIndices[i]));
-    }
-    placeholders = [...new Set(placeholders)];
-    const htmlInputs = placeholders.map((holder) => {
-      return (
-        <div key={holder} className="py-1">
-          <label
-            htmlFor={holder}
-            className="pl-2 text-sm font-medium text-gray-400"
-          >
-            {holder}:
-          </label>
-          <input
-            type="text"
-            name={holder}
-            id={holder}
-            className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
-            placeholder="Enter a value..."
-          />
-        </div>
-      );
-    });
-
-    // Containers for created html elements (checkboxes) of each interaction affordance
-    let htmlProperties = [];
-    let htmlActions = [];
-    let htmlEvents = [];
+    let htmlProperties: JSX.Element[] = [];
+    let htmlActions: JSX.Element[] = [];
+    let htmlEvents: JSX.Element[] = [];
 
     try {
       const parsed = JSON.parse(td);
-      const properties = Object.keys(
-        parsed["properties"] ? parsed["properties"] : {}
-      );
-      const actions = Object.keys(parsed["actions"] ? parsed["actions"] : {});
-      const events = Object.keys(parsed["events"] ? parsed["events"] : {});
-      const requiredFields = { properties: [], actions: [], events: [] };
 
-      // Parse the required interaction affordances
+      const { properties, actions, events, requiredFields } =
+        extractAffordances(parsed);
+
       if (parsed["tm:required"]) {
         for (const field of parsed["tm:required"]) {
           if (field.startsWith("#properties/"))
@@ -134,149 +186,68 @@ const createHtmlInputs = (td: string): JSX.Element[] => {
         }
       }
 
-      // Create html (checkboxes) for specific interaction affordances
-      function createAffordanceHtml(affName, affContainer) {
-        return affContainer.map((aff) => {
-          const required = requiredFields[affName].includes(aff);
-          return (
-            <div key={`${affName}/${aff}`} className="form-checkbox py-1 pl-2">
-              <input
-                id={`${affName}/${aff}`}
-                className="form-checkbox-input"
-                type="checkbox"
-                value={`#${affName}/${aff}`}
-                disabled={required}
-                defaultChecked={true}
-                title={required ? "This field is required by the TM." : ""}
-                data-interaction={affName}
-              />
-              <label
-                className="form-checkbox-label pl-2"
-                htmlFor={`${affName}/${aff}`}
-              >{`#${affName}/${aff}`}</label>
-            </div>
-          );
-        });
-      }
-
-      htmlProperties = createAffordanceHtml("properties", properties);
-      htmlActions = createAffordanceHtml("actions", actions);
-      htmlEvents = createAffordanceHtml("events", events);
+      htmlProperties = createAffordanceHtml(
+        "properties",
+        properties,
+        requiredFields
+      );
+      htmlActions = createAffordanceHtml("actions", actions, requiredFields);
+      htmlEvents = createAffordanceHtml("events", events, requiredFields);
     } catch (ignored) {}
 
-    const divider = (
-      <h2 key="modalDividerText" className="pb-2 pt-4 text-gray-400">
-        {
-          "Also, select/unselect the interaction affordances you would like to see in the new TD."
-        }
-      </h2>
-    );
-
-    return [
-      ...htmlInputs,
-      divider,
-      ...htmlProperties,
-      ...htmlActions,
-      ...htmlEvents,
-    ];
+    return [...htmlProperties, ...htmlActions, ...htmlEvents];
   } catch (e) {
     console.log(e);
     return [];
   }
 };
 
-const convertTmToTd = (td, htmlInputs) => {
-  let mappingObject = {};
-  const properties = [];
-  const actions = [];
-  const events = [];
-
-  // Process the ticked affordances and save them in respective arrays
-  for (const item of htmlInputs) {
-    if (
-      item.props.className.indexOf("form-checkbox") > -1 &&
-      document.getElementById(item.props.children[0].props.id).checked
-    ) {
-      if (item.props.children[0].props["data-interaction"] === "properties")
-        properties.push(item["key"].split("/")[1]);
-      else if (item.props.children[0].props["data-interaction"] === "actions")
-        actions.push(item["key"].split("/")[1]);
-      else if (item.props.children[0].props["data-interaction"] === "events")
-        events.push(item["key"].split("/")[1]);
-    }
-  }
-
-  // Process the placeholders
-  htmlInputs = htmlInputs.filter((e) => {
+export function createAffordanceHtml(
+  affName: "properties" | "actions" | "events",
+  affContainer: string[],
+  requiredFields: { [k: string]: string[] }
+): JSX.Element[] {
+  return affContainer.map((aff) => {
+    const required = requiredFields[affName].includes(aff);
     return (
-      e.props.className.indexOf("form-checkbox") === -1 &&
-      e.key !== "modalDividerText"
+      <div key={`${affName}/${aff}`} className="form-checkbox py-1 pl-2">
+        <input
+          id={`${affName}/${aff}`}
+          className="form-checkbox-input"
+          type="checkbox"
+          value={`#${affName}/${aff}`}
+          disabled={required}
+          defaultChecked={true}
+          title={required ? "This field is required by the TM." : ""}
+          data-interaction={affName}
+        />
+        <label
+          className="form-checkbox-label pl-2"
+          htmlFor={`${affName}/${aff}`}
+        >{`#${affName}/${aff}`}</label>
+      </div>
     );
   });
-  htmlInputs.forEach((y) => {
-    const elem = document.getElementById(y.key);
-    mappingObject[y.key] = elem.value;
-    return elem.value;
-  });
-  Object.keys(mappingObject).forEach((key) => {
-    if (!isNaN(Number(mappingObject[key]))) {
-      let tdParts = td.split(`"{{${key}}}"`);
-      if (tdParts.length === 1) {
-        tdParts = td.split(`{{${key}}}`);
-      }
-      td = tdParts.join(mappingObject[key]);
-    } else {
-      td = td.split(`{{${key}}}`).join(mappingObject[key]);
+}
+
+export function extractAffordances(parsed: any) {
+  const properties = Object.keys(parsed["properties"] || {});
+  const actions = Object.keys(parsed["actions"] || {});
+  const events = Object.keys(parsed["events"] || {});
+  const requiredFields = { properties: [], actions: [], events: [] };
+
+  if (parsed["tm:required"]) {
+    for (const field of parsed["tm:required"]) {
+      if (field.startsWith("#properties/"))
+        requiredFields["properties"].push(field.split("/")[1]);
+      else if (field.startsWith("#actions/"))
+        requiredFields["actions"].push(field.split("/")[1]);
+      else if (field.startsWith("#events/"))
+        requiredFields["events"].push(field.split("/")[1]);
     }
-  });
-  const parse = JSON.parse(td);
-
-  // Create new affordances by leaving only the ticked ones
-  if (parse["properties"]) {
-    const newProperties = Object.keys(parse["properties"])
-      .filter((key) => properties.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = parse["properties"][key];
-        return obj;
-      }, {});
-
-    // Adapt the new TD
-    parse["properties"] = newProperties;
   }
+  return { properties, actions, events, requiredFields };
+}
 
-  if (parse["actions"]) {
-    const newActions = Object.keys(parse["actions"])
-      .filter((key) => actions.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = parse["actions"][key];
-        return obj;
-      }, {});
-
-    // Adapt the new TD
-    parse["actions"] = newActions;
-  }
-
-  if (parse["events"]) {
-    const newEvents = Object.keys(parse["events"])
-      .filter((key) => events.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = parse["events"][key];
-        return obj;
-      }, {});
-
-    // Adapt the new TD
-    parse["events"] = newEvents;
-  }
-
-  // Remove TM related data
-  delete parse["@type"];
-  delete parse["tm:required"];
-
-  localStorage.setItem("td", JSON.stringify(parse, null, 2));
-  window.open(
-    `${window.location.origin + window.location.pathname}?localstorage`,
-    "_blank"
-  );
-};
 ConvertTmDialog.displayName = "ConvertTmDialog";
 export default ConvertTmDialog;
