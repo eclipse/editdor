@@ -16,6 +16,7 @@ import React, {
   useImperativeHandle,
   useState,
   useMemo,
+  useEffect,
 } from "react";
 import ReactDOM from "react-dom";
 import draft7MetaSchema from "ajv/dist/refs/json-schema-draft-07.json";
@@ -36,7 +37,11 @@ import FormInteraction from "./base/FormInteraction";
 import { isValidUrl, formatText } from "../../utils/strings";
 import { requestWeb } from "../../services/thingsApiService";
 
-import { normalizeContext } from "../../services/operations";
+import {
+  normalizeContext,
+  extractPlaceholders,
+  replacePlaceholders,
+} from "../../services/operations";
 
 export interface IContributeToCatalogProps {
   openModal: () => void;
@@ -55,58 +60,8 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   const td: ThingDescription = context.parsedTD;
   const contributeCatalogData = context.contributeCatalog;
 
-  const [display, setDisplay] = useState<boolean>(false);
-  const [isValid, setIsValid] = useState<boolean>(false);
-  const [isValidating, setIsValidating] = useState<boolean>(false);
-
-  const [model, setModel] = useState<string>("");
-  const [author, setAuthor] = useState<string>("");
-  const [manufacturer, setManufacturer] = useState<string>("");
-  const [license, setLicense] = useState<string>("");
-  const [copyrightYear, setCopyrightYear] = useState<string>("");
-  const [holder, setHolder] = useState<string>("");
-
-  const [tmCatalogEndpoint, setTmCatalogEndpoint] = useState<string>("");
-  const [repository, setRepository] = useState<string>("");
-
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [tmCatalogEndpointError, setTmCatalogEndpointError] =
-    useState<string>("");
-
-  const [repositoryError, setRepositoryError] = useState<string>("");
-
-  const [submitted, setSubmitted] = useState<boolean>(false);
-  const [copied, setCopied] = useState<boolean>(false);
-  const [link, setLink] = useState<string>("");
-  const [id, setId] = useState<string>("");
-
-  const [submittedError, setSubmittedError] = useState<string>("");
-  const [tmCopy, setTMCopy] = useState<ThingDescription | null>(null);
+  /** General */
   const [workflowState, setWorkflowState] = useState<number>(1);
-  const [allRequestResults, setAllRequestResults] = useState<{
-    [id: string]: { value: string; error: string };
-  }>({});
-  const [isTestingAll, setIsTestingAll] = useState(false);
-  const [errorAllRequests, setErrorAllRequests] = useState<{
-    firstError: {
-      id: string;
-      message: string;
-    };
-    errorCount: number;
-  }>({
-    firstError: {
-      id: "test Error",
-      message: "test Error",
-    },
-    errorCount: 1,
-  });
-
-  useImperativeHandle(ref, () => {
-    return {
-      openModal: () => open(),
-      close: () => close(),
-    };
-  });
 
   const dynamicTitle =
     TITLE +
@@ -115,10 +70,20 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       : workflowState === 2
         ? " - Interaction"
         : " - Submission");
+
+  const progressPercent =
+    workflowState === 1 ? 0 : workflowState === 2 ? 50 : 100;
+
   const propertiesTd = useMemo(() => {
     return td["properties"] || {};
   }, [td]);
 
+  useImperativeHandle(ref, () => {
+    return {
+      openModal: () => open(),
+      close: () => close(),
+    };
+  });
   const open = () => {
     setModel(`${td["schema:mpn"] ?? ""}`);
     if (model === "" && contributeCatalogData.model !== "") {
@@ -181,6 +146,11 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   };
 
   const close = () => {
+    /** WorkFlowState 1 */
+    setIsValid(false);
+    setDisplay(false);
+    setIsValidating(false);
+
     setModel("");
     setAuthor("");
     setManufacturer("");
@@ -188,72 +158,48 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setCopyrightYear("");
     setHolder("");
     setErrorMessage("");
+    setCopied(false);
+
+    setLink("");
+    setId("");
+    /** WorkFlowState 2 */
+    setTmCatalogEndpoint("");
+    setRepository("");
+
+    setWorkflowState(1);
+    setAllRequestResults({});
+    setIsTestingAll(false);
+
+    context.updateContributeCatalog({
+      ...context.contributeCatalog,
+      dynamicValues: {},
+    });
+    /** WorkFlowState 3 */
     setTmCatalogEndpointError("");
     setRepositoryError("");
     setSubmittedError("");
     setSubmitted(false);
-    setCopied(false);
-    setLink("");
-    setId("");
-    setTmCatalogEndpoint("");
-    setRepository("");
-    setIsValidating(false);
-    setIsValid(false);
-    setDisplay(false);
-    setWorkflowState(1);
-    setAllRequestResults({});
-    setIsTestingAll(false);
   };
 
-  const handleSubmit = async () => {
-    setSubmittedError("");
-    setSubmitted(false);
-    try {
-      const response = await requestWeb(
-        `${tmCatalogEndpoint}/thing-models`,
-        "POST",
-        JSON.stringify(tmCopy),
-        {
-          queryParams: {
-            repo: repository,
-          },
-        }
-      );
+  /** WorkFlowState 1 */
+  const [display, setDisplay] = useState<boolean>(false);
+  const [isValid, setIsValid] = useState<boolean>(false);
+  const [isValidating, setIsValidating] = useState<boolean>(false);
 
-      if (!response) {
-        setSubmittedError("Failed to connect to the server");
-        return;
-      }
+  const [model, setModel] = useState<string>("");
+  const [author, setAuthor] = useState<string>("");
+  const [manufacturer, setManufacturer] = useState<string>("");
+  const [license, setLicense] = useState<string>("");
+  const [copyrightYear, setCopyrightYear] = useState<string>("");
+  const [holder, setHolder] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [copied, setCopied] = useState<boolean>(false);
 
-      const result = await response.json();
-
-      if (response.status === 201 && result.data) {
-        const { tmID, message } = result.data;
-
-        if (tmID) {
-          setSubmitted(true);
-          setId(tmID);
-          setLink(`${tmCatalogEndpoint}/thing-models/${tmID}`);
-        } else {
-          setSubmittedError("Response missing tmID");
-        }
-        return;
-      }
-      const errorMessage = result.detail + " " + result.title;
-      setSubmittedError(`Error: ${errorMessage}`);
-      return;
-    } catch (err) {
-      setSubmittedError(
-        `Failed to process request: ${
-          err instanceof Error ? err.message : "Unknown error"
-        }`
-      );
-    }
-    // TODO
-    //Clear the context state of contributeCatalog
-  };
+  const [tmGeneratedToSend, setTmGeneratedToSend] =
+    useState<ThingDescription | null>(null);
 
   const handleCatalogValidation = async () => {
+    console.log("started validation");
     setErrorMessage("");
     setIsValid(false);
     setIsValidating(true);
@@ -293,7 +239,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       return;
     }
 
-    setTMCopy(tdCopy);
+    setTmGeneratedToSend(tdCopy);
 
     try {
       const ajv = new Ajv2019({
@@ -356,40 +302,6 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       setIsValidating(false);
     }
   };
-
-  const handleTmCatalogEndpointChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value;
-    setTmCatalogEndpoint(value);
-    contributeCatalogData.tmCatalogEndpoint = value;
-    if (
-      !value.startsWith("https") &&
-      !value.startsWith("http:") &&
-      value.length > 0
-    ) {
-      setTmCatalogEndpointError("The endpoint must start with http or https.");
-    } else {
-      setTmCatalogEndpointError("");
-    }
-    setSubmitted(false);
-    setSubmittedError("");
-  };
-
-  const handleRepositoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setRepository(value);
-    contributeCatalogData.nameRepository = value;
-
-    if (value.length === 0) {
-      setRepositoryError("The repository name is mandatory");
-    } else {
-      setRepositoryError("");
-    }
-    setSubmitted(false);
-    setSubmittedError("");
-  };
-
   const handleCopyThingModelClick = async () => {
     const tdCopy = structuredClone(td);
 
@@ -408,7 +320,6 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     await navigator.clipboard.writeText(JSON.stringify(tdCopy, null, 2));
     setCopied(true);
   };
-
   const handleOnChangeModel = (e) => {
     setModel(e.target.value);
     contributeCatalogData.model = e.target.value;
@@ -451,8 +362,162 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     context.updateContributeCatalog(contributeCatalogData);
   };
 
-  const progressPercent =
-    workflowState === 1 ? 0 : workflowState === 2 ? 50 : 100;
+  /** WorkFlowState 2 */
+  const [placeholderValues, setPlaceholderValues] = useState<
+    Record<string, string>
+  >({});
+
+  useEffect(() => {
+    if (context.offlineTD) {
+      const placeholders = extractPlaceholders(context.offlineTD);
+      const initialValues = placeholders.reduce((acc, key) => {
+        acc[key] = "";
+        return acc;
+      }, {});
+      setPlaceholderValues(initialValues);
+    }
+  }, [context.offlineTD]);
+
+  const handleFieldChange = (placeholder: string, value: string) => {
+    setPlaceholderValues((prev) => {
+      const updated = { ...prev, [placeholder]: value };
+      console.log("New state:", updated);
+      return updated;
+    });
+    context.updateContributeCatalog({
+      ...context.contributeCatalog,
+      dynamicValues: placeholderValues,
+    });
+
+    const allPlaceholdersFilled = Object.values(placeholderValues).every(
+      (val) => val !== null && val !== undefined && val.trim() !== ""
+    );
+
+    let tmGeneratedToSendStringify = JSON.stringify(tmGeneratedToSend);
+    if (allPlaceholdersFilled) {
+      let newGeneratedTm = replacePlaceholders(
+        tmGeneratedToSendStringify,
+        placeholderValues
+      );
+      try {
+        let tmStructured = JSON.parse(newGeneratedTm);
+        setTmGeneratedToSend(tmStructured);
+      } catch (e) {
+        console.error("Error parsing JSON after replacement:", e);
+      }
+    }
+  };
+
+  const [allRequestResults, setAllRequestResults] = useState<{
+    [id: string]: { value: string; error: string };
+  }>({});
+  const [isTestingAll, setIsTestingAll] = useState(false);
+  const [errorAllRequests, setErrorAllRequests] = useState<{
+    firstError: {
+      id: string;
+      message: string;
+    };
+    errorCount: number;
+  }>({
+    firstError: {
+      id: "test Error",
+      message: "test Error",
+    },
+    errorCount: 1,
+  });
+
+  /** WorkFlowState 3 */
+  const [tmCatalogEndpoint, setTmCatalogEndpoint] = useState<string>("");
+  const [repository, setRepository] = useState<string>("");
+  const [tmCatalogEndpointError, setTmCatalogEndpointError] =
+    useState<string>("");
+  const [repositoryError, setRepositoryError] = useState<string>("");
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const [link, setLink] = useState<string>("");
+  const [id, setId] = useState<string>("");
+
+  const [submittedError, setSubmittedError] = useState<string>("");
+
+  const handleSubmit = async () => {
+    setSubmittedError("");
+    setSubmitted(false);
+    try {
+      const response = await requestWeb(
+        `${tmCatalogEndpoint}/thing-models`,
+        "POST",
+        JSON.stringify(tmGeneratedToSend),
+        {
+          queryParams: {
+            repo: repository,
+          },
+        }
+      );
+
+      if (!response) {
+        setSubmittedError("Failed to connect to the server");
+        return;
+      }
+
+      const result = await response.json();
+
+      if (response.status === 201 && result.data) {
+        const { tmID, message } = result.data;
+
+        if (tmID) {
+          setSubmitted(true);
+          setId(tmID);
+          setLink(`${tmCatalogEndpoint}/thing-models/${tmID}`);
+        } else {
+          setSubmittedError("Response missing tmID");
+        }
+        return;
+      }
+      const errorMessage = result.detail + " " + result.title;
+      setSubmittedError(`Error: ${errorMessage}`);
+      return;
+    } catch (err) {
+      setSubmittedError(
+        `Failed to process request: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
+    }
+    // TODO
+    //Clear the context state of contributeCatalog
+  };
+
+  const handleTmCatalogEndpointChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setTmCatalogEndpoint(value);
+    contributeCatalogData.tmCatalogEndpoint = value;
+    if (
+      !value.startsWith("https") &&
+      !value.startsWith("http:") &&
+      value.length > 0
+    ) {
+      setTmCatalogEndpointError("The endpoint must start with http or https.");
+    } else {
+      setTmCatalogEndpointError("");
+    }
+    setSubmitted(false);
+    setSubmittedError("");
+  };
+
+  const handleRepositoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setRepository(value);
+    contributeCatalogData.nameRepository = value;
+
+    if (value.length === 0) {
+      setRepositoryError("The repository name is mandatory");
+    } else {
+      setRepositoryError("");
+    }
+    setSubmitted(false);
+    setSubmittedError("");
+  };
 
   const tableHeaders: { key: string; text: string }[] = Object.keys(
     propertiesTd
@@ -588,6 +653,8 @@ const ContributeToCatalog = forwardRef((props, ref) => {
               setAllRequestResults={setAllRequestResults}
               errorAllRequests={errorAllRequests}
               setErrorAllRequests={setErrorAllRequests}
+              placeholderValues={placeholderValues}
+              handleFieldChange={handleFieldChange}
             />
           )}
           {workflowState === 3 && (

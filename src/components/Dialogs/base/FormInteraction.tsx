@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { RefreshCw } from "react-feather";
 import type { ThingDescription } from "wot-thing-description-types";
 
@@ -19,7 +19,10 @@ import BaseTable from "../../TDViewer/base/BaseTable";
 import BaseButton from "../../TDViewer/base/BaseButton";
 import { readPropertyWithServient } from "../../../services/form";
 import { extractIndexFromId } from "../../../utils/strings";
-import { getLocalStorage } from "../../../services/localStorage";
+import {
+  getLocalStorage,
+  setLocalStorage,
+} from "../../../services/localStorage";
 import { getErrorSummary } from "../../../utils/arrays";
 import Settings, { SettingsData } from "../../App/Settings";
 import { ChevronDown, ChevronUp } from "react-feather";
@@ -44,6 +47,8 @@ interface FormInteractionProps {
   >;
   errorAllRequests: ErrorAllRequests;
   setErrorAllRequests: React.Dispatch<React.SetStateAction<ErrorAllRequests>>;
+  placeholderValues?: Record<string, string>;
+  handleFieldChange: (placeholder: string, value: string) => void;
 }
 
 const FormInteraction: React.FC<FormInteractionProps> = ({
@@ -53,6 +58,8 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
   setAllRequestResults,
   errorAllRequests,
   setErrorAllRequests,
+  placeholderValues = {},
+  handleFieldChange,
 }) => {
   const context = useContext(ediTDorContext);
   const td: ThingDescription = context.parsedTD;
@@ -66,7 +73,11 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
 
   const [activeSection, setActiveSection] = useState<ActiveSection>("instance");
 
-  const [testingExpanded, setTestingExpanded] = useState(true);
+  useEffect(() => {
+    setLocalStorage(settingsData.northboundUrl, "northbound");
+    setLocalStorage(settingsData.southboundUrl, "southbound");
+    setLocalStorage(settingsData.pathToValue, "valuePath");
+  }, [settingsData]);
 
   const toggleSection = (sectionName: ActiveSection) => {
     if (activeSection === sectionName) {
@@ -74,7 +85,11 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
     } else {
       setActiveSection(sectionName);
     }
+    // if (activeSection === "instance") {
+    //updateTD;
+    //}
   };
+
   const handleTestAllProperties = async () => {
     setIsTestingAll(true);
     const results = { ...allRequestResults };
@@ -155,9 +170,6 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
       setSettingsData(data);
     }
   };
-  const handleOnChangeValues = (values: Record<string, string>) => {
-    console.log("Received values from TmInputForm:", values);
-  };
 
   return (
     <>
@@ -190,16 +202,17 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
             )}
           </div>
 
-          {activeSection === "instance" && (
-            <div className="w-full p-2">
-              <div className="mx-auto mb-2 w-[70%]">
-                <TmInputForm
-                  tmContent={context.offlineTD}
-                  onValueUpdate={handleOnChangeValues}
-                />
+          {activeSection === "instance" &&
+            Object.keys(placeholderValues).length > 0 && (
+              <div className="w-full p-2">
+                <div className="mx-auto mb-2 w-[70%]">
+                  <TmInputForm
+                    inputValues={placeholderValues}
+                    onValueChange={handleFieldChange}
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
 
         <div

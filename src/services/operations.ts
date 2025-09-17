@@ -109,22 +109,7 @@ export function processConversionTMtoTD(
   actions: string[],
   events: string[]
 ) {
-  // Apply placeholder values
-  let processedContent = tmContent;
-
-  Object.entries(placeholderValues).forEach(([key, value]) => {
-    const numValue = Number(value);
-    if (!isNaN(numValue)) {
-      processedContent = processedContent
-        .replace(new RegExp(`"{{${key}}}"`, "g"), value)
-        .replace(new RegExp(`{{${key}}}`, "g"), value);
-    } else {
-      processedContent = processedContent.replace(
-        new RegExp(`{{${key}}}`, "g"),
-        value
-      );
-    }
-  });
+  const processedContent = replacePlaceholders(tmContent, placeholderValues);
 
   try {
     const parsed = JSON.parse(processedContent);
@@ -148,4 +133,33 @@ export function processConversionTMtoTD(
     console.error("Error processing TM:", error);
     return null;
   }
+}
+
+/**
+ * Replaces placeholder variables in a string with their values
+ * @param content The string containing placeholders in format {{placeholderName}}
+ * @param placeholderValues Object mapping placeholder names to their values
+ * @returns String with all placeholders replaced with their values
+ */
+export function replacePlaceholders(
+  content: string,
+  placeholderValues: Record<string, string>
+): string {
+  let processedContent = content;
+
+  Object.entries(placeholderValues).forEach(([key, value]) => {
+    const numValue = Number(value);
+    if (!isNaN(numValue)) {
+      processedContent = processedContent
+        .replace(new RegExp(`"{{${key}}}"`, "g"), value)
+        .replace(new RegExp(`{{${key}}}`, "g"), value);
+    } else {
+      processedContent = processedContent.replace(
+        new RegExp(`{{${key}}}`, "g"),
+        value
+      );
+    }
+  });
+
+  return processedContent;
 }

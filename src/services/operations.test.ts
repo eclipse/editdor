@@ -10,12 +10,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import { test, expect, describe } from "vitest";
+import { test, expect, describe, it } from "vitest";
 import {
   normalizeContext,
   extractPlaceholders,
   filterAffordances,
   processConversionTMtoTD,
+  extractPlaceholdersRefactor,
+  replacePlaceholders,
 } from "./operations";
 import { ThingContext } from "wot-thing-description-types";
 
@@ -444,5 +446,228 @@ describe("processConversionTMtoTD", () => {
     expect(Object.keys(result.events)).toHaveLength(1);
     expect(result.events).toHaveProperty("event2");
     expect(result.events).not.toHaveProperty("event1");
+  });
+});
+describe("extractPlaceholdersRefactor", () => {
+  it("extracts single placeholder from a string", () => {
+    const input = "Hello {{name}}!";
+    const result = extractPlaceholdersRefactor(input);
+    expect(result).toEqual(["name"]);
+  });
+
+  it("extracts multiple different placeholders from a string", () => {
+    const input =
+      "Hello {{name}}, your age is {{age}} and your email is {{email}}";
+    const result = extractPlaceholdersRefactor(input);
+    expect(result).toEqual(["name", "age", "email"]);
+  });
+
+  it("removes duplicate placeholders", () => {
+    const input = "Hello {{name}}, nice to meet you {{name}}!";
+    const result = extractPlaceholdersRefactor(input);
+    expect(result).toEqual(["name"]);
+  });
+
+  it("returns an empty array when no placeholders are present", () => {
+    const input = "Hello world!";
+    const result = extractPlaceholdersRefactor(input);
+    expect(result).toEqual([]);
+  });
+
+  it("trims whitespace from placeholders", () => {
+    const input = "Hello {{ name }} and {{ age }}!";
+    const result = extractPlaceholdersRefactor(input);
+    expect(result).toEqual(["name", "age"]);
+  });
+
+  it("handles empty string input", () => {
+    const input = "";
+    const result = extractPlaceholdersRefactor(input);
+    expect(result).toEqual([]);
+  });
+
+  it("handles placeholders at the beginning and end of string", () => {
+    const input = "{{prefix}} Hello World {{suffix}}";
+    const result = extractPlaceholdersRefactor(input);
+    expect(result).toEqual(["prefix", "suffix"]);
+  });
+
+  it("handles adjacent placeholders", () => {
+    const input = "Hello {{first}}{{second}}!";
+    const result = extractPlaceholdersRefactor(input);
+    expect(result).toEqual(["first", "second"]);
+  });
+
+  it("handles empty placeholders", () => {
+    const input = "Hello {{}}!";
+    const result = extractPlaceholdersRefactor(input);
+    expect(result).toEqual([""]);
+  });
+
+  it("handles placeholders with special characters", () => {
+    const input = "Hello {{user-name}} with ID {{user.id}}!";
+    const result = extractPlaceholdersRefactor(input);
+    expect(result).toEqual(["user-name", "user.id"]);
+  });
+
+  it("handles nested brackets (non-nested behavior)", () => {
+    const input = "Hello {{outer{{inner}}}}!";
+    const result = extractPlaceholdersRefactor(input);
+    // The regex uses non-greedy matching, so it will match "outer{{inner"
+    expect(result).toEqual(["outer{{inner"]);
+  });
+
+  it("handles placeholders in JSON-like content", () => {
+    const input = '{"title": "{{title}}", "version": {{version}}}';
+    const result = extractPlaceholdersRefactor(input);
+    expect(result).toEqual(["title", "version"]);
+  });
+
+  it("handles Unicode characters in placeholders", () => {
+    const input = "Hello {{üñïçødé}}!";
+    const result = extractPlaceholdersRefactor(input);
+    expect(result).toEqual(["üñïçødé"]);
+  });
+});
+describe("replacePlaceholders", () => {
+  it("replaces a single string placeholder", () => {
+    const content = "Hello {{name}}!";
+    const placeholderValues = { name: "World" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("Hello World!");
+  });
+
+  it("replaces multiple string placeholders", () => {
+    const content = "Hello {{name}}, your age is {{age}} years!";
+    const placeholderValues = { name: "John", age: "30" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("Hello John, your age is 30 years!");
+  });
+
+  it("replaces a single numeric placeholder (both quoted and unquoted)", () => {
+    const content = 'The value is {{value}} and "{{value}}"';
+    const placeholderValues = { value: "42" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("The value is 42 and 42");
+  });
+
+  it("replaces multiple numeric placeholders", () => {
+    const content = "x = {{x}}, y = {{y}}, z = {{z}}";
+    const placeholderValues = { x: "1", y: "2", z: "3" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("x = 1, y = 2, z = 3");
+  });
+
+  it("replaces a mix of string and numeric placeholders", () => {
+    const content = "Hello {{name}}, your score is {{score}}!";
+    const placeholderValues = { name: "Alice", score: "95" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("Hello Alice, your score is 95!");
+  });
+
+  it("handles empty content string", () => {
+    const content = "";
+    const placeholderValues = { name: "World" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("");
+  });
+
+  it("handles empty placeholderValues object", () => {
+    const content = "Hello {{name}}!";
+    const placeholderValues = {};
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("Hello {{name}}!");
+  });
+
+  it("ignores placeholders not found in placeholderValues", () => {
+    const content = "Hello {{name}}, your age is {{age}}!";
+    const placeholderValues = { name: "John" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("Hello John, your age is {{age}}!");
+  });
+
+  it("replaces placeholders with empty values", () => {
+    const content = "Hello {{name}}!";
+    const placeholderValues = { name: "" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("Hello !");
+  });
+
+  it("handles adjacent placeholders", () => {
+    const content = "Hello {{firstName}}{{lastName}}!";
+    const placeholderValues = { firstName: "John", lastName: "Doe" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("Hello JohnDoe!");
+  });
+
+  it("handles IP addresses correctly as strings", () => {
+    const content = "Server IP: {{ip}}";
+    const placeholderValues = { ip: "192.168.1.1" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("Server IP: 192.168.1.1");
+  });
+
+  it("handles placeholders within JSON-like structures", () => {
+    const content = '{"name": "{{name}}", "age": {{age}}}';
+    const placeholderValues = { name: "John", age: "30" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe('{"name": "John", "age": 30}');
+  });
+
+  it("handles multiple instances of the same placeholder", () => {
+    const content = "{{value}} + {{value}} = {{sum}}";
+    const placeholderValues = { value: "5", sum: "10" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("5 + 5 = 10");
+  });
+
+  it("handles zero as a numeric value", () => {
+    const content = "The value is {{value}}";
+    const placeholderValues = { value: "0" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("The value is 0");
+  });
+
+  it("handles negative numbers", () => {
+    const content = "The value is {{value}}";
+    const placeholderValues = { value: "-42" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("The value is -42");
+  });
+
+  it("handles decimal numbers", () => {
+    const content = "The value is {{value}}";
+    const placeholderValues = { value: "3.14159" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("The value is 3.14159");
+  });
+
+  it("treats non-numeric strings as strings", () => {
+    const content = 'The ID is "{{id}}" and {{id}}';
+    const placeholderValues = { id: "ABC123" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe('The ID is "ABC123" and ABC123');
+  });
+
+  it("preserves formatting for non-replaced placeholders", () => {
+    const content = "Hello {{name}}, welcome to {{company}}!";
+    const placeholderValues = { name: "John" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("Hello John, welcome to {{company}}!");
+  });
+
+  it("handles special characters in placeholder names", () => {
+    const content = "Hello {{user-name}} with ID {{user.id}}!";
+    const placeholderValues = { "user-name": "John", "user.id": "U12345" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe("Hello John with ID U12345!");
+  });
+
+  it("correctly handles quoted placeholders for strings", () => {
+    const content =
+      'Config: {"stringKey": "{{stringValue}}", "numKey": {{numValue}}}';
+    const placeholderValues = { stringValue: "hello", numValue: "42" };
+    const result = replacePlaceholders(content, placeholderValues);
+    expect(result).toBe('Config: {"stringKey": "hello", "numKey": 42}');
   });
 });
