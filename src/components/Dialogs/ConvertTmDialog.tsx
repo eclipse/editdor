@@ -20,7 +20,10 @@ import React, {
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import DialogTemplate from "./DialogTemplate";
-import { processConversionTMtoTD } from "../../services/operations";
+import {
+  processConversionTMtoTD,
+  extractPlaceholders,
+} from "../../services/operations";
 import TmInputForm from "../App/TmInputForm";
 
 export interface ConvertTmDialogRef {
@@ -48,15 +51,28 @@ const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
     setAffordanceElements(createAffordanceElements(context.offlineTD));
   }, [context.offlineTD]);
 
+  useEffect(() => {
+    if (td) {
+      const placeholders = extractPlaceholders(td);
+      const initialValues = placeholders.reduce((acc, key) => {
+        acc[key] = "";
+        return acc;
+      }, {});
+      setPlaceholderValues(initialValues);
+    }
+  }, [td]);
+
   useImperativeHandle(ref, () => ({
     openModal: () => setDisplay(true),
     close: () => setDisplay(false),
   }));
 
-  const handlePlaceholderUpdate = (values: Record<string, string>) => {
-    setPlaceholderValues(values);
+  const handleFieldChange = (placeholder: string, value: string) => {
+    setPlaceholderValues((prev) => ({
+      ...prev,
+      [placeholder]: value,
+    }));
   };
-
   const handleGenerateTd = () => {
     const selections = getSelectedAffordances(affordanceElements);
 
@@ -88,8 +104,8 @@ const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
       >
         <>
           <TmInputForm
-            tmContent={context.offlineTD}
-            onValueUpdate={handlePlaceholderUpdate}
+            inputValues={placeholderValues}
+            onValueChange={handleFieldChange}
           />
 
           <h2 className="pb-2 pt-4 text-gray-400">

@@ -10,42 +10,33 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useState, useEffect } from "react";
-import { extractPlaceholders } from "../../services/operations";
+import React, { useEffect, useState } from "react";
 
 interface TmInputFormProps {
-  tmContent: string;
-  onValueUpdate: (values: Record<string, string>) => void;
+  inputValues: Record<string, string>;
+  onValueChange: (placeholder: string, value: string) => void;
 }
 
 const TmInputForm: React.FC<TmInputFormProps> = ({
-  tmContent,
-  onValueUpdate,
+  inputValues,
+  onValueChange,
 }) => {
-  const [inputValues, setInputValues] = useState<Record<string, string>>({});
+  const [localValues, setLocalValues] =
+    useState<Record<string, string>>(inputValues);
 
   useEffect(() => {
-    if (tmContent) {
-      const placeholders = extractPlaceholders(tmContent);
-      const initialValues = placeholders.reduce((acc, key) => {
-        acc[key] = "";
-        return acc;
-      }, {});
-      setInputValues(initialValues);
-    }
-  }, [tmContent]);
+    setLocalValues(inputValues);
+  }, [inputValues]);
 
-  useEffect(() => {
-    if (Object.keys(inputValues).length > 0) {
-      onValueUpdate(inputValues);
-    }
-  }, [inputValues, onValueUpdate]);
+  const handleChange = (placeholder: string, value: string) => {
+    setLocalValues((prev) => ({
+      ...prev,
+      [placeholder]: value,
+    }));
+  };
 
-  const handleInputChange = (placeholder: string, value: string) => {
-    setInputValues((prev) => {
-      const updated = { ...prev, [placeholder]: value };
-      return updated;
-    });
+  const handleBlur = (placeholder: string, value: string) => {
+    onValueChange(placeholder, value);
   };
 
   return (
@@ -62,8 +53,9 @@ const TmInputForm: React.FC<TmInputFormProps> = ({
             id={`tm-input-${placeholder}`}
             type="text"
             name={placeholder}
-            value={inputValues[placeholder]}
-            onChange={(e) => handleInputChange(placeholder, e.target.value)}
+            value={localValues[placeholder] || ""}
+            onChange={(e) => handleChange(placeholder, e.target.value)}
+            onBlur={(e) => handleBlur(placeholder, e.target.value)}
             className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white outline-none hover:border-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="Enter a value..."
           />
