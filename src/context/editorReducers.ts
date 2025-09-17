@@ -365,3 +365,9 @@ const updateContributeCatalog = (
 ): EditorState => {
   return { ...state, contributeCatalog };
 };
+const updateBackgroundTM = (
+  backgroundTM: string,
+  state: EditorState
+): EditorState => {
+  return { ...state, backgroundTM };
+};

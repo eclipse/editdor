@@ -11,6 +11,7 @@ interface IEdiTDorContext {
   validationMessage?: any;
   northboundConnection: INorthboundConnection;
   contributeCatalog: IContributeCatalog;
+  backgroundTM: string;
 
   // Callback functions
   updateOfflineTD: (td: string) => void;
@@ -32,6 +33,8 @@ interface IEdiTDorContext {
     northboundConnection: INorthboundConnection
   ) => void;
   updateContributeCatalog: (contributeCatalog: IContributeCatalog) => void;
+  // Generating a background Thing Model
+  updateBackgroundTM: (backgroundTM: string) => void;
 }
 
 interface INorthboundConnection {
@@ -48,6 +51,7 @@ interface IContributeCatalog {
   holder: string;
   tmCatalogEndpoint: string;
   nameRepository: string;
+  dynamicValues: Record<string, string>;
 }
 
 type EditorState = Omit<
@@ -64,6 +68,7 @@ type EditorState = Omit<
   | "updateValidationMessage"
   | "updateNorthboundConnection"
   | "updateContributeCatalog"
+  | "updateBackgroundTM"
 >;
 
 type Action =
@@ -99,4 +104,5 @@ type Action =
   | {
       type: "UPDATE_CONTRIBUTE_CATALOG";
       contributeCatalog: IContributeCatalog;
-    };
+    }
+  | { type: "UPDATE_BACKGROUND_TM"; backgroundTM: string };

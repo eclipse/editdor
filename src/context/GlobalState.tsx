@@ -27,6 +27,7 @@ export const UPDATE_LINKED_TD = "UPDATE_LINKED_TD";
 export const UPDATE_VALIDATION_MESSAGE = "UPDATE_VALIDATION_MESSAGE";
 export const UPDATE_NORTHBOUND_CONNECTION = "UPDATE_NORTHBOUND_CONNECTION";
 export const UPDATE_CONTRIBUTE_CATALOG = "UPDATE_CONTRIBUTE_CATALOG";
+export const UPDATE_BACKGROUND_TM = "UPDATE_BACKGROUND_TM";
 
 interface IGlobalStateProps {
   children: ReactNode;
@@ -57,7 +58,9 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
       holder: "",
       tmCatalogEndpoint: "",
       nameRepository: "",
+      dynamicValues: {},
     },
+    backgroundTM: "",
   });
 
   const updateOfflineTD = (offlineTD: string) => {
@@ -141,6 +144,9 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
       contributeCatalog: contributeCatalog,
     });
   };
+  const updateBackgroundTM = (backgroundTM: string) => {
+    dispatch({ type: UPDATE_BACKGROUND_TM, backgroundTM: backgroundTM });
+  };
 
   return (
     <EdiTDorContext.Provider
@@ -155,6 +161,7 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
         validationMessage: editdorState.validationMessage,
         northboundConnection: editdorState.northboundConnection,
         contributeCatalog: editdorState.contributeCatalog,
+        backgroundTM: editdorState.backgroundTM,
         updateOfflineTD,
         updateIsModified,
         setFileHandle,
@@ -167,6 +174,7 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
         updateValidationMessage,
         updateNorthboundConnection,
         updateContributeCatalog,
+        updateBackgroundTM,
       }}
     >
       {children}
