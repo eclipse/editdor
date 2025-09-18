@@ -36,7 +36,6 @@ import FormSubmission from "./base/FormSubmission";
 import FormInteraction from "./base/FormInteraction";
 import { isValidUrl, formatText } from "../../utils/strings";
 import { requestWeb } from "../../services/thingsApiService";
-
 import {
   normalizeContext,
   extractPlaceholders,
@@ -47,6 +46,7 @@ export interface IContributeToCatalogProps {
   openModal: () => void;
   close: () => void;
 }
+
 const TITLE = "Contribute your TM to a TM Catalog";
 const validationTmcMandatory =
   "https://raw.githubusercontent.com/wot-oss/tmc/main/internal/commands/validate/tmc-mandatory.schema.json";
@@ -157,7 +157,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setLicense("");
     setCopyrightYear("");
     setHolder("");
-    setErrorMessage("");
+    setErrorMetadata("");
     setCopied(false);
 
     setLink("");
@@ -192,7 +192,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   const [license, setLicense] = useState<string>("");
   const [copyrightYear, setCopyrightYear] = useState<string>("");
   const [holder, setHolder] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMetadata, setErrorMetadata] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
 
   const [tmGeneratedToSend, setTmGeneratedToSend] =
@@ -200,7 +200,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
 
   const handleCatalogValidation = async () => {
     console.log("started validation");
-    setErrorMessage("");
+    setErrorMetadata("");
     setIsValid(false);
     setIsValidating(true);
 
@@ -223,7 +223,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     if (model === "" || author === "" || manufacturer === "") {
       setIsValid(false);
       setIsValidating(false);
-      setErrorMessage(
+      setErrorMetadata(
         `Please fill in all required fields: ${model === "" ? "Model" : ""} ${author === "" ? "Author" : ""} ${manufacturer === "" ? "Manufacturer" : ""}`
       );
       return;
@@ -233,7 +233,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       tdCopy["@context"] = normalizeContext(tdCopy["@context"]);
     } catch (err) {
       setIsValid(false);
-      setErrorMessage(
+      setErrorMetadata(
         err instanceof Error ? err.message : "Context normalization error"
       );
       return;
@@ -294,7 +294,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       setErrorMessage("");
     } catch (err) {
       setIsValid(false);
-      setErrorMessage(
+      setErrorMetadata(
         "Could not validate: " +
           (err instanceof Error ? err.message : String(err))
       );
@@ -320,7 +320,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     await navigator.clipboard.writeText(JSON.stringify(tdCopy, null, 2));
     setCopied(true);
   };
-  const handleOnChangeModel = (e) => {
+  const handleOnChangeModel = (e: any) => {
     setModel(e.target.value);
     contributeCatalogData.model = e.target.value;
     context.updateContributeCatalog(contributeCatalogData);
@@ -328,7 +328,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setSubmitted(false);
   };
 
-  const handleOnChangeAuthor = (e) => {
+  const handleOnChangeAuthor = (e: any) => {
     setAuthor(e.target.value);
     contributeCatalogData.author = e.target.value;
     context.updateContributeCatalog(contributeCatalogData);
@@ -336,7 +336,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setSubmitted(false);
   };
 
-  const handleOnChangeManufacturer = (e) => {
+  const handleOnChangeManufacturer = (e: any) => {
     setManufacturer(e.target.value);
     contributeCatalogData.manufacturer = e.target.value;
     context.updateContributeCatalog(contributeCatalogData);
@@ -344,19 +344,19 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setSubmitted(false);
   };
 
-  const handleOnChangeLicense = (e) => {
+  const handleOnChangeLicense = (e: any) => {
     setLicense(e.target.value);
     contributeCatalogData.license = e.target.value;
     context.updateContributeCatalog(contributeCatalogData);
   };
 
-  const handleOnChangeCopyrightYear = (e) => {
+  const handleOnChangeCopyrightYear = (e: any) => {
     setCopyrightYear(e.target.value);
     contributeCatalogData.copyrightYear = e.target.value;
     context.updateContributeCatalog(contributeCatalogData);
   };
 
-  const handleOnChangeHolder = (e) => {
+  const handleOnChangeHolder = (e: any) => {
     setHolder(e.target.value);
     contributeCatalogData.holder = e.target.value;
     context.updateContributeCatalog(contributeCatalogData);
@@ -381,7 +381,6 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   const handleFieldChange = (placeholder: string, value: string) => {
     setPlaceholderValues((prev) => {
       const updated = { ...prev, [placeholder]: value };
-      console.log("New state:", updated);
       return updated;
     });
     context.updateContributeCatalog({
@@ -640,7 +639,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
                 onClickCopyThingModel={handleCopyThingModelClick}
                 isValidating={isValidating}
                 isValid={isValid}
-                errorMessage={errorMessage}
+                errorMessage={errorMetadata}
                 copied={copied}
               />
             </>

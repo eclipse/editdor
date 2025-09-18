@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { useState, useContext, useEffect } from "react";
-import { RefreshCw } from "react-feather";
 import type { ThingDescription } from "wot-thing-description-types";
+import type { ActiveSection } from "../../../types/global";
 
 import ediTDorContext from "../../../context/ediTDorContext";
 import BaseTable from "../../TDViewer/base/BaseTable";
@@ -25,7 +25,12 @@ import {
 } from "../../../services/localStorage";
 import { getErrorSummary } from "../../../utils/arrays";
 import Settings, { SettingsData } from "../../App/Settings";
-import { ChevronDown, ChevronUp } from "react-feather";
+import {
+  ChevronDown,
+  ChevronUp,
+  AlertTriangle,
+  RefreshCw,
+} from "react-feather";
 import TmInputForm from "../../App/TmInputForm";
 
 interface ErrorAllRequests {
@@ -35,8 +40,6 @@ interface ErrorAllRequests {
   };
   errorCount: number;
 }
-
-type ActiveSection = "instance" | "gateway" | "table" | "savingResults";
 
 interface FormInteractionProps {
   filteredHeaders: { key: string; text: string }[];
@@ -64,14 +67,49 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
   const context = useContext(ediTDorContext);
   const td: ThingDescription = context.parsedTD;
 
+  const [activeSection, setActiveSection] = useState<ActiveSection>("instance");
+  const [errorInteraction, setErrorInteraction] = useState<{
+    instance: {
+      error: boolean;
+      message: string;
+    };
+    gateway: {
+      error: boolean;
+      message: string;
+    };
+    table: {
+      error: boolean;
+      message: string;
+    };
+    results: {
+      error: boolean;
+      message: string;
+    };
+  }>({
+    instance: {
+      error: false,
+      message: "",
+    },
+    gateway: {
+      error: false,
+      message: "",
+    },
+    table: {
+      error: false,
+      message: "",
+    },
+    results: {
+      error: false,
+      message: "",
+    },
+  });
+
   const [isTestingAll, setIsTestingAll] = useState<boolean>(false);
   const [settingsData, setSettingsData] = useState<SettingsData>({
     northboundUrl: getLocalStorage("northbound") || "",
     southboundUrl: getLocalStorage("southbound") || "",
     pathToValue: getLocalStorage("valuePath") || "/",
   });
-
-  const [activeSection, setActiveSection] = useState<ActiveSection>("instance");
 
   useEffect(() => {
     setLocalStorage(settingsData.northboundUrl, "northbound");
@@ -80,14 +118,69 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
   }, [settingsData]);
 
   const toggleSection = (sectionName: ActiveSection) => {
+    const currentSectionValid = validateCurrentSection();
     if (activeSection === sectionName) {
       setActiveSection("instance");
     } else {
       setActiveSection(sectionName);
     }
-    // if (activeSection === "instance") {
-    //updateTD;
-    //}
+  };
+
+  const validateCurrentSection = (): boolean => {
+    switch (activeSection) {
+      case "instance":
+        let instanceIsValid = Object.values(placeholderValues).every(
+          (val) => val !== undefined && val !== null && val.trim() !== ""
+        );
+        if (!instanceIsValid) {
+          setErrorInteraction({
+            ...errorInteraction,
+            instance: {
+              error: true,
+              message: "All fields in section Instance must have values",
+            },
+          });
+          return false;
+        }
+        setErrorInteraction({
+          ...errorInteraction,
+          instance: {
+            error: false,
+            message: "",
+          },
+        });
+        return true;
+      case "gateway":
+        let gatewayIsValid =
+          settingsData.northboundUrl.trim() !== "" &&
+          settingsData.southboundUrl.trim() !== "" &&
+          settingsData.pathToValue.trim() !== "";
+        if (!gatewayIsValid) {
+          setErrorInteraction({
+            ...errorInteraction,
+            gateway: {
+              error: true,
+              message: "All fields in section Gateway must have values",
+            },
+          });
+          return false;
+        }
+        setErrorInteraction({
+          ...errorInteraction,
+          gateway: {
+            error: false,
+            message: "",
+          },
+        });
+        return true;
+      case "table":
+        return true;
+
+      case "savingResults":
+        return true;
+      default:
+        return true;
+    }
   };
 
   const handleTestAllProperties = async () => {
@@ -213,6 +306,15 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
                 </div>
               </div>
             )}
+          {errorInteraction.instance.error && (
+            <div className="my-2 h-full w-full rounded bg-red-500 p-1 text-white">
+              <AlertTriangle
+                size={18}
+                className="mx-2 inline-flex text-black"
+              />
+              {errorInteraction.instance.message}
+            </div>
+          )}
         </div>
 
         <div
@@ -243,6 +345,15 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
                   onChange={handleSettingsChange}
                 />
               </div>
+            </div>
+          )}
+          {errorInteraction.gateway.error && (
+            <div className="mb-2 mt-2 h-full w-full rounded bg-red-500 p-1 text-white">
+              <AlertTriangle
+                size={18}
+                className="mx-2 inline-flex text-black"
+              />
+              {errorInteraction.gateway.message}
             </div>
           )}
         </div>

@@ -50,3 +50,5 @@ export interface ResponseDataFromNorthbound {
   timestamp?: number;
   quality?: number;
 }
+
+export type ActiveSection = "instance" | "gateway" | "table" | "savingResults";
