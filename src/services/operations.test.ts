@@ -16,8 +16,8 @@ import {
   extractPlaceholders,
   filterAffordances,
   processConversionTMtoTD,
-  extractPlaceholdersRefactor,
   replacePlaceholders,
+  replaceStringOnTopLevelKey,
 } from "./operations";
 import { ThingContext } from "wot-thing-description-types";
 
@@ -448,95 +448,7 @@ describe("processConversionTMtoTD", () => {
     expect(result.events).not.toHaveProperty("event1");
   });
 });
-describe("extractPlaceholdersRefactor", () => {
-  it("extracts single placeholder from a string", () => {
-    const input = "Hello {{name}}!";
-    const result = extractPlaceholdersRefactor(input);
-    expect(result).toEqual(["name"]);
-  });
-
-  it("extracts multiple different placeholders from a string", () => {
-    const input =
-      "Hello {{name}}, your age is {{age}} and your email is {{email}}";
-    const result = extractPlaceholdersRefactor(input);
-    expect(result).toEqual(["name", "age", "email"]);
-  });
-
-  it("removes duplicate placeholders", () => {
-    const input = "Hello {{name}}, nice to meet you {{name}}!";
-    const result = extractPlaceholdersRefactor(input);
-    expect(result).toEqual(["name"]);
-  });
-
-  it("returns an empty array when no placeholders are present", () => {
-    const input = "Hello world!";
-    const result = extractPlaceholdersRefactor(input);
-    expect(result).toEqual([]);
-  });
-
-  it("trims whitespace from placeholders", () => {
-    const input = "Hello {{ name }} and {{ age }}!";
-    const result = extractPlaceholdersRefactor(input);
-    expect(result).toEqual(["name", "age"]);
-  });
-
-  it("handles empty string input", () => {
-    const input = "";
-    const result = extractPlaceholdersRefactor(input);
-    expect(result).toEqual([]);
-  });
-
-  it("handles placeholders at the beginning and end of string", () => {
-    const input = "{{prefix}} Hello World {{suffix}}";
-    const result = extractPlaceholdersRefactor(input);
-    expect(result).toEqual(["prefix", "suffix"]);
-  });
-
-  it("handles adjacent placeholders", () => {
-    const input = "Hello {{first}}{{second}}!";
-    const result = extractPlaceholdersRefactor(input);
-    expect(result).toEqual(["first", "second"]);
-  });
-
-  it("handles empty placeholders", () => {
-    const input = "Hello {{}}!";
-    const result = extractPlaceholdersRefactor(input);
-    expect(result).toEqual([""]);
-  });
-
-  it("handles placeholders with special characters", () => {
-    const input = "Hello {{user-name}} with ID {{user.id}}!";
-    const result = extractPlaceholdersRefactor(input);
-    expect(result).toEqual(["user-name", "user.id"]);
-  });
-
-  it("handles nested brackets (non-nested behavior)", () => {
-    const input = "Hello {{outer{{inner}}}}!";
-    const result = extractPlaceholdersRefactor(input);
-    // The regex uses non-greedy matching, so it will match "outer{{inner"
-    expect(result).toEqual(["outer{{inner"]);
-  });
-
-  it("handles placeholders in JSON-like content", () => {
-    const input = '{"title": "{{title}}", "version": {{version}}}';
-    const result = extractPlaceholdersRefactor(input);
-    expect(result).toEqual(["title", "version"]);
-  });
-
-  it("handles Unicode characters in placeholders", () => {
-    const input = "Hello {{üñïçødé}}!";
-    const result = extractPlaceholdersRefactor(input);
-    expect(result).toEqual(["üñïçødé"]);
-  });
-});
 describe("replacePlaceholders", () => {
-  it("replaces a single string placeholder", () => {
-    const content = "Hello {{name}}!";
-    const placeholderValues = { name: "World" };
-    const result = replacePlaceholders(content, placeholderValues);
-    expect(result).toBe("Hello World!");
-  });
-
   it("replaces multiple string placeholders", () => {
     const content = "Hello {{name}}, your age is {{age}} years!";
     const placeholderValues = { name: "John", age: "30" };
@@ -669,5 +581,202 @@ describe("replacePlaceholders", () => {
     const placeholderValues = { stringValue: "hello", numValue: "42" };
     const result = replacePlaceholders(content, placeholderValues);
     expect(result).toBe('Config: {"stringKey": "hello", "numKey": 42}');
+  });
+});
+describe("replaceStringOnTopLevelKey", () => {
+  it("replaces string in top-level key", () => {
+    const input = {
+      title: "My Device",
+      base: "modbus://device/",
+      properties: {
+        temp: {
+          base: "modbus://device/temp",
+        },
+      },
+    };
+
+    const { modifiedStructure, summary } = replaceStringOnTopLevelKey(
+      input as any,
+      "base",
+      "modbus://",
+      "http://"
+    );
+
+    expect(modifiedStructure.base).toBe("http://device/");
+    // @ts-ignore
+    expect(modifiedStructure.properties.temp.base).toBe("modbus://device/temp"); // Not changed
+    expect(summary.replacementMade).toBe(true);
+    expect(summary.keyFound).toBe(true);
+  });
+
+  it("doesn't modify nested properties with the same key", () => {
+    const input = {
+      title: "My Device",
+      href: "modbus://device/1",
+      properties: {
+        temp: {
+          href: "modbus://device/temp",
+        },
+      },
+    };
+
+    const { modifiedStructure } = replaceStringOnTopLevelKey(
+      input as any,
+      "href",
+      "modbus://",
+      "http://"
+    );
+
+    expect(modifiedStructure.href).toBe("http://device/1");
+    // @ts-ignore
+    expect(modifiedStructure.properties.temp.href).toBe("modbus://device/temp");
+  });
+
+  it("returns correct summary when no replacement is made", () => {
+    const input = {
+      title: "My Device",
+      base: "http://device/",
+    };
+
+    const { modifiedStructure, summary } = replaceStringOnTopLevelKey(
+      input as any,
+      "base",
+      "modbus://",
+      "http://"
+    );
+
+    expect(modifiedStructure.base).toBe("http://device/");
+    expect(summary.replacementMade).toBe(false);
+    expect(summary.keyFound).toBe(true);
+  });
+
+  it("returns correct summary when key is not found", () => {
+    const input = {
+      title: "My Device",
+    };
+
+    const { modifiedStructure, summary } = replaceStringOnTopLevelKey(
+      input as any,
+      "base",
+      "modbus://",
+      "http://"
+    );
+
+    expect(modifiedStructure).toEqual(input);
+    expect(summary.replacementMade).toBe(false);
+    expect(summary.keyFound).toBe(false);
+  });
+
+  it("handles multiple replacements in the same string", () => {
+    const input = {
+      title: "My Device",
+      description: "modbus://device/1 and modbus://device/2",
+    };
+
+    const { modifiedStructure } = replaceStringOnTopLevelKey(
+      input as any,
+      "description",
+      "modbus://",
+      "http://"
+    );
+
+    expect(modifiedStructure.description).toBe(
+      "http://device/1 and http://device/2"
+    );
+  });
+
+  it("doesn't modify non-string properties", () => {
+    const input = {
+      title: "My Device",
+      numericProp: 42,
+      booleanProp: true,
+      objectProp: { test: "value" },
+    };
+
+    const { modifiedStructure: result1, summary: summary1 } =
+      replaceStringOnTopLevelKey(input as any, "numericProp", "42", "100");
+
+    const { modifiedStructure: result2, summary: summary2 } =
+      replaceStringOnTopLevelKey(input as any, "booleanProp", "true", "false");
+
+    const { modifiedStructure: result3, summary: summary3 } =
+      replaceStringOnTopLevelKey(
+        input as any,
+        "objectProp",
+        "value",
+        "newValue"
+      );
+
+    expect(result1.numericProp).toBe(42);
+    expect(result2.booleanProp).toBe(true);
+    expect(result3.objectProp).toEqual({ test: "value" });
+
+    expect(summary1.keyFound).toBe(false);
+    expect(summary1.replacementMade).toBe(false);
+
+    expect(summary2.keyFound).toBe(false);
+    expect(summary2.replacementMade).toBe(false);
+
+    expect(summary3.keyFound).toBe(false);
+    expect(summary3.replacementMade).toBe(false);
+  });
+
+  it("throws error for invalid structure", () => {
+    expect(() =>
+      replaceStringOnTopLevelKey(null as any, "base", "modbus://", "http://")
+    ).toThrow("Invalid structure");
+  });
+
+  it("throws error for invalid target key", () => {
+    expect(() =>
+      replaceStringOnTopLevelKey(
+        { title: "Test" } as any,
+        "",
+        "modbus://",
+        "http://"
+      )
+    ).toThrow("Target key must be a non-empty string");
+  });
+
+  it("handles empty search string", () => {
+    const input = {
+      base: "",
+    };
+
+    const { modifiedStructure } = replaceStringOnTopLevelKey(
+      input as any,
+      "base",
+      "",
+      "http://"
+    );
+
+    expect(modifiedStructure.base).toBe("http://");
+  });
+
+  it("handles empty replace string", () => {
+    const input = {
+      base: "modbus://device/",
+    };
+
+    const { modifiedStructure } = replaceStringOnTopLevelKey(
+      input as any,
+      "base",
+      "modbus://",
+      ""
+    );
+
+    expect(modifiedStructure.base).toBe("device/");
+  });
+
+  it("does not modify the original object", () => {
+    const original = {
+      base: "modbus://device/",
+    };
+
+    const originalCopy = { ...original };
+
+    replaceStringOnTopLevelKey(original as any, "base", "modbus://", "http://");
+
+    expect(original).toEqual(originalCopy);
   });
 });

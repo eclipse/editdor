@@ -24,10 +24,9 @@ import type {
   FormElementBase,
   ThingDescription,
 } from "wot-thing-description-types";
-import "react-step-progress-bar/styles.css";
 import Ajv2019 from "ajv/dist/2019";
 import addFormats from "ajv-formats";
-import { ProgressBar, Step } from "react-step-progress-bar";
+import { ProgressBar, Step } from "./base/ProgressBar";
 
 import ediTDorContext from "../../context/ediTDorContext";
 import DialogTemplate from "./DialogTemplate";
@@ -39,7 +38,6 @@ import { requestWeb } from "../../services/thingsApiService";
 import {
   normalizeContext,
   extractPlaceholders,
-  replacePlaceholders,
 } from "../../services/operations";
 
 export interface IContributeToCatalogProps {

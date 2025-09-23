@@ -119,13 +119,15 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
   useEffect(() => {
     const updateBackgroundTd = async () => {
       if (activeSection === "table") {
-        let backgroundTdToSendStringify = JSON.stringify(context.parsedTD);
-        let newGeneratedTm = backgroundTdToSendStringify;
+        let backgroundTdToSendStringify = JSON.stringify(backgroundTdToSend);
+        let newGeneratedTm: string;
         if (placeholderValues && Object.keys(placeholderValues).length > 0) {
           newGeneratedTm = replacePlaceholders(
             backgroundTdToSendStringify,
             placeholderValues
           );
+        } else {
+          newGeneratedTm = backgroundTdToSendStringify;
         }
         // Gives an error when id have "/"
         // Check the parsing errors on placeholders when they have "{{}}" and only {{}}
@@ -150,11 +152,8 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
         try {
           const url = getLocalStorage("southbound");
           if (!url) throw new Error("Southbound Url must be defined");
-          // Sanitation of URL
-          const endpoint = `${url}`;
-
           const response = await handleHttpRequest(
-            `${endpoint}`,
+            `${url}`,
             "POST",
             JSON.stringify(backgroundTdToSend)
           );

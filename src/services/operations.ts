@@ -10,7 +10,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import type { ThingContext } from "wot-thing-description-types";
+import type {
+  ThingContext,
+  ThingDescription,
+} from "wot-thing-description-types";
 
 export function normalizeContext(context: ThingContext): any {
   const TD_CONTEXTS = [
@@ -46,13 +49,6 @@ export function normalizeContext(context: ThingContext): any {
     return context;
   }
   return context;
-}
-
-export function extractPlaceholdersRefactor(td: string): string[] {
-  const regex = /{{(.*?)}}/g;
-  const matches: RegExpMatchArray[] = [...td.matchAll(regex)];
-  const placeholders: string[] = matches.map((match) => match[1].trim());
-  return Array.from(new Set(placeholders));
 }
 
 export function extractPlaceholders(td: string): string[] {
@@ -162,4 +158,74 @@ export function replacePlaceholders(
   });
 
   return processedContent;
+}
+
+/**
+ * Replaces a string within all occurrences of a specific key, but only at the TOP LEVEL of a JSON structure
+ *
+ * @param jsonStructure - The JSON structure to modify (e.g., backgroundTdToSend)
+ * @param targetKey - The key to look for (e.g., 'base', 'href')
+ * @param searchString - The string to search for (e.g., 'modbus:')
+ * @param replaceString - The string to replace it with (e.g., 'http:')
+ * @returns A new JSON structure with top-level occurrences replaced
+ *
+ * @example
+ * const updatedTd = replaceTopLevelString(
+ *   backgroundTdToSend,
+ *   'base',
+ *   'modbus:',
+ *   'http:'
+ * );
+ */
+export function replaceStringOnTopLevelKey(
+  jsonStructure: ThingDescription,
+  targetKey: string,
+  searchString: string,
+  replaceString: string
+): {
+  modifiedStructure: ThingDescription;
+  summary: {
+    keyFound: boolean;
+    replacementMade: boolean;
+    targetKey: string;
+    searchString: string;
+    replaceString: string;
+  };
+} {
+  if (!jsonStructure || typeof jsonStructure !== "object") {
+    throw new Error("Invalid structure: Must be a valid JSON object");
+  }
+
+  if (!targetKey || typeof targetKey !== "string") {
+    throw new Error("Target key must be a non-empty string");
+  }
+
+  const result = { ...jsonStructure };
+
+  let keyFound = false;
+  let replacementMade = false;
+
+  if (targetKey in result && typeof result[targetKey] === "string") {
+    keyFound = true;
+    const originalValue = result[targetKey];
+
+    const regex = new RegExp(searchString, "g");
+
+    result[targetKey] = result[targetKey].replace(regex, replaceString);
+
+    if (originalValue !== result[targetKey]) {
+      replacementMade = true;
+    }
+  }
+
+  return {
+    modifiedStructure: result,
+    summary: {
+      keyFound,
+      replacementMade,
+      targetKey,
+      searchString,
+      replaceString,
+    },
+  };
 }
