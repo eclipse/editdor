@@ -36,7 +36,6 @@ const defaultContext: IEdiTDorContext = {
     nameRepository: "",
     dynamicValues: {},
   },
-  backgroundTM: "",
 
   updateOfflineTD: () => {},
   updateIsModified: () => {},
@@ -50,7 +49,6 @@ const defaultContext: IEdiTDorContext = {
   updateValidationMessage: () => {},
   updateNorthboundConnection: () => {},
   updateContributeCatalog: () => {},
-  updateBackgroundTM: () => {},
 };
 
 const ediTDorContext = React.createContext<IEdiTDorContext>(defaultContext);

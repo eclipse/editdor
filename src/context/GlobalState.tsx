@@ -60,7 +60,6 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
       nameRepository: "",
       dynamicValues: {},
     },
-    backgroundTM: "",
   });
 
   const updateOfflineTD = (offlineTD: string) => {
@@ -144,9 +143,6 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
       contributeCatalog: contributeCatalog,
     });
   };
-  const updateBackgroundTM = (backgroundTM: string) => {
-    dispatch({ type: UPDATE_BACKGROUND_TM, backgroundTM: backgroundTM });
-  };
 
   return (
     <EdiTDorContext.Provider
@@ -161,7 +157,6 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
         validationMessage: editdorState.validationMessage,
         northboundConnection: editdorState.northboundConnection,
         contributeCatalog: editdorState.contributeCatalog,
-        backgroundTM: editdorState.backgroundTM,
         updateOfflineTD,
         updateIsModified,
         setFileHandle,
@@ -174,7 +169,6 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
         updateValidationMessage,
         updateNorthboundConnection,
         updateContributeCatalog,
-        updateBackgroundTM,
       }}
     >
       {children}
