@@ -121,6 +121,13 @@ const FormMetadata: React.FC<IFormMetadataProps> = ({
             autoFocus={false}
           />
           <div className="flex flex-row justify-end">
+            <div className="my-2 mt-6 flex flex-grow justify-end">
+              <InfoIconWrapper
+                tooltip={getValidateTMContent()}
+                id="validateTMContent"
+                className="justify-center"
+              />
+            </div>
             <BaseButton
               id="catalogValidation"
               onClick={onClickCatalogValidation}
@@ -137,10 +144,6 @@ const FormMetadata: React.FC<IFormMetadataProps> = ({
                 ) : (
                   <>
                     <span className="pl-6">Validate</span>
-                    <InfoIconWrapper
-                      tooltip={getValidateTMContent()}
-                      id="validateTMContent"
-                    />
                   </>
                 )}
               </div>
