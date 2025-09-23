@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useMemo } from "react";
 import type { ThingDescription } from "wot-thing-description-types";
 import type { ActiveSection } from "../../../types/global";
 
@@ -32,24 +32,23 @@ import {
   RefreshCw,
 } from "react-feather";
 import TmInputForm from "../../App/TmInputForm";
-
-interface ErrorAllRequests {
-  firstError: {
-    id: string;
-    message: string;
-  };
-  errorCount: number;
-}
+import {
+  replacePlaceholders,
+  replaceStringOnTopLevelKey,
+} from "../../../services/operations";
+import {
+  handleHttpRequest,
+  fetchNorthboundTD,
+  isSuccessResponse,
+} from "../../../services/thingsApiService";
 
 interface FormInteractionProps {
   filteredHeaders: { key: string; text: string }[];
   filteredRows: any[];
-  allRequestResults: { [id: string]: { value: string; error: string } };
-  setAllRequestResults: React.Dispatch<
+  propertyResponseMap: { [id: string]: { value: string; error: string } };
+  setPropertyResponseMap: React.Dispatch<
     React.SetStateAction<{ [id: string]: { value: string; error: string } }>
   >;
-  errorAllRequests: ErrorAllRequests;
-  setErrorAllRequests: React.Dispatch<React.SetStateAction<ErrorAllRequests>>;
   placeholderValues?: Record<string, string>;
   handleFieldChange: (placeholder: string, value: string) => void;
 }
@@ -57,10 +56,8 @@ interface FormInteractionProps {
 const FormInteraction: React.FC<FormInteractionProps> = ({
   filteredHeaders,
   filteredRows,
-  allRequestResults,
-  setAllRequestResults,
-  errorAllRequests,
-  setErrorAllRequests,
+  propertyResponseMap,
+  setPropertyResponseMap,
   placeholderValues = {},
   handleFieldChange,
 }) => {
@@ -103,6 +100,8 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
       message: "",
     },
   });
+  const [backgroundTdToSend, setBackgroundTdToSend] =
+    useState<ThingDescription>(td);
 
   const [isTestingAll, setIsTestingAll] = useState<boolean>(false);
   const [settingsData, setSettingsData] = useState<SettingsData>({
@@ -117,14 +116,91 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
     setLocalStorage(settingsData.pathToValue, "valuePath");
   }, [settingsData]);
 
-  const toggleSection = (sectionName: ActiveSection) => {
-    const currentSectionValid = validateCurrentSection();
-    if (activeSection === sectionName) {
-      setActiveSection("instance");
-    } else {
-      setActiveSection(sectionName);
-    }
-  };
+  useEffect(() => {
+    const updateBackgroundTd = async () => {
+      if (activeSection === "table") {
+        let backgroundTdToSendStringify = JSON.stringify(context.parsedTD);
+        let newGeneratedTm = backgroundTdToSendStringify;
+        if (placeholderValues && Object.keys(placeholderValues).length > 0) {
+          newGeneratedTm = replacePlaceholders(
+            backgroundTdToSendStringify,
+            placeholderValues
+          );
+        }
+        // Gives an error when id have "/"
+        // Check the parsing errors on placeholders when they have "{{}}" and only {{}}
+
+        try {
+          const {
+            "@type": typeValue,
+            "tm:required": tmRequired,
+            ...cleanedTm
+          } = JSON.parse(newGeneratedTm);
+          const { modifiedStructure, summary } = replaceStringOnTopLevelKey(
+            cleanedTm,
+            "base",
+            "modbus",
+            "http"
+          );
+          setBackgroundTdToSend(modifiedStructure);
+        } catch (e) {
+          console.error("Error parsing JSON after replacement:", e);
+        }
+
+        try {
+          const url = getLocalStorage("southbound");
+          if (!url) throw new Error("Southbound Url must be defined");
+          // Sanitation of URL
+          const endpoint = `${url}`;
+
+          const response = await handleHttpRequest(
+            `${endpoint}`,
+            "POST",
+            JSON.stringify(backgroundTdToSend)
+          );
+
+          const currentTdId = backgroundTdToSend.id;
+          if (!currentTdId) {
+            throw new Error("TD must have an id");
+          }
+          if (isSuccessResponse(response)) {
+            if (response.status === 201 || response.status === 200) {
+              const responseNorthbound = await fetchNorthboundTD(currentTdId);
+              context.updateNorthboundConnection({
+                message: responseNorthbound.message,
+                northboundTd: responseNorthbound.data ?? {},
+              });
+            } else {
+              console.error(response.data);
+              throw new Error(
+                `Success Response but Status is : ${response.status}`
+              );
+            }
+          } else {
+            //if status 409 means it already exists, so I need to fetch the northbound TD again
+            if (response.reason.includes("already exists")) {
+              const responseNorthbound = await fetchNorthboundTD(currentTdId);
+              context.updateNorthboundConnection({
+                message: responseNorthbound.message,
+                northboundTd: responseNorthbound.data ?? {},
+              });
+            } else {
+              console.error(response);
+              throw new Error(`Failed to send TD. Status: ${response}`);
+            }
+          }
+        } catch (error) {
+          console.error("Error on generating TD:", error);
+        }
+      }
+    };
+    updateBackgroundTd();
+  }, [activeSection, placeholderValues]);
+
+  const summary = useMemo(
+    () => getErrorSummary(propertyResponseMap),
+    [propertyResponseMap]
+  );
 
   const validateCurrentSection = (): boolean => {
     switch (activeSection) {
@@ -174,6 +250,25 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
         });
         return true;
       case "table":
+        // if (errorInteraction.instance.error || errorInteraction.gateway.error) {
+        // setErrorInteraction({
+        // ...errorInteraction,
+        // table: {
+        // error: true,
+        // message:
+        // "Please fix errors in previous sections before proceeding",
+        // },
+        // });
+        // return false;
+        // }
+        // setErrorInteraction({
+        // ...errorInteraction,
+        // table: {
+        // error: false,
+        // message: "",
+        // },
+        // });
+
         return true;
 
       case "savingResults":
@@ -183,14 +278,23 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
     }
   };
 
+  const toggleSection = (sectionName: ActiveSection) => {
+    const currentSectionValid = validateCurrentSection();
+    if (activeSection === sectionName) {
+      setActiveSection("instance");
+    } else {
+      setActiveSection(sectionName);
+    }
+  };
+
   const handleTestAllProperties = async () => {
     setIsTestingAll(true);
-    const results = { ...allRequestResults };
+    const results = { ...propertyResponseMap };
 
     for (const item of filteredRows) {
       try {
         const res = await readPropertyWithServient(
-          td,
+          context.northboundConnection.northboundTd as ThingDescription,
           item.propName,
           {
             formIndex: extractIndexFromId(item.id as string),
@@ -208,11 +312,7 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
       }
     }
 
-    setAllRequestResults(results);
-    const { firstError, errorCount } = getErrorSummary(results);
-    if (errorCount > 0) {
-      setErrorAllRequests({ firstError, errorCount });
-    }
+    setPropertyResponseMap(results);
     setIsTestingAll(false);
   };
 
@@ -221,41 +321,32 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
   }): Promise<{ value: string; error: string }> => {
     const index = extractIndexFromId(item.id);
 
-    if (Object.keys(context.northboundConnection.northboundTd).length > 0) {
-      try {
-        const res = await readPropertyWithServient(
-          context.northboundConnection.northboundTd as ThingDescription,
-          item.propName,
-          {
-            formIndex: index,
-          },
-          settingsData.pathToValue
-        );
-        if (res.err) {
-          return { value: "", error: res.err.message };
-        }
-        return { value: res.result, error: "" };
-      } catch (err: any) {
-        return { value: "", error: err.message };
+    let result = { value: "", error: "" };
+
+    try {
+      const res = await readPropertyWithServient(
+        Object.keys(context.northboundConnection.northboundTd).length > 0
+          ? (context.northboundConnection.northboundTd as ThingDescription)
+          : td,
+        item.propName,
+        { formIndex: index },
+        settingsData.pathToValue || ""
+      );
+
+      if (res.err) {
+        result = { value: "", error: res.err.message };
+      } else {
+        result = { value: res.result, error: "" };
       }
-    } else {
-      try {
-        const res = await readPropertyWithServient(
-          td,
-          item.propName,
-          {
-            formIndex: index,
-          },
-          settingsData.pathToValue
-        );
-        if (res.err) {
-          return { value: "", error: res.err.message };
-        }
-        return { value: res.result, error: "" };
-      } catch (err: any) {
-        return { value: "", error: err.message };
-      }
+    } catch (err: any) {
+      result = { value: "", error: err.message || "Unknown error" };
     }
+    setPropertyResponseMap((prev) => ({
+      ...prev,
+      [item.id]: result,
+    }));
+
+    return result;
   };
 
   const handleSettingsChange = (data: SettingsData, valid: boolean) => {
@@ -303,6 +394,16 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
                     inputValues={placeholderValues}
                     onValueChange={handleFieldChange}
                   />
+                </div>
+              </div>
+            )}
+          {activeSection === "instance" &&
+            Object.keys(placeholderValues).length === 0 && (
+              <div className="w-full p-2">
+                <div className="mx-auto mb-2 w-[70%]">
+                  <h1>
+                    There are no placeholders in the following Things Model.
+                  </h1>
                 </div>
               </div>
             )}
@@ -391,7 +492,7 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
                   baseUrl={td.base ?? ""}
                   expandTable={true}
                   onSendRequestClick={handleOnClickSendRequest}
-                  requestResults={allRequestResults}
+                  requestResults={propertyResponseMap}
                 />
               </div>
               <div className="mb-4 mt-2 flex justify-end px-4">
@@ -412,18 +513,18 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
                   )}
                 </BaseButton>
               </div>
-              {errorAllRequests?.errorCount > 0 && (
+              {summary.errorCount > 0 && (
                 <div className="mt-4 rounded-md bg-red-100 p-3 text-red-700">
                   <p className="font-bold">
-                    Found {errorAllRequests.errorCount} error
-                    {errorAllRequests.errorCount > 1 ? "s" : ""}
+                    Found {summary.errorCount} error
+                    {summary.errorCount > 1 ? "s" : ""}
                   </p>
                   <p className="mt-1">
                     First error in property name{" "}
                     <span className="font-semibold">
-                      {errorAllRequests.firstError.id}
+                      {summary.firstError.id}
                     </span>
-                    :{errorAllRequests.firstError.message}
+                    : {summary.firstError.message}
                   </p>
                 </div>
               )}

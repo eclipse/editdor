@@ -163,11 +163,16 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     setLink("");
     setId("");
     /** WorkFlowState 2 */
+    context.updateNorthboundConnection({
+      message: "",
+      northboundTd: {},
+    });
+    /** WorkFlowState 3 */
     setTmCatalogEndpoint("");
     setRepository("");
 
     setWorkflowState(1);
-    setAllRequestResults({});
+    setPropertyResponseMap({});
     setIsTestingAll(false);
 
     context.updateContributeCatalog({
@@ -195,11 +200,10 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   const [errorMetadata, setErrorMetadata] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
 
-  const [tmGeneratedToSend, setTmGeneratedToSend] =
+  const [backgroundTdToSend, setBackgroundTdToSend] =
     useState<ThingDescription | null>(null);
 
   const handleCatalogValidation = async () => {
-    console.log("started validation");
     setErrorMetadata("");
     setIsValid(false);
     setIsValidating(true);
@@ -239,7 +243,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       return;
     }
 
-    setTmGeneratedToSend(tdCopy);
+    setBackgroundTdToSend(tdCopy);
 
     try {
       const ajv = new Ajv2019({
@@ -260,7 +264,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       let valid = validate(tdCopy);
       if (!valid) {
         setIsValid(false);
-        setErrorMessage(
+        setErrorMetadata(
           `Validation failed for ${validationTmcMandatory}: ${
             validate.errors ? ajv.errorsText(validate.errors) : ""
           }`
@@ -282,7 +286,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       valid = validate(tdCopy);
       if (!valid) {
         setIsValid(false);
-        setErrorMessage(
+        setErrorMetadata(
           `Validation failed for ${validationModbus}: ${
             validate.errors ? ajv.errorsText(validate.errors) : ""
           }`
@@ -291,7 +295,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       }
 
       setIsValid(true);
-      setErrorMessage("");
+      setErrorMetadata("");
     } catch (err) {
       setIsValid(false);
       setErrorMetadata(
@@ -302,6 +306,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       setIsValidating(false);
     }
   };
+
   const handleCopyThingModelClick = async () => {
     const tdCopy = structuredClone(td);
 
@@ -387,43 +392,12 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       ...context.contributeCatalog,
       dynamicValues: placeholderValues,
     });
-
-    const allPlaceholdersFilled = Object.values(placeholderValues).every(
-      (val) => val !== null && val !== undefined && val.trim() !== ""
-    );
-
-    let tmGeneratedToSendStringify = JSON.stringify(tmGeneratedToSend);
-    if (allPlaceholdersFilled) {
-      let newGeneratedTm = replacePlaceholders(
-        tmGeneratedToSendStringify,
-        placeholderValues
-      );
-      try {
-        let tmStructured = JSON.parse(newGeneratedTm);
-        setTmGeneratedToSend(tmStructured);
-      } catch (e) {
-        console.error("Error parsing JSON after replacement:", e);
-      }
-    }
   };
 
-  const [allRequestResults, setAllRequestResults] = useState<{
+  const [propertyResponseMap, setPropertyResponseMap] = useState<{
     [id: string]: { value: string; error: string };
   }>({});
   const [isTestingAll, setIsTestingAll] = useState(false);
-  const [errorAllRequests, setErrorAllRequests] = useState<{
-    firstError: {
-      id: string;
-      message: string;
-    };
-    errorCount: number;
-  }>({
-    firstError: {
-      id: "test Error",
-      message: "test Error",
-    },
-    errorCount: 1,
-  });
 
   /** WorkFlowState 3 */
   const [tmCatalogEndpoint, setTmCatalogEndpoint] = useState<string>("");
@@ -444,7 +418,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       const response = await requestWeb(
         `${tmCatalogEndpoint}/thing-models`,
         "POST",
-        JSON.stringify(tmGeneratedToSend),
+        JSON.stringify(backgroundTdToSend),
         {
           queryParams: {
             repo: repository,
@@ -648,10 +622,8 @@ const ContributeToCatalog = forwardRef((props, ref) => {
             <FormInteraction
               filteredHeaders={filteredHeaders}
               filteredRows={filteredRows}
-              allRequestResults={allRequestResults}
-              setAllRequestResults={setAllRequestResults}
-              errorAllRequests={errorAllRequests}
-              setErrorAllRequests={setErrorAllRequests}
+              propertyResponseMap={propertyResponseMap}
+              setPropertyResponseMap={setPropertyResponseMap}
               placeholderValues={placeholderValues}
               handleFieldChange={handleFieldChange}
             />
