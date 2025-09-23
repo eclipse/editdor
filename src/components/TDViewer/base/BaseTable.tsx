@@ -118,6 +118,23 @@ const BaseTable = <T extends TableItem>({
     [id: string]: { value: string; error: string };
   }>({});
 
+  const mergedResults = useMemo(() => {
+    return { ...internalRequestResults, ...requestResults };
+  }, [internalRequestResults, requestResults]);
+
+  const getPagesWithErrors = useMemo(() => {
+    const pagesWithErrors = new Set<number>();
+
+    orderedItems.forEach((item, index) => {
+      const pageNumber = Math.floor(index / itemsPerPage) + 1;
+      if (mergedResults[item.id]?.error) {
+        pagesWithErrors.add(pageNumber);
+      }
+    });
+
+    return pagesWithErrors;
+  }, [orderedItems, mergedResults, itemsPerPage]);
+
   useEffect(() => {
     if (Object.keys(requestResults).length === 0) {
       const initialResults = items.reduce(
@@ -132,10 +149,6 @@ const BaseTable = <T extends TableItem>({
       setInternalRequestResults(initialResults);
     }
   }, [items, requestResults]);
-
-  const mergedResults = useMemo(() => {
-    return { ...internalRequestResults, ...requestResults };
-  }, [internalRequestResults, requestResults]);
 
   const renderSelect = (
     value: string,
@@ -173,11 +186,7 @@ const BaseTable = <T extends TableItem>({
               mergedResults[item.id]?.error ? "bg-red-500 text-white" : ""
             } ${mergedResults[item.id]?.value ? "bg-formGreen text-black" : ""} `}
             onClick={async () => {
-              // Only allow click action if not provided by parent
-              if (
-                onSendRequestClick &&
-                Object.keys(requestResults).length === 0
-              ) {
+              if (onSendRequestClick) {
                 const result = await onSendRequestClick(item);
                 setInternalRequestResults((prev) => ({
                   ...prev,
@@ -369,7 +378,11 @@ const BaseTable = <T extends TableItem>({
   };
 
   return (
-    <BasePagination items={orderedItems} itemsPerPage={itemsPerPage}>
+    <BasePagination
+      items={orderedItems}
+      itemsPerPage={itemsPerPage}
+      pagesWithErrors={getPagesWithErrors}
+    >
       {({ items: paginatedItems }) => (
         <div
           className={`relative overflow-x-auto ${expandTable ? "w-full" : ""} `}

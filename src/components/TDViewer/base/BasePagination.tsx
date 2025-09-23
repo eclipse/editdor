@@ -19,6 +19,7 @@ interface BasePaginationProps<T> {
   filter?: (value: T, index: number, array: T[]) => boolean;
   onItemsChange?: (items: T[]) => void;
   children: (props: { items: T[] }) => React.ReactNode;
+  pagesWithErrors?: Set<number>;
 }
 
 const BasePagination = <T,>({
@@ -28,6 +29,7 @@ const BasePagination = <T,>({
   filter = () => true,
   onItemsChange,
   children,
+  pagesWithErrors = new Set(),
 }: BasePaginationProps<T>): JSX.Element => {
   const [currentPage, setCurrentPage] = useState(page);
 
@@ -86,7 +88,11 @@ const BasePagination = <T,>({
               <div
                 key={page}
                 className={`cursor-pointer text-lg ${
-                  currentPage === page ? "text-coral font-black" : ""
+                  currentPage === page
+                    ? "text-coral font-black"
+                    : pagesWithErrors.has(page)
+                      ? "font-semibold text-red-500"
+                      : ""
                 }`}
                 onClick={() => changePage(page)}
               >
