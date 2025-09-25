@@ -35,6 +35,7 @@
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     "typeRoots": [
       "./src/types",
+      "./node_modules/@types",
       "./node_modules/@wot-thing-description-types",
       "./node_modules/wot-typescript-definitions"
     ] /* Specify multiple folders that act like './node_modules/@types'. */,
@@ -109,7 +110,7 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "include": [
-    "src/**/*",
+    "src/**/*.ts",
     "src/types/*.d.ts",
     "node_modules/wot-typescript-definitions/*",
     "node_modules/wot-thing-description-types/*"
