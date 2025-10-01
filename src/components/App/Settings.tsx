@@ -35,7 +35,11 @@ interface SettingsProps {
 }
 
 const Settings: React.FC<SettingsProps> = ({
-  initialData = { northboundUrl: "", southboundUrl: "", pathToValue: "/" },
+  initialData = {
+    northboundUrl: "",
+    southboundUrl: "",
+    pathToValue: "/",
+  },
   onChange,
   hideTitle = false,
   className = "",

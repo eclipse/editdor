@@ -10,19 +10,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useState, useContext, useEffect, useMemo } from "react";
+import React, { useRef, useContext, useEffect, useMemo } from "react";
 import type { ThingDescription } from "wot-thing-description-types";
-import type { ActiveSection } from "../../../types/global";
+import { isEqual } from "lodash";
 
 import ediTDorContext from "../../../context/ediTDorContext";
 import BaseTable from "../../TDViewer/base/BaseTable";
 import BaseButton from "../../TDViewer/base/BaseButton";
 import { readPropertyWithServient } from "../../../services/form";
 import { extractIndexFromId } from "../../../utils/strings";
-import {
-  getLocalStorage,
-  setLocalStorage,
-} from "../../../services/localStorage";
 import { getErrorSummary } from "../../../utils/arrays";
 import Settings, { SettingsData } from "../../App/Settings";
 import {
@@ -32,169 +28,78 @@ import {
   RefreshCw,
 } from "react-feather";
 import TmInputForm from "../../App/TmInputForm";
-import {
-  replacePlaceholders,
-  replaceStringOnTopLevelKey,
-} from "../../../services/operations";
+import { prepareTdForSubmission } from "../../../services/operations";
 import {
   handleHttpRequest,
   fetchNorthboundTD,
-  isSuccessResponse,
 } from "../../../services/thingsApiService";
+import {
+  ContributionToCatalogState,
+  ContributionToCatalogAction,
+} from "../../../context/ContributeToCatalogState";
+import type { ActiveSection } from "../../../context/ContributeToCatalogState";
 
-interface FormInteractionProps {
+interface IFormInteractionProps {
   filteredHeaders: { key: string; text: string }[];
   filteredRows: any[];
-  propertyResponseMap: { [id: string]: { value: string; error: string } };
-  setPropertyResponseMap: React.Dispatch<
-    React.SetStateAction<{ [id: string]: { value: string; error: string } }>
-  >;
-  placeholderValues?: Record<string, string>;
+  setPropertyResponseMap: (
+    value: Record<string, { value: string; error: string }>
+  ) => void;
+  backgroundTdToSend: ThingDescription;
+  interaction: ContributionToCatalogState["interaction"];
+  dispatch: React.Dispatch<ContributionToCatalogAction>;
   handleFieldChange: (placeholder: string, value: string) => void;
 }
 
-const FormInteraction: React.FC<FormInteractionProps> = ({
+const FormInteraction: React.FC<IFormInteractionProps> = ({
   filteredHeaders,
   filteredRows,
-  propertyResponseMap,
   setPropertyResponseMap,
-  placeholderValues = {},
+  interaction,
+  backgroundTdToSend,
+  dispatch,
   handleFieldChange,
 }) => {
   const context = useContext(ediTDorContext);
   const td: ThingDescription = context.parsedTD;
 
-  const [activeSection, setActiveSection] = useState<ActiveSection>("instance");
-  const [errorInteraction, setErrorInteraction] = useState<{
-    instance: {
-      error: boolean;
-      message: string;
-    };
-    gateway: {
-      error: boolean;
-      message: string;
-    };
-    table: {
-      error: boolean;
-      message: string;
-    };
-    results: {
-      error: boolean;
-      message: string;
-    };
-  }>({
-    instance: {
-      error: false,
-      message: "",
-    },
-    gateway: {
-      error: false,
-      message: "",
-    },
-    table: {
-      error: false,
-      message: "",
-    },
-    results: {
-      error: false,
-      message: "",
-    },
-  });
-  const [backgroundTdToSend, setBackgroundTdToSend] =
-    useState<ThingDescription>(td);
+  const {
+    activeSection,
+    sectionErrors,
+    isTestingAll,
+    settingsData,
+    placeholderValues,
+    propertyResponseMap,
+  } = interaction;
 
-  const [isTestingAll, setIsTestingAll] = useState<boolean>(false);
-  const [settingsData, setSettingsData] = useState<SettingsData>({
-    northboundUrl: getLocalStorage("northbound") || "",
-    southboundUrl: getLocalStorage("southbound") || "",
-    pathToValue: getLocalStorage("valuePath") || "/",
-  });
-
-  useEffect(() => {
-    setLocalStorage(settingsData.northboundUrl, "northbound");
-    setLocalStorage(settingsData.southboundUrl, "southbound");
-    setLocalStorage(settingsData.pathToValue, "valuePath");
-  }, [settingsData]);
-
-  useEffect(() => {
-    const updateBackgroundTd = async () => {
-      if (activeSection === "table") {
-        let backgroundTdToSendStringify = JSON.stringify(backgroundTdToSend);
-        let newGeneratedTm: string;
-        if (placeholderValues && Object.keys(placeholderValues).length > 0) {
-          newGeneratedTm = replacePlaceholders(
-            backgroundTdToSendStringify,
-            placeholderValues
-          );
-        } else {
-          newGeneratedTm = backgroundTdToSendStringify;
-        }
-        // Gives an error when id have "/"
-        // Check the parsing errors on placeholders when they have "{{}}" and only {{}}
-
-        try {
-          const {
-            "@type": typeValue,
-            "tm:required": tmRequired,
-            ...cleanedTm
-          } = JSON.parse(newGeneratedTm);
-          const { modifiedStructure, summary } = replaceStringOnTopLevelKey(
-            cleanedTm,
-            "base",
-            "modbus",
-            "http"
-          );
-          setBackgroundTdToSend(modifiedStructure);
-        } catch (e) {
-          console.error("Error parsing JSON after replacement:", e);
-        }
-
-        try {
-          const url = getLocalStorage("southbound");
-          if (!url) throw new Error("Southbound Url must be defined");
-          const response = await handleHttpRequest(
-            `${url}`,
-            "POST",
-            JSON.stringify(backgroundTdToSend)
-          );
-
-          const currentTdId = backgroundTdToSend.id;
-          if (!currentTdId) {
-            throw new Error("TD must have an id");
-          }
-          if (isSuccessResponse(response)) {
-            if (response.status === 201 || response.status === 200) {
-              const responseNorthbound = await fetchNorthboundTD(currentTdId);
-              context.updateNorthboundConnection({
-                message: responseNorthbound.message,
-                northboundTd: responseNorthbound.data ?? {},
-              });
-            } else {
-              console.error(response.data);
-              throw new Error(
-                `Success Response but Status is : ${response.status}`
-              );
-            }
-          } else {
-            //if status 409 means it already exists, so I need to fetch the northbound TD again
-            if (response.reason.includes("already exists")) {
-              const responseNorthbound = await fetchNorthboundTD(currentTdId);
-              context.updateNorthboundConnection({
-                message: responseNorthbound.message,
-                northboundTd: responseNorthbound.data ?? {},
-              });
-            } else {
-              console.error(response);
-              throw new Error(`Failed to send TD. Status: ${response}`);
-            }
-          }
-        } catch (error) {
-          console.error("Error on generating TD:", error);
-        }
+  const requestNorthboundTdVersion = async (
+    id: string,
+    td: ThingDescription
+  ) => {
+    try {
+      const url = settingsData.southboundUrl;
+      const response = await handleHttpRequest(
+        `${url}`,
+        "POST",
+        JSON.stringify(td)
+      );
+      if (
+        response.status === 200 ||
+        response.status === 201 ||
+        response.status === 409
+      ) {
+        const responseNorthbound = await fetchNorthboundTD(id);
+        context.updateNorthboundConnection({
+          message: responseNorthbound.message,
+          northboundTd: responseNorthbound.data ?? {},
+        });
+      } else {
+        throw new Error(`Unexpected response status: ${response.status}`);
       }
-    };
-    updateBackgroundTd();
-  }, [activeSection, placeholderValues]);
+    } catch (e) {
+      console.error("Error request Northbound Td Version :", e);
+    }
+  };
 
   const summary = useMemo(
     () => getErrorSummary(propertyResponseMap),
@@ -203,74 +108,52 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
 
   const validateCurrentSection = (): boolean => {
     switch (activeSection) {
-      case "instance":
+      case "INSTANCE":
         let instanceIsValid = Object.values(placeholderValues).every(
           (val) => val !== undefined && val !== null && val.trim() !== ""
         );
         if (!instanceIsValid) {
-          setErrorInteraction({
-            ...errorInteraction,
-            instance: {
-              error: true,
-              message: "All fields in section Instance must have values",
-            },
+          dispatch({
+            type: "SET_INTERACTION_SECTION_ERROR",
+            section: "instance",
+            error: true,
+            message: "All fields in section Instance must have values",
           });
           return false;
         }
-        setErrorInteraction({
-          ...errorInteraction,
-          instance: {
-            error: false,
-            message: "",
-          },
+        dispatch({
+          type: "SET_INTERACTION_SECTION_ERROR",
+          section: "instance",
+          error: false,
+          message: "",
         });
         return true;
-      case "gateway":
+      case "GATEWAY":
         let gatewayIsValid =
           settingsData.northboundUrl.trim() !== "" &&
           settingsData.southboundUrl.trim() !== "" &&
           settingsData.pathToValue.trim() !== "";
         if (!gatewayIsValid) {
-          setErrorInteraction({
-            ...errorInteraction,
-            gateway: {
-              error: true,
-              message: "All fields in section Gateway must have values",
-            },
+          dispatch({
+            type: "SET_INTERACTION_SECTION_ERROR",
+            section: "gateway",
+            error: true,
+            message: "All fields in section Gateway must have values",
           });
           return false;
-        }
-        setErrorInteraction({
-          ...errorInteraction,
-          gateway: {
+        } else {
+          dispatch({
+            type: "SET_INTERACTION_SECTION_ERROR",
+            section: "gateway",
             error: false,
             message: "",
-          },
-        });
+          });
+        }
         return true;
-      case "table":
-        // if (errorInteraction.instance.error || errorInteraction.gateway.error) {
-        // setErrorInteraction({
-        // ...errorInteraction,
-        // table: {
-        // error: true,
-        // message:
-        // "Please fix errors in previous sections before proceeding",
-        // },
-        // });
-        // return false;
-        // }
-        // setErrorInteraction({
-        // ...errorInteraction,
-        // table: {
-        // error: false,
-        // message: "",
-        // },
-        // });
-
+      case "TABLE":
         return true;
 
-      case "savingResults":
+      case "SAVING_RESULTS":
         return true;
       default:
         return true;
@@ -279,15 +162,55 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
 
   const toggleSection = (sectionName: ActiveSection) => {
     const currentSectionValid = validateCurrentSection();
+
+    if (sectionName === "TABLE") {
+      let preparedTd = {} as ThingDescription;
+      try {
+        preparedTd = prepareTdForSubmission(
+          backgroundTdToSend,
+          placeholderValues
+        );
+        dispatch({
+          type: "SET_BACKGROUND_TD_TO_SEND",
+          payload: preparedTd,
+        });
+      } catch (error) {
+        dispatch({
+          type: "SET_INTERACTION_SECTION_ERROR",
+          section: "table",
+          error: true,
+          message: `Failed to prepare TD: ${error instanceof Error ? error.message : String(error)}`,
+        });
+        return;
+      }
+
+      if (preparedTd.id) {
+        requestNorthboundTdVersion(preparedTd.id, preparedTd);
+      } else {
+        dispatch({
+          type: "SET_INTERACTION_SECTION_ERROR",
+          section: "table",
+          error: true,
+          message: "Cannot interact with the TD: missing ID",
+        });
+      }
+    }
+
     if (activeSection === sectionName) {
-      setActiveSection("instance");
+      dispatch({
+        type: "SET_INTERACTION_ACTIVE_SECTION",
+        payload: "INSTANCE",
+      });
     } else {
-      setActiveSection(sectionName);
+      dispatch({
+        type: "SET_INTERACTION_ACTIVE_SECTION",
+        payload: sectionName,
+      });
     }
   };
 
   const handleTestAllProperties = async () => {
-    setIsTestingAll(true);
+    dispatch({ type: "SET_INTERACTION_TESTING_ALL", payload: true });
     const results = { ...propertyResponseMap };
 
     for (const item of filteredRows) {
@@ -311,8 +234,11 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
       }
     }
 
-    setPropertyResponseMap(results);
-    setIsTestingAll(false);
+    dispatch({
+      type: "SET_INTERACTION_PROPERTY_RESPONSE_MAP",
+      payload: results,
+    });
+    dispatch({ type: "SET_INTERACTION_TESTING_ALL", payload: false });
   };
 
   const handleOnClickSendRequest = async (item: {
@@ -340,17 +266,32 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
     } catch (err: any) {
       result = { value: "", error: err.message || "Unknown error" };
     }
-    setPropertyResponseMap((prev) => ({
-      ...prev,
-      [item.id]: result,
-    }));
+    const newResponseMap = { ...propertyResponseMap, [item.id]: result };
+    dispatch({
+      type: "SET_INTERACTION_PROPERTY_RESPONSE_MAP",
+      payload: newResponseMap,
+    });
 
     return result;
   };
 
+  function usePrevious(value: any) {
+    const ref = useRef();
+
+    useEffect(() => {
+      ref.current = value;
+    }, [value]);
+
+    return ref.current;
+  }
+
+  const prevSettings = usePrevious(settingsData);
   const handleSettingsChange = (data: SettingsData, valid: boolean) => {
-    if (valid) {
-      setSettingsData(data);
+    if (valid && !isEqual(data, prevSettings)) {
+      dispatch({
+        type: "SET_INTERACTION_SETTINGS_DATA",
+        payload: data,
+      });
     }
   };
 
@@ -359,7 +300,7 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
       <div className="space-y-4">
         <div className="mb-2 w-full rounded-md bg-opacity-80 p-3 text-white">
           <p className="text-lg">
-            If you want to verify the correctness of your model, you can
+            If you want to verify the correctness of your Thing Model, you can
             interact with a device instance here. To do so, please configure the
             proxy (northbound, southound, valuepath) and provide
             instance-specific information such as IP address.
@@ -371,21 +312,21 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
         >
           <div
             className="flex cursor-pointer items-center p-2 font-bold"
-            onClick={() => toggleSection("instance")}
+            onClick={() => toggleSection("INSTANCE")}
           >
             <ChevronDown
               size={16}
-              className={`mr-2 transition-transform duration-200 ${activeSection === "instance" ? "rotate-0" : "-rotate-90"}`}
+              className={`mr-2 transition-transform duration-200 ${activeSection === "INSTANCE" ? "rotate-0" : "-rotate-90"}`}
             />
             <span className="flex-grow"> 2.1 Instance</span>
-            {activeSection === "instance" ? (
+            {activeSection === "INSTANCE" ? (
               <ChevronDown size={16} />
             ) : (
               <ChevronUp size={16} />
             )}
           </div>
 
-          {activeSection === "instance" &&
+          {activeSection === "INSTANCE" &&
             Object.keys(placeholderValues).length > 0 && (
               <div className="w-full p-2">
                 <div className="mx-auto mb-2 w-[70%]">
@@ -396,7 +337,7 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
                 </div>
               </div>
             )}
-          {activeSection === "instance" &&
+          {activeSection === "INSTANCE" &&
             Object.keys(placeholderValues).length === 0 && (
               <div className="w-full p-2">
                 <div className="mx-auto mb-2 w-[70%]">
@@ -406,13 +347,13 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
                 </div>
               </div>
             )}
-          {errorInteraction.instance.error && (
+          {sectionErrors.instance.error && (
             <div className="my-2 h-full w-full rounded bg-red-500 p-1 text-white">
               <AlertTriangle
                 size={18}
                 className="mx-2 inline-flex text-black"
               />
-              {errorInteraction.instance.message}
+              {sectionErrors.instance.message}
             </div>
           )}
         </div>
@@ -423,21 +364,21 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
         >
           <div
             className="flex cursor-pointer items-center p-2 font-bold"
-            onClick={() => toggleSection("gateway")}
+            onClick={() => toggleSection("GATEWAY")}
           >
             <ChevronDown
               size={16}
-              className={`mr-2 transition-transform duration-200 ${activeSection === "gateway" ? "rotate-0" : "-rotate-90"}`}
+              className={`mr-2 transition-transform duration-200 ${activeSection === "GATEWAY" ? "rotate-0" : "-rotate-90"}`}
             />
             <span className="flex-grow"> 2.2 Gateway</span>
-            {activeSection === "gateway" ? (
+            {activeSection === "GATEWAY" ? (
               <ChevronDown size={16} />
             ) : (
               <ChevronUp size={16} />
             )}
           </div>
 
-          {activeSection === "gateway" && (
+          {activeSection === "GATEWAY" && (
             <div className="w-full p-2">
               <div className="mx-auto mt-4 w-[70%]">
                 <Settings
@@ -447,13 +388,13 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
               </div>
             </div>
           )}
-          {errorInteraction.gateway.error && (
+          {sectionErrors.gateway.error && (
             <div className="mb-2 mt-2 h-full w-full rounded bg-red-500 p-1 text-white">
               <AlertTriangle
                 size={18}
                 className="mx-2 inline-flex text-black"
               />
-              {errorInteraction.gateway.message}
+              {sectionErrors.gateway.message}
             </div>
           )}
         </div>
@@ -464,23 +405,25 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
         >
           <div
             className="flex cursor-pointer items-center p-2 font-bold"
-            onClick={() => toggleSection("table")}
+            onClick={() => toggleSection("TABLE")}
           >
             <ChevronDown
               size={16}
-              className={`mr-2 transition-transform duration-200 ${activeSection === "table" ? "rotate-0" : "-rotate-90"}`}
+              className={`mr-2 transition-transform duration-200 ${activeSection === "TABLE" ? "rotate-0" : "-rotate-90"}`}
             />
-            <span className="flex-grow"> 2.3 Table</span>
-            {activeSection === "table" ? (
+            <span className="flex-grow"> 2.3 Value Verification</span>
+            {activeSection === "TABLE" ? (
               <ChevronDown size={16} />
             ) : (
               <ChevronUp size={16} />
             )}
           </div>
 
-          {activeSection === "table" && (
+          {activeSection === "TABLE" && (
             <div className="mt-4 w-full p-2">
-              <h1 className="font-bold">Test endpoints on properties</h1>
+              <h1 className="font-bold">
+                Read property values from device instance
+              </h1>
               <div className="p-2">
                 <BaseTable
                   headers={filteredHeaders}
@@ -537,23 +480,25 @@ const FormInteraction: React.FC<FormInteractionProps> = ({
         >
           <div
             className="flex cursor-pointer items-center p-2 font-bold"
-            onClick={() => toggleSection("savingResults")}
+            onClick={() => toggleSection("SAVING_RESULTS")}
           >
             <ChevronDown
               size={16}
-              className={`mr-2 transition-transform duration-200 ${activeSection === "savingResults" ? "rotate-0" : "-rotate-90"}`}
+              className={`mr-2 transition-transform duration-200 ${activeSection === "SAVING_RESULTS" ? "rotate-0" : "-rotate-90"}`}
             />
             <span className="flex-grow"> 2.4 Saving results</span>
-            {activeSection === "savingResults" ? (
+            {activeSection === "SAVING_RESULTS" ? (
               <ChevronDown size={16} />
             ) : (
               <ChevronUp size={16} />
             )}
           </div>
 
-          {activeSection === "savingResults" && (
+          {activeSection === "SAVING_RESULTS" && (
             <div className="p-2 pt-0">
-              <div className="mx-auto w-[70%]">Saving Results ...</div>
+              <div className="mx-auto w-[70%]">
+                A feature for saving the property values will be added later on.
+              </div>
             </div>
           )}
         </div>

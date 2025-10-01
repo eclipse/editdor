@@ -154,7 +154,7 @@ const FormMetadata: React.FC<IFormMetadataProps> = ({
         <div>
           {errorMessage && (
             <div className="mb-2 mt-2 h-full w-full rounded bg-red-500 p-1 text-white">
-              <AlertTriangle size={16} className="mr-1 inline" />
+              <AlertTriangle size={24} className="mr-1 inline text-black" />
               {errorMessage}
             </div>
           )}

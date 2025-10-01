@@ -39,6 +39,7 @@ export interface HttpSuccessResponse {
 export interface HttpErrorResponse {
   message: string;
   reason: string;
+  status?: number;
 }
 
 export type HttpResponse = HttpSuccessResponse | HttpErrorResponse;
@@ -50,5 +51,3 @@ export interface ResponseDataFromNorthbound {
   timestamp?: number;
   quality?: number;
 }
-
-export type ActiveSection = "instance" | "gateway" | "table" | "savingResults";

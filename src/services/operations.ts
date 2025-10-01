@@ -14,6 +14,7 @@ import type {
   ThingContext,
   ThingDescription,
 } from "wot-thing-description-types";
+import { v4 as uuidv4 } from "uuid";
 
 export function normalizeContext(context: ThingContext): any {
   const TD_CONTEXTS = [
@@ -228,4 +229,55 @@ export function replaceStringOnTopLevelKey(
       replaceString,
     },
   };
+}
+
+/**
+ * Generates a unique URN-based ID and assigns it to the Thing Description
+ *
+ * @param thingDescription - The Thing Description to update with a new ID
+ * @returns The Thing Description with the updated ID in urn:uuid format
+ */
+export function generateIdForThingDescription(
+  thingDescription: ThingDescription
+): ThingDescription {
+  const updatedTD = { ...thingDescription };
+  const uniqueId = uuidv4();
+  updatedTD.id = `urn:${uniqueId}`;
+  return updatedTD;
+}
+
+/**
+ *
+ * @param td - The original Thing Description
+ * @param placeholderValues - Values to replace placeholders in the TD
+ * @returns The prepared Thing Description or undefined if an error occurs
+ */
+export function prepareTdForSubmission(
+  td: ThingDescription,
+  placeholderValues: Record<string, string>
+): ThingDescription {
+  try {
+    const tdString = JSON.stringify(td);
+    const replacedTdString =
+      Object.keys(placeholderValues).length > 0
+        ? replacePlaceholders(tdString, placeholderValues)
+        : tdString;
+
+    const parsedTd = JSON.parse(replacedTdString);
+    const {
+      "@type": typeValue,
+      "tm:required": tmRequired,
+      ...cleanedTd
+    } = parsedTd;
+
+    const tdWithNewId = generateIdForThingDescription(cleanedTd);
+
+    return tdWithNewId;
+  } catch (error) {
+    throw new Error(
+      `Error preparing TD for submission: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
 }
