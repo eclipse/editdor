@@ -36,6 +36,7 @@ interface IValidationResults {
 
 interface IEditPropertiesProps {
   isBaseModbus: boolean;
+  customBreakpoints: number;
 }
 type ModbusThingDescription = ThingDescription & {
   properties?: Record<
@@ -232,7 +233,9 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
 
   return (
     <>
-      <div className="grid grid-cols-12 gap-1 rounded-t-md bg-gray-600 px-2">
+      <div
+        className={`grid ${props.customBreakpoints === 2 ? "grid-cols-1" : "grid-cols-12"} gap-1 rounded-t-md bg-gray-600 px-2`}
+      >
         <div className="col-span-12 rounded-md bg-gray-600 px-2">
           {props.isBaseModbus ? (
             <h1 className="py-1 text-xl text-white">Group Controls</h1>
@@ -242,11 +245,9 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
         </div>
         <div
           id="unitId"
-          className={`col-span-4 px-2 ${
-            validateModbusProperties.unitID ? "h-16" : "h-full"
-          }`}
+          className={`${props.customBreakpoints === 2 ? "col-span-full mb-4" : "col-span-4"} flex flex-col px-2`}
         >
-          {validateModbusProperties.unitID ? (
+          <div className="min-h-[64px]">
             <SingleIncrementButton
               idIcon="unitId"
               textLabel="Unit ID"
@@ -256,37 +257,23 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
               tooltip={getUniIdTooltipContent()}
               valueButton={unitId}
             />
-          ) : (
-            <>
-              <div className="flex h-full flex-col">
-                <div className="flex-grow">
-                  <SingleIncrementButton
-                    idIcon="unitId"
-                    textLabel="Unit ID"
-                    onUpdateIncrement={handleUnitIdUpdate}
-                    inferiorLimit={0}
-                    superiorLimit={255}
-                    tooltip={getUniIdTooltipContent()}
-                    valueButton={unitId}
-                  />
-                </div>
-                <div className="rounded-md p-1 text-center">
-                  <h1 className="rounded-md border-2 border-red-500 p-1 font-bold text-red-600">
-                    Different unit id is detected on different affordances.
-                    Clicking + or - will set all to the same value
-                  </h1>
-                </div>
-              </div>
-            </>
+          </div>
+
+          {!validateModbusProperties.unitID && (
+            <div className="rounded-md text-center">
+              <h1 className="rounded-md border-2 border-red-500 p-1 font-bold text-red-600">
+                Different unit id is detected on different affordances. Clicking
+                + or - will set all to the same value
+              </h1>
+            </div>
           )}
         </div>
+
         <div
           id="addressOffset"
-          className={`col-span-4 px-2 ${
-            validateModbusProperties.zeroBasedAddressing ? "h-16" : "h-full"
-          }`}
+          className={`${props.customBreakpoints === 2 ? "col-span-full mb-4" : "col-span-4"} flex flex-col px-2`}
         >
-          {validateModbusProperties.zeroBasedAddressing ? (
+          <div className="min-h-[64px]">
             <SingleSwapButton
               idIcon="addressOffset"
               tooltip={getAddressOffsetTooltipContent()}
@@ -294,50 +281,32 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
               valueButton={addressOffset}
               onUpdateValue={() => handleAddressOffsetUpdate(!addressOffset)}
             />
-          ) : (
-            <>
-              <div className="flex h-full flex-col">
-                <div className="flex-grow">
-                  <SingleSwapButton
-                    idIcon="addressOffset"
-                    tooltip={getAddressOffsetTooltipContent()}
-                    textLabel="Address Offset"
-                    valueButton={addressOffset}
-                    onUpdateValue={() =>
-                      handleAddressOffsetUpdate(!addressOffset)
-                    }
-                  />
-                </div>
+          </div>
 
-                <div className="rounded-md p-1 text-center">
-                  <h1 className="rounded-md border-2 border-red-500 p-1 font-bold text-red-600">
-                    Different address offset is detected on different
-                    affordances. Clicking to swap and set all to the same value
-                  </h1>
-                </div>
-              </div>
-            </>
+          {!validateModbusProperties.zeroBasedAddressing && (
+            <div className="rounded-md text-center">
+              <h1 className="rounded-md border-2 border-red-500 p-1 font-bold text-red-600">
+                Different address offset is detected on different affordances.
+                Clicking to swap and set all to the same value
+              </h1>
+            </div>
           )}
         </div>
 
         <div
           id="endianness"
-          className={`col-span-4 px-2 ${
-            validateModbusProperties.mostSignificantByte &&
-            validateModbusProperties.mostSignificantWord
-              ? "h-16"
-              : "h-full"
-          }`}
+          className={`${props.customBreakpoints === 2 ? "col-span-full" : "col-span-4"} flex flex-col px-2`}
         >
-          {validateModbusProperties.mostSignificantByte &&
-          validateModbusProperties.mostSignificantWord ? (
+          <div className="min-h-[64px]">
             <DoubleSwapButton
               idIcon="endianness"
               tooltip={getEndiannessTooltipContent()}
               textLabel="Endianness"
+              compactText="End."
+              customBreakpoints={props.customBreakpoints}
               firstDescription="wordswap"
               firstValue={endianness.wordSwap}
-              firsthandleOnClick={(newValue, key) =>
+              firsthandleOnClick={() =>
                 handleEndiannessUpdate(!endianness.wordSwap, "wordSwap")
               }
               secondDescription="byteswap"
@@ -346,43 +315,23 @@ const EditProperties: React.FC<IEditPropertiesProps> = (props) => {
                 handleEndiannessUpdate(!endianness.byteSwap, "byteSwap")
               }
             />
-          ) : (
-            <>
-              <div className="col-span-12">
-                <DoubleSwapButton
-                  idIcon="endianness"
-                  tooltip={getEndiannessTooltipContent()}
-                  textLabel="Endianness"
-                  firstDescription="wordswap"
-                  firstValue={endianness.wordSwap}
-                  firsthandleOnClick={(newValue, key) =>
-                    handleEndiannessUpdate(!endianness.wordSwap, "wordSwap")
-                  }
-                  secondDescription="byteswap"
-                  secondValue={endianness.byteSwap}
-                  secondhandleOnClick={() =>
-                    handleEndiannessUpdate(!endianness.byteSwap, "byteSwap")
-                  }
-                />
-              </div>
-              <div className="col-span-12 p-1">
-                <div className="rounded-md text-center">
-                  <h1 className="rounded-md border-2 border-red-500 p-1 font-bold text-red-600">
-                    Different endianness (
-                    {[
-                      !validateModbusProperties.mostSignificantWord &&
-                        "wordSwap",
-                      !validateModbusProperties.mostSignificantByte &&
-                        "byteSwap",
-                    ]
-                      .filter(Boolean)
-                      .join(" and ")}
-                    ) is detected on different affordances. Clicking to swap and
-                    set all to the same value
-                  </h1>
-                </div>
-              </div>
-            </>
+          </div>
+
+          {(!validateModbusProperties.mostSignificantByte ||
+            !validateModbusProperties.mostSignificantWord) && (
+            <div className="rounded-md text-center">
+              <h1 className="rounded-md border-2 border-red-500 p-1 font-bold text-red-600">
+                Different endianness (
+                {[
+                  !validateModbusProperties.mostSignificantWord && "wordSwap",
+                  !validateModbusProperties.mostSignificantByte && "byteSwap",
+                ]
+                  .filter(Boolean)
+                  .join(" and ")}
+                ) is detected on different affordances. Clicking to swap and set
+                all to the same value
+              </h1>
+            </div>
           )}
         </div>
       </div>

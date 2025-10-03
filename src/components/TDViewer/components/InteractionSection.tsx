@@ -33,19 +33,15 @@ import type {
   FormElementBase,
   ThingDescription,
 } from "wot-thing-description-types";
-import {
-  requestWeb,
-  extractValueByPath,
-} from "../../../services/thingsApiService";
 import { getLocalStorage } from "../../../services/localStorage";
 import ErrorDialog from "../../Dialogs/ErrorDialog";
-import JSONPointer from "jsonpointer";
 
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
 
 interface IInteractionSectionProps {
   interaction: "Properties" | "Actions" | "Events";
+  customBreakpoints?: number;
 }
 
 type InteractionKey = "properties" | "actions" | "events";
@@ -474,7 +470,9 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
   return (
     <>
       <div className="flex items-end justify-start pb-4 pt-8">
-        <div className="flex flex-grow">
+        <div
+          className={`flex ${props.customBreakpoints === 2 ? "flex-col" : "flex-grow"}`}
+        >
           <InfoIconWrapper
             tooltip={tooltipMapper[interaction]}
             id={interaction}
@@ -533,7 +531,10 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       </div>
 
       {interaction === "properties" && hasModbusProperties(td) && (
-        <EditProperties isBaseModbus={hasModbusProperties(td)} />
+        <EditProperties
+          isBaseModbus={hasModbusProperties(td)}
+          customBreakpoints={props.customBreakpoints ?? 0}
+        />
       )}
 
       {childrenContent && (
