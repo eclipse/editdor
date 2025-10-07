@@ -29,6 +29,7 @@ import {
 } from "react-feather";
 import TmInputForm from "../../App/TmInputForm";
 import { prepareTdForSubmission } from "../../../services/operations";
+import { readAllReadablePropertyForms } from "../../../services/thingsApiService";
 import {
   handleHttpRequest,
   fetchNorthboundTD,
@@ -42,9 +43,6 @@ import type { ActiveSection } from "../../../context/ContributeToCatalogState";
 interface IFormInteractionProps {
   filteredHeaders: { key: string; text: string }[];
   filteredRows: any[];
-  setPropertyResponseMap: (
-    value: Record<string, { value: string; error: string }>
-  ) => void;
   backgroundTdToSend: ThingDescription;
   interaction: ContributionToCatalogState["interaction"];
   dispatch: React.Dispatch<ContributionToCatalogAction>;
@@ -54,7 +52,6 @@ interface IFormInteractionProps {
 const FormInteraction: React.FC<IFormInteractionProps> = ({
   filteredHeaders,
   filteredRows,
-  setPropertyResponseMap,
   interaction,
   backgroundTdToSend,
   dispatch,
@@ -211,34 +208,23 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
 
   const handleTestAllProperties = async () => {
     dispatch({ type: "SET_INTERACTION_TESTING_ALL", payload: true });
-    const results = { ...propertyResponseMap };
-
-    for (const item of filteredRows) {
-      try {
-        const res = await readPropertyWithServient(
-          context.northboundConnection.northboundTd as ThingDescription,
-          item.propName,
-          {
-            formIndex: extractIndexFromId(item.id as string),
-          },
-          settingsData.pathToValue
-        );
-
-        if (res.err) {
-          results[item.id] = { value: "", error: res.err.message };
-        } else {
-          results[item.id] = { value: res.result, error: "" };
-        }
-      } catch (err: any) {
-        results[item.id] = { value: "", error: err.message };
-      }
+    try {
+      const tdSource =
+        Object.keys(context.northboundConnection.northboundTd).length > 0
+          ? (context.northboundConnection.northboundTd as ThingDescription)
+          : td;
+      const results = await readAllReadablePropertyForms(
+        tdSource,
+        filteredRows.map((r) => ({ id: r.id, propName: r.propName })),
+        settingsData.pathToValue
+      );
+      dispatch({
+        type: "SET_INTERACTION_PROPERTY_RESPONSE_MAP",
+        payload: { ...propertyResponseMap, ...results },
+      });
+    } finally {
+      dispatch({ type: "SET_INTERACTION_TESTING_ALL", payload: false });
     }
-
-    dispatch({
-      type: "SET_INTERACTION_PROPERTY_RESPONSE_MAP",
-      payload: results,
-    });
-    dispatch({ type: "SET_INTERACTION_TESTING_ALL", payload: false });
   };
 
   const handleOnClickSendRequest = async (item: {
