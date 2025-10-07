@@ -35,6 +35,9 @@ import type {
 } from "wot-thing-description-types";
 import { getLocalStorage } from "../../../services/localStorage";
 import ErrorDialog from "../../Dialogs/ErrorDialog";
+import { readAllReadablePropertyForms } from "../../../services/thingsApiService";
+import { AlertTriangle } from "react-feather";
+import { getErrorSummary } from "../../../utils/arrays";
 
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
@@ -91,9 +94,16 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     message: "",
   });
 
+  const [propertyResponseMap, setPropertyResponseMap] = useState<
+    Record<string, { value: string; error: string }>
+  >({});
+
+  const [isTestingAll, setIsTestingAll] = useState(false);
+
   const interaction = props.interaction.toLowerCase() as InteractionKey;
 
-  const updateFilter = (event) => setFilter(event.target.value);
+  const updateFilter = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setFilter(event.target.value);
 
   const isBaseModbus: boolean =
     !!td.base?.includes("modbus://") || !!td.base?.includes("modbus+tcp");
@@ -121,41 +131,35 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
     );
   };
 
+  const summary = useMemo(
+    () => getErrorSummary(propertyResponseMap),
+    [propertyResponseMap]
+  );
+
   /**
    * Returns an Object containing all interactions with keys
    * matching to the filter.
    */
-  const applyFilter = () => {
-    if (!td[interaction]) {
-      return {};
-    }
-
-    const filtered = {};
-    // TODO: enable search also by title not only by interaction name
-    Object.keys(td[interaction])
-      .filter((e) => {
-        if (e.toLowerCase().indexOf(filter.toLowerCase()) > -1) {
-          return true;
-        } else {
-          return false;
-        }
-      })
-      .forEach((key) => {
-        filtered[key] = td[interaction][key];
+  const applyFilter = (): Record<string, any> => {
+    const source: any = (td as any)[interaction];
+    if (!source) return {};
+    const filtered: Record<string, any> = {};
+    Object.keys(source)
+      .filter((k) => k.toLowerCase().includes(filter.toLowerCase()))
+      .forEach((k) => {
+        filtered[k] = source[k];
       });
-
     return filtered;
   };
 
-  const sortKeysInObject = (kind) => {
-    if (!td[kind]) {
-      return;
-    }
-
-    const ordered = {};
-    const toSort = Object.keys(td[kind]).map((x) => {
-      return { key: x, title: td[kind][x].title };
-    });
+  const sortKeysInObject = (kind: InteractionKey) => {
+    const source: any = (td as any)[kind];
+    if (!source) return;
+    const ordered: Record<string, any> = {};
+    const toSort = Object.keys(source).map((x) => ({
+      key: x,
+      title: source[x].title,
+    }));
     if (sortOrder === SORT_ASC) {
       toSort
         .sort((a, b) => {
@@ -164,7 +168,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
           return nameA.localeCompare(nameB);
         })
         .forEach(function (sortedObject) {
-          ordered[sortedObject.key] = td[kind][sortedObject.key];
+          ordered[sortedObject.key] = source[sortedObject.key];
         });
       setSortOrder(SORT_DESC);
     } else {
@@ -176,11 +180,11 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         })
         .reverse()
         .forEach(function (sortedObject) {
-          ordered[sortedObject.key] = td[kind][sortedObject.key];
+          ordered[sortedObject.key] = source[sortedObject.key];
         });
       setSortOrder(SORT_ASC);
     }
-    td[kind] = ordered;
+    (td as any)[kind] = ordered;
     context.updateOfflineTD(JSON.stringify(td, null, 2));
   };
 
@@ -225,40 +229,75 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
   }): Promise<{ value: string; error: string }> => {
     const index = extractIndexFromId(item.id);
 
-    if (Object.keys(northboundConnection.northboundTd).length > 0) {
-      try {
-        const res = await readPropertyWithServient(
-          northboundConnection.northboundTd as ThingDescription,
-          item.propName,
-          {
-            formIndex: index,
-          },
-          getLocalStorage("valuePath") ?? ""
-        );
-        if (res.err) {
-          return { value: "", error: res.err.message };
-        }
-        return { value: res.result, error: "" };
-      } catch (err: any) {
-        return { value: "", error: err.message };
+    const tdSource =
+      Object.keys(northboundConnection.northboundTd).length > 0 && isBaseModbus
+        ? (northboundConnection.northboundTd as ThingDescription)
+        : td;
+
+    try {
+      const res = await readPropertyWithServient(
+        tdSource,
+        item.propName,
+        { formIndex: index },
+        getLocalStorage("valuePath") ?? ""
+      );
+      const outcome = res.err
+        ? { value: "", error: res.err.message }
+        : { value: res.result, error: "" };
+      setPropertyResponseMap((prev) => ({ ...prev, [item.id]: outcome }));
+      return outcome;
+    } catch (e: any) {
+      const outcome = { value: "", error: "Read property failed" };
+      setPropertyResponseMap((prev) => ({ ...prev, [item.id]: outcome }));
+      return outcome;
+    }
+  };
+
+  const handleTestAllProperties = async () => {
+    if (interaction !== "properties" || modeView !== "table") return;
+    setIsTestingAll(true);
+    let resMap: Record<string, { value: string; error: string }> = {};
+    try {
+      const filteredInteractions = applyFilter();
+      const items = Object.keys(filteredInteractions).flatMap((key) => {
+        const forms = filteredInteractions[key].forms || [];
+        return forms.map((form: FormElementBase, index: number) => ({
+          id: `${key} - ${index}`,
+          propName: key,
+          ...form,
+        }));
+      });
+      const readableItems = items.filter((form: any) =>
+        Array.isArray(form.op)
+          ? form.op.includes("readproperty")
+          : form.op === "readproperty"
+      );
+      if (readableItems.length === 0) {
+        setIsTestingAll(false);
+        return;
       }
-    } else {
-      try {
-        const res = await readPropertyWithServient(
-          td,
-          item.propName,
-          {
-            formIndex: index,
-          },
-          ""
-        );
-        if (res.err) {
-          return { value: "", error: res.err.message };
-        }
-        return { value: res.result, error: "" };
-      } catch (err: any) {
-        return { value: "", error: err.message };
-      }
+      const tdSource =
+        Object.keys(northboundConnection.northboundTd).length > 0 &&
+        isBaseModbus
+          ? (northboundConnection.northboundTd as ThingDescription)
+          : td;
+      resMap = await readAllReadablePropertyForms(
+        tdSource,
+        readableItems.map((r) => ({ id: r.id, propName: r.propName })),
+        getLocalStorage("valuePath") ?? ""
+      );
+      setPropertyResponseMap((prev) => ({ ...prev, ...resMap }));
+    } catch (e: any) {
+      setPropertyResponseMap((prev) => ({
+        ...prev,
+        ...resMap,
+        _error: {
+          value: "",
+          error: e?.message || "Unknown error",
+        },
+      }));
+    } finally {
+      setIsTestingAll(false);
     }
   };
 
@@ -269,12 +308,14 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
   ) => {
     const index = extractIndexFromId(item.id);
     try {
-      td[interaction as InteractionKey][item.propName].forms[index][headerKey] =
-        value;
+      const target: any = (td as any)[interaction]?.[item.propName];
+      if (target?.forms?.[index]) {
+        target.forms[index][headerKey] = value;
+        context.updateOfflineTD(JSON.stringify(td, null, 2));
+      }
     } catch (e) {
       console.error(e);
     }
-    context.updateOfflineTD(JSON.stringify(td, null, 2));
   };
 
   const handleOnRowClick = (
@@ -283,16 +324,11 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
   ) => {
     const index = extractIndexFromId(item.id);
     let value: any;
-
+    const target: any = (td as any)[interaction]?.[item.propName];
     if (state === "viewPropertyElementForm") {
-      value = td[interaction][item.propName].forms[index];
+      value = target?.forms?.[index];
     } else {
-      try {
-        value = { [item.propName]: td[interaction][item.propName] };
-        //value = td[interaction][item.propName].forms[index];
-      } catch (e) {
-        console.error(e);
-      }
+      value = { [item.propName]: target };
     }
 
     setEditorContent({
@@ -321,10 +357,14 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
 
   const handleDialogSubmit = () => {
     let value = JSON.parse(editorContent.editorState);
+    const targetContainer: any = (td as any)[interaction];
+    if (!targetContainer) return handleDialogClose();
     if (editorContent.state === "viewProperty") {
-      td[interaction][editorContent.propName] = value[editorContent.propName];
-    } else {
-      td[interaction][editorContent.propName].forms[editorContent.formsIndex] =
+      targetContainer[editorContent.propName] = value[editorContent.propName];
+    } else if (
+      targetContainer[editorContent.propName]?.forms?.[editorContent.formsIndex]
+    ) {
+      targetContainer[editorContent.propName].forms[editorContent.formsIndex] =
         value;
     }
 
@@ -346,15 +386,13 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
 
     if (td.properties && interaction === "properties") {
       if (modeView === "list") {
-        return Object.keys(filteredInteractions).map((key, index) => {
-          return (
-            <Property
-              prop={filteredInteractions[key]}
-              propName={key}
-              key={index}
-            />
-          );
-        });
+        return Object.keys(filteredInteractions).map((key, index) => (
+          <Property
+            prop={(filteredInteractions as any)[key]}
+            propName={key}
+            key={index}
+          />
+        ));
       }
 
       const headers: { key: string; text: string }[] = Object.keys(
@@ -365,7 +403,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
             ...[
               ...new Set(
                 Object.keys(filteredInteractions).flatMap((key) => {
-                  const forms = filteredInteractions[key].forms || [];
+                  const forms = (filteredInteractions as any)[key].forms || [];
                   return forms.flatMap((form: FormElementBase) =>
                     Object.keys(form)
                   );
@@ -379,10 +417,10 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         : [];
 
       const items = Object.keys(filteredInteractions).flatMap((key) => {
-        const forms = filteredInteractions[key].forms || [];
+        const forms = (filteredInteractions as any)[key].forms || [];
         return forms.map((form: FormElementBase, index: number) => ({
           id: `${key} - ${index}`,
-          description: filteredInteractions[key].description ?? "",
+          description: (filteredInteractions as any)[key].description ?? "",
           propName: key,
           ...form,
         }));
@@ -407,41 +445,52 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
       }
 
       return (
-        <BaseTable
-          headers={filteredHeaders}
-          items={filteredItems}
-          itemsPerPage={10}
-          orderBy=""
-          order="asc"
-          onCellClick={handleCellClick}
-          onRowClick={handleOnRowClick}
-          onSendRequestClick={handleOnClickSendRequest}
-          baseUrl={td.base ?? ""}
-          requestResults={{}}
-        />
+        <>
+          <BaseTable
+            headers={filteredHeaders}
+            items={filteredItems}
+            itemsPerPage={10}
+            orderBy=""
+            order="asc"
+            onCellClick={handleCellClick}
+            onRowClick={handleOnRowClick}
+            onSendRequestClick={handleOnClickSendRequest}
+            baseUrl={td.base ?? ""}
+            requestResults={propertyResponseMap}
+          />
+          {summary.errorCount > 0 && (
+            <div className="mt-4 rounded-md bg-red-100 p-3 text-red-700">
+              <p className="font-bold">
+                Found {summary.errorCount} error
+                {summary.errorCount > 1 ? "s" : ""}
+              </p>
+              <p className="mt-1">
+                First error in property name{" "}
+                <span className="font-semibold">{summary.firstError.id}</span>:{" "}
+                {summary.firstError.message}
+              </p>
+            </div>
+          )}
+        </>
       );
     }
     if (td.actions && interaction === "actions") {
-      return Object.keys(filteredInteractions).map((key, index) => {
-        return (
-          <Action
-            action={filteredInteractions[key]}
-            actionName={key}
-            key={index}
-          />
-        );
-      });
+      return Object.keys(filteredInteractions).map((key, index) => (
+        <Action
+          action={(filteredInteractions as any)[key]}
+          actionName={key}
+          key={index}
+        />
+      ));
     }
     if (td.events && interaction === "events") {
-      return Object.keys(filteredInteractions).map((key, index) => {
-        return (
-          <Event
-            event={filteredInteractions[key]}
-            eventName={key}
-            key={index}
-          />
-        );
-      });
+      return Object.keys(filteredInteractions).map((key, index) => (
+        <Event
+          event={(filteredInteractions as any)[key]}
+          eventName={key}
+          key={index}
+        />
+      ));
     }
   };
 
@@ -505,7 +554,7 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
           </div>
         </div>
         <SearchBar
-          onKeyUp={(e) => updateFilter(e)}
+          onKeyUp={(e: React.ChangeEvent<HTMLInputElement>) => updateFilter(e)}
           placeholder={`Search ${props.interaction}`}
           ariaLabel={`Search through all ${props.interaction}`}
         />
@@ -527,6 +576,20 @@ const InteractionSection: React.FC<IInteractionSectionProps> = (props) => {
         >
           Add
         </BaseButton>
+        {interaction === "properties" && modeView === "table" && (
+          <>
+            <div className="w-2"></div>
+            <BaseButton
+              onClick={handleTestAllProperties}
+              variant="primary"
+              type="button"
+              disabled={isTestingAll}
+              className="h-9"
+            >
+              {isTestingAll ? "Testing..." : "Preview All Values"}
+            </BaseButton>
+          </>
+        )}
         {addInteractionDialog}
       </div>
 

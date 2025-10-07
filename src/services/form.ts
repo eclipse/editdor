@@ -200,7 +200,15 @@ async function readPropertyWithServient(
     if (typeof val === "object" || Array.isArray(val)) {
       try {
         const key = JSONPointer.get(val, valuePath);
-        return { result: JSON.stringify(key, null, 2), err: null };
+
+        if (key === undefined) {
+          return {
+            result: JSON.stringify(val, null, 2),
+            err: null,
+          };
+        } else {
+          return { result: JSON.stringify(key, null, 2), err: null };
+        }
       } catch (e) {
         return {
           result: "",
@@ -214,7 +222,12 @@ async function readPropertyWithServient(
     return { result: JSON.stringify(val, null, 2), err: null };
   } catch (e) {
     console.debug(e);
-    return { result: "", err: e as Error };
+    return {
+      result: "",
+      err: new Error(
+        "Read property failed. Please check the hrefs on forms or the Settings section."
+      ),
+    };
   }
 }
 

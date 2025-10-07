@@ -622,12 +622,6 @@ const ContributeToCatalog = forwardRef((props, ref) => {
             <FormInteraction
               filteredHeaders={filteredHeaders}
               filteredRows={filteredRows}
-              setPropertyResponseMap={(responseMap) =>
-                dispatch({
-                  type: "SET_INTERACTION_PROPERTY_RESPONSE_MAP",
-                  payload: responseMap,
-                })
-              }
               backgroundTdToSend={state.workflow.backgroundTdToSend}
               interaction={state.interaction}
               dispatch={dispatch}
