@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-type CsvData = {
+export type CsvData = {
   name: string;
   title?: string;
   description?: string;
@@ -75,6 +75,8 @@ export const parseCsv = (
   hasHeaders: boolean = true,
   character: string
 ): CsvData[] => {
+  if (csvContent === "") throw new Error("CSV content is empty");
+
   const rows = csvContent
     .split("\n")
     .map((row) => row.trim())
@@ -99,7 +101,7 @@ export const parseCsv = (
  * @param row
  * @returns
  */
-const mapRowToProperty = (row: CsvData): Property => ({
+export const mapRowToProperty = (row: CsvData): Property => ({
   ...(row.type ? { type: row.type } : {}),
   readOnly: true,
   ...(row.title ? { title: row.title } : {}),
@@ -125,9 +127,13 @@ const mapRowToProperty = (row: CsvData): Property => ({
         ? { "modbus:function": row["modbus:function"] }
         : {}),
       "modbus:mostSignificantByte":
-        Boolean(row["modbus:mostSignificantByte"]) ?? true,
+        row["modbus:mostSignificantByte"]?.toLowerCase() === "true"
+          ? true
+          : false,
       "modbus:mostSignificantWord":
-        Boolean(row["modbus:mostSignificantWord"]) ?? true,
+        row["modbus:mostSignificantWord"]?.toLowerCase() === "true"
+          ? true
+          : false,
       ...(row["modbus:timeout"]
         ? { "modbus:timeout": row["modbus:timeout"] }
         : {}),

@@ -26,6 +26,8 @@ export const ADD_LINKED_TD = "ADD_LINKED_TD";
 export const UPDATE_LINKED_TD = "UPDATE_LINKED_TD";
 export const UPDATE_VALIDATION_MESSAGE = "UPDATE_VALIDATION_MESSAGE";
 export const UPDATE_NORTHBOUND_CONNECTION = "UPDATE_NORTHBOUND_CONNECTION";
+export const UPDATE_CONTRIBUTE_CATALOG = "UPDATE_CONTRIBUTE_CATALOG";
+export const UPDATE_BACKGROUND_TM = "UPDATE_BACKGROUND_TM";
 
 interface IGlobalStateProps {
   children: ReactNode;
@@ -46,6 +48,17 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
     northboundConnection: {
       message: "",
       northboundTd: {},
+    },
+    contributeCatalog: {
+      model: "",
+      author: "",
+      manufacturer: "",
+      license: "",
+      copyrightYear: "",
+      holder: "",
+      tmCatalogEndpoint: "",
+      nameRepository: "",
+      dynamicValues: {},
     },
   });
 
@@ -124,6 +137,13 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
     });
   };
 
+  const updateContributeCatalog = (contributeCatalog: IContributeCatalog) => {
+    dispatch({
+      type: UPDATE_CONTRIBUTE_CATALOG,
+      contributeCatalog: contributeCatalog,
+    });
+  };
+
   return (
     <EdiTDorContext.Provider
       value={{
@@ -136,6 +156,7 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
         linkedTd: editdorState.linkedTd,
         validationMessage: editdorState.validationMessage,
         northboundConnection: editdorState.northboundConnection,
+        contributeCatalog: editdorState.contributeCatalog,
         updateOfflineTD,
         updateIsModified,
         setFileHandle,
@@ -147,6 +168,7 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
         updateLinkedTd,
         updateValidationMessage,
         updateNorthboundConnection,
+        updateContributeCatalog,
       }}
     >
       {children}

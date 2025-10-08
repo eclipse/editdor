@@ -37,6 +37,7 @@ const handleHttpRequest = async (
   const errorDescription: HttpErrorResponse = {
     message: "",
     reason: "",
+    status: 0,
   };
 
   try {
@@ -56,7 +57,7 @@ const handleHttpRequest = async (
           errorDescription.reason = errorData.error;
         }
       } catch (error) {}
-
+      errorDescription.status = response.status;
       switch (response.status) {
         case 301:
           throw new Error(`Monitors for the property: ${errorMessage}`);
@@ -108,12 +109,14 @@ const handleHttpRequest = async (
     const errorResponse: HttpErrorResponse = {
       message: typedError.message,
       reason: errorDescription.reason,
+      status: errorDescription.status,
     };
 
     return errorResponse;
   }
 };
 
+/** @internal */
 const buildUrlWithParams = (
   endpoint: string,
   queryParams?: Record<string, string | number | boolean>
@@ -235,4 +238,5 @@ export {
   handleHttpRequest,
   fetchNorthboundTD,
   extractValueByPath,
+  buildUrlWithParams,
 };

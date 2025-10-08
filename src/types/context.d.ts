@@ -10,6 +10,7 @@ interface IEdiTDorContext {
   linkedTd: Record<string, any> | undefined;
   validationMessage?: any;
   northboundConnection: INorthboundConnection;
+  contributeCatalog: IContributeCatalog;
 
   // Callback functions
   updateOfflineTD: (td: string) => void;
@@ -30,11 +31,24 @@ interface IEdiTDorContext {
   updateNorthboundConnection: (
     northboundConnection: INorthboundConnection
   ) => void;
+  updateContributeCatalog: (contributeCatalog: IContributeCatalog) => void;
 }
 
 interface INorthboundConnection {
   message: string;
   northboundTd: ThingDescription | {};
+}
+
+interface IContributeCatalog {
+  model: string;
+  author: string;
+  manufacturer: string;
+  license: string;
+  copyrightYear: string;
+  holder: string;
+  tmCatalogEndpoint: string;
+  nameRepository: string;
+  dynamicValues: Record<string, string>;
 }
 
 type EditorState = Omit<
@@ -50,6 +64,7 @@ type EditorState = Omit<
   | "updateLinkedTd"
   | "updateValidationMessage"
   | "updateNorthboundConnection"
+  | "updateContributeCatalog"
 >;
 
 type Action =
@@ -81,4 +96,8 @@ type Action =
   | {
       type: "UPDATE_NORTHBOUND_CONNECTION";
       northboundConnection: INorthboundConnection;
+    }
+  | {
+      type: "UPDATE_CONTRIBUTE_CATALOG";
+      contributeCatalog: IContributeCatalog;
     };

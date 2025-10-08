@@ -37,21 +37,29 @@ const InfoIconWrapper: React.FC<IInfoIconWrapperProps> = (props) => {
       ? `flex ${props.className}`
       : "flex justify-center";
 
+  const handleClick = () => {
+    if (!isHrefEmpty) {
+      window.open(props.tooltip.href, "_blank");
+    }
+  };
+
   return (
     <div className={containerClass}>
       <div className="pr-0.5">{props.children}</div>
-      <button
-        onClick={() =>
-          !isHrefEmpty && window.open(props.tooltip.href, "_blank")
-        }
-        disabled={isHrefEmpty}
+      <div
+        role="link"
+        tabIndex={isHrefEmpty ? -1 : 0}
+        onClick={handleClick}
+        aria-disabled={isHrefEmpty}
+        className={`cursor-${isHrefEmpty ? "default" : "pointer"}`}
+        aria-label={isHrefEmpty ? "Info" : "More information"}
       >
         <Icon
           html={props.tooltip.html || "No tooltip content available"}
           id={props.id}
           IconComponent={Info}
         />
-      </button>
+      </div>
       <div className="p-1"></div>
     </div>
   );
