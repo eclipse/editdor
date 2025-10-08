@@ -20,7 +20,13 @@ import {
   ResponseDataFromNorthbound,
 } from "../types/global";
 import { getLocalStorage } from "./localStorage";
-import { ensureTrailingSlash } from "../utils/strings";
+import { ensureTrailingSlash, extractIndexFromId } from "../utils/strings";
+import { readPropertyWithServient } from "./form";
+
+export interface ReadResult {
+  value: string;
+  error: string;
+}
 
 function isSuccessResponse(
   response: HttpResponse
@@ -232,6 +238,43 @@ const extractValueByPath = (
   return current !== undefined ? String(current) : JSON.stringify(responseData);
 };
 
+/**
+ * Reads all readable property forms sequentially (to avoid overwhelming the servient) and
+ * returns a mapping from row id to { value, error } result objects.
+ *
+ * @param tdSource Thing Description (northbound TD preferred if available)
+ * @param rows Flattened table rows with id pattern `${propName} - ${index}` and propName field
+ * @param pathToValue Path within returned payload to extract value, passed to readPropertyWithServient
+ */
+async function readAllReadablePropertyForms(
+  tdSource: ThingDescription,
+  rows: Array<{ id: string; propName: string }>,
+  pathToValue: string
+): Promise<Record<string, ReadResult>> {
+  const results: Record<string, ReadResult> = {};
+
+  for (const row of rows) {
+    const formIndex = extractIndexFromId(row.id);
+    try {
+      const res = await readPropertyWithServient(
+        tdSource,
+        row.propName,
+        { formIndex },
+        pathToValue
+      );
+      if (res.err) {
+        results[row.id] = { value: "", error: res.err.message };
+      } else {
+        results[row.id] = { value: res.result, error: "" };
+      }
+    } catch (e: any) {
+      results[row.id] = { value: "", error: e?.message || "Unknown error" };
+    }
+  }
+
+  return results;
+}
+
 export {
   requestWeb,
   isSuccessResponse,
@@ -239,4 +282,5 @@ export {
   fetchNorthboundTD,
   extractValueByPath,
   buildUrlWithParams,
+  readAllReadablePropertyForms,
 };
