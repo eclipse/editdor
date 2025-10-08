@@ -33,13 +33,18 @@ import type { ThingDescription } from "wot-thing-description-types";
 interface ITDViewerProps {
   onUndo: () => void;
   onRedo: () => void;
+  customBreakpoints: number;
 }
 
 interface IAddFormDialogRef {
   openModal: () => void;
 }
 
-const TDViewer: React.FC<ITDViewerProps> = ({ onUndo, onRedo }) => {
+const TDViewer: React.FC<ITDViewerProps> = ({
+  onUndo,
+  onRedo,
+  customBreakpoints,
+}) => {
   const context = useContext(ediTDorContext);
   const td: ThingDescription = context.parsedTD;
   const alreadyRenderedKeys = [
@@ -186,7 +191,10 @@ const TDViewer: React.FC<ITDViewerProps> = ({ onUndo, onRedo }) => {
 
       <LinkSection />
 
-      <InteractionSection interaction="Properties"></InteractionSection>
+      <InteractionSection
+        interaction="Properties"
+        customBreakpoints={customBreakpoints}
+      ></InteractionSection>
       <InteractionSection interaction="Actions"></InteractionSection>
       <InteractionSection interaction="Events"></InteractionSection>
 

@@ -112,8 +112,8 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
     if (display) {
       return ReactDOM.createPortal(
         <DialogTemplate
-          onCancel={close}
-          onSubmit={() => {
+          onHandleEventLeftButton={close}
+          onHandleEventRightButton={() => {
             const form: Form = {
               op: operations(type)
                 .map((x) => {
@@ -140,7 +140,7 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
               close();
             }
           }}
-          submitText={"Add"}
+          rightButton={"Add"}
           children={children}
           title={`Add ${name} Form`}
           description={`Tell us how this ${name} can be interfaced by selecting operations below and providing an href.`}

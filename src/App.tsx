@@ -33,6 +33,11 @@ const GlobalStateWrapper = () => {
   );
 };
 
+const BREAKPOINTS = {
+  MEDIUM: 1141,
+  SMALL: 850,
+};
+
 // The useEffect hook for checking the URI was called twice somehow.
 // This variable prevents the callback from being executed twice.
 let checkedUrl = false;
@@ -42,6 +47,9 @@ const App: React.FC = () => {
 
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [doShowJSON, setDoShowJSON] = useState(false);
+  const [customBreakpointsState, setCustomBreakpointsState] = useState(0);
+  const tdViewerRef = useRef<HTMLDivElement>(null);
+
   const [errorDisplay, setErrorDisplay] = useState<{
     state: boolean;
     message: string;
@@ -135,6 +143,26 @@ const App: React.FC = () => {
     }
   }, [context]);
 
+  useEffect(() => {
+    if (!tdViewerRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        let width = entry.contentRect.width;
+        if (width < BREAKPOINTS.MEDIUM && width > BREAKPOINTS.SMALL) {
+          setCustomBreakpointsState(1);
+        } else if (width < BREAKPOINTS.SMALL) {
+          setCustomBreakpointsState(2);
+        } else {
+          setCustomBreakpointsState(0);
+        }
+      }
+    });
+
+    resizeObserver.observe(tdViewerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
+
   return (
     <main className="flex max-h-screen w-screen flex-col">
       <AppHeader></AppHeader>
@@ -142,7 +170,13 @@ const App: React.FC = () => {
       <div className="">
         <Container className="height-adjust flex flex-col md:flex-row">
           <Section minSize={550} className="w-full min-w-16 md:w-7/12">
-            <TDViewer onUndo={handleUndo} onRedo={handleRedo} />
+            <div ref={tdViewerRef} className="h-full w-full">
+              <TDViewer
+                onUndo={handleUndo}
+                onRedo={handleRedo}
+                customBreakpoints={customBreakpointsState}
+              />
+            </div>
           </Section>
 
           <Bar

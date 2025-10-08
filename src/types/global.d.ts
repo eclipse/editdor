@@ -39,6 +39,7 @@ export interface HttpSuccessResponse {
 export interface HttpErrorResponse {
   message: string;
   reason: string;
+  status?: number;
 }
 
 export type HttpResponse = HttpSuccessResponse | HttpErrorResponse;

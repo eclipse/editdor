@@ -309,9 +309,9 @@ const AddLinkTdDialog = forwardRef<AddLinkTdDialogRef, AddLinkTdDialogProps>(
     if (display) {
       return ReactDOM.createPortal(
         <DialogTemplate
-          onCancel={close}
-          onSubmit={handleAddLink}
-          submitText={"Add"}
+          onHandleEventLeftButton={close}
+          onHandleEventRightButton={handleAddLink}
+          rightButton={"Add"}
           children={children}
           title={`Add Link `}
           description={`Tell us how this ${tdJSON.title} can interact with other ressources`}

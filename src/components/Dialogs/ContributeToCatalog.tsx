@@ -10,71 +10,78 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { forwardRef, useContext, useImperativeHandle } from "react";
+import React, {
+  forwardRef,
+  useContext,
+  useImperativeHandle,
+  useMemo,
+  useReducer,
+} from "react";
 import ReactDOM from "react-dom";
-import ediTDorContext from "../../context/ediTDorContext";
-import DialogTemplate from "./DialogTemplate";
-import DialogTextField from "./base/DialogTextField";
-import BaseButton from "../TDViewer/base/BaseButton";
-import {
-  Check,
-  AlertTriangle,
-  Copy,
-  ExternalLink,
-  RefreshCw,
-} from "react-feather";
-import { isValidUrl } from "../../utils/strings";
+import draft7MetaSchema from "ajv/dist/refs/json-schema-draft-07.json";
+import type {
+  FormElementBase,
+  ThingDescription,
+} from "wot-thing-description-types";
 import Ajv2019 from "ajv/dist/2019";
 import addFormats from "ajv-formats";
-import draft7MetaSchema from "ajv/dist/refs/json-schema-draft-07.json";
+import { ProgressBar, Step } from "./base/ProgressBar";
+
+import ediTDorContext from "../../context/ediTDorContext";
+import {
+  contributionToCatalogReducer,
+  initialState,
+} from "../../context/ContributeToCatalogState";
+import DialogTemplate from "./DialogTemplate";
+import FormMetadata from "./base/FormMetadata";
+import FormSubmission from "./base/FormSubmission";
+import FormInteraction from "./base/FormInteraction";
+import { isValidUrl, formatText } from "../../utils/strings";
 import { requestWeb } from "../../services/thingsApiService";
-import { getValidateTMContent } from "./../InfoIcon/TooltipMapper";
-import InfoIconWrapper from "./../InfoIcon/InfoIconWrapper";
-import type { ThingDescription } from "wot-thing-description-types";
+import {
+  normalizeContext,
+  extractPlaceholders,
+} from "../../services/operations";
 
 export interface IContributeToCatalogProps {
   openModal: () => void;
   close: () => void;
 }
 
-const validationTmcMandatory =
+type PlaceholderValues = Record<string, string>;
+
+const TITLE = "Contribute your TM to a TM Catalog";
+const VALIDATION_TMC_MANDATORY =
   "https://raw.githubusercontent.com/wot-oss/tmc/main/internal/commands/validate/tmc-mandatory.schema.json";
-const validationTmJson =
+const VALIDATION_TM_JSON =
   "https://raw.githubusercontent.com/wot-oss/tmc/main/internal/commands/validate/tm-json-schema-validation.json";
-const validationModbus =
+const VALIDATION_MODBUS =
   "https://raw.githubusercontent.com/wot-oss/tmc/refs/heads/main/internal/commands/validate/modbus.schema.json";
 
 const ContributeToCatalog = forwardRef((props, ref) => {
   const context = useContext(ediTDorContext);
   const td: ThingDescription = context.parsedTD;
+  const contributeCatalogData = context.contributeCatalog;
 
-  const [display, setDisplay] = React.useState<boolean>(false);
-  const [isValid, setIsValid] = React.useState<boolean>(false);
-  const [isValidating, setIsValidating] = React.useState<boolean>(false);
+  /** General */
+  const [state, dispatch] = useReducer(
+    contributionToCatalogReducer,
+    initialState
+  );
 
-  const [model, setModel] = React.useState<string>("");
-  const [author, setAuthor] = React.useState<string>("");
-  const [manufacturer, setManufacturer] = React.useState<string>("");
-  const [license, setLicense] = React.useState<string>("");
-  const [copyrightYear, setCopyrightYear] = React.useState<string>("");
-  const [holder, setHolder] = React.useState<string>("");
+  const dynamicTitle = useMemo(() => {
+    const step = state.workflow.currentStep;
+    return `${TITLE} - ${step === 1 ? "Metadata" : step === 2 ? "Interaction" : "Submission"}`;
+  }, [state.workflow.currentStep]);
 
-  const [tmCatalogEndpoint, setTmCatalogEndpoint] = React.useState<string>("");
-  const [repository, setRepository] = React.useState<string>("");
+  const progressPercent = useMemo(() => {
+    const step = state.workflow.currentStep;
+    return step === 1 ? 0 : step === 2 ? 50 : 100;
+  }, [state.workflow.currentStep]);
 
-  const [errorMessage, setErrorMessage] = React.useState<string>("");
-  const [tmCatalogEndpointError, setTmCatalogEndpointError] =
-    React.useState<string>("");
-
-  const [repositoryError, setRepositoryError] = React.useState<string>("");
-
-  const [submitted, setSubmitted] = React.useState<boolean>(false);
-  const [copied, setCopied] = React.useState<boolean>(false);
-  const [link, setLink] = React.useState<string>("");
-  const [id, setId] = React.useState<string>("");
-
-  const [submittedError, setSubmittedError] = React.useState<string>("");
-  const [tmCopy, setTMCopy] = React.useState<ThingDescription | null>(null);
+  const propertiesTd = useMemo(() => {
+    return td["properties"] || {};
+  }, [td]);
 
   useImperativeHandle(ref, () => {
     return {
@@ -84,12 +91,26 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   });
 
   const open = () => {
-    setModel(`${td["schema:mpn"] ?? ""}`);
-    setAuthor(td["schema:author"]?.["schema:name"] ?? "");
-    setManufacturer(td["schema:manufacturer"]?.["schema:name"] ?? "");
-    setLicense(`${td["schema:license"] ?? ""}`);
-    setCopyrightYear(`${td["schema:copyrightYear"] ?? ""}`);
-    setHolder(`${td["schema:copyrightHolder"]?.["name"] || ""}`.trim());
+    const metadataFromTd = {
+      model: td["schema:mpn"] || contributeCatalogData.model || "",
+      author:
+        td["schema:author"]?.["schema:name"] ||
+        contributeCatalogData.author ||
+        "",
+      manufacturer:
+        td["schema:manufacturer"]?.["schema:name"] ||
+        contributeCatalogData.manufacturer ||
+        "",
+      license: td["schema:license"] || contributeCatalogData.license || "",
+      copyrightYear:
+        td["schema:copyrightYear"] || contributeCatalogData.copyrightYear || "",
+      holder: (
+        td["schema:copyrightHolder"]?.["name"] ||
+        contributeCatalogData.holder ||
+        ""
+      ).trim(),
+    };
+    dispatch({ type: "INITIALIZE_METADATA", payload: metadataFromTd });
 
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -105,55 +126,271 @@ const ContributeToCatalog = forwardRef((props, ref) => {
       : "";
 
     if (!isValidUrl(decodedTmcEndpoint) && decodedTmcEndpoint !== "") {
-      setTmCatalogEndpointError(
-        "Please enter a valid URL starting with http:// or https://"
-      );
+      dispatch({
+        type: "SET_SUBMISSION_TMCATALOG_ENDPOINT_ERROR",
+        payload: "Please enter a valid URL starting with http:// or https://",
+      });
     }
 
-    setTmCatalogEndpoint(decodedTmcEndpoint);
-    setRepository(decodedRepository);
-    setDisplay(true);
+    if (
+      decodedTmcEndpoint === "" &&
+      contributeCatalogData.tmCatalogEndpoint !== ""
+    ) {
+      dispatch({
+        type: "SET_SUBMISSION_TMCATALOG_ENDPOINT",
+        payload: contributeCatalogData.tmCatalogEndpoint,
+      });
+    } else {
+      dispatch({
+        type: "SET_SUBMISSION_TMCATALOG_ENDPOINT",
+        payload: decodedTmcEndpoint,
+      });
+    }
+
+    if (
+      decodedRepository === "" &&
+      contributeCatalogData.nameRepository !== ""
+    ) {
+      dispatch({
+        type: "SET_SUBMISSION_REPOSITORY",
+        payload: contributeCatalogData.nameRepository,
+      });
+    } else {
+      dispatch({
+        type: "SET_SUBMISSION_REPOSITORY",
+        payload: decodedRepository,
+      });
+    }
+
+    dispatch({ type: "SHOW_DIALOG", payload: true });
   };
 
   const close = () => {
-    setModel("");
-    setAuthor("");
-    setManufacturer("");
-    setLicense("");
-    setCopyrightYear("");
-    setHolder("");
-    setErrorMessage("");
-    setTmCatalogEndpointError("");
-    setRepositoryError("");
-    setSubmittedError("");
-    setSubmitted(false);
-    setCopied(false);
-    setLink("");
-    setId("");
-    setTmCatalogEndpoint("");
-    setRepository("");
-    setIsValidating(false);
-    setIsValid(false);
-    setDisplay(false);
+    dispatch({ type: "RESET_STATE" });
+
+    context.updateNorthboundConnection({
+      message: "",
+      northboundTd: {},
+    });
+
+    context.updateContributeCatalog({
+      ...context.contributeCatalog,
+      dynamicValues: {},
+    });
+  };
+
+  const handleCatalogValidation = async () => {
+    dispatch({ type: "SET_METADATA_ERROR_MESSAGE", payload: "" });
+    dispatch({ type: "SET_METADATA_VALIDATION", payload: "VALIDATING" });
+
+    const { model, author, manufacturer, license, copyrightYear, holder } =
+      state.metadata;
+    try {
+      const tdCopy = structuredClone(td);
+
+      if (
+        model.trim() === "" ||
+        author.trim() === "" ||
+        manufacturer.trim() === ""
+      ) {
+        let message = `Please fill in all required fields: ${model === "" ? "Model" : ""} ${author === "" ? "Author" : ""} ${manufacturer === "" ? "Manufacturer" : ""}`;
+        throw new Error(message);
+      }
+
+      tdCopy["schema:mpn"] = model;
+      tdCopy["schema:author"] = {
+        "schema:name": author,
+      };
+      tdCopy["schema:manufacturer"] = {
+        "@type": "Organization",
+        "schema:name": manufacturer,
+      };
+      /** Non mandatory fields */
+      if (license && license.trim() !== "") {
+        tdCopy["schema:license"] = license;
+      } else {
+        delete tdCopy["schema:license"];
+      }
+      if (copyrightYear) {
+        tdCopy["schema:copyrightYear"] = copyrightYear;
+      } else {
+        delete tdCopy["schema:copyrightYear"];
+      }
+      if (holder && holder.trim() !== "") {
+        tdCopy["schema:copyrightHolder"] = {
+          "@type": "Organization",
+          "schema:name": holder,
+        };
+      } else {
+        delete tdCopy["schema:copyrightHolder"];
+      }
+
+      try {
+        tdCopy["@context"] = normalizeContext(tdCopy["@context"]);
+      } catch (err) {
+        let message = `Context normalization error: ${err instanceof Error ? err.message : "Unknown error"}`;
+        throw new Error(message);
+      }
+
+      const ajv = new Ajv2019({
+        strict: false,
+        allErrors: true,
+        validateFormats: true,
+      });
+      addFormats(ajv);
+      ajv.addMetaSchema(draft7MetaSchema);
+
+      let response = await fetch(VALIDATION_TMC_MANDATORY);
+      if (!response.ok)
+        throw new Error(
+          `Failed to fetch schema from ${VALIDATION_TMC_MANDATORY}`
+        );
+
+      let schema = await response.json();
+      let validate = ajv.compile(schema);
+      let valid = validate(tdCopy);
+      if (!valid) {
+        let message = `Validation failed for ${VALIDATION_TMC_MANDATORY}: ${
+          validate.errors ? ajv.errorsText(validate.errors) : ""
+        }`;
+        throw new Error(message);
+      }
+
+      response = await fetch(VALIDATION_TM_JSON);
+      if (!response.ok)
+        throw new Error(`Failed to fetch schema from ${VALIDATION_TM_JSON}`);
+
+      let schemaTmJson = await response.json();
+      ajv.addSchema(schemaTmJson);
+
+      response = await fetch(VALIDATION_MODBUS);
+      if (!response.ok)
+        throw new Error(`Failed to fetch schema from ${VALIDATION_MODBUS}`);
+      schema = await response.json();
+      validate = ajv.compile(schema);
+      valid = validate(tdCopy);
+      if (!valid) {
+        let message = `Validation failed for ${VALIDATION_MODBUS}: ${
+          validate.errors ? ajv.errorsText(validate.errors) : ""
+        }`;
+        throw new Error(message);
+      }
+
+      dispatch({ type: "SET_BACKGROUND_TD_TO_SEND", payload: tdCopy });
+      dispatch({ type: "SET_METADATA_ERROR_MESSAGE", payload: "" });
+      dispatch({ type: "SET_METADATA_VALIDATION", payload: "VALID" });
+      dispatch({
+        type: "UPDATE_INTERACTION_PLACEHOLDER_VALUES",
+        payload: initialPlaceholderValues,
+      });
+    } catch (err) {
+      let message = `Could not validate:
+        ${err instanceof Error ? err.message : String(err)}`;
+      dispatch({ type: "SET_METADATA_ERROR_MESSAGE", payload: message });
+      return;
+    }
+  };
+
+  const handleCopyThingModelClick = async () => {
+    await navigator.clipboard.writeText(
+      JSON.stringify(state.workflow.backgroundTdToSend, null, 2)
+    );
+    dispatch({ type: "SET_METADATA_COPIED", payload: true });
+  };
+
+  const handleOnChangeModel = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    dispatch({ type: "SET_METADATA_MODEL", payload: value });
+    contributeCatalogData.model = value;
+    context.updateContributeCatalog(contributeCatalogData);
+  };
+
+  const handleOnChangeAuthor = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    dispatch({ type: "SET_METADATA_AUTHOR", payload: value });
+    contributeCatalogData.author = value;
+    context.updateContributeCatalog(contributeCatalogData);
+  };
+
+  const handleOnChangeManufacturer = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    dispatch({ type: "SET_METADATA_MANUFACTURER", payload: value });
+    contributeCatalogData.manufacturer = value;
+    context.updateContributeCatalog(contributeCatalogData);
+  };
+
+  const handleOnChangeLicense = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    dispatch({ type: "SET_METADATA_LICENSE", payload: value });
+    contributeCatalogData.license = value;
+    context.updateContributeCatalog(contributeCatalogData);
+  };
+
+  const handleOnChangeCopyrightYear = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    dispatch({ type: "SET_METADATA_COPYRIGHT_YEAR", payload: value });
+    contributeCatalogData.copyrightYear = value;
+    context.updateContributeCatalog(contributeCatalogData);
+  };
+
+  const handleOnChangeHolder = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    dispatch({ type: "SET_METADATA_HOLDER", payload: value });
+    contributeCatalogData.holder = value;
+    context.updateContributeCatalog(contributeCatalogData);
+  };
+
+  const initialPlaceholderValues = useMemo<PlaceholderValues>(() => {
+    if (!context.offlineTD) {
+      return {};
+    }
+    const placeholders: string[] = extractPlaceholders(context.offlineTD);
+    return placeholders.reduce<PlaceholderValues>((acc, key: string) => {
+      acc[key] = "";
+      return acc;
+    }, {});
+  }, [context.offlineTD]);
+
+  const handleFieldChange = (placeholder: string, value: string) => {
+    dispatch({
+      type: "UPDATE_INTERACTION_SINGLE_PLACEHOLDER",
+      key: placeholder,
+      value: value.trim(),
+    });
+    context.updateContributeCatalog({
+      ...context.contributeCatalog,
+      dynamicValues: {
+        ...context.contributeCatalog.dynamicValues,
+        [placeholder]: value.trim(),
+      },
+    });
   };
 
   const handleSubmit = async () => {
-    setSubmittedError("");
-    setSubmitted(false);
+    dispatch({ type: "SET_SUBMISSION_SUBMITTED_ERROR", payload: "" });
+    dispatch({ type: "SET_SUBMISSION_SUBMITTED", payload: false });
+
     try {
       const response = await requestWeb(
-        `${tmCatalogEndpoint}/thing-models`,
+        `${state.submission.tmCatalogEndpoint}/thing-models`,
         "POST",
-        JSON.stringify(tmCopy),
+        JSON.stringify(state.workflow.backgroundTdToSend),
         {
           queryParams: {
-            repo: repository,
+            repo: state.submission.repository,
           },
         }
       );
 
       if (!response) {
-        setSubmittedError("Failed to connect to the server");
+        dispatch({
+          type: "SET_SUBMISSION_SUBMITTED_ERROR",
+          payload: "Failed to connect to the server",
+        });
         return;
       }
 
@@ -163,118 +400,33 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         const { tmID, message } = result.data;
 
         if (tmID) {
-          setSubmitted(true);
-          setId(tmID);
-          setLink(`${tmCatalogEndpoint}/thing-models/${tmID}`);
+          dispatch({ type: "SET_SUBMISSION_SUBMITTED", payload: true });
+          dispatch({ type: "SET_SUBMISSION_ID", payload: tmID });
+          dispatch({
+            type: "SET_SUBMISSION_LINK",
+            payload: `${state.submission.tmCatalogEndpoint}/thing-models/${tmID}`,
+          });
         } else {
-          setSubmittedError("Response missing tmID");
+          dispatch({
+            type: "SET_SUBMISSION_SUBMITTED_ERROR",
+            payload: "Response missing tmID",
+          });
         }
         return;
       }
       const errorMessage = result.detail + " " + result.title;
-      setSubmittedError(`Error: ${errorMessage}`);
-      return;
-    } catch (err) {
-      setSubmittedError(
-        `Failed to process request: ${
-          err instanceof Error ? err.message : "Unknown error"
-        }`
-      );
-    }
-  };
-
-  const handleCatalogValidation = async () => {
-    setErrorMessage("");
-    setIsValid(false);
-    setIsValidating(true);
-
-    const tdCopy = structuredClone(td);
-    tdCopy["schema:mpn"] = model;
-    tdCopy["schema:author"] = {
-      "schema:name": author,
-    };
-    tdCopy["schema:manufacturer"] = {
-      "@type": "Organization",
-      "schema:name": manufacturer,
-    };
-    tdCopy["schema:license"] = license;
-    tdCopy["schema:copyrightYear"] = copyrightYear;
-    tdCopy["schema:copyrightHolder"] = {
-      "@type": "Organization",
-      "schema:name": holder,
-    };
-
-    try {
-      tdCopy["@context"] = normalizeContext(tdCopy["@context"]);
-    } catch (err) {
-      setIsValid(false);
-      setErrorMessage(
-        err instanceof Error ? err.message : "Context normalization error"
-      );
-      return;
-    }
-
-    setTMCopy(tdCopy);
-
-    try {
-      const ajv = new Ajv2019({
-        strict: false,
-        allErrors: true,
-        validateFormats: true,
+      dispatch({
+        type: "SET_SUBMISSION_SUBMITTED_ERROR",
+        payload: `Error: ${errorMessage}`,
       });
-      addFormats(ajv);
-      ajv.addMetaSchema(draft7MetaSchema);
-
-      let response = await fetch(validationTmcMandatory);
-      if (!response.ok)
-        throw new Error(
-          `Failed to fetch schema from ${validationTmcMandatory}`
-        );
-      let schema = await response.json();
-      let validate = ajv.compile(schema);
-      let valid = validate(tdCopy);
-      if (!valid) {
-        setIsValid(false);
-        setErrorMessage(
-          `Validation failed for ${validationTmcMandatory}: ${
-            validate.errors ? ajv.errorsText(validate.errors) : ""
-          }`
-        );
-        return;
-      }
-
-      response = await fetch(validationTmJson);
-      if (!response.ok)
-        throw new Error(`Failed to fetch schema from ${validationTmJson}`);
-      let schemaTmJson = await response.json();
-      ajv.addSchema(schemaTmJson);
-
-      response = await fetch(validationModbus);
-      if (!response.ok)
-        throw new Error(`Failed to fetch schema from ${validationModbus}`);
-      schema = await response.json();
-      validate = ajv.compile(schema);
-      valid = validate(tdCopy);
-      if (!valid) {
-        setIsValid(false);
-        setErrorMessage(
-          `Validation failed for ${validationModbus}: ${
-            validate.errors ? ajv.errorsText(validate.errors) : ""
-          }`
-        );
-        return;
-      }
-
-      setIsValid(true);
-      setErrorMessage("");
+      return;
     } catch (err) {
-      setIsValid(false);
-      setErrorMessage(
-        "Could not validate: " +
-          (err instanceof Error ? err.message : String(err))
-      );
-    } finally {
-      setIsValidating(false);
+      dispatch({
+        type: "SET_SUBMISSION_SUBMITTED_ERROR",
+        payload: `Failed to process request: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`,
+      });
     }
   };
 
@@ -282,304 +434,252 @@ const ContributeToCatalog = forwardRef((props, ref) => {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = e.target.value;
-    setTmCatalogEndpoint(value);
+    dispatch({ type: "SET_SUBMISSION_TMCATALOG_ENDPOINT", payload: value });
+    contributeCatalogData.tmCatalogEndpoint = value;
     if (
       !value.startsWith("https") &&
       !value.startsWith("http:") &&
       value.length > 0
     ) {
-      setTmCatalogEndpointError("The endpoint must start with http or https.");
+      dispatch({
+        type: "SET_SUBMISSION_TMCATALOG_ENDPOINT_ERROR",
+        payload: "The endpoint must start with http or https.",
+      });
     } else {
-      setTmCatalogEndpointError("");
+      dispatch({
+        type: "SET_SUBMISSION_TMCATALOG_ENDPOINT_ERROR",
+        payload: "",
+      });
     }
-    setSubmitted(false);
-    setSubmittedError("");
+    dispatch({ type: "SET_SUBMISSION_SUBMITTED", payload: false });
+    dispatch({ type: "SET_SUBMISSION_SUBMITTED_ERROR", payload: "" });
   };
 
   const handleRepositoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setRepository(value);
+    dispatch({ type: "SET_SUBMISSION_REPOSITORY", payload: value });
+    contributeCatalogData.nameRepository = value;
 
     if (value.length === 0) {
-      setRepositoryError("The repository name is mandatory");
+      dispatch({
+        type: "SET_SUBMISSION_REPOSITORY_ERROR",
+        payload: "The repository name is mandatory",
+      });
     } else {
-      setRepositoryError("");
+      dispatch({ type: "SET_SUBMISSION_REPOSITORY_ERROR", payload: "" });
     }
-    setSubmitted(false);
-    setSubmittedError("");
+    dispatch({ type: "SET_SUBMISSION_SUBMITTED", payload: false });
+    dispatch({ type: "SET_SUBMISSION_SUBMITTED_ERROR", payload: "" });
   };
 
-  const handleCopyIdClick = async () => {
-    await navigator.clipboard.writeText(id);
+  const tableHeaders: { key: string; text: string }[] = useMemo(() => {
+    return Object.keys(propertiesTd).length
+      ? [
+          ...["propName"],
+          ...[
+            ...new Set(
+              Object.keys(propertiesTd).flatMap((key) => {
+                const forms = propertiesTd[key].forms || [];
+                return forms.flatMap((form: FormElementBase) =>
+                  Object.keys(form)
+                );
+              })
+            ),
+          ],
+          ...["title"],
+          ...["previewValue"],
+        ].map((key) => ({
+          key,
+          text: formatText(key),
+        }))
+      : [];
+  }, [propertiesTd]);
+
+  const tabelRowsFormsOfProperties = useMemo(() => {
+    return Object.keys(propertiesTd).flatMap((key) => {
+      const forms = propertiesTd[key].forms || [];
+      const title = propertiesTd[key].title || "";
+      return forms.map((form: FormElementBase, index: number) => ({
+        id: `${key} - ${index}`,
+        description: propertiesTd[key].description ?? "",
+        propName: key,
+        title: title,
+        ...form,
+      }));
+    });
+  }, [propertiesTd]);
+
+  const filteredRows = useMemo(() => {
+    return tabelRowsFormsOfProperties.filter((form: FormElementBase) => {
+      if (Array.isArray(form.op)) {
+        return form.op.includes("readproperty");
+      }
+      return form.op === "readproperty";
+    });
+  }, [tabelRowsFormsOfProperties]);
+
+  const filteredHeaders = useMemo(() => {
+    return tableHeaders.filter(
+      (header) =>
+        header.key === "previewValue" ||
+        header.key === "propName" ||
+        header.key === "title"
+    );
+  }, [tableHeaders]);
+
+  const handleEventOnRightButton = () => {
+    if (state.workflow.currentStep === 1) {
+      if (state.metadata.validation !== "VALID") {
+        handleCatalogValidation();
+        return;
+      }
+    }
+    if (state.workflow.currentStep < 3) {
+      dispatch({
+        type: "SET_STEP",
+        payload: state.workflow.currentStep + 1,
+      });
+    } else {
+      close();
+    }
   };
-
-  const handleOpenLinkClick = async () => {
-    window.open(link, "_blank", "noopener,noreferrer");
-  };
-
-  const handleCopyThingModelClick = async () => {
-    const tdCopy = structuredClone(td);
-
-    tdCopy["schema:mpn"] = model;
-    tdCopy["schema:author"] = { "schema:name": author };
-    tdCopy["schema:manufacturer"] = {
-      "@type": "Organization",
-      "schema:name": manufacturer,
-    };
-    tdCopy["schema:license"] = license;
-    tdCopy["schema:copyrightYear"] = copyrightYear;
-    tdCopy["schema:copyrightHolder"] = {
-      "@type": "Organization",
-      "schema:name": holder,
-    };
-    await navigator.clipboard.writeText(JSON.stringify(tdCopy, null, 2));
-    setCopied(true);
-  };
-
   const content = (
     <>
-      <div className="rounded-md bg-black bg-opacity-80 p-2">
-        <h1 className="font-bold">
-          Add fields for Cataloging to ensure quality and discoverability of
-          Thing Models
-        </h1>
-        <div className="px-4">
-          <DialogTextField
-            label="Model*"
-            placeholder="The Manufacturer Part Number (MPN) of the product, or the product to which the offer refers."
-            id="model"
-            type="text"
-            value={model}
-            onChange={(e) => {
-              setModel(e.target.value);
-              setIsValid(false);
-              setSubmitted(false);
-            }}
-            autoFocus={true}
-          />
-          <DialogTextField
-            label="Author*"
-            placeholder="The organization writing the TM"
-            id="author"
-            type="text"
-            value={author}
-            onChange={(e) => {
-              setAuthor(e.target.value);
-              setIsValid(false);
-              setSubmitted(false);
-            }}
-            autoFocus={false}
-          />
-          <DialogTextField
-            label="Manufacturer*"
-            placeholder="Manufacturer of the device"
-            id="manufacturer"
-            type="text"
-            value={manufacturer}
-            onChange={(e) => {
-              setManufacturer(e.target.value);
-              setIsValid(false);
-              setSubmitted(false);
-            }}
-            autoFocus={false}
-          />
-          <DialogTextField
-            label="License"
-            placeholder="URL of the license, e.g., https://www.apache.org/licenses/LICENSE-2.0.txt"
-            id="license"
-            type="text"
-            value={license}
-            onChange={(e) => setLicense(e.target.value)}
-            autoFocus={false}
-          />
-          <DialogTextField
-            label="Copyright Year"
-            placeholder="e.g. 2024..."
-            id="copyright"
-            type="text"
-            value={copyrightYear}
-            onChange={(e) => setCopyrightYear(e.target.value)}
-            autoFocus={false}
-          />
-          <DialogTextField
-            label="Copyright Holder"
-            placeholder="Organization holding the copyright of the TM..."
-            id="holder"
-            type="text"
-            value={holder}
-            onChange={(e) => setHolder(e.target.value)}
-            autoFocus={false}
-          />
-          <div className="flex flex-col">
-            <BaseButton
-              id="catalogValidation"
-              onClick={handleCatalogValidation}
-              variant="primary"
-              type="button"
-              className="my-2 w-1/4"
-            >
-              <div className="flex w-full items-center justify-between">
-                {isValidating ? (
-                  <>
-                    <span className="pl-6">Validating</span>
-                    <RefreshCw className="animate-spin" size={20} />
-                  </>
-                ) : (
-                  <>
-                    <span className="pl-6">Validate</span>
-                    <InfoIconWrapper
-                      tooltip={getValidateTMContent()}
-                      id="validateTMContent"
-                    />
-                  </>
-                )}
-              </div>
-            </BaseButton>
-            {errorMessage && (
-              <div className="mb-2 mt-2 inline h-full w-full rounded bg-red-500 p-2 text-white">
-                <AlertTriangle size={16} className="mr-1 inline" />
-                {errorMessage}
-              </div>
-            )}
-            {isValid && (
-              <>
-                <div className="mb-2 mt-2 inline h-10 rounded bg-green-500 p-2 text-white">
-                  <Check size={16} className="mr-1 inline" />
-                  {"TM is valid"}
-                </div>
-                <BaseButton
-                  id="copyThingModel"
-                  onClick={handleCopyThingModelClick}
-                  variant="primary"
-                  type="button"
-                  className="my-2"
+      <div className="p-4">
+        <div className="p-2">
+          <ProgressBar
+            percent={progressPercent}
+            filledBackground="linear-gradient(to right, #A8B988, #B5D7BD)"
+          >
+            <Step transition="scale">
+              {({ accomplished, index }) => (
+                <div
+                  className={`h-[30px] w-[30px] rounded-full ${accomplished ? "bg-[#B5D7BD]" : "bg-gray-300"} ${accomplished ? "text-white" : "text-gray-500"} flex items-center justify-center border-2 text-lg font-bold ${accomplished ? "border-[#f0bb31]" : "border-gray-300"} transition-colors duration-300`}
                 >
-                  {copied
-                    ? "Copied Thing Model"
-                    : "Click to Copy the full Thing Model"}
-                </BaseButton>
-              </>
-            )}
-          </div>
+                  {index + 1}
+                </div>
+              )}
+            </Step>
+            <Step transition="scale">
+              {({ accomplished, index }) => (
+                <div
+                  className={`h-[30px] w-[30px] rounded-full ${
+                    accomplished ? "bg-[#B5D7BD]" : "bg-gray-300"
+                  } ${
+                    accomplished ? "text-white" : "text-gray-500"
+                  } flex items-center justify-center border-2 text-lg font-bold ${
+                    accomplished ? "border-[#f0bb31]" : "border-gray-300"
+                  } transition-colors duration-300`}
+                >
+                  {index + 1}
+                </div>
+              )}
+            </Step>
+            <Step transition="scale">
+              {({ accomplished, index }) => (
+                <div
+                  className={`h-[30px] w-[30px] rounded-full ${
+                    accomplished ? "bg-[#B5D7BD]" : "bg-gray-300"
+                  } ${
+                    accomplished ? "text-white" : "text-gray-500"
+                  } flex items-center justify-center border-2 text-lg font-bold ${
+                    accomplished ? "border-[#f0bb31]" : "border-gray-300"
+                  } transition-colors duration-300`}
+                >
+                  {index + 1}
+                </div>
+              )}
+            </Step>
+          </ProgressBar>
         </div>
-      </div>
 
-      <div className="my-4 rounded-md bg-black bg-opacity-80 p-2">
-        <h1 className="font-bold">
-          Add the TM Catalog Endpoint and Repository URL
-        </h1>
-        <div className="px-4">
-          <DialogTextField
-            label="TM Catalog Endpoint"
-            placeholder="TM Catalog Endpoint:..."
-            id="catalogEndpoint"
-            type="text"
-            value={tmCatalogEndpoint}
-            autoFocus={false}
-            onChange={handleTmCatalogEndpointChange}
-            className={`${
-              tmCatalogEndpointError ? "border-red-500" : "border-gray-300"
-            } w-full rounded-md border p-2 text-sm`}
-          />
-          {tmCatalogEndpointError && (
-            <div className="mt-1 text-sm text-red-500">
-              {tmCatalogEndpointError}
-            </div>
+        <div className="my-4 flex space-x-2">
+          {state.workflow.currentStep === 1 && (
+            <>
+              <FormMetadata
+                model={state.metadata.model}
+                onChangeModel={handleOnChangeModel}
+                author={state.metadata.author}
+                onChangeAuthor={handleOnChangeAuthor}
+                manufacturer={state.metadata.manufacturer}
+                onChangeManufacturer={handleOnChangeManufacturer}
+                license={state.metadata.license}
+                onChangeLicense={handleOnChangeLicense}
+                copyrightYear={state.metadata.copyrightYear}
+                onChangeCopyrightYear={handleOnChangeCopyrightYear}
+                holder={state.metadata.holder}
+                onChangeHolder={handleOnChangeHolder}
+                onClickCatalogValidation={handleCatalogValidation}
+                onClickCopyThingModel={handleCopyThingModelClick}
+                isValidating={state.metadata.validation === "VALIDATING"}
+                isValid={state.metadata.validation === "VALID"}
+                errorMessage={state.metadata.errorMessage}
+                copied={state.metadata.copied}
+              />
+            </>
           )}
-          <DialogTextField
-            label="Name of the Repository"
-            placeholder="In case there are multiple repositories hosted, specify which one with a string. Example: my-catalog"
-            id="urlRepository"
-            type="text"
-            value={repository}
-            autoFocus={false}
-            onChange={handleRepositoryChange}
-            className={`${
-              repositoryError ? "border-red-500" : "border-gray-300"
-            } w-full rounded-md border p-2 text-sm`}
-          />
-          {repositoryError && (
-            <div className="mt-1 text-sm text-red-500">{repositoryError}</div>
+          {state.workflow.currentStep === 2 && (
+            <FormInteraction
+              filteredHeaders={filteredHeaders}
+              filteredRows={filteredRows}
+              setPropertyResponseMap={(responseMap) =>
+                dispatch({
+                  type: "SET_INTERACTION_PROPERTY_RESPONSE_MAP",
+                  payload: responseMap,
+                })
+              }
+              backgroundTdToSend={state.workflow.backgroundTdToSend}
+              interaction={state.interaction}
+              dispatch={dispatch}
+              handleFieldChange={handleFieldChange}
+            />
           )}
-          <div className="flex flex-col">
-            <BaseButton
-              id="submit"
-              onClick={handleSubmit}
-              variant="primary"
-              type="button"
-              className="mb-2 mt-2 w-1/4"
-            >
-              Submit
-            </BaseButton>
-            {submittedError && (
-              <div className="mb-2 mt-2 inline h-full w-full rounded bg-red-500 p-2 text-white">
-                <AlertTriangle size={16} className="mr-1 inline" />
-                {submittedError}
-              </div>
-            )}
-            {submitted && (
-              <>
-                <div className="mb-2 mt-2 inline h-10 rounded bg-green-500 p-2 text-white">
-                  <Check size={16} className="mr-1 inline" />
-                  {"TM submitted successfully!"}
-                </div>
-                <div className="mb-2 mt-2 grid grid-cols-3 items-center">
-                  <div className="col-span-1 w-full">
-                    <BaseButton
-                      id={id}
-                      onClick={handleCopyIdClick}
-                      variant="primary"
-                      type="button"
-                      className="w-3/4"
-                    >
-                      <div className="flex w-full items-center justify-between">
-                        <span>Copy TM id</span>
-                        <Copy size={20} className="ml-2 cursor-pointer" />
-                      </div>
-                    </BaseButton>
-                  </div>
-                  <h1 className="col-span-2 pl-4 text-center">{id}</h1>
-                </div>
-                <div className="mb-2 mt-2 grid grid-cols-3 items-center">
-                  <div className="col-span-1">
-                    <BaseButton
-                      id={link}
-                      onClick={handleOpenLinkClick}
-                      variant="primary"
-                      type="button"
-                      className="w-3/4"
-                    >
-                      <div className="flex w-full items-center justify-between">
-                        <span>Open in new tab</span>
-                        <ExternalLink
-                          size={20}
-                          className="ml-2 inline cursor-pointer"
-                        />
-                      </div>
-                    </BaseButton>
-                  </div>
-                  <h1 className="col-span-2 pl-4 text-center">{link}</h1>
-                </div>
-              </>
-            )}
-          </div>
+          {state.workflow.currentStep === 3 && (
+            <>
+              <FormSubmission
+                tmCatalogEndpoint={state.submission.tmCatalogEndpoint}
+                tmCatalogEndpointError={state.submission.tmCatalogEndpointError}
+                handleTmCatalogEndpointChange={handleTmCatalogEndpointChange}
+                repository={state.submission.repository}
+                repositoryError={state.submission.repositoryError}
+                handleRepositoryChange={handleRepositoryChange}
+                handleSubmit={handleSubmit}
+                submittedError={state.submission.submittedError}
+                submitted={state.submission.submitted}
+                id={state.submission.id}
+                link={state.submission.link}
+              />
+            </>
+          )}
         </div>
       </div>
     </>
   );
 
-  if (display) {
+  if (state.workflow.showDialog) {
     return ReactDOM.createPortal(
       <DialogTemplate
-        onCancel={close}
-        onSubmit={handleSubmit}
-        children={content}
-        hasSubmit={false}
-        cancelText="Close"
-        title={"Contribute your TM to a TM Catalog"}
-        description={
-          "Fullfil the form below to contribute your TM to the Catalog specified in the endpoint at the end."
+        onHandleEventLeftButton={
+          state.workflow.currentStep > 1
+            ? () =>
+                dispatch({
+                  type: "SET_STEP",
+                  payload: state.workflow.currentStep - 1,
+                })
+            : close
         }
+        onHandleEventRightButton={handleEventOnRightButton}
+        children={content}
+        hasSubmit={true}
+        leftButton={state.workflow.currentStep > 1 ? "Previous" : "Close"}
+        rightButton={state.workflow.currentStep < 3 ? "Next" : "Close"}
+        auxiliaryButton={state.workflow.currentStep === 2}
+        onHandleEventAuxiliaryButton={close}
+        title={dynamicTitle}
+        description={
+          "Follow the steps below to contribute your TM to a Catalog specified in the last step"
+        }
+        className="lg:w-[60%]"
       />,
       document.getElementById("modal-root") as HTMLElement
     );
@@ -587,41 +687,6 @@ const ContributeToCatalog = forwardRef((props, ref) => {
 
   return null;
 });
-
-function normalizeContext(context: any): any {
-  const TD_CONTEXTS = [
-    "https://www.w3.org/2022/wot/td/v1.1",
-    "https://www.w3.org/2019/wot/td/v1",
-  ];
-  const SCHEMA_URL = "https://schema.org/";
-
-  if (typeof context === "string") {
-    if (TD_CONTEXTS.includes(context)) {
-      return [context, { schema: SCHEMA_URL }];
-    }
-    throw new Error("validation schema is wrong");
-  }
-  if (Array.isArray(context)) {
-    const tdContexts = context.filter(
-      (item) => typeof item === "string" && TD_CONTEXTS.includes(item)
-    );
-    const objContexts = context.filter(
-      (item) => typeof item === "object" && item !== null
-    );
-    if (tdContexts.length > 0) {
-      if (objContexts.length > 0) {
-        const newObjContexts = objContexts.map((obj) =>
-          "schema" in obj ? obj : { schema: SCHEMA_URL, ...obj }
-        );
-        return [...tdContexts, ...newObjContexts];
-      } else {
-        return [...tdContexts, { schema: SCHEMA_URL }];
-      }
-    }
-    return context;
-  }
-  return context;
-}
 
 ContributeToCatalog.displayName = "ContributeToCatalog";
 export default ContributeToCatalog;

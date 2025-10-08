@@ -19,3 +19,29 @@ export const removeKeyFromObjects = (
     return rest;
   });
 };
+
+export const getErrorSummary = (array: {
+  [id: string]: { value: string; error: string };
+}): { firstError: { id: string; message: string }; errorCount: number } => {
+  let firstError = { id: "", message: "" };
+  let errorCount = 0;
+
+  for (const [id, result] of Object.entries(array)) {
+    if (result.error && result.error.length > 0) {
+      errorCount++;
+
+      if (!firstError.message) {
+        const propertyName = id.split(" - ")[0];
+        firstError = {
+          id: propertyName,
+          message: result.error,
+        };
+      }
+    }
+  }
+
+  return {
+    firstError,
+    errorCount,
+  };
+};

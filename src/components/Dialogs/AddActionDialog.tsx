@@ -126,11 +126,11 @@ const AddActionDialog = forwardRef<AddActionDialogRef>((_, ref) => {
   if (display) {
     return ReactDOM.createPortal(
       <DialogTemplate
-        onCancel={close}
-        onSubmit={() => {
+        onHandleEventLeftButton={close}
+        onHandleEventRightButton={() => {
           onAddAction();
         }}
-        submitText={`Add ${name}`}
+        rightButton={`Add ${name}`}
         children={children}
         title={`Add New ${name}`}
         description={`Tell us a little something about the ${name} you want to add.`}
