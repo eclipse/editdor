@@ -11,77 +11,93 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+
+// Mock the browser bundle - this needs to match the exact import path in form.ts
+vi.mock("@node-wot/browser-bundle", () => {
+  return {
+    Core: {
+      Servient: vi.fn().mockImplementation(() => ({
+        addClientFactory: vi.fn(),
+        start: vi.fn().mockResolvedValue({
+          consume: vi.fn().mockResolvedValue({
+            readProperty: vi.fn().mockResolvedValue({
+              value: vi.fn().mockResolvedValue({}),
+              ignoreValidation: true,
+            }),
+            writeProperty: vi.fn().mockResolvedValue({}),
+          }),
+        }),
+      })),
+    },
+    Http: {
+      HttpClientFactory: vi.fn(),
+    },
+  };
+});
+
 import {
-  requestWeb,
   isSuccessResponse,
   handleHttpRequest,
-  fetchNorthboundTD,
+  requestWeb,
   extractValueByPath,
   buildUrlWithParams,
 } from "./thingsApiService";
-import { getLocalStorage } from "./localStorage";
-import { HttpResponse, HttpSuccessResponse } from "types/global";
 
-// Mock dependencies
-vi.mock("./localStorage", () => ({
-  getLocalStorage: vi.fn(),
-}));
-
-vi.mock("../utils/strings", () => ({
-  ensureTrailingSlash: vi.fn((url) => (url ? `${url}/` : "")),
-}));
-
-// Setup global fetch mock
-const originalFetch = global.fetch;
+import { HttpSuccessResponse, HttpErrorResponse } from "types/global";
 
 describe("isSuccessResponse", () => {
-  const mockResponseObject = new Response(
-    JSON.stringify({ name: "Thing1", value: 42 }),
-    {
+  test("should return true when response has both 'data' and 'status' properties", () => {
+    const response = {
+      data: new Response(JSON.stringify({ result: "success" })),
       status: 200,
-      statusText: "OK",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-
-  const mockReponseObjectError = new Response(
-    JSON.stringify({ error: "Not Found" }),
-    {
-      status: 404,
-      statusText: "Not Found",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-
-  test("should return true when response has data and status properties", () => {
-    const response: HttpSuccessResponse = {
-      data: mockResponseObject,
-      headers: "",
-      status: 200,
+      headers: "{}",
     };
 
     expect(isSuccessResponse(response)).toBe(true);
   });
 
-  test("should return false when response is missing data or status properties", () => {
-    const response1 = { status: 200 };
-    const response2 = { data: {} };
-    const response3 = { message: "Error", reason: "Bad Request" };
-    // @ts-expect-error Testing invalid shapes
-    expect(isSuccessResponse(response1)).toBe(false);
-    // @ts-expect-error Testing invalid shapes
-    expect(isSuccessResponse(response2)).toBe(false);
-    expect(isSuccessResponse(response3)).toBe(false);
-    // @ts-expect-error Testing invalid shapes
-    expect(isSuccessResponse(mockReponseObjectError)).toBe(false);
+  test("should return false when response is missing 'data' property", () => {
+    const response = {
+      status: 200,
+      message: "Not a success response",
+    };
+    expect(isSuccessResponse(response as HttpErrorResponse)).toBe(false);
+  });
+
+  test("should return false when response is missing 'status' property", () => {
+    const response = {
+      data: new Response(JSON.stringify({ result: "success" })),
+      message: "Not a success response",
+    };
+    // @ts-expect-error - Testing invalid structure
+    expect(isSuccessResponse(response)).toBe(false);
+  });
+
+  test("should return false when response is missing both 'data' and 'status' properties", () => {
+    const response = {
+      message: "Error occurred",
+      reason: "Bad request",
+    };
+    expect(isSuccessResponse(response)).toBe(false);
+  });
+
+  test("should return false for an empty object", () => {
+    expect(isSuccessResponse({} as any)).toBe(false);
+  });
+
+  test("should return false when response has other properties but not required ones", () => {
+    const response = {
+      headers: "{}",
+      body: "content",
+      url: "https://example.com",
+    };
+    expect(isSuccessResponse(response as any)).toBe(false);
   });
 });
-// TODO
-describe.skip("requestWeb", () => {
+
+describe("requestWeb", () => {
+  const originalFetch = global.fetch;
+
   beforeEach(() => {
     global.fetch = vi.fn();
   });
@@ -91,12 +107,13 @@ describe.skip("requestWeb", () => {
     vi.clearAllMocks();
   });
 
-  test("should call fetch with correct parameters for GET request", async () => {
-    const mockFetchResponse = { ok: true };
+  test("should call fetch with default GET method and JSON content-type", async () => {
+    const mockFetchResponse = { ok: true } as any;
     (global.fetch as any).mockResolvedValue(mockFetchResponse);
 
     await requestWeb("https://example.com/api");
 
+    expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(global.fetch).toHaveBeenCalledWith("https://example.com/api", {
       method: "GET",
       body: undefined,
@@ -106,11 +123,11 @@ describe.skip("requestWeb", () => {
     });
   });
 
-  test("should call fetch with correct parameters for POST request with body", async () => {
-    const mockFetchResponse = { ok: true };
+  test("should call fetch with provided HTTP method and body", async () => {
+    const mockFetchResponse = { ok: true } as any;
     (global.fetch as any).mockResolvedValue(mockFetchResponse);
-
     const body = JSON.stringify({ name: "test" });
+
     await requestWeb("https://example.com/api", "POST", body);
 
     expect(global.fetch).toHaveBeenCalledWith("https://example.com/api", {
@@ -122,25 +139,22 @@ describe.skip("requestWeb", () => {
     });
   });
 
-  test("should append query parameters to URL when provided", async () => {
-    const mockFetchResponse = { ok: true };
+  test("should append query parameters (string, number, boolean) to URL", async () => {
+    const mockFetchResponse = { ok: true } as any;
     (global.fetch as any).mockResolvedValue(mockFetchResponse);
 
     await requestWeb("https://example.com/api", "GET", undefined, {
-      queryParams: { page: 1, filter: "active", enabled: true },
+      queryParams: { page: 2, filter: "active", enabled: true },
     });
 
-    // The URL in the call should include the query parameters
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringMatching(
-        /https:\/\/example\.com\/api\?page=1&filter=active&enabled=true/
-      ),
-      expect.anything()
+    const calledWithUrl = (global.fetch as any).mock.calls[0][0] as string;
+    expect(calledWithUrl).toMatch(
+      /https:\/\/example\.com\/api\?page=2&filter=active&enabled=true/
     );
   });
 
   test("should merge custom headers with default Content-Type header", async () => {
-    const mockFetchResponse = { ok: true };
+    const mockFetchResponse = { ok: true } as any;
     (global.fetch as any).mockResolvedValue(mockFetchResponse);
 
     await requestWeb("https://example.com/api", "GET", undefined, {
@@ -156,168 +170,230 @@ describe.skip("requestWeb", () => {
       },
     });
   });
+
+  test("should allow overriding default Content-Type header", async () => {
+    const mockFetchResponse = { ok: true } as any;
+    (global.fetch as any).mockResolvedValue(mockFetchResponse);
+
+    await requestWeb("https://example.com/api", "GET", undefined, {
+      headers: { "Content-Type": "text/plain" },
+    });
+
+    expect(global.fetch).toHaveBeenCalledWith("https://example.com/api", {
+      method: "GET",
+      body: undefined,
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    });
+  });
+
+  test("should pass through additional fetch options (e.g., cache)", async () => {
+    const mockFetchResponse = { ok: true } as any;
+    (global.fetch as any).mockResolvedValue(mockFetchResponse);
+
+    await requestWeb("https://example.com/api", "GET", undefined, {
+      cache: "no-store" as RequestCache,
+    });
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://example.com/api",
+      expect.objectContaining({
+        cache: "no-store",
+        method: "GET",
+      })
+    );
+  });
+
+  test("should correctly handle relative URL with query params using window.location.origin", async () => {
+    const mockFetchResponse = { ok: true } as any;
+    (global.fetch as any).mockResolvedValue(mockFetchResponse);
+
+    // Simulate origin if needed (JSDOM usually sets this)
+    const originalLocation = window.location;
+    Object.defineProperty(window, "location", {
+      value: { ...originalLocation, origin: "https://test.local" },
+      writable: true,
+      configurable: true,
+    });
+
+    await requestWeb("/api/devices", "GET", undefined, {
+      queryParams: { id: 10 },
+    });
+
+    const calledWithUrl = (global.fetch as any).mock.calls[0][0] as string;
+    expect(calledWithUrl).toBe("https://test.local/api/devices?id=10");
+
+    // Restore location
+    Object.defineProperty(window, "location", {
+      value: originalLocation,
+      writable: true,
+      configurable: true,
+    });
+  });
+
+  test("should return the underlying fetch response", async () => {
+    const mockFetchResponse = { ok: true, status: 204 } as any;
+    (global.fetch as any).mockResolvedValue(mockFetchResponse);
+
+    const result = await requestWeb("https://example.com/ping");
+    expect(result).toBe(mockFetchResponse);
+  });
+
+  test("should forward object body as-is (without stringifying)", async () => {
+    const mockFetchResponse = { ok: true } as any;
+    (global.fetch as any).mockResolvedValue(mockFetchResponse);
+    const bodyObj = { nested: { a: 1 } } as any;
+
+    await requestWeb("https://example.com/api", "PUT", bodyObj);
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://example.com/api",
+      expect.objectContaining({
+        body: bodyObj,
+        method: "PUT",
+      })
+    );
+  });
 });
-// TODO
-describe.skip("handleHttpRequest", () => {
+
+describe("handleHttpRequest", () => {
+  const originalFetch = global.fetch;
   beforeEach(() => {
     global.fetch = vi.fn();
   });
-
   afterEach(() => {
     global.fetch = originalFetch;
     vi.clearAllMocks();
   });
 
-  test("should return a success response when fetch is successful", async () => {
-    const mockResponseData = { result: "success" };
-    const mockResponse = {
-      ok: true,
+  test("should return success structure when fetch ok is true", async () => {
+    const mockResponse = new Response(JSON.stringify({ ok: true }), {
       status: 200,
-      json: () => Promise.resolve(mockResponseData),
-      headers: new Headers(),
-    };
-
+    });
     (global.fetch as any).mockResolvedValue(mockResponse);
 
     const result = await handleHttpRequest("https://example.com/api");
 
     expect(isSuccessResponse(result)).toBe(true);
-    expect(result.status).toBe(200);
-    expect(result.data).toBe(mockResponse);
+    if (isSuccessResponse(result)) {
+      expect(result.status).toBe(200);
+      expect(result.data).toBe(mockResponse);
+      expect(typeof result.headers).toBe("string");
+    }
   });
 
-  test("should return an error response when fetch fails with HTTP error status", async () => {
-    const mockErrorData = { error: "Not Found" };
-    const mockResponse = {
-      ok: false,
-      status: 404,
-      json: () => Promise.resolve(mockErrorData),
-    };
+  const statusMapping: Array<{
+    status: number;
+    phrase: string;
+    contains: string;
+  }> = [
+    { status: 301, phrase: "Monitors for the property", contains: "301" },
+    { status: 304, phrase: "Not Modified", contains: "304" },
+    { status: 302, phrase: "Bad url", contains: "302" },
+    { status: 400, phrase: "Bad Request", contains: "400" },
+    { status: 401, phrase: "Unauthorized", contains: "401" },
+    { status: 403, phrase: "Forbidden", contains: "403" },
+    { status: 404, phrase: "Not Found", contains: "404" },
+    { status: 405, phrase: "Property not writable", contains: "405" },
+    { status: 406, phrase: "Invalid property value", contains: "406" },
+    { status: 409, phrase: "Conflict", contains: "409" },
+    { status: 429, phrase: "Too Many Requests", contains: "429" },
+    { status: 499, phrase: "Client Closed Request", contains: "499" },
+    { status: 500, phrase: "Internal Server Error", contains: "500" },
+    { status: 502, phrase: "Bad Gateway", contains: "502" },
+    { status: 503, phrase: "Service Unavailable", contains: "503" },
+    { status: 504, phrase: "Gateway Timeout", contains: "504" },
+  ];
 
+  test.each(statusMapping)(
+    "should map HTTP status $status to error phrase '$phrase'",
+    async ({ status, phrase, contains }) => {
+      const mockErrorBody = { error: phrase };
+      if (status === 304) {
+        const mockResponse304 = {
+          ok: false,
+          status,
+          headers: new Headers({ "Content-Type": "application/json" }),
+          json: () => Promise.resolve(mockErrorBody),
+        } as any;
+        (global.fetch as any).mockResolvedValue(mockResponse304);
+      } else {
+        const mockResponse = new Response(JSON.stringify(mockErrorBody), {
+          status,
+          headers: { "Content-Type": "application/json" },
+        });
+        (global.fetch as any).mockResolvedValue(mockResponse);
+      }
+
+      const result = await handleHttpRequest("https://example.com/api");
+
+      expect(isSuccessResponse(result)).toBe(false);
+      if (isSuccessResponse(result)) {
+        throw new Error("Expected error response");
+      }
+      expect(result.message).toContain(phrase);
+      expect(result.message).toContain(String(status));
+      expect(result.reason === phrase || result.reason === "").toBe(true);
+    }
+  );
+
+  test("should capture reason from error JSON body when available", async () => {
+    const status = 404;
+    const mockErrorBody = { error: "Not Found Resource" };
+    const mockResponse = new Response(JSON.stringify(mockErrorBody), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
     (global.fetch as any).mockResolvedValue(mockResponse);
 
     const result = await handleHttpRequest("https://example.com/api");
-
     expect(isSuccessResponse(result)).toBe(false);
-    expect(result.message).toContain("Not Found");
-    expect(result.reason).toBe("Not Found");
+    if (isSuccessResponse(result)) {
+      throw new Error("Expected error response");
+    }
+    expect(result.reason).toBe("Not Found Resource");
   });
 
-  test("should handle network errors during fetch", async () => {
-    (global.fetch as any).mockRejectedValue(new Error("Network error"));
+  test("should return generic error message when JSON parse of error body fails", async () => {
+    const status = 500;
+    // Create a body that is invalid JSON by passing a stream-like object (simpler: override json())
+    const badResponse: any = new Response("not-json", { status });
+    badResponse.json = () => Promise.reject(new Error("Invalid JSON"));
+    (global.fetch as any).mockResolvedValue(badResponse);
 
     const result = await handleHttpRequest("https://example.com/api");
-
     expect(isSuccessResponse(result)).toBe(false);
-    expect(result.message).toBe("Network error");
-  });
-
-  test("should handle JSON parsing errors in error responses", async () => {
-    const mockResponse = {
-      ok: false,
-      status: 500,
-      json: () => Promise.reject(new Error("Invalid JSON")),
-    };
-
-    (global.fetch as any).mockResolvedValue(mockResponse);
-
-    const result = await handleHttpRequest("https://example.com/api");
-
-    expect(isSuccessResponse(result)).toBe(false);
+    if (isSuccessResponse(result)) {
+      throw new Error("Expected error response");
+    }
     expect(result.message).toContain("Internal Server Error");
   });
-});
-// TODO
-describe.skip("fetchNorthboundTD", () => {
-  beforeEach(() => {
-    global.fetch = vi.fn();
-    vi.clearAllMocks();
+
+  test("should handle network error thrown by fetch", async () => {
+    (global.fetch as any).mockRejectedValue(new Error("Network failure"));
+
+    const result = await handleHttpRequest("https://example.com/api");
+    expect(isSuccessResponse(result)).toBe(false);
+    if (isSuccessResponse(result)) {
+      throw new Error("Expected error response");
+    }
+    expect(result.message).toBe("Network failure");
   });
 
-  afterEach(() => {
-    global.fetch = originalFetch;
-  });
-
-  test("should fetch and return Thing Description when northbound URL is configured", async () => {
-    const tdId = "thing123";
-    const mockTD = {
-      "@context": "https://www.w3.org/2019/wot/td/v1",
-      id: "thing123",
-      title: "Test Thing",
-    };
-
-    // Mock the localStorage function
-    (getLocalStorage as jest.Mock).mockReturnValue(
-      "https://northbound.example.com"
-    );
-
-    // Mock successful response
-    const mockResponse = {
-      ok: true,
-      status: 200,
-      json: () => Promise.resolve(mockTD),
-      headers: new Headers(),
-    };
-
+  test("should handle unexpected non-mapped status with default branch", async () => {
+    const status = 418; // I'm a teapot (not explicitly mapped)
+    const mockResponse = new Response(JSON.stringify({ error: "Teapot" }), {
+      status,
+    });
     (global.fetch as any).mockResolvedValue(mockResponse);
 
-    const result = await fetchNorthboundTD(tdId);
-
-    expect(result.message).toBe("Northbound TD available");
-    expect(result.data).toEqual(mockTD);
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining("https://northbound.example.com/thing123"),
-      expect.anything()
-    );
-  });
-
-  test("should return error message when northbound URL is not configured", async () => {
-    (getLocalStorage as jest.Mock).mockReturnValue("");
-
-    const result = await fetchNorthboundTD("thing123");
-
-    expect(result.message).toBe("No northbound URL configured in settings");
-    expect(result.data).toBeNull();
-    expect(global.fetch).not.toHaveBeenCalled();
-  });
-
-  test("should handle HTTP error when fetching TD", async () => {
-    (getLocalStorage as jest.Mock).mockReturnValue(
-      "https://northbound.example.com"
-    );
-
-    const mockErrorResponse = {
-      ok: false,
-      status: 404,
-      json: () => Promise.resolve({ error: "Not Found" }),
-    };
-
-    (global.fetch as any).mockResolvedValue(mockErrorResponse);
-
-    const result = await fetchNorthboundTD("thing123");
-
-    expect(result.message).toContain("Not Found");
-    expect(result.data).toBeNull();
-  });
-
-  test("should handle JSON parsing errors", async () => {
-    (getLocalStorage as jest.Mock).mockReturnValue(
-      "https://northbound.example.com"
-    );
-
-    const mockResponse = {
-      ok: true,
-      status: 200,
-      json: () => Promise.reject(new Error("Invalid JSON")),
-      headers: new Headers(),
-    };
-
-    (global.fetch as any).mockResolvedValue(mockResponse);
-
-    const result = await fetchNorthboundTD("thing123");
-
-    expect(result.message).toBe("Failed to parse northbound TD");
-    expect(result.data).toBeNull();
+    const result = await handleHttpRequest("https://example.com/api");
+    expect(isSuccessResponse(result)).toBe(false);
+    if (isSuccessResponse(result)) {
+      throw new Error("Expected error response");
+    }
+    expect(result.message).toContain("Request failed with status 418");
   });
 });
 
