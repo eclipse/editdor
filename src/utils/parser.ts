@@ -10,6 +10,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
+import Papa from "papaparse";
+
 export type CsvData = {
   name: string;
   title?: string;
@@ -72,28 +74,51 @@ type Properties = {
  */
 export const parseCsv = (
   csvContent: string,
-  hasHeaders: boolean = true,
-  character: string
+  hasHeaders: boolean = true
 ): CsvData[] => {
   if (csvContent === "") throw new Error("CSV content is empty");
 
-  const rows = csvContent
-    .split("\n")
-    .map((row) => row.trim())
-    .filter((row) => row.length > 0);
+  const res = Papa.parse<CsvData>(csvContent, {
+    header: true,
+    quoteChar: '"',
+    skipEmptyLines: true,
+    dynamicTyping: false,
+    transformHeader: (h) => h.trim(),
+    transform: (value) => (typeof value === "string" ? value.trim() : value),
+    complete: (results) => {
+      console.log(results.data, results.errors, results.meta);
+    },
+  });
 
-  if (hasHeaders) {
-    const headers = rows[0].split(character).map((header) => header.trim());
-    return rows.slice(1).map((row) => {
-      const values = row.split(character).map((value) => value.trim());
-      return headers.reduce((acc, header, index) => {
-        acc[header] = values[index];
-        return acc;
-      }, {} as CsvData);
-    });
-  } else {
-    throw new Error("CSV parsing without headers is not supported");
+  if (res.errors.length) {
+    // Gather first few errors for context
+    const msg = res.errors
+      .slice(0, 3)
+      .map(
+        (e) =>
+          `Row ${e.row ?? "?"}: ${e.message}${
+            e.code ? ` (code=${e.code})` : ""
+          }`
+      )
+      .join("; ");
+    throw new Error(`CSV parse failed: ${msg}`);
   }
+
+  return res.data.filter((row) =>
+    Object.values(row).some((v) => v !== "" && v != null)
+  );
+};
+
+/**
+ *  Helper to safely parse optional numeric CSV fields:
+ *
+ */
+const parseOptionalNumber = (value?: string): number | undefined => {
+  if (value == null) return undefined;
+  const trimmed = value.trim();
+  if (trimmed === "") return undefined;
+  const num = Number(trimmed);
+  return Number.isFinite(num) ? num : undefined;
 };
 
 /**
@@ -106,8 +131,12 @@ export const mapRowToProperty = (row: CsvData): Property => ({
   readOnly: true,
   ...(row.title ? { title: row.title } : {}),
   ...(row.description ? { description: row.description } : {}),
-  ...(row.minimum ? { minimum: Number(row.minimum) } : {}),
-  ...(row.maximum ? { maximum: Number(row.maximum) } : {}),
+  ...(parseOptionalNumber(row.minimum) !== undefined
+    ? { minimum: parseOptionalNumber(row.minimum)! }
+    : {}),
+  ...(parseOptionalNumber(row.maximum) !== undefined
+    ? { maximum: parseOptionalNumber(row.maximum)! }
+    : {}),
   ...(row.unit ? { unit: row.unit } : {}),
   forms: [
     {

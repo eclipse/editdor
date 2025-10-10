@@ -18,6 +18,8 @@ interface FormFieldProps {
   id: string;
   type: string;
   autoFocus?: boolean;
+  value?: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -26,6 +28,8 @@ const FormField: React.FC<FormFieldProps> = ({
   id,
   type,
   autoFocus = false,
+  value,
+  onChange,
 }) => {
   return (
     <div className="py-1">
@@ -39,6 +43,8 @@ const FormField: React.FC<FormFieldProps> = ({
         placeholder={placeholder}
         type={type}
         autoFocus={autoFocus}
+        value={value}
+        onChange={onChange}
       />
     </div>
   );
