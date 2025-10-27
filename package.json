@@ -1,7 +1,7 @@
 {
   "name": "editdor",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.8.0",
   "type": "module",
   "homepage": "https://eclipse.github.io/editdor/",
   "license": "EPL-2.0 OR W3C-20150513",
