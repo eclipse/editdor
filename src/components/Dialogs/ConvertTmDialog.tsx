@@ -23,8 +23,11 @@ import DialogTemplate from "./DialogTemplate";
 import {
   processConversionTMtoTD,
   extractPlaceholders,
+  isVersionValid,
 } from "../../services/operations";
 import TmInputForm from "../App/TmInputForm";
+import DialogTextField from "./base/DialogTextField";
+import type { IEdiTDorContext } from "../../types/context";
 
 export interface ConvertTmDialogRef {
   openModal: () => void;
@@ -32,19 +35,25 @@ export interface ConvertTmDialogRef {
 }
 
 const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
-  const context = useContext(ediTDorContext);
-  const td = context.offlineTD;
+  const context: IEdiTDorContext = useContext(ediTDorContext);
+  const td: string = context.offlineTD;
   const [htmlInputs, setHtmlInputs] = React.useState<JSX.Element[]>([]);
   const [display, setDisplay] = React.useState<boolean>(() => {
     return false;
   });
-
   const [affordanceElements, setAffordanceElements] = useState<JSX.Element[]>(
     []
   );
   const [placeholderValues, setPlaceholderValues] = useState<
     Record<string, string>
   >({});
+
+  const [validVersion, setValidVersion] = React.useState<boolean>(false);
+  const [versionInput, setVersionInput] = useState<string>("");
+
+  useEffect(() => {
+    setValidVersion(isVersionValid(context.parsedTD));
+  }, [context.parsedTD]);
 
   useEffect(() => {
     setHtmlInputs(createHtmlInputs(context.offlineTD));
@@ -54,10 +63,13 @@ const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
   useEffect(() => {
     if (td) {
       const placeholders = extractPlaceholders(td);
-      const initialValues = placeholders.reduce((acc, key) => {
-        acc[key] = "";
-        return acc;
-      }, {});
+      const initialValues = placeholders.reduce<Record<string, string>>(
+        (acc, key) => {
+          acc[key] = "";
+          return acc;
+        },
+        {}
+      );
       setPlaceholderValues(initialValues);
     }
   }, [td]);
@@ -81,7 +93,8 @@ const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
       placeholderValues,
       selections.properties,
       selections.actions,
-      selections.events
+      selections.events,
+      versionInput
     );
     const resultJson = JSON.stringify(newTD, null, 2);
     localStorage.setItem("td", resultJson);
@@ -89,6 +102,14 @@ const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
       `${window.location.origin + window.location.pathname}?localstorage`,
       "_blank"
     );
+  };
+
+  const handleVersionInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    const value = e.target.value;
+    const trimmedValue = value.trim();
+    setVersionInput(trimmedValue);
   };
 
   if (!display) return null;
@@ -108,6 +129,16 @@ const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
             onValueChange={handleFieldChange}
           />
 
+          {!validVersion && (
+            <DialogTextField
+              label="The Thing Model contains a version without instance key and corresponding value. If you leave this field empty it will automatic generate a instance value."
+              id="instance"
+              autoFocus={true}
+              onChange={handleVersionInputChange}
+              placeholder="ex: 1.0.0"
+              value={versionInput}
+            ></DialogTextField>
+          )}
           <h2 className="pb-2 pt-4 text-gray-400">
             Select/unselect the interaction affordances you would like to see in
             the new TD.
@@ -134,9 +165,9 @@ function getSelectedAffordances(elements: JSX.Element[]) {
     if (element.props.className.includes("form-checkbox")) {
       const checkbox = document.getElementById(
         element.props.children[0].props.id
-      ) as HTMLInputElement;
+      ) as HTMLInputElement | null;
       if (checkbox?.checked) {
-        const [type, name] = element.key.toString().split("/");
+        const [type, name] = element.key?.toString().split("/") ?? [];
 
         if (type === "properties") result.properties.push(name);
         else if (type === "actions") result.actions.push(name);
@@ -191,17 +222,6 @@ const createHtmlInputs = (td: string): JSX.Element[] => {
       const { properties, actions, events, requiredFields } =
         extractAffordances(parsed);
 
-      if (parsed["tm:required"]) {
-        for (const field of parsed["tm:required"]) {
-          if (field.startsWith("#properties/"))
-            requiredFields["properties"].push(field.split("/")[1]);
-          else if (field.startsWith("#actions/"))
-            requiredFields["actions"].push(field.split("/")[1]);
-          else if (field.startsWith("#events/"))
-            requiredFields["events"].push(field.split("/")[1]);
-        }
-      }
-
       htmlProperties = createAffordanceHtml(
         "properties",
         properties,
@@ -213,12 +233,12 @@ const createHtmlInputs = (td: string): JSX.Element[] => {
 
     return [...htmlProperties, ...htmlActions, ...htmlEvents];
   } catch (e) {
-    console.log(e);
+    console.error("Error creating HTML inputs:", e);
     return [];
   }
 };
 
-export function createAffordanceHtml(
+function createAffordanceHtml(
   affName: "properties" | "actions" | "events",
   affContainer: string[],
   requiredFields: { [k: string]: string[] }
@@ -246,7 +266,7 @@ export function createAffordanceHtml(
   });
 }
 
-export function extractAffordances(parsed: any) {
+function extractAffordances(parsed: any) {
   const properties = Object.keys(parsed["properties"] || {});
   const actions = Object.keys(parsed["actions"] || {});
   const events = Object.keys(parsed["events"] || {});
@@ -255,10 +275,13 @@ export function extractAffordances(parsed: any) {
   if (parsed["tm:required"]) {
     for (const field of parsed["tm:required"]) {
       if (field.startsWith("#properties/"))
+        // @ts-ignore
         requiredFields["properties"].push(field.split("/")[1]);
       else if (field.startsWith("#actions/"))
+        // @ts-ignore
         requiredFields["actions"].push(field.split("/")[1]);
       else if (field.startsWith("#events/"))
+        // @ts-ignore
         requiredFields["events"].push(field.split("/")[1]);
     }
   }

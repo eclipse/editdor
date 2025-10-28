@@ -72,3 +72,7 @@ export const ensureTrailingSlash = (url: string): string => {
 export function stripDoubleQuotes(str: string): string {
   return str.replace(/^"|"$/g, "");
 }
+
+export function generateCurrentTimestampISO(): string {
+  return new Date().toISOString();
+}
