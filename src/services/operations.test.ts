@@ -294,7 +294,8 @@ describe("processConversionTMtoTD", () => {
       { title: "Test Thing", description: "A test thing" },
       ["prop1"],
       [],
-      []
+      [],
+      ""
     );
 
     expect(result.title).toBe("Test Thing");
@@ -304,20 +305,19 @@ describe("processConversionTMtoTD", () => {
   test("correctly replaces numeric placeholders", () => {
     const tmContent = `{
       "id": "urn:test:{{id}}",
-      "version": {{version}},
       "properties": { "temp": { "type": "number", "minimum": {{min}} } }
     }`;
 
     const result = processConversionTMtoTD(
       tmContent,
-      { id: "123", version: "1", min: "0" },
+      { id: "123", min: "0" },
       ["temp"],
       [],
-      []
+      [],
+      ""
     );
 
     expect(result.id).toBe("urn:test:123");
-    expect(result.version).toBe(1); // Number, not string
     expect(result.properties.temp.minimum).toBe(0); // Number, not string
   });
 
@@ -335,7 +335,8 @@ describe("processConversionTMtoTD", () => {
       {},
       ["prop1", "prop3"],
       [],
-      []
+      [],
+      ""
     );
 
     expect(Object.keys(result.properties)).toHaveLength(2);
@@ -353,7 +354,14 @@ describe("processConversionTMtoTD", () => {
       }
     }`;
 
-    const result = processConversionTMtoTD(tmContent, {}, [], ["action2"], []);
+    const result = processConversionTMtoTD(
+      tmContent,
+      {},
+      [],
+      ["action2"],
+      [],
+      ""
+    );
 
     expect(Object.keys(result.actions)).toHaveLength(1);
     expect(result.actions).toHaveProperty("action2");
@@ -375,7 +383,8 @@ describe("processConversionTMtoTD", () => {
       {},
       [],
       [],
-      ["event1", "event3"]
+      ["event1", "event3"],
+      ""
     );
 
     expect(Object.keys(result.events)).toHaveLength(2);
@@ -391,17 +400,24 @@ describe("processConversionTMtoTD", () => {
       "properties": { "prop1": {} }
     }`;
 
-    const result = processConversionTMtoTD(tmContent, {}, ["prop1"], [], []);
+    const result = processConversionTMtoTD(
+      tmContent,
+      {},
+      ["prop1"],
+      [],
+      [],
+      ""
+    );
 
     expect(result).not.toHaveProperty("@type");
     expect(result).not.toHaveProperty("tm:required");
   });
+
   test("handles complex TM to TD conversion", () => {
     const tmContent = `{
       "@type": "tm:ThingModel",
-      "title": "{{modelName}}",
-      "version": {{version}},
       "tm:required": ["#properties/required1"],
+      "title": "{{modelName}}",
       "properties": {
         "required1": { "type": "string" },
         "optional1": { "type": "number" },
@@ -419,15 +435,15 @@ describe("processConversionTMtoTD", () => {
 
     const result = processConversionTMtoTD(
       tmContent,
-      { modelName: "Test Model", version: "2.1" },
+      { modelName: "Test Model" },
       ["required1", "optional2"],
       ["action1"],
-      ["event2"]
+      ["event2"],
+      ""
     );
 
     // Check basic properties
     expect(result.title).toBe("Test Model");
-    expect(result.version).toBe(2.1);
 
     // Check TM fields removed
     expect(result).not.toHaveProperty("@type");
@@ -450,6 +466,7 @@ describe("processConversionTMtoTD", () => {
     expect(result.events).not.toHaveProperty("event1");
   });
 });
+
 describe("replacePlaceholders", () => {
   it("replaces multiple string placeholders", () => {
     const content = "Hello {{name}}, your age is {{age}} years!";
