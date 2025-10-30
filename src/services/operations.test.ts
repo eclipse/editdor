@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import { test, expect, describe, it } from "vitest";
+import { test, expect, describe, it, beforeEach } from "vitest";
 import {
   normalizeContext,
   extractPlaceholders,
@@ -22,6 +22,7 @@ import {
   prepareTdForSubmission,
 } from "./operations";
 import { ThingContext } from "wot-thing-description-types";
+import threeAnacomFuseTmTest from "./__fixtures__/3nacomFuse.tm.test.json";
 
 describe("normalizeContext", () => {
   test("should return array with schema when context is a valid TD context string", () => {
@@ -282,6 +283,12 @@ describe("filterAffordances", () => {
 });
 
 describe("processConversionTMtoTD", () => {
+  let TM: any;
+
+  beforeEach(() => {
+    TM = { ...threeAnacomFuseTmTest };
+  });
+
   test("correctly replaces string placeholders", () => {
     const tmContent = `{
       "title": "{{title}}",
@@ -464,6 +471,58 @@ describe("processConversionTMtoTD", () => {
     expect(Object.keys(result.events)).toHaveLength(1);
     expect(result.events).toHaveProperty("event2");
     expect(result.events).not.toHaveProperty("event1");
+  });
+
+  test("handling version key during TM to TD conversion when version is not present", () => {
+    const placeholderValues = {};
+    const properties = [];
+    const actions = [];
+    const events = [];
+
+    expect(TM.version).toBeTypeOf("object");
+    expect(TM.version).toHaveProperty("instance");
+    expect(TM.version).toHaveProperty("model");
+    expect(TM.version).toHaveProperty("baseline");
+
+    delete TM.version;
+
+    const result = processConversionTMtoTD(
+      JSON.stringify(TM),
+      placeholderValues,
+      properties,
+      actions,
+      events,
+      ""
+    );
+    expect(result).not.toHaveProperty("version");
+  });
+
+  test("handling version key during TM to TD conversion when version is present, input is empty", () => {
+    const placeholderValues = {};
+    const properties = [];
+    const actions = [];
+    const events = [];
+
+    expect(TM.version).toBeTypeOf("object");
+    expect(TM.version).toHaveProperty("instance");
+    expect(TM.version).toHaveProperty("model");
+    expect(TM.version).toHaveProperty("baseline");
+
+    delete TM.version.instance;
+
+    const result = processConversionTMtoTD(
+      JSON.stringify(TM),
+      placeholderValues,
+      properties,
+      actions,
+      events,
+      ""
+    );
+    expect(result).toHaveProperty("version");
+    expect(result.version).toHaveProperty("model");
+    expect(result.version).toHaveProperty("baseline");
+    expect(result.version).toHaveProperty("instance");
+    expect(result.version.instance).toBeTypeOf("string");
   });
 });
 
