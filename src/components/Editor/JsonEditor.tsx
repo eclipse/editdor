@@ -17,10 +17,13 @@ import React, {
   useEffect,
   useRef,
   useState,
+  useMemo,
 } from "react";
 import ediTDorContext from "../../context/ediTDorContext";
 import { changeBetweenTd } from "../../util";
 import { editor } from "monaco-editor";
+
+type SchemaMapMessage = Map<string, Record<string, unknown>>;
 
 // List of all Options can be found here: https://microsoft.github.io/monaco-editor/docs.html#interfaces/editor.IStandaloneEditorConstructionOptions.html
 const editorOptions: editor.IStandaloneEditorConstructionOptions = {
@@ -40,18 +43,26 @@ const delay = (fn: (text: string) => void, text: string, ms: number) => {
 type JsonEditorProps = {
   editorRef?: React.MutableRefObject<editor.IStandaloneCodeEditor | null>;
 };
+interface JsonSchemaEntry {
+  schemaUri: string;
+  schema: Record<string, unknown>;
+}
+
+interface ValidationResults {
+  valid: boolean;
+  message?: string;
+}
 
 const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
   const context = useContext(ediTDorContext);
 
-  const [schemas] = useState<{ schemaUri: string; schema: object }[]>([]);
+  const [schemas] = useState<JsonSchemaEntry[]>([]);
   const [proxy, setProxy] = useState<any>(undefined);
   const editorInstance = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [tabs, setTabs] = useState<JSX.Element[]>([]);
-  const [text, setText] = useState<string>("");
   const [localTextState, setLocalTextState] = useState<string | undefined>("");
 
-  const validationWorker = React.useMemo(
+  const validationWorker = useMemo<Worker>(
     () =>
       new Worker(
         new URL("../../workers/validationWorker.js", import.meta.url),
@@ -59,7 +70,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
       ),
     []
   );
-  const schemaWorker = React.useMemo(
+  const schemaWorker = useMemo<Worker>(
     () =>
       new Worker(new URL("../../workers/schemaWorker.js", import.meta.url), {
         type: "module",
@@ -68,7 +79,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
   );
 
   const messageWorkers = useCallback(
-    (editorText) => {
+    (editorText: string) => {
       schemaWorker.postMessage(editorText);
       validationWorker.postMessage(editorText);
     },
@@ -76,7 +87,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
   );
 
   useEffect(() => {
-    const updateMonacoSchemas = (schemaMap) => {
+    const updateMonacoSchemas = (schemaMap: SchemaMapMessage) => {
       proxy.splice(0, proxy.length);
 
       schemaMap.forEach(function (schema, schemaUri) {
@@ -85,12 +96,12 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
       });
     };
 
-    schemaWorker.onmessage = (ev) => {
+    schemaWorker.onmessage = (ev: MessageEvent<SchemaMapMessage>) => {
       console.debug("received message from schema worker");
       updateMonacoSchemas(ev.data);
     };
 
-    validationWorker.onmessage = (ev) => {
+    validationWorker.onmessage = (ev: MessageEvent<ValidationResults>) => {
       console.debug("received message from validation worker");
 
       /** @type {ValidationResults} */
@@ -103,20 +114,14 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
     // check if the offline TD update was triggered by the editor. If not
     // the editor should not be rerendered.
     if (context.offlineTD !== localTextState) {
-      setText(context.offlineTD);
       messageWorkers(context.offlineTD);
     }
   }, [context.offlineTD, messageWorkers, localTextState]);
 
-  const editorWillMount = (_) => {};
-
-  const editorDidMount = (editor, monaco) => {
-    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-      validate: true,
-      enableSchemaRequest: true,
-      schemas: [],
-    });
-
+  const editorDidMount = (
+    editor: editor.IStandaloneCodeEditor,
+    monaco: typeof import("monaco-editor")
+  ) => {
     if (!("Proxy" in window)) {
       console.warn(
         "dynamic fetching of schemas is disabled as your browser doesn't support proxies."
@@ -126,12 +131,12 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
 
     let proxy = new Proxy(schemas, {
       set: function (
-        target: { schemaUri: string; schema: object }[],
+        target: JsonSchemaEntry[],
         property: string | symbol,
-        value: any,
+        value: JsonSchemaEntry,
         _
       ) {
-        target[property] = value;
+        (target as any)[property] = value;
 
         let jsonSchemaObjects: {
           fileMatch: string[];
@@ -163,7 +168,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
     setProxy(proxy);
   };
 
-  const onChange: OnChange = async (editorText, _) => {
+  const onChange: OnChange = async (editorText: string | undefined) => {
     if (!editorText) {
       return;
     }
@@ -215,6 +220,14 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
     changeBetweenTd(context, href);
   };
 
+  const beforeMount = (monaco: typeof import("monaco-editor")) => {
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+      validate: true,
+      enableSchemaRequest: true,
+      schemas: [],
+    });
+  };
+
   return (
     <>
       <div className="h-[5%] bg-[#1e1e1e]">
@@ -234,8 +247,8 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
           options={editorOptions}
           theme={"vs-" + "dark"}
           language="json"
-          value={text}
-          beforeMount={editorWillMount}
+          value={context.offlineTD}
+          beforeMount={beforeMount}
           onMount={editorDidMount}
           onChange={onChange}
         />
