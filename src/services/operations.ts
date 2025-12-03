@@ -15,6 +15,7 @@ import type {
   ThingDescription,
 } from "wot-thing-description-types";
 import { v4 as uuidv4 } from "uuid";
+import { generateCurrentTimestampISO } from "../utils/strings";
 
 export function normalizeContext(context: ThingContext): any {
   const TD_CONTEXTS = [
@@ -104,7 +105,8 @@ export function processConversionTMtoTD(
   placeholderValues: Record<string, string>,
   properties: string[],
   actions: string[],
-  events: string[]
+  events: string[],
+  versionInput: string
 ) {
   const processedContent = replacePlaceholders(tmContent, placeholderValues);
 
@@ -120,6 +122,16 @@ export function processConversionTMtoTD(
     }
     if (parsed.events) {
       parsed.events = filterAffordances(parsed.events, events);
+    }
+
+    if (!isVersionValid(parsed)) {
+      let objectVersion = parsed["version"];
+
+      parsed["version"] = {
+        ...objectVersion,
+        instance:
+          versionInput === "" ? generateCurrentTimestampISO() : versionInput,
+      };
     }
 
     delete parsed["@type"];
@@ -280,4 +292,16 @@ export function prepareTdForSubmission(
       }`
     );
   }
+}
+
+export function isVersionValid(parsedTD: ThingDescription): boolean {
+  let version = parsedTD.version;
+
+  if (!version) return true;
+
+  if (typeof version === "object") {
+    return !version.instance ? false : true;
+  }
+
+  return false;
 }
