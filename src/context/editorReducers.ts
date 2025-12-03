@@ -110,7 +110,7 @@ const updateOfflineTDReducer = (
   let linkedTd = state.linkedTd;
   if (!linkedTd) {
     // If the user writes a Thing description without the wizard, we save it in linkedTd
-    const href = parsedTD["title"] || "ediTDor Thing";
+    const href = parsedTD?.title ?? "ediTDor Thing";
     linkedTd = { [href]: parsedTD };
   } else if (linkedTd && typeof state.fileHandle !== "object") {
     if (document.getElementById("linkedTd")) {
@@ -119,7 +119,7 @@ const updateOfflineTDReducer = (
       ) as HTMLInputElement | null;
       const href = linkedTdElement?.value || "";
       if (href === "") {
-        linkedTd[parsedTD["title"] || "ediTDor Thing"] = parsedTD;
+        linkedTd[parsedTD?.title || "ediTDor Thing"] = parsedTD;
       } else {
         linkedTd[href] = parsedTD;
       }

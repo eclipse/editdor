@@ -21,6 +21,7 @@ interface IDialogTextFieldProps {
   autoFocus?: boolean;
   className?: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  helperText?: string | ReactNode;
 }
 
 const DialogTextField: React.FC<IDialogTextFieldProps> = (props) => {
@@ -32,6 +33,9 @@ const DialogTextField: React.FC<IDialogTextFieldProps> = (props) => {
       >
         {props.label}
       </label>
+      {props.helperText && (
+        <div className="pb-1 pl-10 text-sm text-white">{props.helperText}</div>
+      )}
       <input
         name={props.id}
         id={props.id}

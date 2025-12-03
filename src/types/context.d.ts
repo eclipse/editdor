@@ -1,4 +1,4 @@
-interface IEdiTDorContext {
+export interface IEdiTDorContext {
   // offlineTD: Saving or displaying the TD as JSON For storage, sharing, or exporting Primary source of truth for the TD
   offlineTD: string;
   isValidJSON: boolean;
