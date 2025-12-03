@@ -37,8 +37,8 @@ export interface ConvertTmDialogRef {
 const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
   const context: IEdiTDorContext = useContext(ediTDorContext);
   const td: string = context.offlineTD;
-  const [htmlInputs, setHtmlInputs] = React.useState<JSX.Element[]>([]);
-  const [display, setDisplay] = React.useState<boolean>(() => {
+  const [htmlInputs, setHtmlInputs] = useState<JSX.Element[]>([]);
+  const [display, setDisplay] = useState<boolean>(() => {
     return false;
   });
   const [affordanceElements, setAffordanceElements] = useState<JSX.Element[]>(
@@ -48,7 +48,7 @@ const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
     Record<string, string>
   >({});
 
-  const [validVersion, setValidVersion] = React.useState<boolean>(false);
+  const [validVersion, setValidVersion] = useState<boolean>(false);
   const [versionInput, setVersionInput] = useState<string>("");
 
   useEffect(() => {
@@ -131,12 +131,13 @@ const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
 
           {!validVersion && (
             <DialogTextField
-              label="The Thing Model contains a version without instance key and corresponding value. If you leave this field empty it will automatic generate a instance value."
+              label="TD instance version"
               id="instance"
               autoFocus={true}
               onChange={handleVersionInputChange}
               placeholder="ex: 1.0.0"
               value={versionInput}
+              helperText="The Thing Model contains a version without instance key and corresponding value. If you leave this field empty it will automatic generate a instance value."
             ></DialogTextField>
           )}
           <h2 className="pb-2 pt-4 text-gray-400">
