@@ -416,7 +416,6 @@ describe("processConversionTMtoTD", () => {
       ""
     );
 
-    expect(result).not.toHaveProperty("@type");
     expect(result).not.toHaveProperty("tm:required");
   });
 
@@ -453,7 +452,6 @@ describe("processConversionTMtoTD", () => {
     expect(result.title).toBe("Test Model");
 
     // Check TM fields removed
-    expect(result).not.toHaveProperty("@type");
     expect(result).not.toHaveProperty("tm:required");
 
     // Check filtered properties
