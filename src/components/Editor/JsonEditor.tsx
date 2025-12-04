@@ -22,6 +22,7 @@ import React, {
 import ediTDorContext from "../../context/ediTDorContext";
 import { changeBetweenTd } from "../../util";
 import { editor } from "monaco-editor";
+import { IValidationMessage } from "../../types/context";
 
 type SchemaMapMessage = Map<string, Record<string, unknown>>;
 
@@ -46,11 +47,6 @@ type JsonEditorProps = {
 interface JsonSchemaEntry {
   schemaUri: string;
   schema: Record<string, unknown>;
-}
-
-interface ValidationResults {
-  valid: boolean;
-  message?: string;
 }
 
 const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
@@ -101,11 +97,10 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
       updateMonacoSchemas(ev.data);
     };
 
-    validationWorker.onmessage = (ev: MessageEvent<ValidationResults>) => {
+    validationWorker.onmessage = (ev: MessageEvent<IValidationMessage>) => {
       console.debug("received message from validation worker");
 
-      /** @type {ValidationResults} */
-      const validationResults = ev.data;
+      const validationResults: IValidationMessage = ev.data;
       context.updateValidationMessage(validationResults);
     };
   }, [schemaWorker, validationWorker, proxy, context]);
@@ -172,20 +167,50 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ editorRef }) => {
     if (!editorText) {
       return;
     }
+    let validate: IValidationMessage = {
+      report: {
+        json: null,
+        schema: null,
+        defaults: null,
+        jsonld: null,
+        additional: null,
+      },
+      details: {
+        enumConst: null,
+        propItems: null,
+        security: null,
+        propUniqueness: null,
+        multiLangConsistency: null,
+        linksRelTypeCount: null,
+        readWriteOnly: null,
+        uriVariableSecurity: null,
+      },
+      detailComments: {
+        enumConst: null,
+        propItems: null,
+        security: null,
+        propUniqueness: null,
+        multiLangConsistency: null,
+        linksRelTypeCount: null,
+        readWriteOnly: null,
+        uriVariableSecurity: null,
+      },
+      customMessage: "",
+    };
     try {
       JSON.parse(editorText);
       context.updateOfflineTD(editorText);
-      context.updateValidationMessage(undefined);
+
+      context.updateValidationMessage(validate);
     } catch (error) {
-      context.updateValidationMessage({
-        valid: false,
-        message:
-          "Invalid JSON: " +
-          (error instanceof Error ? error.message : String(error)),
-      });
+      let message: string =
+        "Invalid JSON: " +
+        (error instanceof Error ? error.message : String(error));
+      validate.report.json = "failed";
+      context.updateValidationMessage(validate);
+      setLocalTextState(editorText);
+      delay(messageWorkers, editorText ?? "", 500);
     }
-    setLocalTextState(editorText);
-    delay(messageWorkers, editorText ?? "", 500);
   };
 
   useEffect(() => {
