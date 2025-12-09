@@ -45,3 +45,15 @@ export const getErrorSummary = (array: {
     errorCount,
   };
 };
+
+export function getJsonLdString(
+  obj: unknown,
+  path: string[]
+): string | undefined {
+  let cur: any = obj;
+  for (const key of path) {
+    if (!cur || typeof cur !== "object") return undefined;
+    cur = cur[key];
+  }
+  return typeof cur === "string" ? cur : undefined;
+}
