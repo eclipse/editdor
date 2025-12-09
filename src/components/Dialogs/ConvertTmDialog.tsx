@@ -25,9 +25,8 @@ import {
   extractPlaceholders,
   isVersionValid,
 } from "../../services/operations";
-import TmInputForm from "../App/TmInputForm";
+import TmInputForm from "../App/base/TmInputForm";
 import DialogTextField from "./base/DialogTextField";
-import type { IEdiTDorContext } from "../../types/context";
 
 export interface ConvertTmDialogRef {
   openModal: () => void;

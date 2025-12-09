@@ -1,17 +1,19 @@
-export interface IEdiTDorContext {
-  // offlineTD: Saving or displaying the TD as JSON For storage, sharing, or exporting Primary source of truth for the TD
-  offlineTD: string;
-  isValidJSON: boolean;
-  // ParsedTD: Accessing and modifying TD properties 	For programmatic manipulation JavaScript object Derived from offlineTD
-  parsedTD: IThingDescription;
-  isModified: boolean;
-  name: string;
-  fileHandle: string | null;
-  linkedTd: Record<string, any> | undefined;
-  validationMessage: IValidationMessage;
+export {};
+declare global {
+  declare interface IEdiTDorContext {
+    // offlineTD: Saving or displaying the TD as JSON For storage, sharing, or exporting Primary source of truth for the TD
+    offlineTD: string;
+    isValidJSON: boolean;
+    // ParsedTD: Accessing and modifying TD properties 	For programmatic manipulation JavaScript object Derived from offlineTD
+    parsedTD: IThingDescription;
+    isModified: boolean;
+    name: string;
+    fileHandle: string | null;
+    linkedTd: Record<string, any> | undefined;
+    validationMessage: IValidationMessage;
 
-  northboundConnection: INorthboundConnection;
-  contributeCatalog: IContributeCatalog;
+    northboundConnection: INorthboundConnection;
+    contributeCatalog: IContributeCatalog;
 
   // Callback functions
   updateOfflineTD: (td: string) => void;
@@ -28,7 +30,7 @@ export interface IEdiTDorContext {
   removeOneOfAKindReducer: (kind: string, oneOfAKind: string) => void;
   addLinkedTd: (linkedTd: Record<string, any>) => void;
   updateLinkedTd: (linkedTd: Record<string, any>) => void;
-  updateValidationMessage: (validationMessage: IValidationMessage) => void;
+  updateValidationMessage: (validationMessage?: any) => void;
   updateNorthboundConnection: (
     northboundConnection: INorthboundConnection
   ) => void;
@@ -49,7 +51,7 @@ interface IValidationMessage {
     security: null | string;
     propUniqueness: null | string;
     multiLangConsistency: null | string;
-    linksRelTypeCount: null | string;
+    linksRelTypeCount: null | string;s
     readWriteOnly: null | string;
     uriVariableSecurity: null | string;
   };
@@ -70,70 +72,130 @@ interface IValidationMessage {
   customMessage: string; // custom to editor
 }
 
-interface INorthboundConnection {
-  message: string;
-  northboundTd: ThingDescription | {};
-}
+  interface INorthboundConnection {
+    message: string;
+    northboundTd: ThingDescription | {};
+  }
 
-interface IContributeCatalog {
-  model: string;
-  author: string;
-  manufacturer: string;
-  license: string;
-  copyrightYear: string;
-  holder: string;
-  tmCatalogEndpoint: string;
-  nameRepository: string;
-  dynamicValues: Record<string, string>;
-}
+  interface IContributeCatalog {
+    model: string;
+    author: string;
+    manufacturer: string;
+    license: string;
+    copyrightYear: string;
+    holder: string;
+    tmCatalogEndpoint: string;
+    nameRepository: string;
+    dynamicValues: Record<string, string>;
+  }
 
-type EditorState = Omit<
-  IEdiTDorContext,
-  | "updateOfflineTD"
-  | "updateIsModified"
-  | "setFileHandle"
-  | "removeForm"
-  | "addForm"
-  | "removeLink"
-  | "removeOneOfAKindReducer"
-  | "addLinkedTd"
-  | "updateLinkedTd"
-  | "updateValidationMessage"
-  | "updateNorthboundConnection"
-  | "updateContributeCatalog"
->;
+  type EditorState = Omit<
+    IEdiTDorContext,
+    | "updateOfflineTD"
+    | "updateIsModified"
+    | "setFileHandle"
+    | "removeForm"
+    | "addForm"
+    | "removeLink"
+    | "removeOneOfAKindReducer"
+    | "addLinkedTd"
+    | "updateLinkedTd"
+    | "updateValidationMessage"
+    | "updateNorthboundConnection"
+    | "updateContributeCatalog"
+  >;
 
-type Action =
-  | { type: "UPDATE_OFFLINE_TD"; offlineTD: string }
-  | { type: "UPDATE_IS_MODIFIED"; isModified: boolean }
-  | { type: "SET_FILE_HANDLE"; fileHandle: any }
-  | {
-      type: "REMOVE_FORM_FROM_TD";
-      level: "thing" | "properties" | "actions" | "events" | string;
-      interactionName: string;
-      toBeDeletedForm: any;
-      index: number;
-    }
-  | { type: "REMOVE_LINK_FROM_TD"; link: any }
-  | {
-      type: "REMOVE_ONE_OF_A_KIND_FROM_TD";
-      kind: "thing" | "properties" | "actions" | "events" | string;
-      oneOfAKindName: string;
-    }
-  | {
-      type: "ADD_FORM_TO_TD";
-      level: "thing" | "properties" | "actions" | "events" | string;
-      interactionName: string;
-      form: any;
-    }
-  | { type: "ADD_LINKED_TD"; linkedTd: any }
-  | { type: "UPDATE_LINKED_TD"; linkedTd: any }
-  | { type: "UPDATE_VALIDATION_MESSAGE"; validationMessage: any }
-  | {
-      type: "UPDATE_NORTHBOUND_CONNECTION";
-      northboundConnection: INorthboundConnection;
-    }
-  | {
-      type: "UPDATE_CONTRIBUTE_CATALOG";
-      contributeCatalog: IContributeCatalog;
+  type Action =
+    | { type: "UPDATE_OFFLINE_TD"; offlineTD: string }
+    | { type: "UPDATE_IS_MODIFIED"; isModified: boolean }
+    | { type: "SET_FILE_HANDLE"; fileHandle: any }
+    | {
+        type: "REMOVE_FORM_FROM_TD";
+        level: "thing" | "properties" | "actions" | "events" | string;
+        interactionName: string;
+        toBeDeletedForm: any;
+        index: number;
+      }
+    | { type: "REMOVE_LINK_FROM_TD"; link: any }
+    | {
+        type: "REMOVE_ONE_OF_A_KIND_FROM_TD";
+        kind: "thing" | "properties" | "actions" | "events" | string;
+        oneOfAKindName: string;
+      }
+    | {
+        type: "ADD_FORM_TO_TD";
+        level: "thing" | "properties" | "actions" | "events" | string;
+        interactionName: string;
+        form: any;
+      }
+    | { type: "ADD_LINKED_TD"; linkedTd: any }
+    | { type: "UPDATE_LINKED_TD"; linkedTd: any }
+    | { type: "UPDATE_VALIDATION_MESSAGE"; validationMessage: any }
+    | {
+        type: "UPDATE_NORTHBOUND_CONNECTION";
+        northboundConnection: INorthboundConnection;
+      }
+    | {
+        type: "UPDATE_CONTRIBUTE_CATALOG";
+        contributeCatalog: IContributeCatalog;
+      };
+
+  declare type Validation = "VALID" | "INVALID" | "VALIDATING" | null;
+  declare type ActiveSection =
+    | "INSTANCE"
+    | "GATEWAY"
+    | "TABLE"
+    | "SAVING_RESULTS";
+  interface SectionError {
+    error: boolean;
+    message: string;
+  }
+  interface SettingsData {
+    northboundUrl: string;
+    southboundUrl: string;
+    pathToValue: string;
+  }
+
+  // Define the shape of the state
+  declare interface ContributionToCatalogState {
+    workflow: {
+      currentStep: number;
+      showDialog: boolean;
+      backgroundTdToSend: ThingDescription;
     };
+    metadata: {
+      model: string;
+      author: string;
+      manufacturer: string;
+      license: string;
+      copyrightYear: string;
+      holder: string;
+      copied: boolean;
+      validation: Validation;
+      errorMessage: string;
+    };
+    interaction: {
+      activeSection: ActiveSection;
+      sectionErrors: {
+        instance: SectionError;
+        gateway: SectionError;
+        table: SectionError;
+        results: SectionError;
+      };
+      isTestingAll: boolean;
+      settingsData: SettingsData;
+      placeholderValues: Record<string, string>;
+      propertyResponseMap: Record<string, { value: string; error: string }>;
+    };
+    submission: {
+      tmCatalogEndpoint: string;
+      tmCatalogEndpointError: string;
+      repository: string;
+      repositoryError: string;
+      submitted: boolean;
+      submittedError: string;
+      id: string;
+      link: string;
+    };
+  }
+}

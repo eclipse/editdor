@@ -14,31 +14,27 @@ import React, { useRef, useContext, useEffect, useMemo } from "react";
 import type { ThingDescription } from "wot-thing-description-types";
 import { isEqual } from "lodash";
 
-import ediTDorContext from "../../../context/ediTDorContext";
-import BaseTable from "../../TDViewer/base/BaseTable";
-import BaseButton from "../../TDViewer/base/BaseButton";
-import { readPropertyWithServient } from "../../../services/form";
-import { extractIndexFromId } from "../../../utils/strings";
-import { getErrorSummary } from "../../../utils/arrays";
-import Settings, { SettingsData } from "../../App/Settings";
+import ediTDorContext from "../../context/ediTDorContext";
+import BaseTable from "../TDViewer/base/BaseTable";
+import BaseButton from "../TDViewer/base/BaseButton";
+import { readPropertyWithServient } from "../../services/form";
+import { extractIndexFromId } from "../../utils/strings";
+import { getErrorSummary } from "../../utils/arrays";
+import Settings, { SettingsData } from "./Settings";
 import {
   ChevronDown,
   ChevronUp,
   AlertTriangle,
   RefreshCw,
 } from "react-feather";
-import TmInputForm from "../../App/TmInputForm";
-import { prepareTdForSubmission } from "../../../services/operations";
-import { readAllReadablePropertyForms } from "../../../services/thingsApiService";
+import TmInputForm from "./base/TmInputForm";
+import { prepareTdForSubmission } from "../../services/operations";
+import { readAllReadablePropertyForms } from "../../services/thingsApiService";
 import {
   handleHttpRequest,
   fetchNorthboundTD,
-} from "../../../services/thingsApiService";
-import {
-  ContributionToCatalogState,
-  ContributionToCatalogAction,
-} from "../../../context/ContributeToCatalogState";
-import type { ActiveSection } from "../../../context/ContributeToCatalogState";
+} from "../../services/thingsApiService";
+import { ContributionToCatalogAction } from "../../context/ContributeToCatalogState";
 
 interface IFormInteractionProps {
   filteredHeaders: { key: string; text: string }[];
@@ -126,26 +122,13 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
         });
         return true;
       case "GATEWAY":
-        let gatewayIsValid =
-          settingsData.northboundUrl.trim() !== "" &&
-          settingsData.southboundUrl.trim() !== "" &&
-          settingsData.pathToValue.trim() !== "";
-        if (!gatewayIsValid) {
-          dispatch({
-            type: "SET_INTERACTION_SECTION_ERROR",
-            section: "gateway",
-            error: true,
-            message: "All fields in section Gateway must have values",
-          });
-          return false;
-        } else {
-          dispatch({
-            type: "SET_INTERACTION_SECTION_ERROR",
-            section: "gateway",
-            error: false,
-            message: "",
-          });
-        }
+        dispatch({
+          type: "SET_INTERACTION_SECTION_ERROR",
+          section: "gateway",
+          error: false,
+          message: "",
+        });
+
         return true;
       case "TABLE":
         return true;

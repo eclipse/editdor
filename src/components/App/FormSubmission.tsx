@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React from "react";
-import DialogTextField from "./DialogTextField";
-import BaseButton from "../../TDViewer/base/BaseButton";
+import DialogTextField from "../Dialogs/base/DialogTextField";
+import BaseButton from "../TDViewer/base/BaseButton";
 import { AlertTriangle, Check, Copy, ExternalLink } from "react-feather";
 
 interface IFormSubmissionProps {

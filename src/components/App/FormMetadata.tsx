@@ -11,11 +11,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React from "react";
-import DialogTextField from "./DialogTextField";
-import BaseButton from "../../TDViewer/base/BaseButton";
+import DialogTextField from "../Dialogs/base/DialogTextField";
+import BaseButton from "../TDViewer/base/BaseButton";
 import { AlertTriangle, Check, RefreshCw } from "react-feather";
-import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
-import { getValidateTMContent } from "../../InfoIcon/TooltipMapper";
+import InfoIconWrapper from "../InfoIcon/InfoIconWrapper";
+import { getValidateTMContent } from "../InfoIcon/TooltipMapper";
 
 interface IFormMetadataProps {
   model: string;
@@ -138,7 +138,7 @@ const FormMetadata: React.FC<IFormMetadataProps> = ({
               <div className="flex w-full items-center justify-center">
                 {isValidating ? (
                   <>
-                    <span className="pl-6">Validating</span>
+                    <span className="pl-6 pr-6">Validating</span>
                     <RefreshCw className="animate-spin" size={20} />
                   </>
                 ) : (

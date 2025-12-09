@@ -21,7 +21,7 @@ import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import DialogTemplate from "./DialogTemplate";
 import ErrorDialog from "./ErrorDialog";
-import FormCreateTd from "./base/FormCreateTd";
+import CreateTd from "../App/CreateTd";
 
 export interface CreateTdDialogRef {
   openModal: () => void;
@@ -145,7 +145,7 @@ const CreateTdDialog = forwardRef((props, ref) => {
             "To quickly create a basis for your new Thing Description/Thing Model just fill out this little template and we'll get you going."
           }
         >
-          <FormCreateTd
+          <CreateTd
             type={type}
             onChangeType={changeType}
             protocol={protocol}
@@ -165,7 +165,7 @@ const CreateTdDialog = forwardRef((props, ref) => {
             setThingDescription={setThingDescription}
             thingSecurity={thingSecurity}
             setThingSecurity={setThingSecurity}
-          ></FormCreateTd>
+          ></CreateTd>
         </DialogTemplate>,
         document.getElementById("modal-root") as HTMLElement
       )}

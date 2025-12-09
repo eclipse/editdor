@@ -11,43 +11,47 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import type { FormElementBase } from "wot-thing-description-types";
+export {};
+declare global {
+  declare const APP_VERSION: string;
 
-declare const APP_VERSION: string;
+  declare module "*.png" {
+    const value: string;
+    export default value;
+  }
 
-declare module "*.png" {
-  const value: string;
-  export default value;
-}
+  declare module "*.png" {
+    const value: string;
+    export default value;
+  }
 
-declare module "*.png" {
-  const value: string;
-  export default value;
-}
+  declare type ThingDescription = WoT.ThingDescription;
 
-export type Method = "GET" | "POST" | "PUT" | "DELETE";
+  declare type Method = "GET" | "POST" | "PUT" | "DELETE";
 
-export interface RequestWebOptions extends RequestInit {
-  queryParams?: Record<string, string | number | boolean>;
-}
+  declare interface RequestWebOptions extends RequestInit {
+    queryParams?: Record<string, string | number | boolean>;
+  }
 
-export interface HttpSuccessResponse {
-  data: Response;
-  headers: string;
-  status: number;
-}
+  declare interface HttpSuccessResponse {
+    data: Response;
+    headers: string;
+    status: number;
+  }
 
-export interface HttpErrorResponse {
-  message: string;
-  reason: string;
-  status?: number;
-}
+  declare interface HttpErrorResponse {
+    message: string;
+    reason: string;
+    status?: number;
+  }
 
-export type HttpResponse = HttpSuccessResponse | HttpErrorResponse;
+  declare type HttpResponse = HttpSuccessResponse | HttpErrorResponse;
 
-export interface ResponseDataFromNorthbound {
-  [key: string]: unknown;
-  id?: string;
-  value?: unknown;
-  timestamp?: number;
-  quality?: number;
+  declare interface ResponseDataFromNorthbound {
+    [key: string]: unknown;
+    id?: string;
+    value?: unknown;
+    timestamp?: number;
+    quality?: number;
+  }
 }

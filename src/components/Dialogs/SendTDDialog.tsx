@@ -24,6 +24,7 @@ import {
 import RequestSuccessful from "./base/RequestSuccessful";
 import RequestFailed from "./base/RequestFailed";
 import { fetchNorthboundTD } from "../../services/thingsApiService";
+import SendTD from "../App/SendTD";
 
 export interface SendTDDialogRef {
   openModal: () => void;
@@ -250,85 +251,14 @@ const SendTDDialog = forwardRef<SendTDDialogRef, SendTDDialogProps>(
             "The Thing Description will be sent to a Third-Party Service located at the endpoint configured in the Settings options under Southbound URL field. The proxied Thing will be interactable over HTTP in the left view."
           }
         >
-          <div className="mb-2 rounded-md bg-black bg-opacity-80 p-2">
-            <h1 className="mb-2 font-semibold">
-              Current Configuration Details
-            </h1>
-            <div className="w-full overflow-hidden">
-              <table className="w-full border-collapse">
-                <tbody>
-                  <tr className="border-b border-gray-700">
-                    <td className="w-1/3 py-2 pr-2 font-medium text-gray-400">
-                      Endpoint:
-                    </td>
-                    <td className="break-all py-2 text-gray-400">
-                      {getLocalStorage("southbound") ||
-                        "(No endpoint configured)"}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="w-1/3 py-2 pr-2 font-medium text-gray-400">
-                      TD ID:
-                    </td>
-                    <td className="break-all py-2 text-gray-400">
-                      {currentTdId || "(No ID available)"}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="mb-2 rounded-md bg-black bg-opacity-80 p-2">
-            <h1 className="mb-2 font-semibold">Operation Details</h1>
-            <div className="px-4 py-2">
-              <div className="flex items-center">
-                <span className="mr-2 font-medium text-gray-400">Action:</span>
-                <span className="rounded bg-green-900 px-2 py-1 text-sm font-medium text-green-200">
-                  {isUpdate ? "Update Existing TD" : "Send New TD"}
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-gray-400">
-                {isUpdate
-                  ? "You are updating an existing Thing Description that was previously sent to the server."
-                  : "You are sending a new Thing Description to the server for the first time."}
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded-md bg-black bg-opacity-80 p-2">
-            <h1 className="font-bold">Result:</h1>
-            <div className="px-4">
-              <h2 className="py-2 text-justify text-gray-400">
-                {requestSend.message
-                  ? requestSend.message
-                  : isUpdate
-                    ? requestUpdate.message || "No update request made yet."
-                    : "No send request made yet."}
-              </h2>
-
-              <div className="my-4 flex justify-end">
-                {isUpdate ? (
-                  <button
-                    onClick={handleUpdateTd}
-                    className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                    disabled={requestUpdate.isLoading}
-                  >
-                    Update TD
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleSendTd}
-                    className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
-                    disabled={requestSend.isLoading}
-                  >
-                    Send TD
-                  </button>
-                )}
-              </div>
-              <div>{renderDialogContent()}</div>
-            </div>
-          </div>
+          <SendTD
+            isUpdate={isUpdate}
+            requestSend={requestSend}
+            requestUpdate={requestUpdate}
+            onSend={handleSendTd}
+            onUpdate={handleUpdateTd}
+            currentTdId={currentTdId}
+          />
         </DialogTemplate>,
         document.getElementById("modal-root") as HTMLElement
       );
