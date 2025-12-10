@@ -37,7 +37,7 @@ import SettingsDialog from "../Dialogs/SettingsDialog";
 import ShareDialog from "../Dialogs/ShareDialog";
 import ContributeToCatalog from "../Dialogs/ContributeToCatalogDialog";
 import ErrorDialog from "../Dialogs/ErrorDialog";
-import Button from "./base/Button";
+import Button from "../base/Button";
 import SendTDDialog from "../Dialogs/SendTDDialog";
 import { getLocalStorage } from "../../services/localStorage";
 import type { ThingDescription } from "wot-thing-description-types";
