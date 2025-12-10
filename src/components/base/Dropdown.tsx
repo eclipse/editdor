@@ -10,13 +10,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-interface ITextAreaProps {
+import { ChevronDown } from "react-feather";
+import React from "react";
+
+interface IDropdownProps {
   id: string;
   label: string;
-  placeholder?: string;
+  options: string[];
+  className?: string;
 }
 
-const DialogTextArea: React.FC<ITextAreaProps> = (props) => {
+const Dropdown: React.FC<IDropdownProps> = (props) => {
   return (
     <>
       <label
@@ -25,14 +29,20 @@ const DialogTextArea: React.FC<ITextAreaProps> = (props) => {
       >
         {props.label}:
       </label>
-      <textarea
-        id={props.id}
-        rows={5}
-        className="w-full appearance-none rounded border-2 border-gray-600 bg-gray-600 p-2 leading-tight text-white focus:border-blue-500 focus:outline-none sm:text-sm"
-        placeholder={props.placeholder}
-      />
+      <div className={`relative ${props.className ?? ""} `}>
+        <select
+          className="block w-full appearance-none rounded border-2 border-gray-600 bg-gray-600 px-4 py-3 pr-8 leading-tight text-white focus:border-blue-500 focus:outline-none"
+          id={props.id}
+        >
+          {props.options.map((e) => {
+            return <option key={e}>{e}</option>;
+          })}
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+          <ChevronDown color="#cacaca"></ChevronDown>
+        </div>
+      </div>
     </>
   );
 };
-
-export default DialogTextArea;
+export default Dropdown;

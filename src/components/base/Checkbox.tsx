@@ -16,7 +16,7 @@ interface ICheckboxProps {
   readOnly?: boolean;
 }
 
-const DialogCheckbox: React.FC<ICheckboxProps> = (props) => {
+const Checkbox: React.FC<ICheckboxProps> = (props) => {
   return (
     <div key={props.id} className="form-checkbox pl-2">
       {(props.readOnly ?? true) ? (
@@ -43,4 +43,4 @@ const DialogCheckbox: React.FC<ICheckboxProps> = (props) => {
   );
 };
 
-export default DialogCheckbox;
+export default Checkbox;

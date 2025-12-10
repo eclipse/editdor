@@ -11,11 +11,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React from "react";
-import DialogTextField from "../Dialogs/base/DialogTextField";
+import TextField from "../base/TextField";
 import BaseButton from "../TDViewer/base/BaseButton";
 import { AlertTriangle, Check, RefreshCw } from "react-feather";
-import InfoIconWrapper from "../InfoIcon/InfoIconWrapper";
-import { getValidateTMContent } from "../InfoIcon/TooltipMapper";
+import InfoIconWrapper from "../base/InfoIconWrapper";
+import { getValidateTMContent } from "../../utils/TooltipMapper";
 
 interface IFormMetadataProps {
   model: string;
@@ -66,7 +66,7 @@ const FormMetadata: React.FC<IFormMetadataProps> = ({
           Models.
         </h1>
         <div className="mx-auto w-[70%] flex-col px-4">
-          <DialogTextField
+          <TextField
             label="Model*"
             placeholder="The Manufacturer Part Number (MPN) of the product, or the product to which the offer refers."
             id="model"
@@ -75,7 +75,7 @@ const FormMetadata: React.FC<IFormMetadataProps> = ({
             onChange={onChangeModel}
             autoFocus={true}
           />
-          <DialogTextField
+          <TextField
             label="Author*"
             placeholder="The organization writing the TM"
             id="author"
@@ -84,7 +84,7 @@ const FormMetadata: React.FC<IFormMetadataProps> = ({
             onChange={onChangeAuthor}
             autoFocus={false}
           />
-          <DialogTextField
+          <TextField
             label="Manufacturer*"
             placeholder="Manufacturer of the device"
             id="manufacturer"
@@ -93,7 +93,7 @@ const FormMetadata: React.FC<IFormMetadataProps> = ({
             onChange={onChangeManufacturer}
             autoFocus={false}
           />
-          <DialogTextField
+          <TextField
             label="License"
             placeholder="URL of the license, e.g., https://www.apache.org/licenses/LICENSE-2.0.txt"
             id="license"
@@ -102,7 +102,7 @@ const FormMetadata: React.FC<IFormMetadataProps> = ({
             onChange={onChangeLicense}
             autoFocus={false}
           />
-          <DialogTextField
+          <TextField
             label="Copyright Year"
             placeholder="e.g. 2024..."
             id="copyright"
@@ -111,7 +111,7 @@ const FormMetadata: React.FC<IFormMetadataProps> = ({
             onChange={onChangeCopyrightYear}
             autoFocus={false}
           />
-          <DialogTextField
+          <TextField
             label="Copyright Holder"
             placeholder="Organization holding the copyright of the TM..."
             id="holder"

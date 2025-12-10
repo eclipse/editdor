@@ -21,8 +21,8 @@ import {
   isSuccessResponse,
   handleHttpRequest,
 } from "../../services/thingsApiService";
-import RequestSuccessful from "./base/RequestSuccessful";
-import RequestFailed from "./base/RequestFailed";
+import RequestSuccessful from "../base/RequestSuccessful";
+import RequestFailed from "../base/RequestFailed";
 import { fetchNorthboundTD } from "../../services/thingsApiService";
 import SendTD from "../App/SendTD";
 

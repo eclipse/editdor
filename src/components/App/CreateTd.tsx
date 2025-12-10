@@ -13,7 +13,7 @@
 import React from "react";
 import { ChevronDown } from "react-feather";
 import { parseCsv, mapCsvToProperties } from "../../utils/parser";
-import FormField from "./base/FormField";
+import FormField from "../base/FormField";
 import BaseButton from "../TDViewer/base/BaseButton";
 
 type ThingType = "TD" | "TM";

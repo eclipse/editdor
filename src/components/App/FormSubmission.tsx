@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React from "react";
-import DialogTextField from "../Dialogs/base/DialogTextField";
+import TextField from "../base/TextField";
 import BaseButton from "../TDViewer/base/BaseButton";
 import { AlertTriangle, Check, Copy, ExternalLink } from "react-feather";
 
@@ -59,7 +59,7 @@ const FormSubmission: React.FC<IFormSubmissionProps> = ({
           Add the TM Catalog Endpoint and Repository URL
         </h1>
         <div className="mx-auto w-[70%] flex-col px-4">
-          <DialogTextField
+          <TextField
             label="TM Catalog Endpoint"
             placeholder="TM Catalog Endpoint:..."
             id="catalogEndpoint"
@@ -76,7 +76,7 @@ const FormSubmission: React.FC<IFormSubmissionProps> = ({
               {tmCatalogEndpointError}
             </div>
           )}
-          <DialogTextField
+          <TextField
             label="Name of the Repository"
             placeholder="In case there are multiple repositories hosted, specify which one with a string. Example: my-catalog"
             id="urlRepository"

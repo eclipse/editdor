@@ -27,7 +27,7 @@ import {
   AlertTriangle,
   RefreshCw,
 } from "react-feather";
-import TmInputForm from "./base/TmInputForm";
+import TmInputForm from "../base/TmInputForm";
 import { prepareTdForSubmission } from "../../services/operations";
 import { readAllReadablePropertyForms } from "../../services/thingsApiService";
 import {
