@@ -15,18 +15,24 @@ import { OperationsMap, OperationsType } from "../Dialogs/AddFormDialog";
 
 interface AddFormProps {
   type: OperationsType;
-  onHrefInputChange: () => void;
+  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   operations: (type: OperationsType) => OperationsMap;
   defaultValue?: string;
+  error?: string;
 }
 
 const AddForm: React.FC<AddFormProps> = ({
   type,
-  onHrefInputChange,
+  onInputChange,
   operations,
   defaultValue = "",
+  error = "",
 }) => {
-  const [value, setValue] = React.useState(defaultValue);
+  const inputClasses =
+    "w-full rounded-md border-2 bg-gray-600 p-2 text-white focus:outline-none sm:text-sm " +
+    (error
+      ? "border-red-400 focus:border-red-400"
+      : "border-gray-600 focus:border-blue-500");
 
   return (
     <>
@@ -69,14 +75,15 @@ const AddForm: React.FC<AddFormProps> = ({
           name="form-href"
           value={defaultValue}
           id="form-href"
-          className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
+          className={inputClasses}
           placeholder="http://example.com/href"
-          onChange={(e) => {
-            setValue(e.target.value);
-            onHrefInputChange();
-          }}
+          onChange={onInputChange}
         />
-        <span id="form-href-info" className="pl-2 text-xs text-red-400"></span>
+        {error && (
+          <span id="form-href-info" className="pl-2 text-xs text-red-400">
+            {error}
+          </span>
+        )}
       </div>
     </>
   );

@@ -60,6 +60,9 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
       return false;
     });
 
+    const [value, setValue] = React.useState<string>("");
+    const [error, setError] = React.useState<string>("");
+
     const type: OperationsType = props.type || "";
     const name = type && type[0].toUpperCase() + type.slice(1);
     const interaction = props.interaction ?? {};
@@ -117,12 +120,13 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
       };
 
       if (form.op.length === 0) {
-        showErrorMessage("You have to select at least one operation ...");
+        setError("You have to select at least one operation ...");
       } else if (checkIfFormExists(form)) {
-        showErrorMessage(
+        setError(
           "A Form for one of the selected operations already exists ..."
         );
       } else {
+        setError("");
         context.addForm(typeToJSONKey(type), interactionName, form);
         close();
       }
@@ -141,8 +145,12 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
         >
           <AddForm
             type={type as OperationsType}
-            onHrefInputChange={clearErrorMessage}
+            onInputChange={(e) => {
+              setValue(e.target.value.trim());
+              setError("");
+            }}
             operations={operations}
+            error={error}
             defaultValue={interaction.forms?.[0].href ?? ""}
           ></AddForm>
         </DialogTemplate>,
@@ -152,25 +160,6 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
     return null;
   }
 );
-
-const showErrorMessage = (msg) => {
-  (document.getElementById("form-href-info") as HTMLElement).textContent = msg;
-  (document.getElementById("form-href") as HTMLInputElement).classList.remove(
-    "border-gray-600"
-  );
-  (document.getElementById("form-href") as HTMLInputElement).classList.add(
-    "border-red-400"
-  );
-};
-
-const clearErrorMessage = () => {
-  (document.getElementById("form-href") as HTMLElement).classList.add(
-    "border-gray-600"
-  );
-  (document.getElementById("form-href") as HTMLInputElement).classList.remove(
-    "border-red-400"
-  );
-};
 
 const operations = (type: OperationsType): OperationsMap => {
   switch (type) {
