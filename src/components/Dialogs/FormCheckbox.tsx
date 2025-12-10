@@ -10,3 +10,28 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
+interface FormCheckboxProps {
+  name: string;
+}
+
+const FormCheckbox: React.FC<FormCheckboxProps> = ({ name }) => {
+  const id = `form-${name}`;
+  const isInvoke = name === "invokeaction";
+
+  return (
+    <div className="form-checkbox pl-2">
+      <input
+        id={id}
+        className="form-checkbox-input"
+        type="checkbox"
+        value={name}
+        readOnly={isInvoke}
+        checked={isInvoke || undefined}
+      />
+      <label className="form-checkbox-label pl-2" htmlFor={id}>
+        {name}
+      </label>
+    </div>
+  );
+};
+export default FormCheckbox;
