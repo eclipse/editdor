@@ -9,7 +9,7 @@
  * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
- ********************************************************************************/ v;
+ ********************************************************************************/
 import React from "react";
 
 type RequestState = {
