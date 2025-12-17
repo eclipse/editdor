@@ -11,14 +11,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import type { ThingDescription } from "wot-thing-description-types";
-import {
-  Method,
-  RequestWebOptions,
-  HttpResponse,
-  HttpErrorResponse,
-  HttpSuccessResponse,
-  ResponseDataFromNorthbound,
-} from "../types/global";
 import { getLocalStorage } from "./localStorage";
 import { ensureTrailingSlash, extractIndexFromId } from "../utils/strings";
 import { readPropertyWithServient } from "./form";

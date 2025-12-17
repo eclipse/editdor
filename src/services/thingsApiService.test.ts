@@ -43,8 +43,6 @@ import {
   buildUrlWithParams,
 } from "./thingsApiService";
 
-import { HttpSuccessResponse, HttpErrorResponse } from "types/global";
-
 describe("isSuccessResponse", () => {
   test("should return true when response has both 'data' and 'status' properties", () => {
     const response = {

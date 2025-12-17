@@ -13,7 +13,10 @@
 import React, { useContext, useState, useRef } from "react";
 import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
-import { buildAttributeListObject, separateForms } from "../../../util.js";
+import {
+  buildAttributeListObject,
+  separateForms,
+} from "../../../utils/tdOperations";
 import InfoIconWrapper from "../../base/InfoIconWrapper";
 import { getFormsTooltipContent } from "../../../utils/TooltipMapper";
 import Form from "./Form";
