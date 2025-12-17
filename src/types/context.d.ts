@@ -24,7 +24,11 @@ declare global {
       toBeDeletedForm: { href: string; op: string },
       index: number
     ) => void;
-    addForm: (level: string, interactionName: string, form: any) => void;
+    addForm: (
+      level: "thing" | "properties" | "actions" | "events" | string,
+      interactionName: string,
+      form: any
+    ) => void;
     removeLink: (link: any) => void;
     removeOneOfAKindReducer: (kind: string, oneOfAKind: string) => void;
     addLinkedTd: (linkedTd: Record<string, any>) => void;

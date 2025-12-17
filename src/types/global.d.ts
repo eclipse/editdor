@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import type { FormElementBase } from "wot-thing-description-types";
-export {};
+
 declare global {
   declare const APP_VERSION: string;
 
@@ -55,3 +55,4 @@ declare global {
     quality?: number;
   }
 }
+export {};
