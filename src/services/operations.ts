@@ -134,7 +134,7 @@ export function processConversionTMtoTD(
       };
     }
 
-    // delete parsed["@type"];
+    delete parsed["@type"];
     delete parsed["tm:required"];
 
     return parsed;
