@@ -134,8 +134,17 @@ export function processConversionTMtoTD(
       };
     }
 
-    delete parsed["@type"];
-    delete parsed["tm:required"];
+     if(parsed["@type"]){
+           if(Array.isArray(parsed["@type"])){
+         parsed["@type"]=parsed["@type"].filter((x:String)=>x!="tm:ThingModel");
+             if(parsed["@type"].length==0){
+                  delete parsed["@type"];
+             }
+          }else {
+            // string 
+                 delete parsed["@type"];
+          }
+     }
 
     return parsed;
   } catch (error) {
