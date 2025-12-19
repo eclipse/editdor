@@ -14,6 +14,13 @@ import React, { ReactNode, useReducer } from "react";
 
 import EdiTDorContext from "./ediTDorContext";
 import { editdorReducer } from "./editorReducers";
+import {
+  IValidationMessage,
+  INorthboundConnection,
+  IContributeCatalog,
+  EditorState,
+  Action,
+} from "types/context";
 
 export const UPDATE_OFFLINE_TD = "UPDATE_OFFLINE_TD";
 export const UPDATE_IS_MODIFIED = "UPDATE_IS_MODIFIED";
@@ -42,7 +49,40 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
     isValidJSON: false,
     parsedTD: {},
     name: "",
-    validationMessage: "",
+    validationMessage: {
+      report: {
+        json: null,
+        schema: null,
+        defaults: null,
+        jsonld: null,
+        additional: null,
+      },
+      details: {
+        enumConst: null,
+        propItems: null,
+        security: null,
+        propUniqueness: null,
+        multiLangConsistency: null,
+        linksRelTypeCount: null,
+        readWriteOnly: null,
+        uriVariableSecurity: null,
+      },
+      detailComments: {
+        enumConst: null,
+        propItems: null,
+        security: null,
+        propUniqueness: null,
+        multiLangConsistency: null,
+        linksRelTypeCount: null,
+        readWriteOnly: null,
+        uriVariableSecurity: null,
+      },
+      validationErrors: {
+        json: "",
+        schema: "",
+      },
+      customMessage: "",
+    },
     fileHandle: null,
     linkedTd: undefined,
     northboundConnection: {
@@ -121,7 +161,7 @@ const GlobalState: React.FC<IGlobalStateProps> = ({ children }) => {
     dispatch({ type: UPDATE_LINKED_TD, linkedTd: linkedTd });
   };
 
-  const updateValidationMessage = (validationMessage?: string) => {
+  const updateValidationMessage = (validationMessage: IValidationMessage) => {
     dispatch({
       type: UPDATE_VALIDATION_MESSAGE,
       validationMessage: validationMessage,
