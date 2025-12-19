@@ -8,7 +8,8 @@ export interface IEdiTDorContext {
   name: string;
   fileHandle: string | null;
   linkedTd: Record<string, any> | undefined;
-  validationMessage?: any;
+  validationMessage: IValidationMessage;
+
   northboundConnection: INorthboundConnection;
   contributeCatalog: IContributeCatalog;
 
@@ -27,11 +28,46 @@ export interface IEdiTDorContext {
   removeOneOfAKindReducer: (kind: string, oneOfAKind: string) => void;
   addLinkedTd: (linkedTd: Record<string, any>) => void;
   updateLinkedTd: (linkedTd: Record<string, any>) => void;
-  updateValidationMessage: (validationMessage?: any) => void;
+  updateValidationMessage: (validationMessage: IValidationMessage) => void;
   updateNorthboundConnection: (
     northboundConnection: INorthboundConnection
   ) => void;
   updateContributeCatalog: (contributeCatalog: IContributeCatalog) => void;
+}
+
+interface IValidationMessage {
+  report: {
+    json: null | "passed" | "failed" | "warning";
+    schema: null | "passed" | "failed" | "warning";
+    defaults: null | "passed" | "failed" | "warning";
+    jsonld: null | "passed" | "failed" | "warning";
+    additional: null | "passed" | "failed" | "warning";
+  };
+  details: {
+    enumConst: null | string;
+    propItems: null | string;
+    security: null | string;
+    propUniqueness: null | string;
+    multiLangConsistency: null | string;
+    linksRelTypeCount: null | string;
+    readWriteOnly: null | string;
+    uriVariableSecurity: null | string;
+  };
+  detailComments: {
+    enumConst: null | string;
+    propItems: null | string;
+    security: null | string;
+    propUniqueness: null | string;
+    multiLangConsistency: null | string;
+    linksRelTypeCount: null | string;
+    readWriteOnly: null | string;
+    uriVariableSecurity: null | string;
+  };
+  validationErrors?: {
+    json: string;
+    schema: string;
+  };
+  customMessage: string; // custom to editor
 }
 
 interface INorthboundConnection {
