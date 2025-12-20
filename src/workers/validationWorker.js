@@ -13,7 +13,6 @@
 import { tdValidator, tmValidator } from "../external/TdPlayground";
 import { isThingModel } from "../util";
 
- 
 self.onmessage = async (message) => {
   console.debug("validation worker received message...");
   let tdStr = message.data;
