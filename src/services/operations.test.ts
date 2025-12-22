@@ -415,8 +415,9 @@ describe("processConversionTMtoTD", () => {
       [],
       ""
     );
-
+    
     expect(result).not.toHaveProperty("tm:required");
+    expect(result["@type"]).not.toContain("tm:ThingModel");
   });
 
   test("handles complex TM to TD conversion", () => {

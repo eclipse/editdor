@@ -123,7 +123,7 @@ export function processConversionTMtoTD(
     if (parsed.events) {
       parsed.events = filterAffordances(parsed.events, events);
     }
-//fix/conversion_tm_to_td
+    //fix/conversion_tm_to_td
     if (!isVersionValid(parsed)) {
       let objectVersion = parsed["version"];
 
@@ -134,18 +134,19 @@ export function processConversionTMtoTD(
       };
     }
 
-     if(parsed["@type"]){
-           if(Array.isArray(parsed["@type"])){
-         parsed["@type"]=parsed["@type"].filter((x:String)=>x!="tm:ThingModel");
-             if(parsed["@type"].length==0){
-                  delete parsed["@type"];
-             }
-          }else {
-            // string 
-                 delete parsed["@type"];
-          }
-     }
-
+    if (parsed["@type"]) {
+      if (Array.isArray(parsed["@type"])) {
+        parsed["@type"] = parsed["@type"].filter(
+          (x: String) => x != "tm:ThingModel"
+        );
+        if (parsed["@type"].length == 0) {
+          delete parsed["@type"];
+        }
+      } else {
+        delete parsed["@type"];
+      }
+    }
+    delete parsed["tm:required"];
     return parsed;
   } catch (error) {
     console.error("Error processing TM:", error);
