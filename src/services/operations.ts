@@ -123,7 +123,7 @@ export function processConversionTMtoTD(
     if (parsed.events) {
       parsed.events = filterAffordances(parsed.events, events);
     }
-
+//fix/conversion_tm_to_td
     if (!isVersionValid(parsed)) {
       let objectVersion = parsed["version"];
 
