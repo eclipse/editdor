@@ -145,6 +145,7 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
 
     if (sectionName === "TABLE") {
       let preparedTd = {} as ThingDescription;
+
       try {
         preparedTd = prepareTdForSubmission(
           backgroundTdToSend,
@@ -163,16 +164,20 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
         });
         return;
       }
-
-      if (preparedTd.id) {
-        requestNorthboundTdVersion(preparedTd.id, preparedTd);
-      } else {
-        dispatch({
-          type: "SET_INTERACTION_SECTION_ERROR",
-          section: "table",
-          error: true,
-          message: "Cannot interact with the TD: missing ID",
-        });
+      if (
+        settingsData.northboundUrl.trim() !== "" &&
+        settingsData.southboundUrl.trim() !== ""
+      ) {
+        if (preparedTd.id) {
+          requestNorthboundTdVersion(preparedTd.id, preparedTd);
+        } else {
+          dispatch({
+            type: "SET_INTERACTION_SECTION_ERROR",
+            section: "table",
+            error: true,
+            message: "Cannot interact with the TD: missing ID",
+          });
+        }
       }
     }
 
@@ -195,7 +200,7 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
       const tdSource =
         Object.keys(context.northboundConnection.northboundTd).length > 0
           ? (context.northboundConnection.northboundTd as ThingDescription)
-          : td;
+          : backgroundTdToSend;
       const results = await readAllReadablePropertyForms(
         tdSource,
         filteredRows.map((r) => ({ id: r.id, propName: r.propName })),
@@ -221,7 +226,7 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
       const res = await readPropertyWithServient(
         Object.keys(context.northboundConnection.northboundTd).length > 0
           ? (context.northboundConnection.northboundTd as ThingDescription)
-          : td,
+          : backgroundTdToSend,
         item.propName,
         { formIndex: index },
         settingsData.pathToValue || ""
