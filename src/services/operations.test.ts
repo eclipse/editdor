@@ -416,6 +416,10 @@ describe("processConversionTMtoTD", () => {
       ""
     );
 
+    if (result["@type"]) {
+      expect(Array.isArray(result["@type"])).toBe(true);
+      expect(result["@type"]).not.toContain("tm:ThingModel");
+    }
     expect(result).not.toHaveProperty("tm:required");
   });
 
