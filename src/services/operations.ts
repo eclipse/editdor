@@ -134,9 +134,19 @@ export function processConversionTMtoTD(
       };
     }
 
-    delete parsed["@type"];
+    if (parsed["@type"]) {
+      if (Array.isArray(parsed["@type"])) {
+        parsed["@type"] = parsed["@type"].filter(
+          (x: String) => x != "tm:ThingModel"
+        );
+        if (parsed["@type"].length == 0) {
+          delete parsed["@type"];
+        }
+      } else {
+        delete parsed["@type"];
+      }
+    }
     delete parsed["tm:required"];
-
     return parsed;
   } catch (error) {
     console.error("Error processing TM:", error);
