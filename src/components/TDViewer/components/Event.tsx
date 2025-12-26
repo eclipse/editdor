@@ -15,8 +15,8 @@ import { Trash2 } from "react-feather";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { buildAttributeListObject, separateForms } from "../../../util.js";
 import AddFormDialog from "../../Dialogs/AddFormDialog";
-import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
-import { getFormsTooltipContent } from "../../InfoIcon/TooltipMapper";
+import InfoIconWrapper from "../../base/InfoIconWrapper";
+import { getFormsTooltipContent } from "../../../utils/TooltipMapper";
 import Form from "./Form";
 import AddFormElement from "../base/AddFormElement";
 

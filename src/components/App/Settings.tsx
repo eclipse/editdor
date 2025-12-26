@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import React, { useState, useEffect, useCallback } from "react";
-import InfoIconWrapper from "../InfoIcon/InfoIconWrapper";
-import DialogTextField from "../Dialogs/base/DialogTextField";
+import InfoIconWrapper from "../base/InfoIconWrapper";
+import TextField from "../base/TextField";
 import { isValidUrl } from "../../utils/strings";
 
 export interface SettingsData {
@@ -141,7 +141,7 @@ const Settings: React.FC<SettingsProps> = ({
             of the initial TD is used to correlate both.
           </h2>
 
-          <DialogTextField
+          <TextField
             label={
               <InfoIconWrapper
                 tooltip={{
@@ -168,7 +168,7 @@ const Settings: React.FC<SettingsProps> = ({
             </div>
           )}
 
-          <DialogTextField
+          <TextField
             label={
               <InfoIconWrapper
                 tooltip={{
@@ -204,7 +204,7 @@ const Settings: React.FC<SettingsProps> = ({
             {`If the gateway is wrapping the payloads in a JSON object, please provide the path to the value as a JSON pointer. For a JSON like {"foo": {"bar":"baz"}}, where baz is the value according the Data Schema of the TD, you should enter /foo/bar.`}
           </h2>
 
-          <DialogTextField
+          <TextField
             label={
               <InfoIconWrapper
                 tooltip={{

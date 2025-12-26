@@ -16,7 +16,7 @@ import {
   getAddressOffsetTooltipContent,
   getEndiannessTooltipContent,
   getUniIdTooltipContent,
-} from "../../InfoIcon/TooltipMapper";
+} from "../../../utils/TooltipMapper";
 import type { ThingDescription } from "wot-thing-description-types";
 import SingleIncrementButton from "../base/SingleIncrementButton";
 import SingleSwapButton from "../base/SingleSwapButton";

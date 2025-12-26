@@ -18,10 +18,10 @@ import React, {
 } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
-import DialogCheckbox from "./base/DialogCheckbox";
-import DialogTextArea from "./base/DialogTextArea";
-import DialogTextField from "./base/DialogTextField";
-import DialogDropdown from "./base/DialogDropdown";
+import Checkbox from "../base/Checkbox";
+import TextArea from "../base/TextArea";
+import TextField from "../base/TextField";
+import Dropdown from "../base/Dropdown";
 
 import DialogTemplate from "./DialogTemplate";
 
@@ -73,19 +73,19 @@ export const AddPropertyDialog = forwardRef<AddPropertyDialogRef, {}>(
 
     const children = (
       <>
-        <DialogTextField
+        <TextField
           id={`${type}-title`}
           label="Title"
           placeholder={`${name} Title`}
           autoFocus={true}
           onChange={() => clearErrorMessage()}
         />
-        <DialogTextArea
+        <TextArea
           id={`${type}-description`}
           label="Description"
           placeholder={`A short description about the new ${name}...`}
         />
-        <DialogDropdown
+        <Dropdown
           id={`${type}-type`}
           label="Type"
           options={[
@@ -103,8 +103,8 @@ export const AddPropertyDialog = forwardRef<AddPropertyDialogRef, {}>(
           Additional:
         </label>
         <div id="additional" className="rounded-md bg-gray-600 p-1">
-          <DialogCheckbox id={`${type}-readOnly`} label="Read Only" />
-          <DialogCheckbox id={`${type}-observable`} label="Observable" />
+          <Checkbox id={`${type}-readOnly`} label="Read Only" />
+          <Checkbox id={`${type}-observable`} label="Observable" />
         </div>
       </>
     );

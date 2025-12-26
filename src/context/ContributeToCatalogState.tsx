@@ -13,61 +13,6 @@
 import type { ThingDescription } from "wot-thing-description-types";
 import { getLocalStorage } from "../services/localStorage";
 
-type Validation = "VALID" | "INVALID" | "VALIDATING" | null;
-export type ActiveSection = "INSTANCE" | "GATEWAY" | "TABLE" | "SAVING_RESULTS";
-interface SectionError {
-  error: boolean;
-  message: string;
-}
-interface SettingsData {
-  northboundUrl: string;
-  southboundUrl: string;
-  pathToValue: string;
-}
-
-// Define the shape of the state
-export interface ContributionToCatalogState {
-  workflow: {
-    currentStep: number;
-    showDialog: boolean;
-    backgroundTdToSend: ThingDescription;
-  };
-  metadata: {
-    model: string;
-    author: string;
-    manufacturer: string;
-    license: string;
-    copyrightYear: string;
-    holder: string;
-    copied: boolean;
-    validation: Validation;
-    errorMessage: string;
-  };
-  interaction: {
-    activeSection: ActiveSection;
-    sectionErrors: {
-      instance: SectionError;
-      gateway: SectionError;
-      table: SectionError;
-      results: SectionError;
-    };
-    isTestingAll: boolean;
-    settingsData: SettingsData;
-    placeholderValues: Record<string, string>;
-    propertyResponseMap: Record<string, { value: string; error: string }>;
-  };
-  submission: {
-    tmCatalogEndpoint: string;
-    tmCatalogEndpointError: string;
-    repository: string;
-    repositoryError: string;
-    submitted: boolean;
-    submittedError: string;
-    id: string;
-    link: string;
-  };
-}
-
 // Initial state
 export const initialState: ContributionToCatalogState = {
   workflow: {

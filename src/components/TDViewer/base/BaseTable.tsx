@@ -13,7 +13,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import BasePagination from "./BasePagination";
 import ButtonSwap from "./ButtonSwap";
-import Icon from "../../InfoIcon/Icon";
+import Icon from "../../base/Icon";
 import {
   Edit,
   XCircle,

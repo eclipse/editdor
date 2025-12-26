@@ -25,7 +25,7 @@ import type {
 } from "wot-thing-description-types";
 import Ajv2019 from "ajv/dist/2019";
 import addFormats from "ajv-formats";
-import { ProgressBar, Step } from "./base/ProgressBar";
+import { ProgressBar, Step } from "../App/ProgressBar";
 
 import ediTDorContext from "../../context/ediTDorContext";
 import {
@@ -33,14 +33,14 @@ import {
   initialState,
 } from "../../context/ContributeToCatalogState";
 import DialogTemplate from "./DialogTemplate";
-import FormMetadata from "./base/FormMetadata";
-import FormSubmission from "./base/FormSubmission";
-import FormInteraction from "./base/FormInteraction";
+import ContributeToCatalog from "../App/ContributeToCatalog";
 import { isValidUrl, formatText } from "../../utils/strings";
+import { getJsonLdString } from "../../utils/arrays";
 import { requestWeb } from "../../services/thingsApiService";
 import {
   normalizeContext,
   extractPlaceholders,
+  generateIdForThingDescription,
 } from "../../services/operations";
 
 export interface IContributeToCatalogProps {
@@ -58,7 +58,7 @@ const VALIDATION_TM_JSON =
 const VALIDATION_MODBUS =
   "https://raw.githubusercontent.com/wot-oss/tmc/refs/heads/main/internal/commands/validate/modbus.schema.json";
 
-const ContributeToCatalog = forwardRef((props, ref) => {
+const ContributeToCatalogDialog = forwardRef((props, ref) => {
   const context = useContext(ediTDorContext);
   const td: ThingDescription = context.parsedTD;
   const contributeCatalogData = context.contributeCatalog;
@@ -92,21 +92,29 @@ const ContributeToCatalog = forwardRef((props, ref) => {
 
   const open = () => {
     const metadataFromTd = {
-      model: td["schema:mpn"] || contributeCatalogData.model || "",
+      model:
+        getJsonLdString(td, ["schema:mpn"]) ??
+        contributeCatalogData.model ??
+        "",
       author:
-        td["schema:author"]?.["schema:name"] ||
-        contributeCatalogData.author ||
+        getJsonLdString(td, ["schema:author", "schema:name"]) ??
+        contributeCatalogData.author ??
         "",
       manufacturer:
-        td["schema:manufacturer"]?.["schema:name"] ||
-        contributeCatalogData.manufacturer ||
+        getJsonLdString(td, ["schema:manufacturer", "schema:name"]) ??
+        contributeCatalogData.manufacturer ??
         "",
-      license: td["schema:license"] || contributeCatalogData.license || "",
+      license:
+        getJsonLdString(td, ["schema:license"]) ??
+        contributeCatalogData.license ??
+        "",
       copyrightYear:
-        td["schema:copyrightYear"] || contributeCatalogData.copyrightYear || "",
+        getJsonLdString(td, ["schema:copyrightYear"]) ??
+        contributeCatalogData.copyrightYear ??
+        "",
       holder: (
-        td["schema:copyrightHolder"]?.["name"] ||
-        contributeCatalogData.holder ||
+        getJsonLdString(td, ["schema:copyrightHolder", "schema:name"]) ??
+        contributeCatalogData.holder ??
         ""
       ).trim(),
     };
@@ -232,6 +240,8 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         throw new Error(message);
       }
 
+      const tdTransformed = generateIdForThingDescription(tdCopy);
+
       const ajv = new Ajv2019({
         strict: false,
         allErrors: true,
@@ -248,7 +258,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
 
       let schema = await response.json();
       let validate = ajv.compile(schema);
-      let valid = validate(tdCopy);
+      let valid = validate(tdTransformed);
       if (!valid) {
         let message = `Validation failed for ${VALIDATION_TMC_MANDATORY}: ${
           validate.errors ? ajv.errorsText(validate.errors) : ""
@@ -268,7 +278,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         throw new Error(`Failed to fetch schema from ${VALIDATION_MODBUS}`);
       schema = await response.json();
       validate = ajv.compile(schema);
-      valid = validate(tdCopy);
+      valid = validate(tdTransformed);
       if (!valid) {
         let message = `Validation failed for ${VALIDATION_MODBUS}: ${
           validate.errors ? ajv.errorsText(validate.errors) : ""
@@ -276,7 +286,7 @@ const ContributeToCatalog = forwardRef((props, ref) => {
         throw new Error(message);
       }
 
-      dispatch({ type: "SET_BACKGROUND_TD_TO_SEND", payload: tdCopy });
+      dispatch({ type: "SET_BACKGROUND_TD_TO_SEND", payload: tdTransformed });
       dispatch({ type: "SET_METADATA_ERROR_MESSAGE", payload: "" });
       dispatch({ type: "SET_METADATA_VALIDATION", payload: "VALID" });
       dispatch({
@@ -593,59 +603,28 @@ const ContributeToCatalog = forwardRef((props, ref) => {
           </ProgressBar>
         </div>
 
-        <div className="my-4 flex space-x-2">
-          {state.workflow.currentStep === 1 && (
-            <>
-              <FormMetadata
-                model={state.metadata.model}
-                onChangeModel={handleOnChangeModel}
-                author={state.metadata.author}
-                onChangeAuthor={handleOnChangeAuthor}
-                manufacturer={state.metadata.manufacturer}
-                onChangeManufacturer={handleOnChangeManufacturer}
-                license={state.metadata.license}
-                onChangeLicense={handleOnChangeLicense}
-                copyrightYear={state.metadata.copyrightYear}
-                onChangeCopyrightYear={handleOnChangeCopyrightYear}
-                holder={state.metadata.holder}
-                onChangeHolder={handleOnChangeHolder}
-                onClickCatalogValidation={handleCatalogValidation}
-                onClickCopyThingModel={handleCopyThingModelClick}
-                isValidating={state.metadata.validation === "VALIDATING"}
-                isValid={state.metadata.validation === "VALID"}
-                errorMessage={state.metadata.errorMessage}
-                copied={state.metadata.copied}
-              />
-            </>
-          )}
-          {state.workflow.currentStep === 2 && (
-            <FormInteraction
-              filteredHeaders={filteredHeaders}
-              filteredRows={filteredRows}
-              backgroundTdToSend={state.workflow.backgroundTdToSend}
-              interaction={state.interaction}
-              dispatch={dispatch}
-              handleFieldChange={handleFieldChange}
-            />
-          )}
-          {state.workflow.currentStep === 3 && (
-            <>
-              <FormSubmission
-                tmCatalogEndpoint={state.submission.tmCatalogEndpoint}
-                tmCatalogEndpointError={state.submission.tmCatalogEndpointError}
-                handleTmCatalogEndpointChange={handleTmCatalogEndpointChange}
-                repository={state.submission.repository}
-                repositoryError={state.submission.repositoryError}
-                handleRepositoryChange={handleRepositoryChange}
-                handleSubmit={handleSubmit}
-                submittedError={state.submission.submittedError}
-                submitted={state.submission.submitted}
-                id={state.submission.id}
-                link={state.submission.link}
-              />
-            </>
-          )}
-        </div>
+        <ContributeToCatalog
+          currentStep={state.workflow.currentStep}
+          metadata={state.metadata}
+          onChangeModel={handleOnChangeModel}
+          onChangeAuthor={handleOnChangeAuthor}
+          onChangeManufacturer={handleOnChangeManufacturer}
+          onChangeLicense={handleOnChangeLicense}
+          onChangeCopyrightYear={handleOnChangeCopyrightYear}
+          onChangeHolder={handleOnChangeHolder}
+          onClickCatalogValidation={handleCatalogValidation}
+          onClickCopyThingModel={handleCopyThingModelClick}
+          filteredHeaders={filteredHeaders}
+          filteredRows={filteredRows}
+          backgroundTdToSend={state.workflow.backgroundTdToSend}
+          interaction={state.interaction}
+          dispatch={dispatch}
+          handleFieldChange={handleFieldChange}
+          submission={state.submission}
+          handleTmCatalogEndpointChange={handleTmCatalogEndpointChange}
+          handleRepositoryChange={handleRepositoryChange}
+          handleSubmit={handleSubmit}
+        />
       </div>
     </>
   );
@@ -682,5 +661,5 @@ const ContributeToCatalog = forwardRef((props, ref) => {
   return null;
 });
 
-ContributeToCatalog.displayName = "ContributeToCatalog";
-export default ContributeToCatalog;
+ContributeToCatalogDialog.displayName = "ContributeToCatalogDialog";
+export default ContributeToCatalogDialog;

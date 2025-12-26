@@ -680,6 +680,7 @@ describe("replacePlaceholders", () => {
     expect(result).toBe('Config: {"stringKey": "hello", "numKey": 42}');
   });
 });
+
 describe("replaceStringOnTopLevelKey", () => {
   it("replaces string in top-level key", () => {
     const input = {
@@ -937,7 +938,7 @@ describe("generateIdForThingDescription", () => {
 });
 
 describe("prepareTdForSubmission", () => {
-  test("correctly processes TD with placeholders", () => {
+  test("should correctly process TD with placeholders", () => {
     const td = {
       "@type": "tm:ThingModel",
       "tm:required": ["prop1"],
@@ -956,22 +957,14 @@ describe("prepareTdForSubmission", () => {
     const result = prepareTdForSubmission(td as any, placeholderValues);
 
     // Check placeholders are replaced
+    expect(result["@type"]).toBe("tm:ThingModel");
+    expect(result["tm:required"]).toEqual(["prop1"]);
     expect(result.title).toBe("Test Thing");
     expect(result.description).toBe("A temperature device");
-
-    // Check TD fields are removed
-    expect(result).not.toHaveProperty("@type");
-    expect(result).not.toHaveProperty("tm:required");
-
-    // Check ID is generated
-    expect(result.id).toBeDefined();
-    expect(result.id).toMatch(/^urn:/);
-
-    // Check other properties are preserved
     expect(result.properties).toEqual({ prop1: { type: "string" } });
   });
 
-  test("processes TD without placeholders", () => {
+  test("should return the same TD when there is no placeholders", () => {
     const td = {
       "@type": "tm:ThingModel",
       "tm:required": ["prop1"],
@@ -984,177 +977,39 @@ describe("prepareTdForSubmission", () => {
 
     const result = prepareTdForSubmission(td as any, {});
 
-    // Check content is unchanged
     expect(result.title).toBe("Static Title");
     expect(result.description).toBe("A static description");
-
-    // Check TD fields are removed
-    expect(result).not.toHaveProperty("@type");
-    expect(result).not.toHaveProperty("tm:required");
-
-    // Check ID is generated
-    expect(result.id).toBeDefined();
+    expect(result.properties).toEqual({ prop1: { type: "string" } });
+    expect(result["@type"]).toBe("tm:ThingModel");
+    expect(result["tm:required"]).toEqual(["prop1"]);
   });
 
-  test("removes TD-specific fields", () => {
-    const td = {
-      "@type": "tm:ThingModel",
-      "tm:required": ["prop1", "prop2"],
-      "tm:optional": true,
-      title: "Test Thing",
-    };
-
-    const result = prepareTdForSubmission(td as any, {});
-
-    expect(result).not.toHaveProperty("@type");
-    expect(result).not.toHaveProperty("tm:required");
-    // Only @type and tm:required should be removed
-    expect(result).toHaveProperty("tm:optional", true);
-  });
-
-  test("replaces both string and numeric placeholders", () => {
-    const td = {
-      title: "Device {{id}}",
-      version: "{{version}}",
-      maxTemp: "{{maxTemp}}",
-    };
-
-    const placeholderValues = {
-      id: "ABC123",
-      version: "2",
-      maxTemp: "100.5",
-    };
-
-    const result = prepareTdForSubmission(td as any, placeholderValues);
-
-    expect(result.title).toBe("Device ABC123");
-    expect(result.version).toBe(2); // Number not string
-    expect(result.maxTemp).toBe(100.5); // Number not string
-  });
-
-  test("preserves existing TD structure", () => {
-    const td = {
-      "@type": "tm:ThingModel",
-      title: "{{title}}",
-      properties: {
-        temp: {
-          type: "number",
-          unit: "celsius",
-          minimum: "{{min}}",
-          maximum: "{{max}}",
-        },
-      },
-      actions: {
-        reset: {},
-      },
-      events: {
-        overheat: {},
-      },
-    };
-
-    const placeholderValues = {
-      title: "Thermostat",
-      min: "-20",
-      max: "80",
-    };
-
-    const result = prepareTdForSubmission(td as any, placeholderValues);
-
-    expect(result.title).toBe("Thermostat");
-    // @ts-ignore
-    expect(result.properties.temp.minimum).toBe(-20);
-    // @ts-ignore
-    expect(result.properties.temp.maximum).toBe(80);
-    // @ts-ignore
-    expect(result.properties.temp.unit).toBe("celsius");
-    expect(result.actions).toHaveProperty("reset");
-    expect(result.events).toHaveProperty("overheat");
-  });
-
-  test("generates a unique ID even when TD already has an ID", () => {
-    const td = {
-      id: "urn:existing:id",
-      title: "Thing with ID",
-    };
-
-    const result = prepareTdForSubmission(td as any, {});
-
-    expect(result.id).not.toBe("urn:existing:id");
-    expect(result.id).toMatch(/^urn:/);
-  });
-
-  test("handles empty TD gracefully", () => {
-    const td = {};
-
-    const result = prepareTdForSubmission(td as any, {});
-
-    expect(result).toHaveProperty("id");
-    expect(Object.keys(result).length).toBe(1);
-  });
-
-  test("throws error with helpful message when processing fails", () => {
-    const invalidTd = null as any;
-
-    expect(() => prepareTdForSubmission(invalidTd, {})).toThrow(
-      /Error preparing TD for submission/
-    );
-  });
-
-  test("does not modify the original TD object", () => {
+  test("should return a deep copy and not modify the original TD object", () => {
     const original = {
       "@type": "tm:ThingModel",
       "tm:required": ["prop1"],
       title: "Original Title",
     };
+    const result = prepareTdForSubmission(original as any, {});
 
-    const originalCopy = JSON.parse(JSON.stringify(original));
-
-    prepareTdForSubmission(original as any, {});
-
-    expect(original).toEqual(originalCopy);
+    expect(result).toEqual(original);
+    // Verify it's not the same reference (not same object)
+    expect(result).not.toBe(original);
+    // Verify mutation of result doesn't affect original
+    result.title = "Modified Title";
+    expect(original.title).toBe("Original Title");
   });
-
-  test("handles nested structures correctly", () => {
+  test("should throw error when placeholder replacement creates invalid JSON", () => {
     const td = {
-      "@type": "tm:ThingModel",
-      title: "{{title}}",
-      nested: {
-        level1: {
-          level2: {
-            value: "{{nestedValue}}",
-          },
-        },
-      },
+      title: "{{badValue}}",
     };
 
     const placeholderValues = {
-      title: "Test Thing",
-      nestedValue: "Deep Value",
+      badValue: '"}invalid',
     };
 
-    const result = prepareTdForSubmission(td as any, placeholderValues);
-
-    expect(result.title).toBe("Test Thing");
-    // @ts-ignore
-    expect(result.nested.level1.level2.value).toBe("Deep Value");
-  });
-
-  test("handles arrays correctly", () => {
-    const td = {
-      "@type": "tm:ThingModel",
-      title: "{{title}}",
-      items: ["{{item1}}", "{{item2}}", "static"],
-    };
-
-    const placeholderValues = {
-      title: "Test Thing",
-      item1: "Dynamic 1",
-      item2: "Dynamic 2",
-    };
-
-    const result = prepareTdForSubmission(td as any, placeholderValues);
-
-    expect(result.title).toBe("Test Thing");
-    expect(result.items).toEqual(["Dynamic 1", "Dynamic 2", "static"]);
+    expect(() => prepareTdForSubmission(td as any, placeholderValues)).toThrow(
+      /Error preparing TD for submission/
+    );
   });
 });

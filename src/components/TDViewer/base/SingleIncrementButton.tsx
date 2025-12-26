@@ -12,7 +12,7 @@
  ********************************************************************************/
 import React from "react";
 import IncrementButton from "../base/IncrementButton";
-import InfoIconWrapper from "../../InfoIcon/InfoIconWrapper";
+import InfoIconWrapper from "../../base/InfoIconWrapper";
 
 interface SingleIncrementButtonProps {
   idIcon: string;
