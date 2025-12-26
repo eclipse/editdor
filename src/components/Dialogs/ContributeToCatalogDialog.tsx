@@ -40,6 +40,7 @@ import { requestWeb } from "../../services/thingsApiService";
 import {
   normalizeContext,
   extractPlaceholders,
+  generateIdForThingDescription,
 } from "../../services/operations";
 
 export interface IContributeToCatalogProps {
@@ -239,6 +240,8 @@ const ContributeToCatalogDialog = forwardRef((props, ref) => {
         throw new Error(message);
       }
 
+      const tdTransformed = generateIdForThingDescription(tdCopy);
+
       const ajv = new Ajv2019({
         strict: false,
         allErrors: true,
@@ -255,7 +258,7 @@ const ContributeToCatalogDialog = forwardRef((props, ref) => {
 
       let schema = await response.json();
       let validate = ajv.compile(schema);
-      let valid = validate(tdCopy);
+      let valid = validate(tdTransformed);
       if (!valid) {
         let message = `Validation failed for ${VALIDATION_TMC_MANDATORY}: ${
           validate.errors ? ajv.errorsText(validate.errors) : ""
@@ -275,7 +278,7 @@ const ContributeToCatalogDialog = forwardRef((props, ref) => {
         throw new Error(`Failed to fetch schema from ${VALIDATION_MODBUS}`);
       schema = await response.json();
       validate = ajv.compile(schema);
-      valid = validate(tdCopy);
+      valid = validate(tdTransformed);
       if (!valid) {
         let message = `Validation failed for ${VALIDATION_MODBUS}: ${
           validate.errors ? ajv.errorsText(validate.errors) : ""
@@ -283,7 +286,7 @@ const ContributeToCatalogDialog = forwardRef((props, ref) => {
         throw new Error(message);
       }
 
-      dispatch({ type: "SET_BACKGROUND_TD_TO_SEND", payload: tdCopy });
+      dispatch({ type: "SET_BACKGROUND_TD_TO_SEND", payload: tdTransformed });
       dispatch({ type: "SET_METADATA_ERROR_MESSAGE", payload: "" });
       dispatch({ type: "SET_METADATA_VALIDATION", payload: "VALID" });
       dispatch({

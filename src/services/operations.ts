@@ -276,15 +276,7 @@ export function prepareTdForSubmission(
         : tdString;
 
     const parsedTd = JSON.parse(replacedTdString);
-    const {
-      "@type": typeValue,
-      "tm:required": tmRequired,
-      ...cleanedTd
-    } = parsedTd;
-
-    const tdWithNewId = generateIdForThingDescription(cleanedTd);
-
-    return tdWithNewId;
+    return parsedTd;
   } catch (error) {
     throw new Error(
       `Error preparing TD for submission: ${

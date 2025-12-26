@@ -10,9 +10,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useRef, useContext, useEffect, useMemo } from "react";
+import React, { useRef, useContext, useEffect, useMemo, useState } from "react";
 import type { ThingDescription } from "wot-thing-description-types";
-import { isEqual } from "lodash";
+import { isEqual, set } from "lodash";
 
 import ediTDorContext from "../../context/ediTDorContext";
 import BaseTable from "../TDViewer/base/BaseTable";
@@ -55,6 +55,13 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
 }) => {
   const context = useContext(ediTDorContext);
   const td: ThingDescription = context.parsedTD;
+
+  const tdWithPlaceholders: ThingDescription = useMemo(
+    () => ({ ...backgroundTdToSend }),
+    [backgroundTdToSend]
+  );
+  const [temporaryTdWithoutPlaceholders, setTemporaryTdWithoutPlaceholders] =
+    useState<ThingDescription>({} as ThingDescription);
 
   const {
     activeSection,
@@ -148,13 +155,10 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
 
       try {
         preparedTd = prepareTdForSubmission(
-          backgroundTdToSend,
+          tdWithPlaceholders,
           placeholderValues
         );
-        dispatch({
-          type: "SET_BACKGROUND_TD_TO_SEND",
-          payload: preparedTd,
-        });
+        setTemporaryTdWithoutPlaceholders(preparedTd);
       } catch (error) {
         dispatch({
           type: "SET_INTERACTION_SECTION_ERROR",
@@ -200,7 +204,7 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
       const tdSource =
         Object.keys(context.northboundConnection.northboundTd).length > 0
           ? (context.northboundConnection.northboundTd as ThingDescription)
-          : backgroundTdToSend;
+          : temporaryTdWithoutPlaceholders;
       const results = await readAllReadablePropertyForms(
         tdSource,
         filteredRows.map((r) => ({ id: r.id, propName: r.propName })),
@@ -226,7 +230,7 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
       const res = await readPropertyWithServient(
         Object.keys(context.northboundConnection.northboundTd).length > 0
           ? (context.northboundConnection.northboundTd as ThingDescription)
-          : backgroundTdToSend,
+          : temporaryTdWithoutPlaceholders,
         item.propName,
         { formIndex: index },
         settingsData.pathToValue || ""
