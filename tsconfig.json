@@ -111,6 +111,7 @@
   },
   "include": [
     "src/**/*.ts",
+    "src/**/*.tsx",
     "src/types/*.d.ts",
     "node_modules/wot-typescript-definitions/*",
     "node_modules/wot-thing-description-types/*"

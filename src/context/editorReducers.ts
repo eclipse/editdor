@@ -29,13 +29,6 @@ import type {
   FormElementRoot,
   FormElementBase,
 } from "wot-thing-description-types";
-import type {
-  Action,
-  EditorState,
-  IContributeCatalog,
-  INorthboundConnection,
-  IValidationMessage,
-} from "../types/context";
 
 export const editdorReducer = (
   state: EditorState,
