@@ -14,13 +14,6 @@ import React, { ReactNode, useReducer } from "react";
 
 import EdiTDorContext from "./ediTDorContext";
 import { editdorReducer } from "./editorReducers";
-import {
-  IValidationMessage,
-  INorthboundConnection,
-  IContributeCatalog,
-  EditorState,
-  Action,
-} from "types/context";
 
 export const UPDATE_OFFLINE_TD = "UPDATE_OFFLINE_TD";
 export const UPDATE_IS_MODIFIED = "UPDATE_IS_MODIFIED";
