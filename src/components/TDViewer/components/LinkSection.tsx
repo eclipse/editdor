@@ -14,7 +14,7 @@
 import * as joint from "jointjs";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
-import { changeBetweenTd } from "../../../util";
+import { changeBetweenTd } from "../../../utils/tdOperations";
 import AddLinkTdDialog from "../../Dialogs/AddLinkTdDialog";
 import InfoIconWrapper from "../../base/InfoIconWrapper";
 import { getLinksTooltipContent } from "../../../utils/TooltipMapper";

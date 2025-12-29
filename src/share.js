@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 import { compress, decompress } from "./external/TdPlayground";
-import { isThingModel } from "./util";
+import { isThingModel } from "./utils/tdOperations";
 
 const tdPrefix = "tdjson";
 const tmPrefix = "tmjson";

@@ -17,7 +17,7 @@ import {
   buildAttributeListObject,
   getDirectedValue,
   separateForms,
-} from "../../util";
+} from "../../utils/tdOperations";
 import AddFormDialog from "../Dialogs/AddFormDialog";
 import InfoIconWrapper from "../base/InfoIconWrapper";
 import { getFormsTooltipContent } from "../../utils/TooltipMapper";

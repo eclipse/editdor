@@ -22,6 +22,7 @@ interface ITextFieldProps {
   className?: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   helperText?: string | ReactNode;
+  error?: string;
 }
 
 const TextField: React.FC<ITextFieldProps> = (props) => {
@@ -46,10 +47,14 @@ const TextField: React.FC<ITextFieldProps> = (props) => {
         onChange={props.onChange}
         value={props.value}
       />
-      <span
-        id={`${props.id}-helper-text`}
-        className="pl-2 text-xs text-red-400"
-      ></span>
+      {props.error && (
+        <span
+          id={`${props.id}-helper-text`}
+          className="pl-2 text-xs text-red-400"
+        >
+          {props.error}
+        </span>
+      )}
     </div>
   );
 };

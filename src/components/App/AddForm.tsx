@@ -12,12 +12,14 @@
  ********************************************************************************/
 import React from "react";
 import { OperationsMap, OperationsType } from "../Dialogs/AddFormDialog";
+import FormCheckbox from "../base/FormCheckbox";
+import TextField from "../base/TextField";
 
 interface AddFormProps {
   type: OperationsType;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   operations: (type: OperationsType) => OperationsMap;
-  defaultValue?: string;
+  value?: string;
   error?: string;
 }
 
@@ -25,7 +27,7 @@ const AddForm: React.FC<AddFormProps> = ({
   type,
   onInputChange,
   operations,
-  defaultValue = "",
+  value = "",
   error = "",
 }) => {
   const inputClasses =
@@ -41,50 +43,20 @@ const AddForm: React.FC<AddFormProps> = ({
       </label>
       <div className="p-1">
         <div className="rounded-md bg-gray-600 p-1">
-          {operations(type).map((name) => {
-            const id = `form-${name}`;
-            const isInvoke = name === "invokeaction";
-            return (
-              <div key={id} className="form-checkbox pl-2">
-                <input
-                  id={id}
-                  className="form-checkbox-input"
-                  type="checkbox"
-                  value={name}
-                  readOnly={isInvoke}
-                  checked={isInvoke || undefined}
-                />
-                <label className="form-checkbox-label pl-2" htmlFor={id}>
-                  {name}
-                </label>
-              </div>
-            );
-          })}
+          {operations(type).map((name) => (
+            <FormCheckbox key={`form-${name}`} name={name} />
+          ))}
         </div>
       </div>
-
-      <div className="p-1 pt-2">
-        <label
-          htmlFor="form-href"
-          className="pl-2 text-sm font-medium text-gray-400"
-        >
-          Href:
-        </label>
-        <input
-          type="text"
-          name="form-href"
-          value={defaultValue}
-          id="form-href"
-          className={inputClasses}
-          placeholder="http://example.com/href"
-          onChange={onInputChange}
-        />
-        {error && (
-          <span id="form-href-info" className="pl-2 text-xs text-red-400">
-            {error}
-          </span>
-        )}
-      </div>
+      <TextField
+        id="form-href"
+        label="Href:"
+        value={value}
+        placeholder="http://example.com/href"
+        onChange={onInputChange}
+        className={inputClasses}
+        error={error}
+      ></TextField>
     </>
   );
 };

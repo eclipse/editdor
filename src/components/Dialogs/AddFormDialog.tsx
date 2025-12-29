@@ -10,13 +10,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { forwardRef, useContext, useImperativeHandle } from "react";
+import React, {
+  forwardRef,
+  useContext,
+  useState,
+  useImperativeHandle,
+} from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
-import { checkIfFormIsInItem } from "../../util";
+import { checkIfFormIsInItem } from "../../utils/tdOperations";
 import DialogTemplate from "./DialogTemplate";
 import AddForm from "../App/AddForm";
-import FormCheckbox from "./FormCheckbox";
+import FormCheckbox from "../base/FormCheckbox";
+import { HardDrive } from "react-feather";
+import { set } from "lodash";
 
 export type OperationsType = "property" | "action" | "event" | "thing" | "";
 export type OperationsMap = PropertyMap | ActionMap | EventMap | ThingMap;
@@ -42,26 +49,26 @@ export interface AddFormDialogRef {
   close: () => void;
 }
 
-interface Form {
-  op: string[];
+export interface ExplicitForm {
+  op: string[] | string;
   href: string;
 }
 
 interface AddFormDialogProps {
   type?: OperationsType;
-  interaction?: { forms?: Form[] };
+  interaction?: { forms?: ExplicitForm[]; type?: string };
   interactionName?: string;
 }
 
 const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
   (props, ref) => {
-    const context = useContext(ediTDorContext);
-    const [display, setDisplay] = React.useState<boolean>(() => {
+    const context: IEdiTDorContext = useContext(ediTDorContext);
+    const [display, setDisplay] = useState<boolean>(() => {
       return false;
     });
 
-    const [value, setValue] = React.useState<string>("");
-    const [error, setError] = React.useState<string>("");
+    const [hrefValue, setHrefValue] = useState<string>("");
+    const [error, setError] = useState<string>("");
 
     const type: OperationsType = props.type || "";
     const name = type && type[0].toUpperCase() + type.slice(1);
@@ -76,6 +83,8 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
     });
 
     const open = () => {
+      setError("");
+      setHrefValue("");
       setDisplay(true);
     };
 
@@ -83,11 +92,39 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
       setDisplay(false);
     };
 
-    const checkIfFormExists = (form: Form): boolean | undefined => {
-      if (interaction.forms) {
-        return checkIfFormIsInItem(form, interaction);
+    const operations = (type: OperationsType): OperationsMap => {
+      switch (type) {
+        case "property":
+          return [
+            "writeproperty",
+            "readproperty",
+            "observeproperty",
+            "unobserveproperty",
+          ];
+        case "event":
+          return ["subscribeevent", "unsubscribeevent"];
+        case "action":
+          return ["invokeaction"];
+        case "thing":
+          return [
+            "writeallproperties",
+            "readallproperties",
+            "writemultipleproperties",
+            "readmultipleproperties",
+            "observeallproperties",
+            "unobserveallproperties",
+          ];
+        default:
+          return [];
       }
-      return false;
+    };
+
+    const checkDuplicates = (form: ExplicitForm): boolean => {
+      const isDuplicate: boolean =
+        interaction.forms !== undefined
+          ? checkIfFormIsInItem(form, interaction)
+          : false;
+      return isDuplicate;
     };
 
     const typeToJSONKey = (type: string): string => {
@@ -101,10 +138,8 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
       return typeToJSONKey[type];
     };
 
-    const formSelection = operationsSelections(type);
-
     const onHandleEventRightButton = () => {
-      const form: Form = {
+      const form: ExplicitForm = {
         op: operations(type)
           .map((x) => {
             const element = document.getElementById(
@@ -113,15 +148,12 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
             return element?.checked ? element.value : undefined;
           })
           .filter((y): y is string => y !== undefined),
-        href:
-          (
-            document.getElementById("form-href") as HTMLInputElement
-          )?.value?.trim() || "/",
+        href: hrefValue.trim() || "/",
       };
 
       if (form.op.length === 0) {
         setError("You have to select at least one operation ...");
-      } else if (checkIfFormExists(form)) {
+      } else if (checkDuplicates(form)) {
         setError(
           "A Form for one of the selected operations already exists ..."
         );
@@ -146,12 +178,12 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
           <AddForm
             type={type as OperationsType}
             onInputChange={(e) => {
-              setValue(e.target.value.trim());
+              setHrefValue(e.target.value.trim());
               setError("");
             }}
             operations={operations}
             error={error}
-            defaultValue={interaction.forms?.[0].href ?? ""}
+            value={hrefValue}
           ></AddForm>
         </DialogTemplate>,
         document.getElementById("modal-root") as HTMLElement
@@ -160,43 +192,6 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
     return null;
   }
 );
-
-const operations = (type: OperationsType): OperationsMap => {
-  switch (type) {
-    case "property":
-      return [
-        "writeproperty",
-        "readproperty",
-        "observeproperty",
-        "unobserveproperty",
-      ];
-    case "event":
-      return ["subscribeevent", "unsubscribeevent"];
-    case "action":
-      return ["invokeaction"];
-    case "thing":
-      return [
-        "writeallproperties",
-        "readallproperties",
-        "writemultipleproperties",
-        "readmultipleproperties",
-        "observeallproperties",
-        "unobserveallproperties",
-      ];
-    default:
-      return [];
-  }
-};
-
-const operationsSelections = (type: OperationsType): JSX.Element => {
-  return (
-    <div className="rounded-md bg-gray-600 p-1">
-      {operations(type).map((e) => (
-        <FormCheckbox key={`form-${e}`} name={e} />
-      ))}
-    </div>
-  );
-};
 
 export default AddFormDialog;
 AddFormDialog.displayName = "AddFormDialog";
