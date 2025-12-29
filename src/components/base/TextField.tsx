@@ -12,7 +12,7 @@
  ********************************************************************************/
 import React, { ReactNode } from "react";
 
-interface IDialogTextFieldProps {
+interface ITextFieldProps {
   id: string;
   label: string | ReactNode;
   value?: string;
@@ -24,7 +24,7 @@ interface IDialogTextFieldProps {
   helperText?: string | ReactNode;
 }
 
-const DialogTextField: React.FC<IDialogTextFieldProps> = (props) => {
+const TextField: React.FC<ITextFieldProps> = (props) => {
   return (
     <div key={props.id} className="py-1">
       <label
@@ -54,4 +54,4 @@ const DialogTextField: React.FC<IDialogTextFieldProps> = (props) => {
   );
 };
 
-export default DialogTextField;
+export default TextField;

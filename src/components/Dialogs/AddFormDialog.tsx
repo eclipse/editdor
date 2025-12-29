@@ -13,8 +13,29 @@
 import React, { forwardRef, useContext, useImperativeHandle } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
-import { checkIfFormIsInItem } from "../../util.js";
+import { checkIfFormIsInItem } from "../../util";
 import DialogTemplate from "./DialogTemplate";
+import AddForm from "../App/AddForm";
+import FormCheckbox from "./FormCheckbox";
+
+export type OperationsType = "property" | "action" | "event" | "thing" | "";
+export type OperationsMap = PropertyMap | ActionMap | EventMap | ThingMap;
+
+type PropertyMap =
+  | ["writeproperty", "readproperty", "observeproperty", "unobserveproperty"]
+  | [];
+type ActionMap = ["invokeaction"] | [];
+type EventMap = ["subscribeevent", "unsubscribeevent"] | [];
+type ThingMap =
+  | [
+      "writeallproperties",
+      "readallproperties",
+      "writemultipleproperties",
+      "readmultipleproperties",
+      "observeallproperties",
+      "unobserveallproperties",
+    ]
+  | [];
 
 export interface AddFormDialogRef {
   openModal: () => void;
@@ -27,7 +48,7 @@ interface Form {
 }
 
 interface AddFormDialogProps {
-  type?: string;
+  type?: OperationsType;
   interaction?: { forms?: Form[] };
   interactionName?: string;
 }
@@ -39,7 +60,10 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
       return false;
     });
 
-    const type = props.type ?? "";
+    const [value, setValue] = React.useState<string>("");
+    const [error, setError] = React.useState<string>("");
+
+    const type: OperationsType = props.type || "";
     const name = type && type[0].toUpperCase() + type.slice(1);
     const interaction = props.interaction ?? {};
     const interactionName = props.interactionName ?? "";
@@ -78,101 +102,66 @@ const AddFormDialog = forwardRef<AddFormDialogRef, AddFormDialogProps>(
     };
 
     const formSelection = operationsSelections(type);
-    const children = (
-      <>
-        <label className="pl-3 text-sm font-medium text-gray-400">
-          Operations:
-        </label>
-        <div className="p-1">{formSelection}</div>
-        <div className="p-1 pt-2">
-          <label
-            htmlFor="form-href"
-            className="pl-2 text-sm font-medium text-gray-400"
-          >
-            Href:
-          </label>
-          <input
-            type="text"
-            name="form-href"
-            id="form-href"
-            className="w-full rounded-md border-2 border-gray-600 bg-gray-600 p-2 text-white focus:border-blue-500 focus:outline-none sm:text-sm"
-            placeholder="http://example.com/href"
-            onChange={() => {
-              clearErrorMessage();
-            }}
-          />
-          <span
-            id="form-href-info"
-            className="pl-2 text-xs text-red-400"
-          ></span>
-        </div>
-      </>
-    );
+
+    const onHandleEventRightButton = () => {
+      const form: Form = {
+        op: operations(type)
+          .map((x) => {
+            const element = document.getElementById(
+              "form-" + x
+            ) as HTMLInputElement;
+            return element?.checked ? element.value : undefined;
+          })
+          .filter((y): y is string => y !== undefined),
+        href:
+          (
+            document.getElementById("form-href") as HTMLInputElement
+          )?.value?.trim() || "/",
+      };
+
+      if (form.op.length === 0) {
+        setError("You have to select at least one operation ...");
+      } else if (checkIfFormExists(form)) {
+        setError(
+          "A Form for one of the selected operations already exists ..."
+        );
+      } else {
+        setError("");
+        context.addForm(typeToJSONKey(type), interactionName, form);
+        close();
+      }
+    };
 
     if (display) {
       return ReactDOM.createPortal(
         <DialogTemplate
           onHandleEventLeftButton={close}
-          onHandleEventRightButton={() => {
-            const form: Form = {
-              op: operations(type)
-                .map((x) => {
-                  const element = document.getElementById(
-                    "form-" + x
-                  ) as HTMLInputElement;
-                  return element?.checked ? element.value : undefined;
-                })
-                .filter((y): y is string => y !== undefined),
-              href:
-                (
-                  document.getElementById("form-href") as HTMLInputElement
-                )?.value?.trim() || "/",
-            };
-
-            if (form.op.length === 0) {
-              showErrorMessage("You have to select at least one operation ...");
-            } else if (checkIfFormExists(form)) {
-              showErrorMessage(
-                "A Form for one of the selected operations already exists ..."
-              );
-            } else {
-              context.addForm(typeToJSONKey(type), interactionName, form);
-              close();
-            }
-          }}
-          rightButton={"Add"}
-          children={children}
+          onHandleEventRightButton={onHandleEventRightButton}
+          rightButton={"Add Form"}
+          leftButton="Cancel"
+          hasSubmit={true}
           title={`Add ${name} Form`}
           description={`Tell us how this ${name} can be interfaced by selecting operations below and providing an href.`}
-        />,
+        >
+          <AddForm
+            type={type as OperationsType}
+            onInputChange={(e) => {
+              setValue(e.target.value.trim());
+              setError("");
+            }}
+            operations={operations}
+            error={error}
+            defaultValue={interaction.forms?.[0].href ?? ""}
+          ></AddForm>
+        </DialogTemplate>,
         document.getElementById("modal-root") as HTMLElement
       );
     }
-
     return null;
   }
 );
 
-const showErrorMessage = (msg) => {
-  (document.getElementById("form-href-info") as HTMLElement).textContent = msg;
-  (document.getElementById("form-href") as HTMLInputElement).classList.remove(
-    "border-gray-600"
-  );
-  (document.getElementById("form-href") as HTMLInputElement).classList.add(
-    "border-red-400"
-  );
-};
-
-const clearErrorMessage = () => {
-  (document.getElementById("form-href") as HTMLElement).classList.add(
-    "border-gray-600"
-  );
-  (document.getElementById("form-href") as HTMLInputElement).classList.remove(
-    "border-red-400"
-  );
-};
-
-const operations = (type: string): string[] => {
+const operations = (type: OperationsType): OperationsMap => {
   switch (type) {
     case "property":
       return [
@@ -199,39 +188,12 @@ const operations = (type: string): string[] => {
   }
 };
 
-const operationsSelections = (type: string): JSX.Element => {
+const operationsSelections = (type: OperationsType): JSX.Element => {
   return (
     <div className="rounded-md bg-gray-600 p-1">
-      {operations(type).map((e) => formCheckbox(e))}
-    </div>
-  );
-};
-
-const formCheckbox = (name: string): JSX.Element => {
-  const id = `form-${name}`;
-
-  return (
-    <div key={id} className="form-checkbox pl-2">
-      {name !== "invokeaction" ? (
-        <input
-          id={id}
-          className="form-checkbox-input"
-          type="checkbox"
-          value={name}
-        />
-      ) : (
-        <input
-          id={id}
-          className="form-checkbox-input"
-          type="checkbox"
-          value={name}
-          readOnly={name === "invokeaction"}
-          checked={name === "invokeaction"}
-        />
-      )}
-      <label className="form-checkbox-label pl-2" htmlFor={id}>
-        {name}
-      </label>
+      {operations(type).map((e) => (
+        <FormCheckbox key={`form-${e}`} name={e} />
+      ))}
     </div>
   );
 };

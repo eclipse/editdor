@@ -19,8 +19,8 @@ import {
   separateForms,
 } from "../../util";
 import AddFormDialog from "../Dialogs/AddFormDialog";
-import InfoIconWrapper from "../InfoIcon/InfoIconWrapper";
-import { getFormsTooltipContent } from "../InfoIcon/TooltipMapper";
+import InfoIconWrapper from "../base/InfoIconWrapper";
+import { getFormsTooltipContent } from "../../utils/TooltipMapper";
 import Form from "./components/Form";
 import InteractionSection from "./components/InteractionSection";
 import RenderedObject from "./components/RenderedObject";

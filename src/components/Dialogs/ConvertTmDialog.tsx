@@ -25,9 +25,8 @@ import {
   extractPlaceholders,
   isVersionValid,
 } from "../../services/operations";
-import TmInputForm from "../App/TmInputForm";
-import DialogTextField from "./base/DialogTextField";
-import type { IEdiTDorContext } from "../../types/context";
+import TmInputForm from "../base/TmInputForm";
+import TextField from "../base/TextField";
 
 export interface ConvertTmDialogRef {
   openModal: () => void;
@@ -130,7 +129,7 @@ const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
           />
 
           {!validVersion && (
-            <DialogTextField
+            <TextField
               label="TD instance version"
               id="instance"
               autoFocus={true}
@@ -138,7 +137,7 @@ const ConvertTmDialog = forwardRef<ConvertTmDialogRef>((props, ref) => {
               placeholder="ex: 1.0.0"
               value={versionInput}
               helperText="The Thing Model contains a version without instance key and corresponding value. If you leave this field empty it will automatic generate a instance value."
-            ></DialogTextField>
+            ></TextField>
           )}
           <h2 className="pb-2 pt-4 text-gray-400">
             Select/unselect the interaction affordances you would like to see in

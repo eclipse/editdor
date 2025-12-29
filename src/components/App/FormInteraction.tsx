@@ -10,35 +10,31 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import React, { useRef, useContext, useEffect, useMemo } from "react";
+import React, { useRef, useContext, useEffect, useMemo, useState } from "react";
 import type { ThingDescription } from "wot-thing-description-types";
-import { isEqual } from "lodash";
+import { isEqual, set } from "lodash";
 
-import ediTDorContext from "../../../context/ediTDorContext";
-import BaseTable from "../../TDViewer/base/BaseTable";
-import BaseButton from "../../TDViewer/base/BaseButton";
-import { readPropertyWithServient } from "../../../services/form";
-import { extractIndexFromId } from "../../../utils/strings";
-import { getErrorSummary } from "../../../utils/arrays";
-import Settings, { SettingsData } from "../../App/Settings";
+import ediTDorContext from "../../context/ediTDorContext";
+import BaseTable from "../TDViewer/base/BaseTable";
+import BaseButton from "../TDViewer/base/BaseButton";
+import { readPropertyWithServient } from "../../services/form";
+import { extractIndexFromId } from "../../utils/strings";
+import { getErrorSummary } from "../../utils/arrays";
+import Settings, { SettingsData } from "./Settings";
 import {
   ChevronDown,
   ChevronUp,
   AlertTriangle,
   RefreshCw,
 } from "react-feather";
-import TmInputForm from "../../App/TmInputForm";
-import { prepareTdForSubmission } from "../../../services/operations";
-import { readAllReadablePropertyForms } from "../../../services/thingsApiService";
+import TmInputForm from "../base/TmInputForm";
+import { prepareTdForSubmission } from "../../services/operations";
+import { readAllReadablePropertyForms } from "../../services/thingsApiService";
 import {
   handleHttpRequest,
   fetchNorthboundTD,
-} from "../../../services/thingsApiService";
-import {
-  ContributionToCatalogState,
-  ContributionToCatalogAction,
-} from "../../../context/ContributeToCatalogState";
-import type { ActiveSection } from "../../../context/ContributeToCatalogState";
+} from "../../services/thingsApiService";
+import { ContributionToCatalogAction } from "../../context/ContributeToCatalogState";
 
 interface IFormInteractionProps {
   filteredHeaders: { key: string; text: string }[];
@@ -59,6 +55,13 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
 }) => {
   const context = useContext(ediTDorContext);
   const td: ThingDescription = context.parsedTD;
+
+  const tdWithPlaceholders: ThingDescription = useMemo(
+    () => ({ ...backgroundTdToSend }),
+    [backgroundTdToSend]
+  );
+  const [temporaryTdWithoutPlaceholders, setTemporaryTdWithoutPlaceholders] =
+    useState<ThingDescription>({} as ThingDescription);
 
   const {
     activeSection,
@@ -126,26 +129,13 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
         });
         return true;
       case "GATEWAY":
-        let gatewayIsValid =
-          settingsData.northboundUrl.trim() !== "" &&
-          settingsData.southboundUrl.trim() !== "" &&
-          settingsData.pathToValue.trim() !== "";
-        if (!gatewayIsValid) {
-          dispatch({
-            type: "SET_INTERACTION_SECTION_ERROR",
-            section: "gateway",
-            error: true,
-            message: "All fields in section Gateway must have values",
-          });
-          return false;
-        } else {
-          dispatch({
-            type: "SET_INTERACTION_SECTION_ERROR",
-            section: "gateway",
-            error: false,
-            message: "",
-          });
-        }
+        dispatch({
+          type: "SET_INTERACTION_SECTION_ERROR",
+          section: "gateway",
+          error: false,
+          message: "",
+        });
+
         return true;
       case "TABLE":
         return true;
@@ -162,15 +152,13 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
 
     if (sectionName === "TABLE") {
       let preparedTd = {} as ThingDescription;
+
       try {
         preparedTd = prepareTdForSubmission(
-          backgroundTdToSend,
+          tdWithPlaceholders,
           placeholderValues
         );
-        dispatch({
-          type: "SET_BACKGROUND_TD_TO_SEND",
-          payload: preparedTd,
-        });
+        setTemporaryTdWithoutPlaceholders(preparedTd);
       } catch (error) {
         dispatch({
           type: "SET_INTERACTION_SECTION_ERROR",
@@ -180,16 +168,20 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
         });
         return;
       }
-
-      if (preparedTd.id) {
-        requestNorthboundTdVersion(preparedTd.id, preparedTd);
-      } else {
-        dispatch({
-          type: "SET_INTERACTION_SECTION_ERROR",
-          section: "table",
-          error: true,
-          message: "Cannot interact with the TD: missing ID",
-        });
+      if (
+        settingsData.northboundUrl.trim() !== "" &&
+        settingsData.southboundUrl.trim() !== ""
+      ) {
+        if (preparedTd.id) {
+          requestNorthboundTdVersion(preparedTd.id, preparedTd);
+        } else {
+          dispatch({
+            type: "SET_INTERACTION_SECTION_ERROR",
+            section: "table",
+            error: true,
+            message: "Cannot interact with the TD: missing ID",
+          });
+        }
       }
     }
 
@@ -212,7 +204,7 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
       const tdSource =
         Object.keys(context.northboundConnection.northboundTd).length > 0
           ? (context.northboundConnection.northboundTd as ThingDescription)
-          : td;
+          : temporaryTdWithoutPlaceholders;
       const results = await readAllReadablePropertyForms(
         tdSource,
         filteredRows.map((r) => ({ id: r.id, propName: r.propName })),
@@ -238,7 +230,7 @@ const FormInteraction: React.FC<IFormInteractionProps> = ({
       const res = await readPropertyWithServient(
         Object.keys(context.northboundConnection.northboundTd).length > 0
           ? (context.northboundConnection.northboundTd as ThingDescription)
-          : td,
+          : temporaryTdWithoutPlaceholders,
         item.propName,
         { formIndex: index },
         settingsData.pathToValue || ""

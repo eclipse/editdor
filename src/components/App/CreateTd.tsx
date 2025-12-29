@@ -12,13 +12,13 @@
  ********************************************************************************/
 import React from "react";
 import { ChevronDown } from "react-feather";
-import { parseCsv, mapCsvToProperties } from "../../../utils/parser";
-import FormField from "./FormField";
-import BaseButton from "../../TDViewer/base/BaseButton";
+import { parseCsv, mapCsvToProperties } from "../../utils/parser";
+import FormField from "../base/FormField";
+import BaseButton from "../TDViewer/base/BaseButton";
 
 type ThingType = "TD" | "TM";
 
-interface FormCreateTdProps {
+interface CreateTdProps {
   type: ThingType;
   onChangeType: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   protocol: string;
@@ -43,7 +43,7 @@ interface FormCreateTdProps {
   setThingSecurity: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const FormCreateTd: React.FC<FormCreateTdProps> = ({
+const CreateTd: React.FC<CreateTdProps> = ({
   type,
   onChangeType,
   protocol,
@@ -290,4 +290,4 @@ const FormCreateTd: React.FC<FormCreateTdProps> = ({
   );
 };
 
-export default FormCreateTd;
+export default CreateTd;

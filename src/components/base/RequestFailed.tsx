@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-import { capitalizeFirstLetter } from "../../../utils/strings";
+import { capitalizeFirstLetter } from "../../utils/strings";
 interface IRequestFailed {
   errorMessage: string;
   errorReason: string;

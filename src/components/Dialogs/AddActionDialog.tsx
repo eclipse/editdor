@@ -13,8 +13,8 @@
 import React, { forwardRef, useContext, useImperativeHandle } from "react";
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
-import DialogTextArea from "./base/DialogTextArea";
-import DialogTextField from "./base/DialogTextField";
+import TextArea from "../base/TextArea";
+import TextField from "../base/TextField";
 import DialogTemplate from "./DialogTemplate";
 
 export interface AddActionDialogRef {
@@ -55,14 +55,14 @@ const AddActionDialog = forwardRef<AddActionDialogRef>((_, ref) => {
 
   const children = (
     <>
-      <DialogTextField
+      <TextField
         id={`${type}-title`}
         label="Title"
         placeholder={`${name} Title`}
         autoFocus={true}
         onChange={() => clearErrorMessage()}
       />
-      <DialogTextArea
+      <TextArea
         id={`${type}-description`}
         label="Description"
         placeholder={`A short description about the new ${name}...`}

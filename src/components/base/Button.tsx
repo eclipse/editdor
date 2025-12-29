@@ -10,29 +10,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-interface ITextAreaProps {
-  id: string;
-  label: string;
-  placeholder?: string;
+
+interface IButtonProps {
+  onClick: () => void;
+  children: React.ReactNode;
 }
 
-const DialogTextArea: React.FC<ITextAreaProps> = (props) => {
+const Button: React.FC<IButtonProps> = ({ onClick, children }) => {
   return (
-    <>
-      <label
-        htmlFor={props.id}
-        className="pl-2 text-sm font-medium text-gray-400"
-      >
-        {props.label}:
-      </label>
-      <textarea
-        id={props.id}
-        rows={5}
-        className="w-full appearance-none rounded border-2 border-gray-600 bg-gray-600 p-2 leading-tight text-white focus:border-blue-500 focus:outline-none sm:text-sm"
-        placeholder={props.placeholder}
-      />
-    </>
+    <button className="min-w-8 text-white hover:opacity-50" onClick={onClick}>
+      <div className="flex flex-col items-center justify-center gap-0.5">
+        {children}
+      </div>
+    </button>
   );
 };
 
-export default DialogTextArea;
+export default Button;
