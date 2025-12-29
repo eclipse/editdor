@@ -30,7 +30,7 @@ import {
 import editdorLogo from "../../assets/editdor.png";
 import ediTDorContext from "../../context/ediTDorContext";
 import * as fileTdService from "../../services/fileTdService";
-import { isThingModel } from "../../util";
+import { isThingModel } from "../../utils/tdOperations";
 import ConvertTmDialog from "../Dialogs/ConvertTmDialog";
 import CreateTdDialog from "../Dialogs/CreateTdDialog";
 import SettingsDialog from "../Dialogs/SettingsDialog";

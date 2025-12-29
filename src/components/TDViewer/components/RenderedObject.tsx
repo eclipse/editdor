@@ -13,7 +13,7 @@
 import React, { useContext, useCallback, useState } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { ChevronRight, ChevronDown } from "react-feather";
-import { getDirectedValue } from "../../../util";
+import { getDirectedValue } from "../../../utils/tdOperations";
 
 function isObject(val) {
   if (val === null) {

@@ -19,7 +19,7 @@ import React, {
 import ReactDOM from "react-dom";
 import ediTDorContext from "../../context/ediTDorContext";
 import * as fileTdService from "../../services/fileTdService";
-import { checkIfLinkIsInItem } from "../../util.js";
+import { checkIfLinkIsInItem } from "../../utils/tdOperations";
 import DialogTemplate from "./DialogTemplate";
 import BaseButton from "../../components/TDViewer/base/BaseButton";
 

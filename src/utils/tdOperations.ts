@@ -11,6 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 
+import { ExplicitForm } from "components/Dialogs/AddFormDialog";
 import { direction } from "direction";
 
 /**
@@ -107,10 +108,19 @@ export const checkIfLinkIsInItem = (link, itemToCheck) => {
   return false;
 };
 
-export const checkIfFormIsInItem = (form, itemToCheck) => {
+export const checkIfFormIsInItem = (
+  form: ExplicitForm,
+  itemToCheck: { forms: ExplicitForm[] }
+): boolean => {
   for (const element of itemToCheck.forms) {
+    if (typeof element.op === "undefined") {
+      continue;
+    }
     if (typeof form.op === "string") {
-      return checkIfFormIsInElement(form, element);
+      return checkIfFormIsInElement(
+        form as ExplicitForm & { op: string },
+        element
+      );
     } else {
       for (const x of form.op) {
         if (typeof element.op === "string") {
@@ -136,13 +146,17 @@ export const checkIfFormIsInItem = (form, itemToCheck) => {
   return false;
 };
 
-const checkIfFormIsInElement = (form, element) => {
+export const checkIfFormIsInElement = (
+  form: ExplicitForm & { op: string },
+  element: ExplicitForm
+): boolean => {
+  if (typeof element.op === "undefined") {
+    return false;
+  }
   if (typeof element.op === "string") {
-    if (element.op === form.op) {
-      return true;
-    }
+    return element.op === form.op ? true : false;
   } else {
-    if (element.op.includes(form.op)) {
+    if (Array.isArray(element.op) && element.op.includes(form.op)) {
       let deepCompare = true;
       for (const y in form) {
         if (y !== "op") {
@@ -151,7 +165,9 @@ const checkIfFormIsInElement = (form, element) => {
           }
         }
       }
-      if (deepCompare) return true;
+      return deepCompare;
+    } else {
+      return false;
     }
   }
 };

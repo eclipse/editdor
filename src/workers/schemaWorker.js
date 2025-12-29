@@ -17,7 +17,7 @@ import {
   updateSchemaCache,
 } from "./workerFunctions";
 
-import { isThingModel } from "../util";
+import { isThingModel } from "../utils/tdOperations";
 
 // If the JSON sent to the worker is faulty it returns the last valid schema map.
 let lastSentSchemaMap = new Map();

@@ -13,11 +13,11 @@
 import React, { useContext } from "react";
 import ediTDorContext from "../../../context/ediTDorContext";
 import { Trash2, Info } from "react-feather";
-import { changeBetweenTd } from "../../../util";
+import { changeBetweenTd } from "../../../utils/tdOperations";
 
 const Link: React.FC<any> = (props) => {
   const context = useContext(ediTDorContext);
-  const deleteLink = (e) => {
+  const deleteLink = (e: any) => {
     let currentLinkedTd = context.linkedTd;
     //update the linkedTd after removing the current linked Td
     if (currentLinkedTd[e.link.href]) {
@@ -27,7 +27,7 @@ const Link: React.FC<any> = (props) => {
     context.removeLink(e.propName);
     context.updateIsModified(true);
   };
-  const infoLink = async (e) => {
+  const infoLink = async (e: any) => {
     let href = e.link.href;
     changeBetweenTd(context, href);
   };
