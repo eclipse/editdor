@@ -401,14 +401,14 @@ describe("processConversionTMtoTD", () => {
   });
 
   test("removes TM-specific fields", () => {
-    const tmContent = `{
+    const stringTypeContent = `{
       "@type": "tm:ThingModel",
       "tm:required": ["#properties/prop1"],
       "properties": { "prop1": {} }
     }`;
 
-    const result = processConversionTMtoTD(
-      tmContent,
+    const stringResult = processConversionTMtoTD(
+      stringTypeContent,
       {},
       ["prop1"],
       [],
@@ -416,7 +416,28 @@ describe("processConversionTMtoTD", () => {
       ""
     );
 
-    expect(result).not.toHaveProperty("tm:required");
+    expect(stringResult).not.toHaveProperty("tm:required");
+    expect(stringResult).not.toHaveProperty("@type");
+
+    const arrayTypeContent = `{
+      "@type": ["tm:ThingModel","example_key:example_val"],
+      "tm:required": ["#properties/prop1"],
+      "properties": { "prop1": {} }
+    }`;
+
+    const arrayResult = processConversionTMtoTD(
+      arrayTypeContent,
+      {},
+      ["prop1"],
+      [],
+      [],
+      ""
+    );
+
+    expect(Array.isArray(arrayResult["@type"])).toBe(true);
+    expect(arrayResult["@type"]).toContain("example_key:example_val");
+    expect(arrayResult["@type"]).not.toContain("tm:ThingModel");
+    expect(arrayResult).not.toHaveProperty("tm:required");
   });
 
   test("handles complex TM to TD conversion", () => {

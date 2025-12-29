@@ -1,4 +1,3 @@
-export {};
 declare global {
   declare interface IEdiTDorContext {
     // offlineTD: Saving or displaying the TD as JSON For storage, sharing, or exporting Primary source of truth for the TD
@@ -30,7 +29,7 @@ declare global {
     removeOneOfAKindReducer: (kind: string, oneOfAKind: string) => void;
     addLinkedTd: (linkedTd: Record<string, any>) => void;
     updateLinkedTd: (linkedTd: Record<string, any>) => void;
-    updateValidationMessage: (validationMessage?: any) => void;
+    updateValidationMessage: (validationMessage: IValidationMessage) => void;
     updateNorthboundConnection: (
       northboundConnection: INorthboundConnection
     ) => void;
@@ -199,3 +198,4 @@ declare global {
     };
   }
 }
+export {};
