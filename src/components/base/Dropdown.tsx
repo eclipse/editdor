@@ -20,7 +20,7 @@ interface IDropdownProps {
   className?: string;
 }
 
-const DialogDropdown: React.FC<IDropdownProps> = (props) => {
+const Dropdown: React.FC<IDropdownProps> = (props) => {
   return (
     <>
       <label
@@ -45,4 +45,4 @@ const DialogDropdown: React.FC<IDropdownProps> = (props) => {
     </>
   );
 };
-export default DialogDropdown;
+export default Dropdown;
