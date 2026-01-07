@@ -17,7 +17,10 @@ This project aims to make creating W3C Thing Description (TD) instances and Thin
 - Validating the Thing Description / Thing Model
 - Exporting the Thing Description / Thing Model from the visual representation into JSON-LD
 - Reading/writing exposed properties' values exposed by a proxy (anything that can translate a protocol to HTTP)
-- Contributing the Thing Model to a third-party catalog using [the Thing Model Catalog API](https://github.com/wot-oss/tmc)
+- Contributing the Thing Model to a third-party catalog using the Thing Model Catalog (TMC) API.
+  The detailed API specification is available here:
+  https://github.com/wot-oss/tmc/blob/main/api/tm-catalog.openapi.yaml
+
 
 ## Technologies
 
@@ -82,8 +85,21 @@ A local repository folder will be created inside the tm-catalog directory
     tmc repo list
     tmc repo remove <nameOfCatalog>
 ```
-
 ### Send TD feature
+#### Northbound and Southbound Interfaces
+
+**Northbound Interface**  
+The northbound interface is used to communicate with higher-level services or applications.
+It exposes APIs that allow external systems to consume, discover, or interact with Thing Descriptions managed by ediTDor.
+
+**Southbound Interface**  
+The southbound interface is responsible for communication with lower-level systems, such as devices, gateways, or protocol-specific services.
+It enables ediTDor to interact with Things that do not natively expose HTTP interfaces.
+
+In simple terms:
+- **Northbound** → communication towards applications and services
+- **Southbound** → communication towards devices and infrastructure
+
 
 To use the **_Send TD_** feature, it is necessary to define in the Settings pop-up the Southbound URL and Northbound URL. The Send TD feature allows you to send your Thing Description to any service following [the WoT TD Directory specification](https://www.w3.org/TR/wot-discovery/#exploration-directory-api-things).
 Afterwards, if the service proxies the TD, ediTDor can fetch the proxied TD containing HTTP `href`s to interact with the original Thing.
