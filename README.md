@@ -86,15 +86,19 @@ A local repository folder will be created inside the tm-catalog directory
     tmc repo remove <nameOfCatalog>
 ```
 ### Send TD feature
-#### Northbound and Southbound Interfaces
+#### Northbound and Southbound Interfaces (Send TD context)
 
-**Northbound Interface**  
-The northbound interface is used to communicate with higher-level services or applications.
-It exposes APIs that allow external systems to consume, discover, or interact with Thing Descriptions managed by ediTDor.
 
-**Southbound Interface**  
-The southbound interface is responsible for communication with lower-level systems, such as devices, gateways, or protocol-specific services.
-It enables ediTDor to interact with Things that do not natively expose HTTP interfaces.
+**Northbound Interface (Send TD)**  
+In the context of the *Send TD* feature, the northbound interface represents the target service
+(e.g., a Thing Description Directory or catalog) where ediTDor sends the Thing Description.
+This service may store, expose, or proxy the TD for further interaction by applications.
+
+**Southbound Interface (Send TD)**  
+In the context of the *Send TD* feature, the southbound interface represents the endpoint that ediTDor
+uses to communicate with the actual Thing or gateway. The TD is sent to this endpoint so that a proxy
+service can interact with a Thing that does not natively expose an HTTP interface.
+
 
 In simple terms:
 - **Northbound** → communication towards applications and services
