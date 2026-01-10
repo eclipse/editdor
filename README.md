@@ -86,24 +86,6 @@ A local repository folder will be created inside the tm-catalog directory
     tmc repo remove <nameOfCatalog>
 ```
 ### Send TD feature
-#### Northbound and Southbound Interfaces (Send TD context)
-
-
-**Northbound Interface (Send TD)**  
-In the context of the *Send TD* feature, the northbound interface represents the target service
-(e.g., a Thing Description Directory or catalog) where ediTDor sends the Thing Description.
-This service may store, expose, or proxy the TD for further interaction by applications.
-
-**Southbound Interface (Send TD)**  
-In the context of the *Send TD* feature, the southbound interface represents the endpoint that ediTDor
-uses to communicate with the actual Thing or gateway. The TD is sent to this endpoint so that a proxy
-service can interact with a Thing that does not natively expose an HTTP interface.
-
-
-In simple terms:
-- **Northbound** → communication towards applications and services
-- **Southbound** → communication towards devices and infrastructure
-
 
 To use the **_Send TD_** feature, it is necessary to define in the Settings pop-up the Southbound URL and Northbound URL. The Send TD feature allows you to send your Thing Description to any service following [the WoT TD Directory specification](https://www.w3.org/TR/wot-discovery/#exploration-directory-api-things).
 Afterwards, if the service proxies the TD, ediTDor can fetch the proxied TD containing HTTP `href`s to interact with the original Thing.
