@@ -21,7 +21,6 @@ This project aims to make creating W3C Thing Description (TD) instances and Thin
   The detailed API specification is available here:
   https://github.com/wot-oss/tmc/blob/main/api/tm-catalog.openapi.yaml
 
-
 ## Technologies
 
 - React
@@ -85,6 +84,7 @@ A local repository folder will be created inside the tm-catalog directory
     tmc repo list
     tmc repo remove <nameOfCatalog>
 ```
+
 ### Send TD feature
 
 To use the **_Send TD_** feature, it is necessary to define in the Settings pop-up the Southbound URL and Northbound URL. The Send TD feature allows you to send your Thing Description to any service following [the WoT TD Directory specification](https://www.w3.org/TR/wot-discovery/#exploration-directory-api-things).
