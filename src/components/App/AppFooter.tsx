@@ -61,7 +61,7 @@ const AppFooter: React.FC = (props) => {
             <div>v{APP_VERSION}</div>
             <a
               className="rounded-full bg-black p-2"
-              href="https://github.com/eclipse/editdor"
+              href="https://github.com/eclipse-editdor/editdor"
               target="_blank"
               rel="noopener noreferrer"
             >
