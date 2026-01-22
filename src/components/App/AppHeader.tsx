@@ -277,7 +277,10 @@ const AppHeader: React.FC = () => {
           <button
             className="ml-4"
             onClick={() =>
-              window.open("https://eclipse-editdor.github.io/editdor/", "_blank")
+              window.open(
+                "https://eclipse-editdor.github.io/editdor/",
+                "_blank"
+              )
             }
           >
             <img className="min-w-36 max-w-36" src={editdorLogo} alt="LOGO" />
