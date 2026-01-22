@@ -3,12 +3,12 @@
   "private": true,
   "version": "0.8.0",
   "type": "module",
-  "homepage": "https://eclipse.github.io/editdor/",
+  "homepage": "https://eclipse-editdor.github.io/editdor/",
   "license": "EPL-2.0 OR W3C-20150513",
   "author": "Eclipse ediTDor <editdor-dev@eclipse.org>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eclipse/editdor.git"
+    "url": "git+https://github.com/eclipse-editdor/editdor.git"
   },
   "scripts": {
     "dev": "cross-env REACT_APP_TARGET_URL=http://localhost:8080 vite",

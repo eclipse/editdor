@@ -1,7 +1,7 @@
 # Contributing to Eclipse EdiTDor
 
 Any contribution to this project is welcome.
-If you want to report a bug or question, please check the [issue list](https://github.com/eclipse/editdor/issues) or create a new issue.
+If you want to report a bug or question, please check the [issue list](https://github.com/eclipse-editdor/editdor/issues) or create a new issue.
 If you want to contribute to this project by coding, please fork the repository and then follow the general contribution guidelines described [here](https://github.com/firstcontributions/first-contributions/blob/master/README.md).
 However, EdiTDor is an [Eclipse IoT](https://iot.eclipse.org) project and as such is governed by the Eclipse Development process.
 This process helps us in creating great open source software within a safe legal framework.
@@ -23,7 +23,7 @@ Thus, before your contribution can be accepted by the project team, contributors
 - Sign-off every commit using the same email address used for your Eclipse account
   - Set the Git user email address with `git config user.email "<your Eclipse account email>"`
   - Add the `-s` flag when you make the commit(s), e.g. `git commit -s -m "feat: add support for magic"`
-- Open a [Pull Request](https://github.com/eclipse/editdor/pulls)
+- Open a [Pull Request](https://github.com/eclipse-editdor/editdor/pulls)
 
 For more information, please see the Eclipse Committer Handbook:
 https://www.eclipse.org/projects/handbook/#resources-commit
